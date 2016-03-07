@@ -1,6 +1,7 @@
 <!-- Footer -->
 <footer>
   <div class="container">
+    <hr />
     <div class="row">
       <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
         <ul class="list-inline text-center">
@@ -29,7 +30,7 @@
             </a>
           </li>
         </ul>
-        <p class="copyright text-muted">MPCS Cloud Computing &mdash; Copyright &copy; 2016, University of Chicago, All Rights Reserved.</p>
+        <p class="copyright text-muted">GlobusWorld Developer Workshop &mdash; Copyright &copy; 2016, University of Chicago, All Rights Reserved.</p>
       </div>
     </div>
   </div>
