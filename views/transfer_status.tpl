@@ -9,7 +9,6 @@
   %if not transfer_status:
   
   <p>Transfer request submitted successfully. Task ID: {{ task_id }}</p>
-  <p>Task count: <strong>{{ task_count }}</strong></p>
   
   %else:
   

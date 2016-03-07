@@ -7,15 +7,15 @@ All exercise code should be added to the `mrdp_app.py` file. The following route
 - `/logout` - deletes authenticated user credentials
 - `/repository` - displays a listing of available datasets in the repository
 - `/download` - transfers selected dataset from repository to destination endpoint
-- `/browse/<target_uri>` - lists the files in the dataset identfied by <target_uri>
-- `/status/<task_id>` - gets status of transfer with <task_id>
+- `/browse/<target_uri>` - lists the files in the dataset identfied by `<target_uri>`
+- `/status/<task_id>` - gets status of transfer with `<task_id>`
 
 HTML templates are in the /views directory. Do not modify `base.tpl`, `header.tpl`, `footer.tpl`, and `scripts.tpl`.
 
 All styling related code (including fonts and images) is in the /static directory.
 
 ### Setting up the environment
-Assuming you're in a virtualenv that with pip, run the following to install prerequisite modules:
+Assuming you're in a virtualenv that has pip available, run the following to install prerequisite modules:
 ```
 pip install --upgrade bottle
 pip install --upgrade beaker

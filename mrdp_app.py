@@ -85,6 +85,11 @@ def repository():
 
 @route('/download', method='POST', name="download")
 def download():
+  # Get a list of the selected datasets
+  datasets = request.forms.getlist('dataset')
+  year_filter = request.forms.get('year_filter') 
+  print "Requested download of year " + str(year_filter) + " for datasets " + str(datasets)
+
   '''
   Add code here to:
   - Send to Globus to select a destination endpoint

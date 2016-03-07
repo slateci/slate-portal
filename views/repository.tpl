@@ -23,7 +23,7 @@
 		              <a href="{{ get_url('browse', target_uri=dataset['uri']) }}">{{ dataset['name'] }}</a>
 		            </td>
 		            <td class="col-md-1 text-center">
-		              <input id="{{ dataset['uri'] }}" type="checkbox">
+		              <input name="dataset" value="{{ dataset['uri'] }}" type="checkbox">
 		            </td>
 		          </tr>
 		          %end
@@ -37,7 +37,7 @@
 	    <div class="row">
         <div class="form-group col-md-5">
           <label class="col-md-4" for="year_filter">Select Year</label>
-          <select class="col-md-3" name="year_filter" id="year_filter">
+          <select class="col-md-3" name="year_filter">
             <option value="2011">2011</option>
             <option value="2012">2012</option>
             <option value="2013">2013</option>
