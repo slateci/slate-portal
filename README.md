@@ -14,7 +14,20 @@ HTML templates are in the /views directory. Do not modify `base.tpl`, `header.tp
 
 All styling related code (including fonts and images) is in the /static directory.
 
-### Getting/setting session variables
+### Setting up the environment
+Assuming you're in a virtualenv that with pip, run the following to install prerequisite modules:
+```
+pip install --upgrade bottle
+pip install --upgrade beaker
+pip install --upgrade pycrypto
+```
+
+### Running the apps server
+As configured, the server listens on port 8888 and accepts connections from anywhere (i.e. 0.0.0.0/0). Start the server by running `mrdp_run.sh`.
+
+### Coding notes
+
+#### Getting/setting session variables
 To set a session variable use: `request.session['my_key'] = value`
 
 To get a session variable use: `request.session['my_key']`
