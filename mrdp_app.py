@@ -52,6 +52,7 @@ def login():
   Add code here to redirect user to Globus Auth
   When returning an authenticated user, redirect to the repository page
   '''
+  
   redirect('/repository')
 
 
@@ -90,13 +91,11 @@ def download():
   - Submit a Globus transfer request and get the task ID
   - Return to a transfer "status" page
   '''
-  request.session['task_count'] = request.session.get('task_count', 0) + 1
 
   return template(request.app.config['mrdp.env.templates'] + 'transfer_status', 
   	authenticated_user=True, 
   	task_id=str(uuid.uuid4()),
-  	transfer_status=None,
-    task_count=request.session['task_count'])
+  	transfer_status=None)
 
 
 test_file_list = [{'name': 'File Number One', 'size': 213514, 'uri': str(uuid.uuid4())}, 
@@ -114,11 +113,19 @@ def browse(target_uri):
   - Get list of files for the selected dataset
   - Return a list of files to a browse view
   '''
+
   return template(request.app.config['mrdp.env.templates'] + 'browse', 
   	authenticated_user=True, 
   	dataset_uri=target_uri,
   	file_list=test_file_list)
 
+
+test_transfer_status = {'source_ep_name': 'XSEDE Keeneland',
+  'dest_ep_name': 'UChicago RCC Midway',
+  'request_time': datetime.datetime.now() - datetime.timedelta(days=1),
+  'status': 'ACTIVE',
+  'files_transferred': 5005,
+  'faults': 0}
 
 @route('/status/<task_id>', method="POST", name="transfer_status")
 def transfer_status(task_id):
@@ -126,15 +133,11 @@ def transfer_status(task_id):
 	Add code here to:
 	- Call Globus to get status/details of transfer with task_id
 	'''
+
 	return template(request.app.config['mrdp.env.templates'] + 'transfer_status', 
 		authenticated_user=True, 
 		task_id=task_id,
-		transfer_status={'source_ep_name': 'XSEDE Keeneland',
-		                 'dest_ep_name': 'UChicago RCC Midway',
-		                 'request_time': datetime.datetime.now() - datetime.timedelta(days=1),
-		                 'status': 'ACTIVE',
-		                 'files_transferred': 5005,
-		                 'faults': 0})
+		transfer_status=test_transfer_status)
 
 
 ### EOF
