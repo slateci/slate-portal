@@ -19,11 +19,8 @@ class SSLWebServer(ServerAdapter):
     from cherrypy.wsgiserver.ssl_pyopenssl import pyOpenSSLAdapter
 
     server = wsgiserver.CherryPyWSGIServer((self.host, self.port), handler)
-    server.ssl_adapter = pyOpenSSLAdapter(
-    	certificate="ssl_cert.pem",
-    	private_key="ssl_key.pem"
-    )
-    
+    server.ssl_adapter = pyOpenSSLAdapter(certificate="ssl_cert.pem", private_key="ssl_key.pem")
+
     try:
       print "Starting secure web application server using CherryPy..."
       server.start()
@@ -37,18 +34,18 @@ DO NOT MODIFY THIS BLOCK - Use environment variables to make changes
 -----------------------------------------------------------------------------
 '''
 def config_app(app):
-	# Load application configuration
-	config_path = os.path.dirname(os.path.abspath(__file__))
-	app.config.load_config(config_path + '/' + 'mrdp.conf')
+  # Load application configuration
+  config_path = os.path.dirname(os.path.abspath(__file__))
+  app.config.load_config(config_path + '/' + 'mrdp.conf')
 
-	# Add environment variable-based settings
-	app.config['mrdp.env.host'] = os.environ['MRDP_APP_HOST']
-	app.config['mrdp.env.port'] = os.environ['MRDP_APP_PORT']
-	app.config['mrdp.env.static_root'] = os.environ['MRDP_STATIC_ROOT']
-	app.config['mrdp.env.templates'] = os.environ['MRDP_TEMPLATES_ROOT']
-	app.config['mrdp.env.debug'] = False or os.environ['MRDP_DEBUG']
+  # Add environment variable-based settings
+  app.config['mrdp.env.host'] = os.environ['MRDP_APP_HOST']
+  app.config['mrdp.env.port'] = os.environ['MRDP_APP_PORT']
+  app.config['mrdp.env.static_root'] = os.environ['MRDP_STATIC_ROOT']
+  app.config['mrdp.env.templates'] = os.environ['MRDP_TEMPLATES_ROOT']
+  app.config['mrdp.env.debug'] = False or os.environ['MRDP_DEBUG']
 
-	return (app)
+  return (app)
 
 '''
 Main
@@ -56,40 +53,42 @@ Main
 '''
 if __name__ == '__main__':
 
-	# Create a Bootle app instance
-	app = app()
+  # Create a Bootle app instance
+  app = app()
 
-	# Set app configuration
-	app = config_app(app)
+  # Set app configuration
+  app = config_app(app)
 
-	# Enable get_url function to be used inside templates to lookup static files
-	SimpleTemplate.defaults['get_url'] = app.get_url
-	SimpleTemplate.defaults['debug'] = app.config['mrdp.env.debug']
+  # Enable get_url function to be used inside templates to lookup static files
+  SimpleTemplate.defaults['get_url'] = app.get_url
+  SimpleTemplate.defaults['debug'] = app.config['mrdp.env.debug']
 
-	# Import the application routes (controllers)
-	import mrdp_app
+  # Import the application routes (controllers)
+  import mrdp_app
 
-	# Add session middleware to the Bottle app
-	# NOTE: After wrapping the Bottle app in SessionMiddleware, use app.wrap_app to
-	# access any of the Bottle objects such as "config"
-	session_options = {'session.type': 'cookie',
-										 'session.cookie_expires': True,
-										 'session.timeout': app.config['mrdp.session.timeout'],
-										 'session.encrypt_key': app.config['mrdp.session.encrypt_key'],
-										 'session.validate_key': app.config['mrdp.session.validate_key'],
-										 'session.httponly': True,
-										 'session.auto': True}
-	app = SessionMiddleware(app, session_options)
+  # Add session middleware to the Bottle app
+  # NOTE: After wrapping the Bottle app in SessionMiddleware, use app.wrap_app to
+  # access any of the Bottle objects such as "config"
+  session_options = {
+    'session.type': 'cookie',
+    'session.cookie_expires': True,
+    'session.timeout': app.config['mrdp.session.timeout'],
+    'session.encrypt_key': app.config['mrdp.session.encrypt_key'],
+    'session.validate_key': app.config['mrdp.session.validate_key'],
+    'session.httponly': True,
+    'session.auto': True
+  }
+  app = SessionMiddleware(app, session_options)
 
-	# Start WSGI server; uses default Bootle server - Change this for production use!
-	'''
-	run(app=app,
-			host=app.wrap_app.config['mrdp.env.host'],
-			port=app.wrap_app.config['mrdp.env.port'],
-			debug=app.wrap_app.config['mrdp.env.debug'],
-			reloader=True,
-			server="wsgiref")
-	'''
+  # Start WSGI server; uses default Bootle server - Change this for production use!
+  '''
+  run(app=app,
+    host=app.wrap_app.config['mrdp.env.host'],
+    port=app.wrap_app.config['mrdp.env.port'],
+    debug=app.wrap_app.config['mrdp.env.debug'],
+    reloader=True,
+    server="wsgiref")
+  '''
 
   server_names['sslwebserver'] = SSLWebServer
   run(app=app, 
