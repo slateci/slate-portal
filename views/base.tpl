@@ -41,7 +41,7 @@
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav navbar-right">
             <!-- Display these links only is user is not authenticated -->
-            %if not authenticated_user:
+            %if not request.session['globus_auth_token']:
               <li><a href="{{get_url('login')}}">Login</a></li>
             <!-- Display these links if user is not authenticated -->
             %else:

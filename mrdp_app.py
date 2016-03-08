@@ -39,8 +39,7 @@ Home page - play with it if you must!
 @route('/', method='GET', name="home")
 def home_page():
   return template(
-    request.app.config['mrdp.env.templates'] + 'home',
-    authenticated_user=False
+    request.app.config['mrdp.env.templates'] + 'home'
   )
 
 
@@ -57,13 +56,19 @@ def login():
   - Store these tokens in the session
   - Redirect to the repository page
   '''
-  
+  request.session['globus_auth_token'] = str(uuid.uuid4())
   redirect('/repository')
 
 
 @route('/logout', method='GET', name="logout")
 def logout():
-  pass
+  '''
+  Add code here to:
+  - Destroy Globus Auth token (remove it from session?)
+  - ???
+  '''
+  request.session.pop('globus_auth_token', None)
+  redirect('/')
 
 
 @route('/repository', method='GET', name="repository")
@@ -99,7 +104,6 @@ def repository():
 
   return template(
     request.app.config['mrdp.env.templates'] + 'repository', 
-    authenticated_user=True, 
     datasets=test_datasets
   )
 
@@ -129,7 +133,6 @@ def download():
 
   return template(
     request.app.config['mrdp.env.templates'] + 'transfer_status', 
-    authenticated_user=True, 
     task_id=test_task_id,
     transfer_status=None
   )
@@ -169,7 +172,6 @@ def browse(target_uri):
 
   return template(
     request.app.config['mrdp.env.templates'] + 'browse', 
-    authenticated_user=True, 
     dataset_uri=target_uri,
     file_list=test_file_list
   )
@@ -214,7 +216,6 @@ def transfer_status(task_id):
 
   return template(
     request.app.config['mrdp.env.templates'] + 'transfer_status', 
-    authenticated_user=True, 
     task_id=task_id,
     transfer_status=test_transfer_status
   )
