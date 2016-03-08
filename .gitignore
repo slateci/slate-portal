@@ -9,6 +9,7 @@ rebates/logs/
 *.log
 *.txt
 *.iif
+*.pem
 
 # C extensions
 *.so

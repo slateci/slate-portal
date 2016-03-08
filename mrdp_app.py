@@ -39,8 +39,41 @@ Home page - play with it if you must!
 @route('/', method='GET', name="home")
 def home_page():
   return template(
-    request.app.config['mrdp.env.templates'] + 'home'
+    request.app.config['mrdp.env.templates'] + 'home',
+    session=request.session
   )
+
+
+'''
+Some dummy data for testing
+-----------------------------------------------------------------------------
+'''
+test_datasets = [
+  {'name': 'Dataset one', 'uri': str(uuid.uuid4())}, 
+  {'name': 'Dataset two', 'uri': str(uuid.uuid4())}, 
+  {'name': 'Dataset three', 'uri': str(uuid.uuid4())}, 
+  {'name': 'Dataset four', 'uri': str(uuid.uuid4())}, 
+  {'name': 'Dataset five', 'uri': str(uuid.uuid4())}, 
+  {'name': 'Dataset six', 'uri': str(uuid.uuid4())}, 
+  {'name': 'Dataset seven', 'uri': str(uuid.uuid4())}
+]
+test_task_id = str(uuid.uuid4())
+test_file_list = [
+  {'name': 'File Number One', 'size': 213514, 'uri': str(uuid.uuid4())}, 
+  {'name': 'File Number two', 'size': 123525, 'uri': str(uuid.uuid4())}, 
+  {'name': 'File Number three', 'size': 21343, 'uri': str(uuid.uuid4())}, 
+  {'name': 'File Number four', 'size': 234235, 'uri': str(uuid.uuid4())}, 
+  {'name': 'File Number five', 'size': 90835, 'uri': str(uuid.uuid4())}, 
+  {'name': 'File Number six', 'size': 28722, 'uri': str(uuid.uuid4())}, 
+  {'name': 'File Number seven','size': 765324, 'uri': str(uuid.uuid4())}
+]
+test_transfer_status = {'source_ep_name': 'XSEDE Keeneland',
+  'dest_ep_name': 'UChicago RCC Midway',
+  'request_time': datetime.datetime.now() - datetime.timedelta(days=1),
+  'status': 'ACTIVE',
+  'files_transferred': 2354,
+  'faults': 0
+}
 
 
 '''
@@ -56,7 +89,9 @@ def login():
   - Store these tokens in the session
   - Redirect to the repository page
   '''
+  # Used for test purposes; replace with real code
   request.session['globus_auth_token'] = str(uuid.uuid4())
+  
   redirect('/repository')
 
 
@@ -67,7 +102,9 @@ def logout():
   - Destroy Globus Auth token (remove it from session?)
   - ???
   '''
+  # Used for test purposes; replace with real code
   request.session.pop('globus_auth_token', None)
+
   redirect('/')
 
 
@@ -90,20 +127,10 @@ def repository():
   and modify the repository.tpl template accordingly.
 
   '''
-  
-  # Remove the line below and replace it with real code
-  test_datasets = [
-    {'name': 'Dataset one', 'uri': str(uuid.uuid4())}, 
-    {'name': 'Dataset two', 'uri': str(uuid.uuid4())}, 
-    {'name': 'Dataset three', 'uri': str(uuid.uuid4())}, 
-    {'name': 'Dataset four', 'uri': str(uuid.uuid4())}, 
-    {'name': 'Dataset five', 'uri': str(uuid.uuid4())}, 
-    {'name': 'Dataset six', 'uri': str(uuid.uuid4())}, 
-    {'name': 'Dataset seven', 'uri': str(uuid.uuid4())}
-  ]
 
   return template(
-    request.app.config['mrdp.env.templates'] + 'repository', 
+    request.app.config['mrdp.env.templates'] + 'repository',
+    session=request.session,
     datasets=test_datasets
   )
 
@@ -128,11 +155,9 @@ def download():
   a transfer request is submitted, it only provides a 'task_id'.
   '''
 
-  # Remove the line below and replace it with real code
-  test_task_id = str(uuid.uuid4())
-
   return template(
-    request.app.config['mrdp.env.templates'] + 'transfer_status', 
+    request.app.config['mrdp.env.templates'] + 'transfer_status',
+    session=request.session,
     task_id=test_task_id,
     transfer_status=None
   )
@@ -159,19 +184,9 @@ def browse(target_uri):
 
   '''
 
-  # Remove the line below and replace it with real code
-  test_file_list = [
-    {'name': 'File Number One', 'size': 213514, 'uri': str(uuid.uuid4())}, 
-    {'name': 'File Number two', 'size': 123525, 'uri': str(uuid.uuid4())}, 
-    {'name': 'File Number three', 'size': 21343, 'uri': str(uuid.uuid4())}, 
-    {'name': 'File Number four', 'size': 234235, 'uri': str(uuid.uuid4())}, 
-    {'name': 'File Number five', 'size': 90835, 'uri': str(uuid.uuid4())}, 
-    {'name': 'File Number six', 'size': 28722, 'uri': str(uuid.uuid4())}, 
-    {'name': 'File Number seven','size': 765324, 'uri': str(uuid.uuid4())}
-  ]
-
   return template(
-    request.app.config['mrdp.env.templates'] + 'browse', 
+    request.app.config['mrdp.env.templates'] + 'browse',
+    session=request.session,
     dataset_uri=target_uri,
     file_list=test_file_list
   )
@@ -200,22 +215,10 @@ def transfer_status(task_id):
   transfer, you must add those keys to the dictionary 
   and modify the transfer_status.tpl template accordingly.
   '''
-  
-  # Remove the line below; it uses a session attribute to 
-  # update the status page for test purposes
-  request.session['num_tx'] = request.session.get('num_tx', 5005) + 1586
-
-  # Remove the line below and replace it with real code
-  test_transfer_status = {'source_ep_name': 'XSEDE Keeneland',
-    'dest_ep_name': 'UChicago RCC Midway',
-    'request_time': datetime.datetime.now() - datetime.timedelta(days=1),
-    'status': 'ACTIVE',
-    'files_transferred': request.session['num_tx'],
-    'faults': 0
-  }
 
   return template(
-    request.app.config['mrdp.env.templates'] + 'transfer_status', 
+    request.app.config['mrdp.env.templates'] + 'transfer_status',
+    session=request.session,
     task_id=task_id,
     transfer_status=test_transfer_status
   )

@@ -40,13 +40,13 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
           <ul class="nav navbar-nav navbar-right">
-            <!-- Display these links only is user is not authenticated -->
-            %if not request.session['globus_auth_token']:
-              <li><a href="{{get_url('login')}}">Login</a></li>
+            <!-- Display these links only is user is authenticated -->
+            %if session.has_key('globus_auth_token'):
+            <li><a href="{{get_url('repository')}}">Repository</a></li>
+            <li><a href="{{get_url('logout')}}">Logout</a></li>
             <!-- Display these links if user is not authenticated -->
             %else:
-              <li><a href="{{get_url('repository')}}">Repository</a></li>
-              <li><a href="{{get_url('logout')}}">Logout</a></li>
+            <li><a href="{{get_url('login')}}">Login</a></li>
             %end
           </ul>
         </div> <!-- /.navbar-collapse -->
