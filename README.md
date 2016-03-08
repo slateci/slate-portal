@@ -9,7 +9,7 @@ apt-get install libssl-dev libffi-dev --assume-yes
 apt-get install python-cherrypy3 --assume-yes
 ```
 
-CherryPy requires that an SSL certificate is available (for the correct hostname). The path to the certificate and corresponding key must be specified in the the `MRDP_APP_SSL_CERT_PATH` and `MRDP_APP_SSL_KEY_PATH` environment variables respectively (change these in `web_server.py`).
+CherryPy requires that an SSL certificate is available (for the correct hostname). The path to the certificate and corresponding key must be specified in the the `MRDP_APP_SSL_CERT_PATH` and `MRDP_APP_SSL_KEY_PATH` environment variables respectively (change these in `mrdp_run.sh`).
 
 Assuming you have [pip](https://pip.pypa.io/en/stable/) available, run the following to install the required packages:
 ```
