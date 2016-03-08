@@ -7,12 +7,34 @@ import sys
 from bottle import app, SimpleTemplate, run
 from bottle import ServerAdapter, server_names
 from beaker.middleware import SessionMiddleware
+from bottle import ServerAdapter, server_names
 
 '''
-*******************************************************************************
+Configure secure app server (replaces deafult Bottle WSGI server)
+-----------------------------------------------------------------------------
+'''
+class SSLWebServer(ServerAdapter):
+  def run(self, handler):
+    from cherrypy import wsgiserver
+    from cherrypy.wsgiserver.ssl_pyopenssl import pyOpenSSLAdapter
+
+    server = wsgiserver.CherryPyWSGIServer((self.host, self.port), handler)
+    server.ssl_adapter = pyOpenSSLAdapter(
+    	certificate="ssl_cert.pem",
+    	private_key="ssl_key.pem"
+    )
+    
+    try:
+      print "Starting secure web application server using CherryPy..."
+      server.start()
+    except:
+      print "Received STOP (or failed to start secure server!)..."
+      server.stop()
+
+'''
 Configure application
 DO NOT MODIFY THIS BLOCK - Use environment variables to make changes
-*******************************************************************************
+-----------------------------------------------------------------------------
 '''
 def config_app(app):
 	# Load application configuration
@@ -29,9 +51,8 @@ def config_app(app):
 	return (app)
 
 '''
-*******************************************************************************
 Main
-*******************************************************************************
+-----------------------------------------------------------------------------
 '''
 if __name__ == '__main__':
 
@@ -61,9 +82,20 @@ if __name__ == '__main__':
 	app = SessionMiddleware(app, session_options)
 
 	# Start WSGI server; uses default Bootle server - Change this for production use!
+	'''
 	run(app=app,
 			host=app.wrap_app.config['mrdp.env.host'],
 			port=app.wrap_app.config['mrdp.env.port'],
 			debug=app.wrap_app.config['mrdp.env.debug'],
 			reloader=True,
 			server="wsgiref")
+	'''
+
+  server_names['sslwebserver'] = SSLWebServer
+  run(app=app, 
+  	host=app.wrap_app.config['mrdp.env.host'], 
+  	port=app.wrap_app.config['mrdp.env.port'], 
+  	debug=app.wrap_app.config['mrdp.env.debug'], 
+  	reloader=True, 
+  	server="sslwebserver")
+

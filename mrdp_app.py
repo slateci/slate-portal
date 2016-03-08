@@ -51,8 +51,11 @@ Add all MRDP application code below
 @route('/login', method='GET', name="login")
 def login():
   '''
-  Add code here to redirect user to Globus Auth
-  When returning an authenticated user, redirect to the repository page
+  Add code here to:
+  - Redirect user to Globus Auth
+  - Get an access token and a refresh token
+  - Store these tokens in the session
+  - Redirect to the repository page
   '''
   
   redirect('/repository')
