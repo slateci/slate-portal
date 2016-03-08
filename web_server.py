@@ -19,7 +19,10 @@ class SSLWebServer(ServerAdapter):
     from cherrypy.wsgiserver.ssl_pyopenssl import pyOpenSSLAdapter
 
     server = wsgiserver.CherryPyWSGIServer((self.host, self.port), handler)
-    server.ssl_adapter = pyOpenSSLAdapter(certificate="ssl_cert.pem", private_key="ssl_key.pem")
+    server.ssl_adapter = pyOpenSSLAdapter(
+    	certificate=os.environ['MRDP_APP_SSL_CERT_PATH'],
+    	private_key=os.environ['MRDP_APP_SSL_KEY_PATH']
+    )
 
     try:
       print "Starting secure web application server using CherryPy..."
