@@ -67,7 +67,8 @@ test_file_list = [
   {'name': 'File Number six', 'size': 28722, 'uri': str(uuid.uuid4())}, 
   {'name': 'File Number seven','size': 765324, 'uri': str(uuid.uuid4())}
 ]
-test_transfer_status = {'source_ep_name': 'XSEDE Keeneland',
+test_transfer_status = {
+  'source_ep_name': 'XSEDE Keeneland',
   'dest_ep_name': 'UChicago RCC Midway',
   'request_time': datetime.datetime.now() - datetime.timedelta(days=1),
   'status': 'ACTIVE',
@@ -91,8 +92,9 @@ def login():
   '''
   # Used for test purposes; replace with real code
   request.session['globus_auth_token'] = str(uuid.uuid4())
+  request.session['username'] = 'devuser'
   
-  redirect('/repository')
+  redirect(request.app.get_url('repository'))
 
 
 @route('/logout', method='GET', name="logout")
@@ -105,7 +107,7 @@ def logout():
   # Used for test purposes; replace with real code
   request.session.pop('globus_auth_token', None)
 
-  redirect('/')
+  redirect(request.app.get_url('home'))
 
 
 @route('/repository', method='GET', name="repository")

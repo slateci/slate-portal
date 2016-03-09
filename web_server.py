@@ -62,12 +62,10 @@ if __name__ == '__main__':
   # Set app configuration
   app = config_app(app)
 
-  # Enable get_url function to be used inside templates to lookup static files
+  # Add global variables to be available inside templates
   SimpleTemplate.defaults['get_url'] = app.get_url
   SimpleTemplate.defaults['debug'] = app.config['mrdp.env.debug']
-
-  # Import the application routes (controllers)
-  import mrdp_app
+  SimpleTemplate.defaults['config'] = app.config
 
   # Add session middleware to the Bottle app
   # NOTE: After wrapping the Bottle app in SessionMiddleware, use app.wrap_app to
@@ -78,21 +76,15 @@ if __name__ == '__main__':
     'session.timeout': app.config['mrdp.session.timeout'],
     'session.encrypt_key': app.config['mrdp.session.encrypt_key'],
     'session.validate_key': app.config['mrdp.session.validate_key'],
-    'session.httponly': True,
+    'session.httponly': True, # False = allows cookie access from JavaScript
     'session.auto': True
   }
   app = SessionMiddleware(app, session_options)
 
-  # Start WSGI server; uses default Bootle server - Change this for production use!
-  '''
-  run(app=app,
-    host=app.wrap_app.config['mrdp.env.host'],
-    port=app.wrap_app.config['mrdp.env.port'],
-    debug=app.wrap_app.config['mrdp.env.debug'],
-    reloader=True,
-    server="wsgiref")
-  '''
+  # Import the MRDP application routes
+  import mrdp_app
 
+  # Start secure WSGI server
   server_names['sslwebserver'] = SSLWebServer
   run(app=app, 
   	host=app.wrap_app.config['mrdp.env.host'], 
