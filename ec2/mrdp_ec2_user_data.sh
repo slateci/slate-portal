@@ -21,4 +21,4 @@ openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 \
 chmod 400 *.pem
 chown -R ubuntu:ubuntu /home/ubuntu/mrdp
 cd /home/ubuntu/mrdp
-sudo -u ubuntu ./mrdp_run.sh
+./mrdp_run.sh

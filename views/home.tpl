@@ -14,7 +14,6 @@
   </div>
 </header>
 
-<p>{{ session }}</p>
 <!-- Main Content -->
 <div class="container">
   <div class="row">
