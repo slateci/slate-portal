@@ -33,7 +33,7 @@
       </div>
       <hr />
       <div class="post-preview">
-        <a href="https://docs.globus.org/api/transfer/" target="_blank">
+        <a href="https://docs.globus.org/faq/" target="_blank">
           <h2 class="post-title">Frequently Asked Questions</h2>
           <h3 class="post-subtitle">When all else fails...</h3>
         </a>
