@@ -1,47 +1,22 @@
 # Copyright (C) 2016 University of Chicago
 #
-__author__ = 'Vas Vasiliadis <vas@uchicago.edu>'
+__author__ = 'Globus Team <info@globus.org>'
 
 import uuid
 import datetime
-from bottle import route, request, response, redirect, template, static_file, hook
+from flask import Flask, redirect, render_template, request, session, url_for
 
-'''
-Set up static resource handler - DO NOT CHANGE THIS METHOD IN ANY WAY
------------------------------------------------------------------------------
-'''
-@route('/static/<filename:path>', method='GET', name="static")
-def serve_static(filename):
-  # Tell Bottle where static files should be served from
-  return static_file(filename, 
-    root=request.app.config['mrdp.env.static_root'])
-
-
-'''
-Configure request hooks.
-- Make the beaker session available
-- Add CORS support
------------------------------------------------------------------------------
-'''
-@hook('before_request')
-def expose_session():
-    request.session = request.environ.get('beaker.session')
-
-@hook('after_request')
-def enable_cors():
-    response.headers['Access-Control-Allow-Origin'] = '*'
+app = Flask(__name__)
+app.config.from_pyfile('mrdp.conf')
 
 
 '''
 Home page - play with it if you must!
 -----------------------------------------------------------------------------
 '''
-@route('/', method='GET', name="home")
-def home_page():
-  return template(
-    request.app.config['mrdp.env.templates'] + 'home',
-    session=request.session
-  )
+@app.route('/', methods=['GET'])
+def home():
+  return render_template('home.jinja2')
 
 
 '''
@@ -81,7 +56,7 @@ test_transfer_status = {
 Add all MRDP application code below
 -----------------------------------------------------------------------------
 '''
-@route('/login', method='GET', name="login")
+@app.route('/login', methods=['GET'])
 def login():
   '''
   Add code here to:
@@ -91,13 +66,13 @@ def login():
   - Redirect to the repository page
   '''
   # Used for test purposes; replace with real code
-  request.session['globus_auth_token'] = str(uuid.uuid4())
-  request.session['username'] = 'devuser'
+  session['globus_auth_token'] = str(uuid.uuid4())
+  session['username'] = 'devuser'
   
-  redirect(request.app.get_url('repository'))
+  return redirect(url_for('home'))
 
 
-@route('/logout', method='GET', name="logout")
+@app.route('/logout', methods=['GET'])
 def logout():
   '''
   Add code here to:
@@ -105,12 +80,12 @@ def logout():
   - ???
   '''
   # Used for test purposes; replace with real code
-  request.session.pop('globus_auth_token', None)
+  session.pop('globus_auth_token', None)
 
-  redirect(request.app.get_url('home'))
+  return redirect(url_for('home'))
 
 
-@route('/repository', method='GET', name="repository")
+@app.route('/repository', methods=['GET'])
 def repository():
   '''
   Add code here to:
@@ -130,19 +105,15 @@ def repository():
 
   '''
 
-  return template(
-    request.app.config['mrdp.env.templates'] + 'repository',
-    session=request.session,
-    datasets=test_datasets
-  )
+  return render_template('repository.jinja2', datasets=test_datasets)
 
 
-@route('/download', method='POST', name="download")
+@app.route('/download', methods=['POST'])
 def download():
   # Get a list of the selected datasets
-  datasets = request.forms.getlist('dataset')
+  datasets = request.form.getlist('dataset')
   # Get the selected year to filter the dataset
-  year_filter = request.forms.get('year_filter') 
+  year_filter = request.form.get('year_filter') 
 
   '''
   Add code here to:
@@ -157,15 +128,11 @@ def download():
   a transfer request is submitted, it only provides a 'task_id'.
   '''
 
-  return template(
-    request.app.config['mrdp.env.templates'] + 'transfer_status',
-    session=request.session,
-    task_id=test_task_id,
-    transfer_status=None
-  )
+  return render_template('transfer_status.jinja2', task_id=test_task_id,
+                         transfer_status=None)
 
 
-@route('/browse/<target_uri>', method='GET', name="browse")
+@app.route('/browse/<target_uri>', methods=['GET'])
 def browse(target_uri):
   '''
   Add code here to:
@@ -186,15 +153,11 @@ def browse(target_uri):
 
   '''
 
-  return template(
-    request.app.config['mrdp.env.templates'] + 'browse',
-    session=request.session,
-    dataset_uri=target_uri,
-    file_list=test_file_list
-  )
+  return render_template('browse.jinja2', dataset_uri=target_uri,
+                         file_list=test_file_list)
 
 
-@route('/status/<task_id>', method="POST", name="transfer_status")
+@app.route('/status/<task_id>', methods=["POST"])
 def transfer_status(task_id):
   '''
   Add code here to call Globus to get status/details of transfer
@@ -218,12 +181,12 @@ def transfer_status(task_id):
   and modify the transfer_status.tpl template accordingly.
   '''
 
-  return template(
-    request.app.config['mrdp.env.templates'] + 'transfer_status',
-    session=request.session,
-    task_id=task_id,
-    transfer_status=test_transfer_status
-  )
+  return render_template('transfer_status.jinja2', task_id=task_id,
+                         transfer_status=test_transfer_status)
+
+
+if __name__ == '__main__':
+    app.run()
 
 
 ### EOF

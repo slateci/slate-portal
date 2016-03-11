@@ -1,4 +1,10 @@
-%include('views/header.tpl')
+{%extends 'base.jinja2'%}
+
+{%block title%}Repository{%endblock%}
+
+{%block body%}
+
+{%include 'header.jinja2'%}
 
 <div class="container">
 
@@ -9,27 +15,27 @@
 	<p>Select a dataset and click the button to download, or click on the dataset name to browse files in the dataset.</p>
 
 	<div class="form-wrapper">
-	  <form class="form-inline" role="form" action="{{get_url('download')}}" method="post">
+	  <form class="form-inline" role="form" action="{{url_for('download')}}" method="post">
 
 	    <div class="row">
 	      <div class="col-md-12">
 	        <table class="table">
 	          <th class="col-md-5 text-left">Dataset Name</th><th class="col-md-1 text-center">Select</th>
-	          %if datasets:
-	            %for dataset in datasets:
+	          {%if datasets%}
+	            {%for dataset in datasets%}
 		          <tr>
 		            <td class="col-md-5 text-left">
 		              <i class="fa fa-folder fa-lg"></i>&nbsp;
-		              <a href="{{ get_url('browse', target_uri=dataset['uri']) }}">{{ dataset['name'] }}</a>
+		              <a href="{{ url_for('browse', target_uri=dataset['uri']) }}">{{ dataset['name'] }}</a>
 		            </td>
 		            <td class="col-md-1 text-center">
 		              <input name="dataset" value="{{ dataset['uri'] }}" type="checkbox">
 		            </td>
 		          </tr>
-		          %end
-	          %else:
+	            {%endfor%}
+	          {%else%}
 	          <p>No datasets found.</p>
-	          %end
+	          {%endif%}
 	        </table>
 	      </div>
 	    </div>
@@ -54,5 +60,4 @@
    </div> <!-- form -->
 
 </div> <!-- container -->
-
-%rebase('views/base', title='MRDP - Repository')
+{%endblock%}

@@ -5,23 +5,23 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" type="image/x-icon" href="{{get_url('static', filename='img/favicon.ico')}}" />
-    <link rel="icon" type="image/x-icon" href="{{get_url('static', filename='img/favicon.ico')}}" />
+    <link rel="shortcut icon" type="image/x-icon" href="{{url_for('static', filename='img/favicon.ico')}}" />
+    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='img/favicon.ico')}}" />
 
-    <title>{{title}}</title>
+    <title>MRDP - {%block title%}{%endblock%}</title>
 
-    <!-- CSS files -->
-    <link rel="stylesheet" type="text/css" href="{{get_url('static', filename='css/bootstrap.min.css')}}" />
-    <link rel="stylesheet" type="text/css" href="{{get_url('static', filename='css/style.css')}}" />
+    {# CSS files #}
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/bootstrap.min.css')}}" />
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}" />
 
-    <!-- Custom Fonts -->
+    {# Custom Fonts #}
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
 
-    <!-- JavaScript files -->
-    <script type="text/javascript" src="{{get_url('static', filename='js/jquery.min.js')}}"></script>
-    <script type="text/javascript" src="{{get_url('static', filename='js/jquery-ui.min.js')}}"></script>
-    <script type="text/javascript" src="{{get_url('static', filename='js/bootstrap.min.js')}}"></script>
+    {# JavaScript files #}
+    <script type="text/javascript" src="{{url_for('static', filename='js/jquery.min.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/jquery-ui.min.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
   </head>
   <body>
     <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
@@ -34,7 +34,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/">Modern Research Data Portal</a>
+          <a class="navbar-brand" href="{{url_for('home')}}">Modern Research Data Portal</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -42,23 +42,24 @@
           <ul class="nav navbar-nav navbar-right">
             <!-- Display these links only is user is authenticated -->
             <!-- Change the condition below to an actual test -->
-            %if session.has_key('globus_auth_token'):
-            <li><a href="{{get_url('repository')}}">Repository</a></li>
-            <li><a href="{{get_url('logout')}}">Logout: {{ session['username'] }}</a></li>
+            {%if session.has_key('globus_auth_token')%}
+            <li><a href="{{url_for('repository')}}">Repository</a></li>
+            <li><a href="{{url_for('logout')}}">Logout: {{ session['username'] }}</a></li>
             <!-- Display these links if user is not authenticated -->
-            %else:
-            <li><a href="{{get_url('login')}}">Login</a></li>
-            %end
+            {%else%}
+            <li><a href="{{url_for('login')}}">Login</a></li>
+            {%endif%}
           </ul>
         </div> <!-- /.navbar-collapse -->
       </div> <!-- /.container-fluid -->
     </nav>
 
     <!-- Page body -->
-    {{!base}}
+    {%block body%}
+    {%endblock%}
 
     <!-- Page footer -->
-    %include('views/footer.tpl')
+    {%include 'footer.jinja2'%}
 
   </body>
 </html>

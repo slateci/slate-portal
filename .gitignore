@@ -8,6 +8,7 @@ rebates/files/
 rebates/logs/
 *.log
 *.txt
+!/*requirements.txt
 *.iif
 *.pem
 

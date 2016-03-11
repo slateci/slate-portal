@@ -1,4 +1,10 @@
-%include('views/header.tpl')
+{%extends 'base.jinja2'%}
+
+{%block title%}Transfer Status{%endblock%}
+
+{%block body%}
+
+{%include 'header.jinja2'%}
 
 <div class="container">
 
@@ -6,11 +12,11 @@
 		<h1>Transfer Status</h1>
 	</div>
 
-  %if not transfer_status:
+  {%if not transfer_status%}
   
   <p>Transfer request submitted successfully. Task ID: {{ task_id }}</p>
   
-  %else:
+  {%else%}
   
   <p><strong>Task ID</strong>: {{ task_id }}</p>
   <p><strong>Source endpoint</strong>: {{ transfer_status['source_ep_name'] }}</p>
@@ -20,10 +26,10 @@
   <p><strong>Files transferred</strong>: {{ transfer_status['files_transferred'] }}</p>
   <p><strong>Faults</strong>: {{ transfer_status['faults'] }}</p>
 
-  %end
+  {%endif%}
 	
 	<div class="form-wrapper">
-	  <form role="form" action="{{get_url('transfer_status', task_id=task_id) }}" method="post">
+	  <form role="form" action="{{url_for('transfer_status', task_id=task_id) }}" method="post">
 
 	    <div class="form-actions">
 	      <input class="btn btn-lg btn-primary" type="submit" value="Refresh" />&nbsp;&nbsp;&nbsp;
@@ -33,4 +39,4 @@
 
 </div> <!-- container -->
 
-%rebase('views/base', title='MDRP - Transfer Status')
+{%endblock%}
