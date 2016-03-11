@@ -39,5 +39,5 @@ HTML templates are in the /views directory. Do not modify `base.tpl`, `header.tp
 
 All styling related code (including fonts and images) is in the /static directory. Pleaase don't move static files around unless you're familiar with how Bottle resolves static references.
 
-To set a session variable use `request.session['my_key'] = value`. Get a session variable as `request.session['my_key']`. An example is provided in `transfer_status`.
+To set a session variable use `request.session['my_key'] = value`. Get a session variable as `request.session['my_key']`. An example is provided in `login`.
 
