@@ -8,16 +8,16 @@
 
 <div class="container">
 
-	<div class="page-header">
-		<h1>Transfer Status</h1>
-	</div>
+  <div class="page-header">
+    <h1>Transfer Status</h1>
+  </div>
 
   {%if not transfer_status%}
-  
+
   <p>Transfer request submitted successfully. Task ID: {{ task_id }}</p>
-  
+
   {%else%}
-  
+
   <p><strong>Task ID</strong>: {{ task_id }}</p>
   <p><strong>Source endpoint</strong>: {{ transfer_status['source_ep_name'] }}</p>
   <p><strong>Destination Endpoint</strong>: {{ transfer_status['dest_ep_name'] }}</p>
@@ -27,14 +27,14 @@
   <p><strong>Faults</strong>: {{ transfer_status['faults'] }}</p>
 
   {%endif%}
-	
-	<div class="form-wrapper">
-	  <form role="form" action="{{url_for('transfer_status', task_id=task_id) }}" method="post">
 
-	    <div class="form-actions">
-	      <input class="btn btn-lg btn-primary" type="submit" value="Refresh" />&nbsp;&nbsp;&nbsp;
-	    </div>
-	  </form>
+  <div class="form-wrapper">
+    <form role="form" action="{{url_for('transfer_status', task_id=task_id) }}" method="post">
+
+      <div class="form-actions">
+        <input class="btn btn-lg btn-primary" type="submit" value="Refresh" />&nbsp;&nbsp;&nbsp;
+      </div>
+    </form>
    </div> <!-- form -->
 
 </div> <!-- container -->
