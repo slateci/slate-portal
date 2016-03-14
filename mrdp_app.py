@@ -1,8 +1,9 @@
 # Copyright (C) 2016 University of Chicago
 
 import datetime
-from flask import Flask, redirect, render_template, session, url_for  # request
 import uuid
+
+from flask import Flask, redirect, render_template, session, url_for  # request
 
 __author__ = "Globus Team <info@globus.org>"
 
