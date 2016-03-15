@@ -1,5 +1,5 @@
 Flask==0.10.1
--e git+https://github.com/globusonline/globus-sdk-python.git@a43955d6cb9b00ff46c0360ce72e76f25834e2d8#egg=globus_sdk_python
+-e git+https://github.com/globusonline/globus-sdk-python.git#egg=globus_sdk
 itsdangerous==0.24
 Jinja2==2.8
 MarkupSafe==0.23
