@@ -423,3 +423,7 @@ body {
 .page-header {
   margin-top: -30px;
 }
+
+ul {
+  list-style: none;
+}

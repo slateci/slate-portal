@@ -1,21 +1,145 @@
 # Copyright (C) 2016 University of Chicago
 
 import datetime
+import sqlite3
 import uuid
 
-from flask import Flask, redirect, render_template, session, url_for  # request
+from contextlib import closing
 
-__author__ = "Globus Team <info@globus.org>"
+from base64 import urlsafe_b64encode
 
+from functools import wraps
+
+from flask import Flask, g, redirect, render_template, request, session, \
+    url_for
+
+import httplib2
+
+from oauth2client import client as oauth
+
+import requests
+
+__author__ = 'Globus Team <info@globus.org>'
+
+httplib2.debuglevel = 4
 
 app = Flask(__name__)
 app.config.from_pyfile('mrdp.conf')
 
 
+def init_db():
+    """
+    Set up or reset database to initial state
+    """
+
+    with closing(connect_to_db()) as db:
+        with app.open_resource('./data/schema.sql', mode='r') as f:
+            db.cursor().executescript(f.read())
+        db.commit()
+
+
+def connect_to_db():
+    """
+    Open database and return a connection handle
+    """
+
+    return sqlite3.connect(app.config['DATABASE'])
+
+
+def get_db():
+    """
+    Return the app global db connection or create one
+    if this is the first use.
+    """
+
+    db = getattr(g, '_database', None)
+
+    if db is None:
+        db = g._database = connect_to_db()
+        db.row_factory = sqlite3.Row
+
+    return db
+
+
+def query_db(query, args=(), one=False):
+    cur = get_db().execute(query, args)
+
+    rv = cur.fetchall()
+    cur.close()
+
+    return (rv[0] if rv else None) if one else rv
+
+
+def save_profile(identity_id=None, name=None, email=None, project=None):
+    """Persist user profile."""
+    db = get_db()
+
+    db.execute("""update profile set name = ?, email = ?, project = ?
+               where identity_id = ?""",
+               (name, email, project, identity_id))
+
+    db.execute("""insert into profile (identity_id, name, email, project)
+               select ?, ?, ?, ? where changes() = 0""",
+               (identity_id, name, email, project))
+    db.commit()
+
+
+def load_profile(identity_id):
+    """Load user profile."""
+    return query_db("""select name, email, project from profile
+                    where identity_id = ?""",
+                    [identity_id],
+                    one=True)
+
+
+@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+
+    if db is not None:
+        db.close()
+
+
+def basic_auth_header():
+    """Generate a Globus Auth compatible basic auth header."""
+    cid = app.config['GA_CLIENT_ID']
+    csecret = app.config['GA_CLIENT_SECRET']
+
+    creds = '{}:{}'.format(cid, csecret)
+    basic_auth = urlsafe_b64encode(creds.encode(encoding='UTF-8'))
+
+    return 'Basic ' + basic_auth.decode(encoding='UTF-8')
+
+
+def authenticated(fn):
+    """Mark a route as requiring authentication."""
+    @wraps(fn)
+    def decorated_function(*args, **kwargs):
+        if not session.get('is_authenticated'):
+            return redirect(url_for('login', next=request.url))
+
+        g.credentials = oauth.OAuth2Credentials.from_json(
+            session['credentials'])
+
+        profile = load_profile(session['primary_identity'])
+
+        if profile:
+            name, email, project = profile
+            session['name'] = name
+            session['email'] = email
+            session['project'] = project
+        else:
+            session['name'] = g.credentials.id_token.get('name')
+            session['email'] = g.credentials.id_token.get('email')
+            return redirect(url_for('profile', next=request.url))
+
+        return fn(*args, **kwargs)
+    return decorated_function
+
+
 @app.route('/', methods=['GET'])
 def home():
     """Home page - play with it if you must!"""
-
     return render_template('home.jinja2')
 
 
@@ -69,17 +193,14 @@ def login():
     - Redirect user to Globus Auth
     - Get an access token and a refresh token
     - Store these tokens in the session
-    - Redirect to the repository page
+    - Redirect to the repository page or profile page
+      if this is the first login
     """
-
-    # Used for test purposes; replace with real code
-    session['globus_auth_token'] = str(uuid.uuid4())
-    session['username'] = 'devuser'
-
-    return redirect(url_for('home'))
+    return redirect(url_for("authcallback"))
 
 
 @app.route('/logout', methods=['GET'])
+@authenticated
 def logout():
     """
     Add code here to:
@@ -87,14 +208,118 @@ def logout():
     - Destroy Globus Auth token (remove it from session?)
     - ???
     """
+    headers = {'Authorization': basic_auth_header()}
+    data = {
+        'token_type_hint': 'refresh',
+        'token': g.credentials.refresh_token
+    }
 
-    # Used for test purposes; replace with real code
-    session.pop('globus_auth_token', None)
+    # Invalidate the tokens with Globus Auth
+    requests.post(app.config['GA_REVOKE_URI'],
+                  headers=headers,
+                  data=data)
 
-    return redirect(url_for('home'))
+    # Destroy the session state
+    session.clear()
+
+    redirect_uri = url_for('home', _external=True)
+
+    ga_logout_url = []
+    ga_logout_url.append(app.config['GA_LOGOUT_URI'])
+    ga_logout_url.append('?client={}'.format(app.config['GA_CLIENT_ID']))
+    ga_logout_url.append('&redirect_uri={}'.format(redirect_uri))
+    ga_logout_url.append('&redirect_name=MRDP Demo App')
+
+    # Send the user to the Globus Auth logout page
+    return redirect(''.join(ga_logout_url))
+
+
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    """
+    User profile information. Assocated with a Globus Auth identity.
+    """
+    if request.method == 'GET':
+        if session.get('is_authenticated'):
+            identity_id = session.get('primary_identity')
+            profile = load_profile(identity_id)
+
+            if profile:
+                name, email, project = profile
+
+                session['name'] = name
+                session['email'] = email
+                session['project'] = project
+
+        return render_template('profile.jinja2')
+    elif request.method == 'POST':
+        name = session['name'] = request.form['name']
+        email = session['email'] = request.form['email']
+        project = session['project'] = request.form['project']
+
+        if session.get('is_authenticated'):
+            save_profile(identity_id=session['primary_identity'],
+                         name=name,
+                         email=email,
+                         project=project)
+
+            session['has_profile'] = True
+
+            return redirect(url_for('profile'))
+        else:
+            return redirect(url_for('login'))
+
+
+@app.route('/authcallback', methods=['GET'])
+def authcallback():
+    if 'error' in request.args:
+        pass
+        # handle error
+
+    scopes = 'urn:globus:auth:scope:transfer.api.globus.org:all'
+    config = app.config
+    flow = oauth.OAuth2WebServerFlow(app.config['GA_CLIENT_ID'],
+                                     scope=scopes,
+                                     authorization_header=basic_auth_header(),
+                                     redirect_uri=config['GA_REDIRECT_URI'],
+                                     auth_uri=config['GA_AUTH_URI'],
+                                     token_uri=config['GA_TOKEN_URI'],
+                                     revoke_uri=config['GA_REVOKE_URI'])
+
+    if 'code' in request.args:
+        passed_state = request.args.get('state')
+
+        if passed_state and passed_state == session.get('oauth2_state'):
+            code = request.args.get('code')
+
+            try:
+                credentials = flow.step2_exchange(code)
+            except Exception as err:
+                return repr(err)
+            else:
+                session.pop('oauth2_state')
+                session['credentials'] = credentials.to_json()
+                session['is_authenticated'] = True
+                session['primary_username'] = credentials.id_token.get('preferred_username')
+                session['primary_identity'] = credentials.id_token.get('sub')
+
+                # debug
+                print(credentials.access_token)
+            return redirect(url_for('repository'))
+    else:
+        state = str(uuid.uuid4())
+
+        auth_uri = flow.step1_get_authorize_url(state=state)
+
+        session['oauth2_state'] = state
+
+        return redirect(auth_uri)
+
+    return 'so sad'
 
 
 @app.route('/repository', methods=['GET'])
+@authenticated
 def repository():
     """
     Add code here to:
@@ -117,6 +342,7 @@ def repository():
 
 
 @app.route('/download', methods=['POST'])
+@authenticated
 def download():
     """
     Add code here to:
@@ -142,6 +368,7 @@ def download():
 
 
 @app.route('/browse/<target_uri>', methods=['GET'])
+@authenticated
 def browse(target_uri):
     """
     Add code here to:
@@ -168,6 +395,7 @@ def browse(target_uri):
 
 
 @app.route('/status/<task_id>', methods=["POST"])
+@authenticated
 def transfer_status(task_id):
     """
     Add code here to call Globus to get status/details of transfer with

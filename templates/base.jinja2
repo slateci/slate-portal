@@ -41,17 +41,23 @@
           <ul class="nav navbar-nav navbar-right">
             <!-- Display these links only is user is authenticated -->
             <!-- Change the condition below to an actual test -->
-            {%if 'globus_auth_token' in session%}
+            {%if session.get('is_authenticated')%}
               <li>
                 <a href="{{url_for('repository')}}">Repository</a>
               </li>
               <li>
-                <a href="{{url_for('logout')}}">Logout: {{ session['username'] }}</a>
+                <a href="{{url_for('profile')}}">Profile</a>
+              </li>
+              <li>
+                <a href="{{url_for('logout')}}">Logout: {{ session["primary_username"] }}</a>
               </li>
             <!-- Display these links if user is not authenticated -->
             {%else%}
-              <li>
+               <li>
                 <a href="{{url_for('login')}}">Login</a>
+              </li>
+              <li>
+                <a href="{{url_for('profile')}}">Sign Up</a>
               </li>
             {%endif%}
           </ul>
