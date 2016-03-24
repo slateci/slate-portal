@@ -4,8 +4,6 @@ import datetime
 import sqlite3
 import uuid
 
-from contextlib import closing
-
 from base64 import urlsafe_b64encode
 
 from functools import wraps
@@ -25,17 +23,6 @@ httplib2.debuglevel = 4
 
 app = Flask(__name__)
 app.config.from_pyfile('mrdp.conf')
-
-
-def init_db():
-    """
-    Set up or reset database to initial state
-    """
-
-    with closing(connect_to_db()) as db:
-        with app.open_resource('./data/schema.sql', mode='r') as f:
-            db.cursor().executescript(f.read())
-        db.commit()
 
 
 def connect_to_db():
