@@ -285,10 +285,14 @@ def authcallback():
                 return repr(err)
             else:
                 session.pop('oauth2_state')
-                session['credentials'] = credentials.to_json()
-                session['is_authenticated'] = True
-                session['primary_username'] = credentials.id_token.get('preferred_username')
-                session['primary_identity'] = credentials.id_token.get('sub')
+
+                id_token = credentials.id_token
+                session.update(
+                    credentials=credentials.to_json(),
+                    is_authenticated=True,
+                    primary_username=id_token.get('preferred_username'),
+                    primary_identity=id_token.get('sub'),
+                )
 
                 # debug
                 print(credentials.access_token)
