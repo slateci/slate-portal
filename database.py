@@ -41,3 +41,27 @@ class Database:
         cur.close()
 
         return (rv[0] if rv else None) if one else rv
+
+    def save_profile(self,
+                     identity_id=None,
+                     name=None,
+                     email=None,
+                     project=None):
+        """Persist user profile."""
+        db = self.get_db()
+
+        db.execute("""update profile set name = ?, email = ?, project = ?
+                   where identity_id = ?""",
+                   (name, email, project, identity_id))
+
+        db.execute("""insert into profile (identity_id, name, email, project)
+                   select ?, ?, ?, ? where changes() = 0""",
+                   (identity_id, name, email, project))
+        db.commit()
+
+    def load_profile(self, identity_id):
+        """Load user profile."""
+        return self.query_db("""select name, email, project from profile
+                             where identity_id = ?""",
+                             [identity_id],
+                             one=True)

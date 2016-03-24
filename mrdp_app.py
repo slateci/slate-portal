@@ -22,28 +22,6 @@ app.config.from_pyfile('mrdp.conf')
 database = Database(app)
 
 
-def save_profile(identity_id=None, name=None, email=None, project=None):
-    """Persist user profile."""
-    db = database.get_db()
-
-    db.execute("""update profile set name = ?, email = ?, project = ?
-               where identity_id = ?""",
-               (name, email, project, identity_id))
-
-    db.execute("""insert into profile (identity_id, name, email, project)
-               select ?, ?, ?, ? where changes() = 0""",
-               (identity_id, name, email, project))
-    db.commit()
-
-
-def load_profile(identity_id):
-    """Load user profile."""
-    return database.query_db("""select name, email, project from profile
-                             where identity_id = ?""",
-                             [identity_id],
-                             one=True)
-
-
 def basic_auth_header():
     """Generate a Globus Auth compatible basic auth header."""
     cid = app.config['GA_CLIENT_ID']
@@ -65,7 +43,7 @@ def authenticated(fn):
         g.credentials = oauth.OAuth2Credentials.from_json(
             session['credentials'])
 
-        profile = load_profile(session['primary_identity'])
+        profile = database.load_profile(session['primary_identity'])
 
         if profile:
             name, email, project = profile
@@ -186,7 +164,7 @@ def profile():
     if request.method == 'GET':
         if session.get('is_authenticated'):
             identity_id = session.get('primary_identity')
-            profile = load_profile(identity_id)
+            profile = database.load_profile(identity_id)
 
             if profile:
                 name, email, project = profile
@@ -202,10 +180,10 @@ def profile():
         project = session['project'] = request.form['project']
 
         if session.get('is_authenticated'):
-            save_profile(identity_id=session['primary_identity'],
-                         name=name,
-                         email=email,
-                         project=project)
+            database.save_profile(identity_id=session['primary_identity'],
+                                  name=name,
+                                  email=email,
+                                  project=project)
 
             session['has_profile'] = True
 
