@@ -1,68 +1,13 @@
-# Copyright (C) 2016 University of Chicago
-
 import datetime
 import uuid
 
-from base64 import urlsafe_b64encode
-from database import Database
-from functools import wraps
-from flask import Flask, g, redirect, render_template, request, session, \
-    url_for
-import httplib2
+from flask import g, redirect, render_template, request, session, url_for
 from oauth2client import client as oauth
 import requests
 
-__author__ = 'Globus Team <info@globus.org>'
-
-httplib2.debuglevel = 4
-
-app = Flask(__name__)
-app.config.from_pyfile('mrdp.conf')
-
-database = Database(app)
-
-
-def basic_auth_header():
-    """Generate a Globus Auth compatible basic auth header."""
-    cid = app.config['GA_CLIENT_ID']
-    csecret = app.config['GA_CLIENT_SECRET']
-
-    creds = '{}:{}'.format(cid, csecret)
-    basic_auth = urlsafe_b64encode(creds.encode(encoding='UTF-8'))
-
-    return 'Basic ' + basic_auth.decode(encoding='UTF-8')
-
-
-def authenticated(fn):
-    """Mark a route as requiring authentication."""
-    @wraps(fn)
-    def decorated_function(*args, **kwargs):
-        if not session.get('is_authenticated'):
-            return redirect(url_for('login', next=request.url))
-
-        g.credentials = oauth.OAuth2Credentials.from_json(
-            session['credentials'])
-
-        profile = database.load_profile(session['primary_identity'])
-
-        if profile:
-            name, email, project = profile
-            session['name'] = name
-            session['email'] = email
-            session['project'] = project
-        else:
-            session['name'] = g.credentials.id_token.get('name')
-            session['email'] = g.credentials.id_token.get('email')
-            return redirect(url_for('profile', next=request.url))
-
-        return fn(*args, **kwargs)
-    return decorated_function
-
-
-@app.route('/', methods=['GET'])
-def home():
-    """Home page - play with it if you must!"""
-    return render_template('home.jinja2')
+from mrdp import app, database
+from mrdp.decorators import authenticated
+from mrdp.utils import basic_auth_header
 
 
 #
@@ -105,6 +50,11 @@ test_transfer_status = {
 #
 # Add all MRDP application code below
 #
+
+@app.route('/', methods=['GET'])
+def home():
+    """Home page - play with it if you must!"""
+    return render_template('home.jinja2')
 
 
 @app.route('/login', methods=['GET'])
@@ -158,9 +108,7 @@ def logout():
 
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
-    """
-    User profile information. Assocated with a Globus Auth identity.
-    """
+    """User profile information. Assocated with a Globus Auth identity."""
     if request.method == 'GET':
         if session.get('is_authenticated'):
             identity_id = session.get('primary_identity')
@@ -320,7 +268,7 @@ def browse(target_uri):
                            file_list=test_file_list)
 
 
-@app.route('/status/<task_id>', methods=["POST"])
+@app.route('/status/<task_id>', methods=['POST'])
 @authenticated
 def transfer_status(task_id):
     """
@@ -350,12 +298,3 @@ def transfer_status(task_id):
 
     return render_template('transfer_status.jinja2', task_id=task_id,
                            transfer_status=test_transfer_status)
-
-
-#
-# That's it! You can use `python mrdp_app.py` at your shell to run the app.
-#
-
-if __name__ == '__main__':
-    app.run(host='localhost',
-            ssl_context=('./ssl/server.crt', './ssl/server.key'))

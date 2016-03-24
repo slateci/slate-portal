@@ -1,1 +1,1 @@
-python mrdp_app.py
+python runserver.py
