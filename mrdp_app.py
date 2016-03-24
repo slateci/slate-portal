@@ -1,20 +1,15 @@
 # Copyright (C) 2016 University of Chicago
 
 import datetime
-import sqlite3
 import uuid
 
 from base64 import urlsafe_b64encode
-
+from database import Database
 from functools import wraps
-
 from flask import Flask, g, redirect, render_template, request, session, \
     url_for
-
 import httplib2
-
 from oauth2client import client as oauth
-
 import requests
 
 __author__ = 'Globus Team <info@globus.org>'
@@ -24,42 +19,12 @@ httplib2.debuglevel = 4
 app = Flask(__name__)
 app.config.from_pyfile('mrdp.conf')
 
-
-def connect_to_db():
-    """
-    Open database and return a connection handle
-    """
-
-    return sqlite3.connect(app.config['DATABASE'])
-
-
-def get_db():
-    """
-    Return the app global db connection or create one
-    if this is the first use.
-    """
-
-    db = getattr(g, '_database', None)
-
-    if db is None:
-        db = g._database = connect_to_db()
-        db.row_factory = sqlite3.Row
-
-    return db
-
-
-def query_db(query, args=(), one=False):
-    cur = get_db().execute(query, args)
-
-    rv = cur.fetchall()
-    cur.close()
-
-    return (rv[0] if rv else None) if one else rv
+database = Database(app)
 
 
 def save_profile(identity_id=None, name=None, email=None, project=None):
     """Persist user profile."""
-    db = get_db()
+    db = database.get_db()
 
     db.execute("""update profile set name = ?, email = ?, project = ?
                where identity_id = ?""",
@@ -73,18 +38,10 @@ def save_profile(identity_id=None, name=None, email=None, project=None):
 
 def load_profile(identity_id):
     """Load user profile."""
-    return query_db("""select name, email, project from profile
-                    where identity_id = ?""",
-                    [identity_id],
-                    one=True)
-
-
-@app.teardown_appcontext
-def close_connection(exception):
-    db = getattr(g, '_database', None)
-
-    if db is not None:
-        db.close()
+    return database.query_db("""select name, email, project from profile
+                             where identity_id = ?""",
+                             [identity_id],
+                             one=True)
 
 
 def basic_auth_header():
