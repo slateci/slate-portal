@@ -1,9 +1,12 @@
 import datetime
 import uuid
 
-from flask import g, redirect, render_template, request, session, url_for
+from flask import (flash, g, redirect, render_template, request,
+                   session, url_for)
 from oauth2client import client as oauth
 import requests
+
+from globus_sdk import TransferClient
 
 from mrdp import app, database
 from mrdp.decorators import authenticated
@@ -179,6 +182,7 @@ def authcallback():
 
                 # debug
                 print(credentials.access_token)
+                print(session)
             return redirect(url_for('repository'))
     else:
         state = str(uuid.uuid4())
@@ -230,15 +234,16 @@ def download():
     task. Since this route is called only once after a transfer request
     is submitted, it only provides a 'task_id'.
     """
-
     # Get a list of the selected datasets
     # e.g. datasets = request.form.getlist('dataset')
 
     # Get the selected year to filter the dataset
     # e.g. year_filter = request.form.get('year_filter')
 
-    return render_template('transfer_status.jinja2', task_id=test_task_id,
-                           transfer_status=None)
+    task_id = 'c726c69e-efa3-11e5-9831-22000b9da45e'
+    flash(task_id)
+
+    return(redirect(url_for('transfer_status', task_id=task_id)))
 
 
 @app.route('/browse/<target_uri>', methods=['GET'])
@@ -268,7 +273,7 @@ def browse(target_uri):
                            file_list=test_file_list)
 
 
-@app.route('/status/<task_id>', methods=['POST'])
+@app.route('/status/<task_id>', methods=['GET'])
 @authenticated
 def transfer_status(task_id):
     """
@@ -295,6 +300,7 @@ def transfer_status(task_id):
     you must add those keys to the dictionary and modify the
     transfer_status.jinja2 template accordingly.
     """
+    transfer = TransferClient(auth_token=g.credentials.access_token)
+    task = transfer.get_task(task_id)
 
-    return render_template('transfer_status.jinja2', task_id=task_id,
-                           transfer_status=test_transfer_status)
+    return render_template('transfer_status.jinja2', task=task.data)
