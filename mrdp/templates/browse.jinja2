@@ -24,7 +24,7 @@
           <tr>
             <td class="col-md-5 text-left">
               <i class="fa fa-file"></i>&nbsp;
-              <a href="http://somehost.edu/{{ file['uri'] }}">{{ file['name'] }}</a>
+              <a href="{{dataset_uri}}/{{file.uri}}">{{ file['name'] }}</a>
             </td>
             <td class="col-md-1 text-right">{{ file['size'] }}</td>
           </tr>

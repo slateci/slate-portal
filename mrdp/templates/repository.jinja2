@@ -1,10 +1,10 @@
-{%extends 'base.jinja2'%}
+{%extends "base.jinja2"%}
 
 {%block title%}Repository{%endblock%}
 
 {%block body%}
 
-{%include 'header.jinja2'%}
+{%include "header.jinja2"%}
 
 <div class="container">
 
@@ -12,29 +12,38 @@
     <h1>Repository</h1>
   </div>
 
-  <p>Select a dataset and click the button to download, or click on the dataset name to browse files in the dataset.</p>
+  <p>
+    Select a dataset and click the button to download, or click on the dataset name to browse files in the dataset.
+  </p>
 
   <div class="form-wrapper">
     <form class="form-inline" role="form" action="{{url_for('download')}}" method="post">
-
       <div class="row">
         <div class="col-md-12">
           <table class="table">
-            <th class="col-md-5 text-left">Dataset Name</th><th class="col-md-1 text-center">Select</th>
+            <th class="col-md-5 text-left">
+              Dataset Name
+            </th>
+            <th class="col-md-1 text-center">
+              Select
+            </th>
+
             {%if datasets%}
               {%for dataset in datasets%}
-              <tr>
-                <td class="col-md-5 text-left">
-                  <i class="fa fa-folder fa-lg"></i>&nbsp;
-                  <a href="{{ url_for('browse', target_uri=dataset['uri']) }}">{{ dataset['name'] }}</a>
-                </td>
-                <td class="col-md-1 text-center">
-                  <input name="dataset" value="{{ dataset['uri'] }}" type="checkbox">
-                </td>
-              </tr>
+                <tr>
+                  <td class="col-md-5 text-left">
+                    <i class="fa fa-folder fa-lg"></i>&nbsp;
+                    <a href="{{url_for('browse', dataset_id=dataset['id'])}}">
+                      {{dataset["name"]}}
+                    </a>
+                  </td>
+                  <td class="col-md-1 text-center">
+                    <input type="checkbox" name="dataset" value="{{dataset['id']}}">
+                  </td>
+                </tr>
               {%endfor%}
             {%else%}
-            <p>No datasets found.</p>
+              <p>No datasets found.</p>
             {%endif%}
           </table>
         </div>
@@ -54,7 +63,7 @@
       </div>
       <br />
       <div class="form-actions">
-        <input class="btn btn-lg btn-primary" type="submit" value="Download with Globus" />&nbsp;&nbsp;&nbsp;
+        <input type="submit" class="btn btn-lg btn-primary" value="Download with Globus" />&nbsp;&nbsp;&nbsp;
       </div>
     </form>
    </div> <!-- form -->

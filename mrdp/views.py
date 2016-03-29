@@ -1,58 +1,16 @@
-import datetime
 import uuid
 
-from flask import (flash, g, redirect, render_template, request,
+from flask import (abort, flash, g, redirect, render_template, request,
                    session, url_for)
 from oauth2client import client as oauth
 import requests
 
 from globus_sdk import TransferClient
 
-from mrdp import app, database
+from mrdp import app, database, datasets
 from mrdp.decorators import authenticated
 from mrdp.utils import basic_auth_header
 
-
-#
-# Some dummy data for testing
-#
-
-
-test_datasets = [
-    {'name': 'Dataset one', 'uri': str(uuid.uuid4())},
-    {'name': 'Dataset two', 'uri': str(uuid.uuid4())},
-    {'name': 'Dataset three', 'uri': str(uuid.uuid4())},
-    {'name': 'Dataset four', 'uri': str(uuid.uuid4())},
-    {'name': 'Dataset five', 'uri': str(uuid.uuid4())},
-    {'name': 'Dataset six', 'uri': str(uuid.uuid4())},
-    {'name': 'Dataset seven', 'uri': str(uuid.uuid4())},
-]
-
-test_task_id = str(uuid.uuid4())
-
-test_file_list = [
-    {'name': 'File Number One', 'size': 213514, 'uri': str(uuid.uuid4())},
-    {'name': 'File Number two', 'size': 123525, 'uri': str(uuid.uuid4())},
-    {'name': 'File Number three', 'size': 21343, 'uri': str(uuid.uuid4())},
-    {'name': 'File Number four', 'size': 234235, 'uri': str(uuid.uuid4())},
-    {'name': 'File Number five', 'size': 90835, 'uri': str(uuid.uuid4())},
-    {'name': 'File Number six', 'size': 28722, 'uri': str(uuid.uuid4())},
-    {'name': 'File Number seven', 'size': 765324, 'uri': str(uuid.uuid4())},
-]
-
-test_transfer_status = {
-    'source_ep_name': 'XSEDE Keeneland',
-    'dest_ep_name': 'UChicago RCC Midway',
-    'request_time': datetime.datetime.now() - datetime.timedelta(days=1),
-    'status': 'ACTIVE',
-    'files_transferred': 2354,
-    'faults': 0
-}
-
-
-#
-# Add all MRDP application code below
-#
 
 @app.route('/', methods=['GET'])
 def home():
@@ -215,8 +173,7 @@ def repository():
     dataset, you must add those keys to the dictionary
     and modify the repository.jinja2 template accordingly.
     """
-
-    return render_template('repository.jinja2', datasets=test_datasets)
+    return render_template('repository.jinja2', datasets=datasets)
 
 
 @app.route('/download', methods=['POST'])
@@ -239,16 +196,15 @@ def download():
 
     # Get the selected year to filter the dataset
     # e.g. year_filter = request.form.get('year_filter')
-
     task_id = 'c726c69e-efa3-11e5-9831-22000b9da45e'
     flash(task_id)
 
     return(redirect(url_for('transfer_status', task_id=task_id)))
 
 
-@app.route('/browse/<target_uri>', methods=['GET'])
+@app.route('/browse/<dataset_id>', methods=['GET'])
 @authenticated
-def browse(target_uri):
+def browse(dataset_id):
     """
     Add code here to:
 
@@ -256,11 +212,11 @@ def browse(target_uri):
     - Return a list of files to a browse view
 
     The target template (browse.jinja2) expects a unique dataset
-    identifier 'dataset_uri' (str) and 'file_list' (list of
+    identifier 'dataset_id' (str) and 'file_list' (list of
     dictionaries) containing the following information about each file
     in the dataset:
 
-    {'name': 'file name', 'size': 'file size', 'uri': 'file uri/path'}
+    {'name': 'file name', 'size': 'file size', 'id': 'file uri/path'}
 
     'dataset_uri' is passed to the route in the URL as 'target_uri'.
 
@@ -268,9 +224,37 @@ def browse(target_uri):
     must add those keys to the dictionary and modify the browse.jinja2
     template accordingly.
     """
+    def generate_datasets(dir_list):
+        return map(lambda d: {'name': d['name'],
+                              'uri': 'tbd',
+                              'size': d['size']},
+                   dir_list)
 
-    return render_template('browse.jinja2', dataset_uri=target_uri,
-                           file_list=test_file_list)
+    filtered_datasets = [ds for ds in datasets if ds['id'] == dataset_id]
+
+    if len(filtered_datasets):
+        dataset = filtered_datasets[0]
+    else:
+        abort(404)
+
+    endpoint_id = dataset['endpoint_id']
+    path = dataset['path']
+
+    transfer = TransferClient(auth_token=g.credentials.access_token)
+    res = transfer.operation_ls(endpoint_id, path=path)
+    listing = res.data['DATA']
+
+    file_list = generate_datasets([e for e in listing if e['type'] == 'file'])
+
+    ep = transfer.get_endpoint(endpoint_id).data
+
+    if ep.get('https_server'):
+        dataset_uri = '{}/{}'.format(ep['https_server'], path)
+    else:
+        dataset_uri = 'https://example.com/' + path
+
+    return render_template('browse.jinja2', dataset_uri=dataset_uri,
+                           file_list=file_list)
 
 
 @app.route('/status/<task_id>', methods=['GET'])
