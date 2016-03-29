@@ -163,7 +163,7 @@ def repository():
     - Check that we have an authenticated user (i.e. don't allow
       unauthenticated users to access the repository)
     - Get a list of the datasets in the repository
-    - Display a dataset list so user can browse/select to download
+    - Display a dataset list so user can browse/select
 
     The target template (repository.jinja2) expects 'datasets'
     (list of dictionaries) that describe each dataset as:
@@ -176,9 +176,15 @@ def repository():
     return render_template('repository.jinja2', datasets=datasets)
 
 
-@app.route('/download', methods=['POST'])
+@app.route('/submit', methods=['POST'])
 @authenticated
-def download():
+def submit():
+    return copy() if 'copy' in request.form \
+           else graph() if 'graph' in request.form \
+           else abort(404)
+
+
+def copy():
     """
     Add code here to:
 
@@ -200,6 +206,28 @@ def download():
     flash(task_id)
 
     return(redirect(url_for('transfer_status', task_id=task_id)))
+
+
+def graph():
+    """
+    Add code here to:
+
+    - Send to Globus to select a destination endpoint
+    - `GET` all years CSVs for the selected datasets via HTTPS server
+    - Generate a graph SVG/HTML file for the precipitation (`PRCP`),
+      temperature (`TMIN`/`TMAX`), or both, depending on the user's
+      selection, for each dataset
+    - `PUT` the generated graphs onto the user's destination endpoint
+    - Display a confirmation message
+    """
+
+    # Get a list of the selected datasets
+    # e.g. datasets = request.form.getlist('dataset')
+
+    # Get the graph type(s) to generate
+    # e.g. graph_type = request.form.get('graph_type')
+
+    abort(501)
 
 
 @app.route('/browse/<dataset_id>', methods=['GET'])
