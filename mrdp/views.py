@@ -252,11 +252,6 @@ def browse(dataset_id):
     must add those keys to the dictionary and modify the browse.jinja2
     template accordingly.
     """
-    def generate_datasets(dir_list):
-        return map(lambda d: {'name': d['name'],
-                              'uri': 'tbd',
-                              'size': d['size']},
-                   dir_list)
 
     filtered_datasets = [ds for ds in datasets if ds['id'] == dataset_id]
 
@@ -272,14 +267,13 @@ def browse(dataset_id):
     res = transfer.operation_ls(endpoint_id, path=path)
     listing = res.data['DATA']
 
-    file_list = generate_datasets([e for e in listing if e['type'] == 'file'])
+    file_list = [e for e in listing if e['type'] == 'file']
 
     ep = transfer.get_endpoint(endpoint_id).data
 
-    if ep.get('https_server'):
-        dataset_uri = '{}/{}'.format(ep['https_server'], path)
-    else:
-        dataset_uri = 'https://example.com/' + path
+    dataset_uri = '{}/{}'.format(ep.get('https_server') or
+                                 'https://mrdp-demo.appspot.com',  # FIXME
+                                 path)
 
     return render_template('browse.jinja2', dataset_uri=dataset_uri,
                            file_list=file_list)
