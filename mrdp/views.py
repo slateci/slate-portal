@@ -290,19 +290,136 @@ def graph():
     - Display a confirmation message
     """
 
-    # Get a list of the selected datasets
-    # e.g. datasets = request.form.getlist('dataset')
+    from csv import reader
+    import pygal
+    from time import strftime
 
-    # Get the graph type(s) to generate
-    # e.g. graph_type = request.form.get('graph_type')
+    transfer = TransferClient(auth_token=g.credentials.access_token)
 
-    if 'form' in session:
-        # submit_form = session['form']
-        session.pop('form')
-    else:
-        abort(400)
+    previous = session.get('form') or abort(400)
+    selected_ids = previous.get('datasets')
+    selected_datasets = [dataset
+                         for dataset in datasets
+                         if not selected_ids or dataset['id'] in selected_ids]
+    selected_type = previous.get('graph_type') or 'all'
 
-    abort(501)
+    source_infos = {endpoint_id: transfer.get_endpoint(endpoint_id).data
+                    for endpoint_id in set(dataset['endpoint_id']
+                                           for dataset in selected_datasets)}
+    for source_info in source_infos.values():
+        if not source_info.get('https_server'):  # source does not support GETs
+            # FIXME this should abort() / return an error message to the user
+            source_info['https_server'] = 'https://mrdp-demo.appspot.com'
+
+    form = request.form
+    dest_ep = form.get('endpoint_id')
+    dest_info = transfer.get_endpoint(dest_ep).data
+    dest_https = dest_info.get('https_server')
+    dest_base = form.get('path')
+    dest_folder = form.get('folder[0]')
+    dest_path = ('%s%s/' % (dest_base, dest_folder) if dest_folder
+                 else dest_base) + strftime('Climate Graphs %F %I%M%S%P/')
+
+    if not dest_https:  # destination does not support PUTs
+        # FIXME this should abort() / return an error message to the user
+        dest_https = 'https://mrdp-demo.appspot.com'
+
+    # FIXME We need a Bearer token to PUT onto the destination endpoint and a
+    # Bearer token for each individual source endpoint to GET the all.csv file
+    # -or-
+    # The application needs a refresh token to get credentials for accessing
+    # the destination endpoint (and maybe the source endpoint too), and the
+    # application will create a new directory with a new ACL for the logged-in
+    # user so they can access the files.
+    authorizations = dict([
+        (dest_ep, 'Bearer XXX')
+    ] + [
+        (endpoint_id, 'Bearer XXX')
+        for endpoint_id, endpoint_info in source_infos.items()
+        if endpoint_id != dest_ep
+    ])
+
+    svgs = {}
+
+    for dataset in selected_datasets:
+        source_ep = dataset['endpoint_id']
+        source_https = source_infos[source_ep]['https_server']
+        source_path = dataset['path']
+
+        response = requests.get(
+            '%s/%s/all.csv' % (source_https, source_path),
+            headers={'Authorization': authorizations[source_ep]},
+        )
+        csv = reader(response.iter_lines())
+
+        header = csv.next()
+        date_index = header.index('DATE')
+        prcp_index = header.index('PRCP')
+        tmin_index = header.index('TMIN')
+        tmax_index = header.index('TMAX')
+
+        annuals = {}
+        for row in csv:
+            year = int(row[date_index][:4])
+            try:
+                data = annuals[year]
+            except KeyError:
+                data = annuals[year] = dict(days_of_data=0,
+                                            precipitation_total=0,
+                                            min_temperature_total=0,
+                                            max_temperature_total=0)
+            data['days_of_data'] += 1
+            data['precipitation_total'] += int(row[prcp_index])
+            data['min_temperature_total'] += int(row[tmin_index])
+            data['max_temperature_total'] += int(row[tmax_index])
+
+        if selected_type in ['all', 'precipitation']:
+            x_axis = []
+            y_values = []
+
+            for year, data in sorted(annuals.items()):
+                x_axis.append(year)
+                y_values.append(data['precipitation_total'] / 10.)
+
+            line = pygal.Line(x_label_rotation=90)
+            line.x_labels = x_axis
+            line.add("Precip(mm)", y_values)
+
+            svgs["%s %s" % (dataset['name'],
+                            "Total Annual Precipitation")] = line.render()
+
+        if selected_type in ['all', 'temperature']:
+            x_axis = []
+            y_min_values = []
+            y_max_values = []
+
+            for year, data in sorted(annuals.items()):
+                x_axis.append(year)
+                y_min_values.append(data['min_temperature_total'] / 10. /
+                                    data['days_of_data'])
+                y_max_values.append(data['max_temperature_total'] / 10. /
+                                    data['days_of_data'])
+
+            line = pygal.Line(x_label_rotation=90)
+            line.x_labels = x_axis
+            line.add("Avg Max Temp(C)", y_max_values)
+            line.add("Avg Min Temp(C)", y_min_values)
+
+            svgs["%s %s" % (dataset['name'],
+                            "Average Temperatures")] = line.render()
+
+    transfer.operation_mkdir(dest_ep, dest_path)
+
+    for filename, svg in svgs.items():
+        requests.put(
+            '%s%s%s.svg' % (dest_https, dest_path, filename),
+            headers={'Authorization': authorizations[dest_ep]},
+            data=data,
+        )
+
+    flash("%d-file SVG upload to %s on %s completed!" %
+          (len(svgs), dest_path, dest_info['display_name']))
+    return redirect(url_for('repository'))
 
 
 @app.route('/browse/<dataset_id>', methods=['GET'])
