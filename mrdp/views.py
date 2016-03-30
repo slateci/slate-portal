@@ -101,6 +101,7 @@ def profile():
 
             session['has_profile'] = True
 
+            flash("Thank you! Your profile has been successfully updated.")
             return redirect(url_for('profile'))
         else:
             return redirect(url_for('login'))
@@ -270,8 +271,7 @@ def copy():
 
     task_id = transfer.submit_transfer(transfer_data).data['task_id']
 
-    flash(task_id)
-
+    flash("Transfer request submitted successfully. Task ID: " + task_id)
     return(redirect(url_for('transfer_status', task_id=task_id)))
 
 

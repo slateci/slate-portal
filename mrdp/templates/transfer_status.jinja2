@@ -11,14 +11,6 @@
     <h1>Transfer Status</h1>
   </div>
 
-  {%with messages = get_flashed_messages()%}
-    {%if messages%}
-      <p>
-        Transfer request submitted successfully. Task ID: {{messages[0]}}
-      </p>
-    {%endif%}
-  {%endwith%}
-
   <p>
     <strong>Task ID</strong>: {{task["task_id"]}}
   </p>
