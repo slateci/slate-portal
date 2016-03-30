@@ -5,6 +5,11 @@ from flask import (abort, flash, g, redirect, render_template, request,
 from oauth2client import client as oauth
 import requests
 
+try:
+    from urllib.parse import urlencode
+except:
+    from urllib import urlencode
+
 from globus_sdk import TransferClient
 
 from mrdp import app, database, datasets
@@ -179,11 +184,30 @@ def repository():
 @app.route('/submit', methods=['POST'])
 @authenticated
 def submit():
-    return copy() if 'copy' in request.form \
-           else graph() if 'graph' in request.form \
-           else abort(404)
+    if 'copy' in request.form:
+        user_action = 'copy'
+    elif 'graph' in request.form:
+        user_action = 'graph'
+    else:
+        abort(404)
+
+    params = {
+        'method': 'POST',
+        'action': url_for(user_action, _external=True, _scheme='https'),
+        'filelimit': 0,
+        'folderlimit': 1
+    }
+
+    browse_endpoint = 'https://www.globus.org/app/browse-endpoint?{}' \
+        .format(urlencode(params))
+
+    session['form'] = request.form
+
+    return redirect(browse_endpoint)
 
 
+@app.route('/copy', methods=['POST'])
+@authenticated
 def copy():
     """
     Add code here to:
@@ -197,17 +221,20 @@ def copy():
     task. Since this route is called only once after a transfer request
     is submitted, it only provides a 'task_id'.
     """
-    # Get a list of the selected datasets
-    # e.g. datasets = request.form.getlist('dataset')
+    if 'form' in session:
+        # submit_form = session['form']
+        session.pop('form')
+    else:
+        abort(400)
 
-    # Get the selected year to filter the dataset
-    # e.g. year_filter = request.form.get('year_filter')
     task_id = 'c726c69e-efa3-11e5-9831-22000b9da45e'
     flash(task_id)
 
     return(redirect(url_for('transfer_status', task_id=task_id)))
 
 
+@app.route('/graph', methods=['POST'])
+@authenticated
 def graph():
     """
     Add code here to:
@@ -226,6 +253,12 @@ def graph():
 
     # Get the graph type(s) to generate
     # e.g. graph_type = request.form.get('graph_type')
+
+    if 'form' in session:
+        # submit_form = session['form']
+        session.pop('form')
+    else:
+        abort(400)
 
     abort(501)
 
