@@ -143,9 +143,6 @@ def authcallback():
                     primary_identity=id_token.get('sub'),
                 )
 
-                # debug
-                print(credentials.access_token)
-                print(session)
             return redirect(url_for('repository'))
     else:
         state = str(uuid.uuid4())
@@ -155,8 +152,6 @@ def authcallback():
         session['oauth2_state'] = state
 
         return redirect(auth_uri)
-
-    return 'so sad'
 
 
 @app.route('/repository', methods=['GET'])
@@ -201,7 +196,11 @@ def submit():
     browse_endpoint = 'https://www.globus.org/app/browse-endpoint?{}' \
         .format(urlencode(params))
 
-    session['form'] = request.form
+    session['form'] = {
+        'year_filter': request.form['year_filter'],
+        'graph_type': request.form['graph_type'],
+        'datasets': request.form.getlist('dataset')
+    }
 
     return redirect(browse_endpoint)
 
@@ -222,12 +221,55 @@ def copy():
     is submitted, it only provides a 'task_id'.
     """
     if 'form' in session:
-        # submit_form = session['form']
+        submit_form = session['form']
         session.pop('form')
     else:
         abort(400)
 
-    task_id = 'c726c69e-efa3-11e5-9831-22000b9da45e'
+    globus_form = request.form
+
+    selected = submit_form['datasets']
+    filtered_datasets = [ds for ds in datasets if ds['id'] in selected]
+
+    transfer = TransferClient(auth_token=g.credentials.access_token)
+
+    source_endpoint_id = filtered_datasets[0]['endpoint_id']
+
+    transfer_items = []
+    for ds in filtered_datasets:
+        source_path = '{}/{}.csv'.format(ds['path'],
+                                         submit_form['year_filter'])
+        dest_path = globus_form['path']
+
+        if globus_form.get('folder[0]'):
+            dest_path += globus_form['folder[0]'] + '/'
+
+        dest_path += ds['name'] + '/'
+
+        transfer_items.append({
+            'DATA_TYPE': 'transfer_item',
+            'source_path': source_path,
+            'destination_path': '{}{}.csv'.format(dest_path,
+                                                  submit_form['year_filter']),
+            'recursive': False
+        })
+
+    transfer_data = {
+        'DATA_TYPE': 'transfer',
+        'submission_id': transfer.get_submission_id().data['value'],
+        'source_endpoint': source_endpoint_id,
+        'destination_endpoint': globus_form['endpoint_id'],
+        'deadline': None,
+        'label': globus_form.get('label') or None,
+        'sync_level': 2,
+        'verify_checksum': True,
+        'preserve_timestamp': False,
+        'encrypt_data': False,
+        'DATA': transfer_items
+    }
+
+    task_id = transfer.submit_transfer(transfer_data).data['task_id']
+
     flash(task_id)
 
     return(redirect(url_for('transfer_status', task_id=task_id)))
