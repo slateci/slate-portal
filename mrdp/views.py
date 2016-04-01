@@ -60,6 +60,8 @@ def logout():
     # Destroy the session state
     session.clear()
 
+    redirect_uri = url_for('home', _external=True)
+
     ga_logout_url = []
     ga_logout_url.append(app.config['GA_LOGOUT_URI'])
     ga_logout_url.append('?client={}'.format(app.config['GA_CLIENT_ID']))
