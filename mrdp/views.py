@@ -60,8 +60,6 @@ def logout():
     # Destroy the session state
     session.clear()
 
-    redirect_uri = url_for('home', _external=True)
-
     ga_logout_url = []
     ga_logout_url.append(app.config['GA_LOGOUT_URI'])
     ga_logout_url.append('?client={}'.format(app.config['GA_CLIENT_ID']))
@@ -255,14 +253,15 @@ def copy():
             'recursive': False
         })
 
+    submission_id = transfer.get_submission_id().data['value']
     transfer_data = {
         'DATA_TYPE': 'transfer',
-        'submission_id': transfer.get_submission_id().data['value'],
+        'submission_id': submission_id,
         'source_endpoint': source_endpoint_id,
         'destination_endpoint': globus_form['endpoint_id'],
         'deadline': None,
         'label': globus_form.get('label') or None,
-        'sync_level': 2,
+        'sync_level': None,
         'verify_checksum': True,
         'preserve_timestamp': False,
         'encrypt_data': False,
