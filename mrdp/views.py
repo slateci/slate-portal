@@ -227,12 +227,7 @@ def submit_transfer():
         'submission_id': submission_id,
         'source_endpoint': source_endpoint_id,
         'destination_endpoint': globus_form['endpoint_id'],
-        'deadline': None,
         'label': globus_form.get('label') or None,
-        'sync_level': None,
-        'verify_checksum': True,
-        'preserve_timestamp': False,
-        'encrypt_data': False,
         'DATA': transfer_items
     }
 
