@@ -43,7 +43,10 @@
             <!-- Change the condition below to an actual test -->
             {%if session.get('is_authenticated')%}
               <li>
-                <a href="{{url_for('repository')}}">Repository</a>
+                <a href="{{url_for('transfer')}}">Transfer</a>
+              </li>
+              <li>
+                <a href="{{url_for('graph')}}">Graph</a>
               </li>
               <li>
                 <a href="{{url_for('profile')}}">Profile</a>
