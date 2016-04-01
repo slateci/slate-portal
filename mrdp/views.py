@@ -144,7 +144,7 @@ def authcallback():
                     primary_identity=id_token.get('sub'),
                 )
 
-            return redirect(url_for('repository'))
+            return redirect(url_for('transfer'))
     else:
         state = str(uuid.uuid4())
 
