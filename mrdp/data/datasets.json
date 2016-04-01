@@ -2,67 +2,56 @@
     {
         "name": "Atlanta International Airport Climate Data",
         "id": "5352507d-1293-4827-8ba9-c2d4a0eb78d1",
-        "endpoint_id": "ba4dd9d6-f2ae-11e5-983a-22000b9da45e",
         "path": "dataset_atl"
     },
     {
         "name": "Boston Logan International Airport Climate Data",
         "id": "5bb05576-7087-47bd-a32d-34165b00a29c",
-        "endpoint_id": "ba4dd9d6-f2ae-11e5-983a-22000b9da45e",
         "path": "dataset_bos"
     },
     {
         "name": "Baltimore-Washington International Airport Climate Data",
         "id": "66cf9c1d-6b65-4a3b-9123-60539ddf5ccd",
-        "endpoint_id": "ba4dd9d6-f2ae-11e5-983a-22000b9da45e",
         "path": "dataset_bwi"
     },
     {
         "name": "Dallas/Fort Worth International Airport Climate Data",
         "id": "0a6690dc-8489-4df6-8cca-4f5029a65e1b",
-        "endpoint_id": "ba4dd9d6-f2ae-11e5-983a-22000b9da45e",
         "path": "dataset_dfw"
     },
     {
         "name": "Jacksonville International Airport Climate Data",
         "id": "5c1c57de-4f93-41a5-b24b-4f7994879519",
-        "endpoint_id": "ba4dd9d6-f2ae-11e5-983a-22000b9da45e",
         "path": "dataset_jax"
     },
     {
         "name": "Las Vegas McCarran International Airport Climate Data",
         "id": "971ceeb5-9498-4db6-a6e5-a625f92723ee",
-        "endpoint_id": "ba4dd9d6-f2ae-11e5-983a-22000b9da45e",
         "path": "dataset_las"
     },
     {
         "name": "LaGuardia Airport Climate Data",
         "id": "2847652b-d932-46ee-956e-ce81542ba141",
-        "endpoint_id": "ba4dd9d6-f2ae-11e5-983a-22000b9da45e",
         "path": "dataset_lga"
     },
     {
         "name": "Miami International Airport Climate Data",
         "id": "4319bc74-bd81-4294-8c69-bb968c99ab0b",
-        "endpoint_id": "ba4dd9d6-f2ae-11e5-983a-22000b9da45e",
         "path": "dataset_mia"
     },
     {
         "name": "Milwaukee Mitchell International Airport Climate Data",
         "id": "0148376f-5294-4ddd-8922-04cda2393a2c",
-        "endpoint_id": "ba4dd9d6-f2ae-11e5-983a-22000b9da45e",
         "path": "dataset_mke"
     },
     {
         "name": "Philadelphia International Airport Climate Data",
         "id": "53dece0c-c82d-4484-87e3-332d8af04bdd",
-        "endpoint_id": "ba4dd9d6-f2ae-11e5-983a-22000b9da45e",
         "path": "dataset_phl"
     },
     {
         "name": "San Francisco International Airport Climate Data",
         "id": "80cf39f6-ce88-44ef-a7f0-e45fabe77937",
-        "endpoint_id": "ba4dd9d6-f2ae-11e5-983a-22000b9da45e",
         "path": "dataset_sfo"
     }
 ]
