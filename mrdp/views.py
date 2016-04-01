@@ -155,60 +155,9 @@ def authcallback():
         return redirect(auth_uri)
 
 
-@app.route('/repository', methods=['GET'])
+@app.route('/transfer', methods=['GET', 'POST'])
 @authenticated
-def repository():
-    """
-    Add code here to:
-
-    - Check that we have an authenticated user (i.e. don't allow
-      unauthenticated users to access the repository)
-    - Get a list of the datasets in the repository
-    - Display a dataset list so user can browse/select
-
-    The target template (repository.jinja2) expects 'datasets'
-    (list of dictionaries) that describe each dataset as:
-    {'name': 'dataset name', 'uri': 'dataset uri/path'}
-
-    If you want to display additional information about each
-    dataset, you must add those keys to the dictionary
-    and modify the repository.jinja2 template accordingly.
-    """
-    return render_template('repository.jinja2', datasets=datasets)
-
-
-@app.route('/submit', methods=['POST'])
-@authenticated
-def submit():
-    if 'copy' in request.form:
-        user_action = 'copy'
-    elif 'graph' in request.form:
-        user_action = 'graph'
-    else:
-        abort(404)
-
-    params = {
-        'method': 'POST',
-        'action': url_for(user_action, _external=True, _scheme='https'),
-        'filelimit': 0,
-        'folderlimit': 1
-    }
-
-    browse_endpoint = 'https://www.globus.org/app/browse-endpoint?{}' \
-        .format(urlencode(params))
-
-    session['form'] = {
-        'year_filter': request.form['year_filter'],
-        'graph_type': request.form['graph_type'],
-        'datasets': request.form.getlist('dataset')
-    }
-
-    return redirect(browse_endpoint)
-
-
-@app.route('/copy', methods=['POST'])
-@authenticated
-def copy():
+def transfer():
     """
     Add code here to:
 
@@ -221,15 +170,34 @@ def copy():
     task. Since this route is called only once after a transfer request
     is submitted, it only provides a 'task_id'.
     """
-    if 'form' in session:
-        submit_form = session['form']
-        session.pop('form')
-    else:
-        abort(400)
+    if request.method == 'GET':
+        return render_template('transfer.jinja2', datasets=datasets)
 
+    if request.method == 'POST':
+        params = {
+            'method': 'POST',
+            'action': url_for('submit_transfer', _external=True,
+                              _scheme='https'),
+            'filelimit': 0,
+            'folderlimit': 1
+        }
+
+        browse_endpoint = 'https://www.globus.org/app/browse-endpoint?{}' \
+            .format(urlencode(params))
+
+        session['form'] = {
+            'datasets': request.form.getlist('dataset')
+        }
+
+        return redirect(browse_endpoint)
+
+
+@app.route('/submit-transfer', methods=['POST'])
+@authenticated
+def submit_transfer():
     globus_form = request.form
 
-    selected = submit_form['datasets']
+    selected = session['form']['datasets']
     filtered_datasets = [ds for ds in datasets if ds['id'] in selected]
 
     transfer = TransferClient(auth_token=g.credentials.access_token)
@@ -238,8 +206,7 @@ def copy():
 
     transfer_items = []
     for ds in filtered_datasets:
-        source_path = '{}/{}.csv'.format(ds['path'],
-                                         submit_form['year_filter'])
+        source_path = ds['path']
         dest_path = globus_form['path']
 
         if globus_form.get('folder[0]'):
@@ -250,9 +217,8 @@ def copy():
         transfer_items.append({
             'DATA_TYPE': 'transfer_item',
             'source_path': source_path,
-            'destination_path': '{}{}.csv'.format(dest_path,
-                                                  submit_form['year_filter']),
-            'recursive': False
+            'destination_path': dest_path,
+            'recursive': True
         })
 
     submission_id = transfer.get_submission_id().data['value']
