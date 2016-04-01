@@ -14,13 +14,19 @@ from globus_sdk import TransferClient
 
 from mrdp import app, database, datasets
 from mrdp.decorators import authenticated
-from mrdp.utils import basic_auth_header
+from mrdp.utils import basic_auth_header, get_safe_redirect
 
 
 @app.route('/', methods=['GET'])
 def home():
     """Home page - play with it if you must!"""
     return render_template('home.jinja2')
+
+
+@app.route('/signup', methods=['GET'])
+def signup():
+    """Send the user to Globus Auth with signup=1."""
+    return redirect(url_for('authcallback', signup=1))
 
 
 @app.route('/login', methods=['GET'])
@@ -34,7 +40,7 @@ def login():
     - Redirect to the repository page or profile page
       if this is the first login
     """
-    return redirect(url_for("authcallback"))
+    return redirect(url_for('authcallback'))
 
 
 @app.route('/logout', methods=['GET'])
@@ -73,19 +79,22 @@ def logout():
 
 
 @app.route('/profile', methods=['GET', 'POST'])
+@authenticated
 def profile():
     """User profile information. Assocated with a Globus Auth identity."""
     if request.method == 'GET':
-        if session.get('is_authenticated'):
-            identity_id = session.get('primary_identity')
-            profile = database.load_profile(identity_id)
+        identity_id = session.get('primary_identity')
+        profile = database.load_profile(identity_id)
 
-            if profile:
-                name, email, project = profile
+        if profile:
+            name, email, project = profile
 
-                session['name'] = name
-                session['email'] = email
-                session['project'] = project
+            session['name'] = name
+            session['email'] = email
+            session['project'] = project
+
+        if request.args.get('next'):
+            session['next'] = get_safe_redirect()
 
         return render_template('profile.jinja2')
     elif request.method == 'POST':
@@ -93,18 +102,20 @@ def profile():
         email = session['email'] = request.form['email']
         project = session['project'] = request.form['project']
 
-        if session.get('is_authenticated'):
-            database.save_profile(identity_id=session['primary_identity'],
-                                  name=name,
-                                  email=email,
-                                  project=project)
+        database.save_profile(identity_id=session['primary_identity'],
+                              name=name,
+                              email=email,
+                              project=project)
 
-            session['has_profile'] = True
+        flash('Thank you! Your profile has been successfully updated.')
 
-            flash("Thank you! Your profile has been successfully updated.")
-            return redirect(url_for('profile'))
+        if 'next' in session:
+            redirect_to = session['next']
+            session.pop('next')
         else:
-            return redirect(url_for('login'))
+            redirect_to = url_for('profile')
+
+        return redirect(redirect_to)
 
 
 @app.route('/authcallback', methods=['GET'])
@@ -115,11 +126,17 @@ def authcallback():
 
     scopes = 'urn:globus:auth:scope:transfer.api.globus.org:all'
     config = app.config
+
+    if request.args.get('signup'):
+        authorize_uri = '{}?signup=1'.format(config['GA_AUTH_URI'])
+    else:
+        authorize_uri = config['GA_AUTH_URI']
+
     flow = oauth.OAuth2WebServerFlow(app.config['GA_CLIENT_ID'],
                                      scope=scopes,
                                      authorization_header=basic_auth_header(),
                                      redirect_uri=config['GA_REDIRECT_URI'],
-                                     auth_uri=config['GA_AUTH_URI'],
+                                     auth_uri=authorize_uri,
                                      token_uri=config['GA_TOKEN_URI'],
                                      revoke_uri=config['GA_REVOKE_URI'])
 
@@ -233,7 +250,8 @@ def submit_transfer():
 
     task_id = transfer.submit_transfer(transfer_data).data['task_id']
 
-    flash("Transfer request submitted successfully. Task ID: " + task_id)
+    flash('Transfer request submitted successfully. Task ID: ' + task_id)
+
     return(redirect(url_for('transfer_status', task_id=task_id)))
 
 

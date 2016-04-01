@@ -23,9 +23,12 @@ def authenticated(fn):
             session['email'] = email
             session['project'] = project
         else:
-            session['name'] = g.credentials.id_token.get('name')
-            session['email'] = g.credentials.id_token.get('email')
-            return redirect(url_for('profile', next=request.url))
+            session['name'] = g.credentials.id_token.get('name', '')
+            session['email'] = g.credentials.id_token.get('email', '')
+            session['project'] = g.credentials.id_token.get('project', '')
+
+            if request.path != '/profile':
+                return redirect(url_for('profile', next=request.url))
 
         return fn(*args, **kwargs)
     return decorated_function
