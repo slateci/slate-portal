@@ -45,20 +45,33 @@
               <li>
                 <a href="{{url_for('transfer')}}">Transfer</a>
               </li>
+              <li class="divider">|</li>
+
               <li>
                 <a href="{{url_for('graph')}}">Graph</a>
               </li>
+              <li class="divider">|</li>
+
               <li>
                 <a href="{{url_for('profile')}}">Profile</a>
               </li>
+              <li class="divider">|</li>
+
               <li>
-                <a href="{{url_for('logout')}}">Logout: {{ session["primary_username"] }}</a>
+                <a href="{{url_for('logout')}}">Logout</a>
+              </li>
+              <li class="divider">|</li>
+
+              <li>
+                <a href="{{url_for('profile')}}">{{session["primary_username"]}}</a>
               </li>
             <!-- Display these links if user is not authenticated -->
             {%else%}
                <li>
                 <a href="{{url_for('login')}}">Login</a>
               </li>
+              <li class="divider">|</li>
+
               <li>
                 <a href="{{url_for('profile')}}">Sign Up</a>
               </li>
