@@ -202,7 +202,7 @@ def submit_transfer():
 
     transfer = TransferClient(auth_token=g.credentials.access_token)
 
-    source_endpoint_id = filtered_datasets[0]['endpoint_id']
+    source_endpoint_id = app.config['DATASET_ENDPOINT_ID']
 
     transfer_items = []
     for ds in filtered_datasets:
