@@ -496,3 +496,7 @@ body {
 ul {
   list-style: none;
 }
+
+p.task-detail {
+  margin: 10px 0;
+}
