@@ -140,7 +140,15 @@ def authcallback():
                                      token_uri=config['GA_TOKEN_URI'],
                                      revoke_uri=config['GA_REVOKE_URI'])
 
-    if 'code' in request.args:
+    if 'code' not in request.args:
+        state = str(uuid.uuid4())
+
+        auth_uri = flow.step1_get_authorize_url(state=state)
+
+        session['oauth2_state'] = state
+
+        return redirect(auth_uri)
+    else:
         passed_state = request.args.get('state')
 
         if passed_state and passed_state == session.get('oauth2_state'):
@@ -162,14 +170,6 @@ def authcallback():
                 )
 
             return redirect(url_for('transfer'))
-    else:
-        state = str(uuid.uuid4())
-
-        auth_uri = flow.step1_get_authorize_url(state=state)
-
-        session['oauth2_state'] = state
-
-        return redirect(auth_uri)
 
 
 @app.route('/transfer', methods=['GET', 'POST'])
