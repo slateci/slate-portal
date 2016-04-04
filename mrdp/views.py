@@ -10,7 +10,7 @@ try:
 except:
     from urllib import urlencode
 
-from globus_sdk import TransferClient
+from globus_sdk import TransferClient, TransferAPIError
 
 from mrdp import app, database, datasets
 from mrdp.decorators import authenticated
@@ -448,10 +448,14 @@ def browse(dataset_id):
 
     transfer = TransferClient(auth_token=g.credentials.access_token)
 
-    transfer.endpoint_autoactivate(endpoint_id)
-
-    res = transfer.operation_ls(endpoint_id, path=path)
-    listing = res.data['DATA']
+    try:
+        transfer.endpoint_autoactivate(endpoint_id)
+        res = transfer.operation_ls(endpoint_id, path=path)
+    except TransferAPIError as e:
+        flash('Error [{}]: {}'.format(e.code, e.message))
+        return redirect(url_for('transfer'))
+    else:
+        listing = res.data['DATA']
 
     file_list = [e for e in listing if e['type'] == 'file']
 
