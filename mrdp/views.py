@@ -221,7 +221,6 @@ def submit_transfer():
     selected = session['form']['datasets']
     filtered_datasets = [ds for ds in datasets if ds['id'] in selected]
 
-    print('debug: {}'.format(g.credentials.access_token))
     transfer = TransferClient(auth_token=g.credentials.access_token)
 
     source_endpoint_id = app.config['DATASET_ENDPOINT_ID']
