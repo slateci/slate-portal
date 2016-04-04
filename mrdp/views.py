@@ -191,6 +191,10 @@ def transfer():
         return render_template('transfer.jinja2', datasets=datasets)
 
     if request.method == 'POST':
+        if not request.form.get('dataset'):
+            flash('Please select at least one dataset.')
+            return redirect(url_for('transfer'))
+
         params = {
             'method': 'POST',
             'action': url_for('submit_transfer', _external=True,
@@ -273,6 +277,10 @@ def graph():
     from csv import reader
     import pygal
     from time import strftime
+
+    if not request.form.get('dataset'):
+        flash('Please select at least one dataset.')
+        return redirect(url_for('graph'))
 
     transfer = TransferClient(auth_token=g.credentials.access_token)
 
