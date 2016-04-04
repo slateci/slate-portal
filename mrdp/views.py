@@ -451,8 +451,8 @@ def browse(dataset_id):
     try:
         transfer.endpoint_autoactivate(endpoint_id)
         res = transfer.operation_ls(endpoint_id, path=path)
-    except TransferAPIError as e:
-        flash('Error [{}]: {}'.format(e.code, e.message))
+    except TransferAPIError as err:
+        flash('Error [{}]: {}'.format(err.code, err.message))
         return redirect(url_for('transfer'))
     else:
         listing = res.data['DATA']
