@@ -340,7 +340,7 @@ def graph():
         )
         csv = reader(response.iter_lines())
 
-        header = csv.next()
+        header = next(csv)
         date_index = header.index('DATE')
         prcp_index = header.index('PRCP')
         tmin_index = header.index('TMIN')

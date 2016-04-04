@@ -4,7 +4,7 @@ from flask import request
 try:
     from urllib.parse import urlparse, urljoin
 except:
-    from urllib import urlparse, urljoin
+    from urlparse import urlparse, urljoin
 
 from mrdp import app
 
