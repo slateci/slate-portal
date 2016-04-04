@@ -440,7 +440,7 @@ def browse(dataset_id):
     else:
         abort(404)
 
-    endpoint_id = dataset['endpoint_id']
+    endpoint_id = app.config['DATASET_ENDPOINT_ID']
     path = dataset['path']
 
     transfer = TransferClient(auth_token=g.credentials.access_token)
