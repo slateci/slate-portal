@@ -221,9 +221,11 @@ def submit_transfer():
     selected = session['form']['datasets']
     filtered_datasets = [ds for ds in datasets if ds['id'] in selected]
 
+    print('debug: {}'.format(g.credentials.access_token))
     transfer = TransferClient(auth_token=g.credentials.access_token)
 
     source_endpoint_id = app.config['DATASET_ENDPOINT_ID']
+    destination_endpoint_id = globus_form['endpoint_id']
 
     transfer_items = []
     for ds in filtered_datasets:
@@ -247,11 +249,13 @@ def submit_transfer():
         'DATA_TYPE': 'transfer',
         'submission_id': submission_id,
         'source_endpoint': source_endpoint_id,
-        'destination_endpoint': globus_form['endpoint_id'],
+        'destination_endpoint': destination_endpoint_id,
         'label': globus_form.get('label') or None,
         'DATA': transfer_items
     }
 
+    transfer.endpoint_autoactivate(source_endpoint_id)
+    transfer.endpoint_autoactivate(destination_endpoint_id)
     task_id = transfer.submit_transfer(transfer_data).data['task_id']
 
     flash('Transfer request submitted successfully. Task ID: ' + task_id)
@@ -444,6 +448,9 @@ def browse(dataset_id):
     path = dataset['path']
 
     transfer = TransferClient(auth_token=g.credentials.access_token)
+
+    transfer.endpoint_autoactivate(endpoint_id)
+
     res = transfer.operation_ls(endpoint_id, path=path)
     listing = res.data['DATA']
 
