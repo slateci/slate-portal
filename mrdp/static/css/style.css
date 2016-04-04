@@ -192,7 +192,7 @@ select {
   -moz-background-size: cover;
   background-size: cover;
   -o-background-size: cover;
-  margin-bottom: 50px;
+  margin-bottom: 25px;
 }
 
 .intro-header .site-heading,
@@ -206,7 +206,7 @@ select {
   .intro-header .site-heading,
   .intro-header .post-heading,
   .intro-header .page-heading {
-    padding: 150px 0;
+    padding: 100px 0 50px;
   }
 }
 
