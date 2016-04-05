@@ -268,82 +268,71 @@ def graph():
     """
     Add code here to:
 
-    - Send to Globus to select a destination endpoint
-    - `GET` all years CSVs for the selected datasets via HTTPS server
-    - Generate a graph SVG/HTML file for the precipitation (`PRCP`),
-      temperature (`TMIN`/`TMAX`), or both, depending on the user's
-      selection, for each dataset
-    - `PUT` the generated graphs onto the user's destination endpoint
-    - Display a confirmation message
+    - Read the year and the IDs of the datasets the user wants
+    - Instantiate a Transfer client as the identity of the portal
+    - `GET` the CSVs for the selected datasets via HTTPS server as the
+      identity of the portal
+    - Generate a graph SVG file for the precipitation (`PRCP`) and
+      temperature (`TMIN`/`TMAX`) for the selected year and datasets
+    - `PUT` the generated graphs onto the predefined share endpoint as
+      the identity of the portal
+    - Display a confirmation
     """
 
     if request.method == 'GET':
         return render_template('graph.jinja2', datasets=datasets)
 
-    from csv import reader
-    import pygal
-    from time import strftime
+    selected_ids = request.form.getlist('dataset')
+    selected_datasets = [dataset for dataset in datasets
+                         if dataset['id'] in selected_ids]
+    selected_year = request.form.get('year')
 
-    if not request.form.get('dataset'):
-        flash('Please select at least one dataset.')
+    if not (selected_datasets and selected_year):
+        flash("Please select at least one dataset and a year to graph.")
         return redirect(url_for('graph'))
 
-    transfer = TransferClient(auth_token=g.credentials.access_token)
+    # FIXME Instead of using the user's token (`g.credentials.access_token`),
+    # we want to use the portal's access token (retrieved via two-legged OAuth
+    # for some Globus ID, e.g. `mrdpportaladmin`, or via a refresh token?) for
+    # *all* the operations within this handler.
+    auth_token = g.credentials.access_token
+    auth_headers = dict(Authorization='Bearer ' + auth_token)
+    transfer = TransferClient(auth_token=auth_token)
 
-    previous = session.get('form') or abort(400)
-    selected_ids = previous.get('datasets')
-    selected_datasets = [dataset
-                         for dataset in datasets
-                         if not selected_ids or dataset['id'] in selected_ids]
-    selected_type = previous.get('graph_type') or 'all'
+    source_ep = app.config['DATASET_ENDPOINT_ID']
+    source_info = transfer.get_endpoint(source_ep).data
+    source_https = source_info.get('https_server')
 
-    source_infos = {endpoint_id: transfer.get_endpoint(endpoint_id).data
-                    for endpoint_id in set(dataset['endpoint_id']
-                                           for dataset in selected_datasets)}
-    for source_info in source_infos.values():
-        if not source_info.get('https_server'):  # source does not support GETs
-            # FIXME this should abort() / return an error message to the user
-            source_info['https_server'] = 'https://mrdp-demo.appspot.com'
-
-    form = request.form
-    dest_ep = form.get('endpoint_id')
+    dest_ep = app.config['GRAPH_ENDPOINT_ID']
     dest_info = transfer.get_endpoint(dest_ep).data
     dest_https = dest_info.get('https_server')
-    dest_base = form.get('path')
-    dest_folder = form.get('folder[0]')
-    dest_path = ('%s%s/' % (dest_base, dest_folder) if dest_folder
-                 else dest_base) + strftime('Climate Graphs %F %I%M%S%P/')
+    dest_base = app.config['GRAPH_ENDPOINT_BASE']
+    dest_path = '%sGraphs for %s/' % (dest_base, session['primary_username'])
 
-    if not dest_https:  # destination does not support PUTs
-        # FIXME this should abort() / return an error message to the user
-        dest_https = 'https://mrdp-demo.appspot.com'
+    if not (source_https and dest_https):
+        # FIXME Remove this temporary workaround once we have HTTPS endpoints.
+        #
+        # flash("Both dataset and graph endpoints must be HTTPS endpoints.")
+        # return redirect(url_for('graph'))
+        source_https = source_https or 'https://mrdp-demo.appspot.com'
+        dest_https = dest_https or 'https://mrdp-demo.appspot.com'
 
-    # FIXME We need a Bearer token to PUT onto the destination endpoint and a
-    # Bearer token for each individual source endpoint to GET the all.csv file
-    # -or-
-    # The application needs a refresh token to get credentials for accessing
-    # the destination endpoint (and maybe the source endpoint too), and the
-    # application will create a new directory with a new ACL for the logged-in
-    # user so they can access the files.
-    authorizations = dict([
-        (dest_ep, 'Bearer XXX')
-    ] + [
-        (endpoint_id, 'Bearer XXX')
-        for endpoint_id, endpoint_info in source_infos.items()
-        if endpoint_id != dest_ep
-    ])
+    # TODO Externalize the downloading of the CSVs and the generation of the
+    # graphs, as conference participants won't necessarily find that part
+    # interesting or relevant.
+
+    from csv import reader
+    from datetime import date
+    from pygal import Line
 
     svgs = {}
+    x_labels = [date(2016, month, 1).strftime('%B') for month in range(1, 13)]
 
     for dataset in selected_datasets:
-        source_ep = dataset['endpoint_id']
-        source_https = source_infos[source_ep]['https_server']
         source_path = dataset['path']
-
-        response = requests.get(
-            '%s/%s/all.csv' % (source_https, source_path),
-            headers={'Authorization': authorizations[source_ep]},
-        )
+        response = requests.get('%s/%s/%s.csv' % (source_https, source_path,
+                                                  selected_year),
+                                headers=auth_headers)
         csv = reader(response.iter_lines())
 
         header = next(csv)
@@ -352,68 +341,69 @@ def graph():
         tmin_index = header.index('TMIN')
         tmax_index = header.index('TMAX')
 
-        annuals = {}
+        monthlies = [dict(days_of_data=0, precipitation_total=0,
+                          min_temperature_total=0, max_temperature_total=0)
+                     for _ in range(12)]
         for row in csv:
-            year = int(row[date_index][:4])
-            try:
-                data = annuals[year]
-            except KeyError:
-                data = annuals[year] = dict(days_of_data=0,
-                                            precipitation_total=0,
-                                            min_temperature_total=0,
-                                            max_temperature_total=0)
+            month = int(row[date_index][4:6])
+            data = monthlies[month - 1]
             data['days_of_data'] += 1
             data['precipitation_total'] += int(row[prcp_index])
             data['min_temperature_total'] += int(row[tmin_index])
             data['max_temperature_total'] += int(row[tmax_index])
 
-        if selected_type in ['all', 'precipitation']:
-            x_axis = []
-            y_values = []
+        graph = Line(x_labels=x_labels, x_label_rotation=90)
+        graph.add("Precip(mm)", [monthly['precipitation_total'] / 10.
+                                 for monthly in monthlies])
+        graph.config.title = "%s from %s for %s" % \
+                             ("Precipitation", dataset['name'], selected_year)
+        svgs[graph.config.title] = graph.render()
 
-            for year, data in sorted(annuals.items()):
-                x_axis.append(year)
-                y_values.append(data['precipitation_total'] / 10.)
+        # TODO Switch this to a box plot to be more interesting?
+        graph = Line(x_labels=x_labels, x_label_rotation=90)
+        graph.add("Avg High(C)", [monthly['max_temperature_total'] / 10. /
+                                  monthly['days_of_data']
+                                  for monthly in monthlies])
+        graph.add("Avg Low(C)", [monthly['min_temperature_total'] / 10. /
+                                 monthly['days_of_data']
+                                 for monthly in monthlies])
+        graph.config.title = "%s from %s for %s" % \
+                             ("Temperatures", dataset['name'], selected_year)
+        svgs[graph.config.title] = graph.render()
 
-            line = pygal.Line(x_label_rotation=90)
-            line.x_labels = x_axis
-            line.add("Precip(mm)", y_values)
+    transfer.endpoint_autoactivate(dest_ep)
 
-            svgs["%s %s" % (dataset['name'],
-                            "Total Annual Precipitation")] = line.render()
+    try:
+        transfer.operation_mkdir(dest_ep, dest_path)
+    except TransferAPIError as error:
+        if 'MkdirFailed.Exists' not in error.code:
+            raise
 
-        if selected_type in ['all', 'temperature']:
-            x_axis = []
-            y_min_values = []
-            y_max_values = []
-
-            for year, data in sorted(annuals.items()):
-                x_axis.append(year)
-                y_min_values.append(data['min_temperature_total'] / 10. /
-                                    data['days_of_data'])
-                y_max_values.append(data['max_temperature_total'] / 10. /
-                                    data['days_of_data'])
-
-            line = pygal.Line(x_label_rotation=90)
-            line.x_labels = x_axis
-            line.add("Avg Max Temp(C)", y_max_values)
-            line.add("Avg Min Temp(C)", y_min_values)
-
-            svgs["%s %s" % (dataset['name'],
-                            "Average Temperatures")] = line.render()
-
-    transfer.operation_mkdir(dest_ep, dest_path)
+    # TODO The portal identity should be setup with access manager privileges
+    # on the graph destination endpoint.
+    #
+    # try:
+    #     transfer.add_endpoint_acl_rule(
+    #         dest_ep,
+    #         dict(principal=session['primary_identity'],
+    #              principal_type='identity', path=dest_path, permissions='r'),
+    #     )
+    # except TransferAPIError as error:
+    #     if error.code != 'Exists':
+    #         raise
 
     for filename, svg in svgs.items():
-        requests.put(
-            '%s%s%s.svg' % (dest_https, dest_path, filename),
-            headers={'Authorization': authorizations[dest_ep]},
-            data=data,
-        )
+        # TODO Does the HTTPS server throw an error for an already-existing
+        # destination file, or is it silently overwritten?
+        requests.put('%s%s%s.svg' % (dest_https, dest_path, filename),
+                     headers=auth_headers, data=svg)
 
+    # TODO Instead of doing this, show a file list of the SVGs that were
+    # generated and a link to "open in Transfer" that will open the directory
+    # in Transfer Files page in the webapp
     flash("%d-file SVG upload to %s on %s completed!" %
           (len(svgs), dest_path, dest_info['display_name']))
-    return redirect(url_for('repository'))
+    return redirect(url_for('graph'))
 
 
 @app.route('/browse/<dataset_id>', methods=['GET'])

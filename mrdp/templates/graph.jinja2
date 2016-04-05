@@ -53,10 +53,12 @@
 
         <div class="row">
           <div class="form-group col-md-6">
-            <label class="col-md-5" for="year_filter">Year</label>
+            <label class="col-md-5" for="year">Year</label>
 
             <div class="col-md-5">
-              <select name="year_filter" id="year_filter">
+              <select name="year" id="year" required>
+                <option value="">(select year)</option>
+
                 {%for year in range(1951, 2016)%}
                   <option value="{{year}}">{{year}}</option>
                 {%endfor%}
