@@ -262,7 +262,7 @@ def submit_transfer():
     return(redirect(url_for('transfer_status', task_id=task_id)))
 
 
-@app.route('/graph', methods=['POST'])
+@app.route('/graph', methods=['GET', 'POST'])
 @authenticated
 def graph():
     """
@@ -276,6 +276,9 @@ def graph():
     - `PUT` the generated graphs onto the user's destination endpoint
     - Display a confirmation message
     """
+
+    if request.method == 'GET':
+        return render_template('graph.jinja2', datasets=datasets)
 
     from csv import reader
     import pygal
