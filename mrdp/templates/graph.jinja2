@@ -3,99 +3,76 @@
 {%block title%}Repository{%endblock%}
 
 {%block body%}
+  {%include "header.jinja2"%}
 
-{%include "header.jinja2"%}
+  <div class="container">
+    <div class="page-header">
+      <h1>Repository</h1>
+    </div>
 
-<div class="container">
+    <p>
+      Select some dataset(s) to graph
+      <strong>or</strong>
+      click on a dataset name to browse its files.
+    </p>
 
-  <div class="page-header">
-    <h1>Repository</h1>
-  </div>
+    <div class="form-wrapper">
+      <form class="form-inline" role="form" action="{{url_for('graph')}}" method="post">
+        <div class="row">
+          <div class="col-md-12">
+            <table class="table">
+              <th class="col-md-5 text-left">
+                Dataset Name
+              </th>
+              <th class="col-md-1 text-center">
+                Select
+              </th>
 
-  <p>
-    Select some dataset(s) to transfer or graph,
-    <strong>or</strong>
-    click on a dataset name to browse its files.
-  </p>
-
-  <div class="form-wrapper">
-    <form class="form-inline" role="form" action="{{url_for('submit')}}" method="post">
-      <div class="row">
-        <div class="col-md-12">
-          <table class="table">
-            <th class="col-md-5 text-left">
-              Dataset Name
-            </th>
-            <th class="col-md-1 text-center">
-              Select
-            </th>
-
-            {%if datasets%}
-              {%for dataset in datasets%}
-                <tr>
-                  <td class="col-md-5 text-left">
-                    <i class="fa fa-folder fa-lg"></i>&nbsp;
-                    <a href="{{url_for('browse', dataset_id=dataset['id'])}}">
-                      {{dataset["name"]}}
-                    </a>
-                  </td>
-                  <td class="col-md-1 text-center">
-                    <input type="checkbox" name="dataset" value="{{dataset['id']}}">
-                  </td>
-                </tr>
-              {%endfor%}
-            {%else%}
-              <p>No datasets found.</p>
-            {%endif%}
-          </table>
-        </div>
-      </div>
-
-      <hr>
-
-      <div class="row">
-        <div class="form-group col-md-6">
-          <label class="col-md-5" for="year_filter">Filter by Year</label>
-
-          <div class="col-md-5">
-            <select name="year_filter" id="year_filter">
-              <option value="all">all years</option>
-
-              {%for year in range(1951, 2016)%}
-                <option value="{{year}}">{{year}}</option>
-              {%endfor%}
-            </select>
+              {%if datasets%}
+                {%for dataset in datasets%}
+                  <tr>
+                    <td class="col-md-5 text-left">
+                      <i class="fa fa-folder fa-lg"></i>&nbsp;
+                      <a href="{{url_for('browse', dataset_id=dataset['id'])}}">
+                        {{dataset["name"]}}
+                      </a>
+                    </td>
+                    <td class="col-md-1 text-center">
+                      <input type="checkbox" name="dataset" value="{{dataset['id']}}">
+                    </td>
+                  </tr>
+                {%endfor%}
+              {%else%}
+                <p>No datasets found.</p>
+              {%endif%}
+            </table>
           </div>
         </div>
 
-        <div class="form-actions col-md-6 pull-right">
-          <input name="copy" type="submit" class="btn btn-primary"
-                 value="Transfer">
-        </div>
-      </div>
+        <hr>
 
-      <hr>
+        <div class="row">
+          <div class="form-group col-md-6">
+            <label class="col-md-5" for="year">Year</label>
 
-      <div class="row">
-        <div class="form-group col-md-6">
-          <label class="col-md-5" for="graph_type">Graph Type</label>
+            <div class="col-md-5">
+              <select name="year" id="year" required>
+                <option value="">(select year)</option>
 
-          <div class="col-md-5">
-            <select name="graph_type" id="graph_type">
-              <option value="all">both types</option>
-              <option value="precipitation">precipitation</option>
-              <option value="temperature">temperature</option>
-            </select>
+                {%for year in range(1951, 2016)%}
+                  <option value="{{year}}">{{year}}</option>
+                {%endfor%}
+              </select>
+            </div>
+          </div>
+
+          <div class="form-actions col-md-6 pull-right">
+            <input name="graph" type="submit" class="btn btn-primary"
+                   value="Generate Graphs">
           </div>
         </div>
+      </form>
+    </div> <!-- form -->
 
-        <div class="form-actions col-md-6 pull-right">
-          <input name="graph" type="submit" class="btn btn-primary"
-                 value="Generate Graphs">
-        </div>
-      </div>
-    </form>
-   </div> <!-- form -->
-
-</div> <!-- container -->
+  </div> <!-- container -->
 {%endblock%}
