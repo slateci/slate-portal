@@ -31,15 +31,7 @@ def signup():
 
 @app.route('/login', methods=['GET'])
 def login():
-    """
-    Add code here to:
-
-    - Redirect user to Globus Auth
-    - Get an access token and a refresh token
-    - Store these tokens in the session
-    - Redirect to the repository page or profile page
-      if this is the first login
-    """
+    """Send the user to Globus Auth."""
     return redirect(url_for('authcallback'))
 
 
@@ -49,8 +41,9 @@ def logout():
     """
     Add code here to:
 
-    - Destroy Globus Auth token (remove it from session?)
-    - ???
+    - Revoke Globus Auth token(s).
+    - Destroy the session.
+    - Redirect the user to the Globus Auth logout page.
     """
     headers = {'Authorization': basic_auth_header()}
     data = {
@@ -120,9 +113,14 @@ def profile():
 
 @app.route('/authcallback', methods=['GET'])
 def authcallback():
+    """Handles the interaction with Globus Auth."""
+    # If we're coming back from Globus Auth in an error state, the error
+    # will be in the "error" query string parameter.
     if 'error' in request.args:
         pass
         # handle error
+
+    # Set up our Globus Auth/OAuth2 state
 
     scopes = 'urn:globus:auth:scope:transfer.api.globus.org:all'
     config = app.config
@@ -140,6 +138,8 @@ def authcallback():
                                      token_uri=config['GA_TOKEN_URI'],
                                      revoke_uri=config['GA_REVOKE_URI'])
 
+    # If there's no "code" query string parameter, we're in this route
+    # starting a Globus Auth login flow.
     if 'code' not in request.args:
         state = str(uuid.uuid4())
 
@@ -149,6 +149,8 @@ def authcallback():
 
         return redirect(auth_uri)
     else:
+        # If we do have a "code" param, we're coming back from Globus Auth
+        # and can start the process of exchanging an auth code for a token.
         passed_state = request.args.get('state')
 
         if passed_state and passed_state == session.get('oauth2_state'):
@@ -178,14 +180,9 @@ def transfer():
     """
     Add code here to:
 
-    - Send to Globus to select a destination endpoint
-    - Submit a Globus transfer request and get the task ID
-    - Return to a transfer "status" page
-
-    The target template expects a 'task_id' (str) and a
-    'transfer_status' (dictionary) containing various details about the
-    task. Since this route is called only once after a transfer request
-    is submitted, it only provides a 'task_id'.
+    - Save the submitted form to the session.
+    - Send to Globus to select a destination endpoint using the
+      Browse Endpoint helper page.
     """
     if request.method == 'GET':
         return render_template('transfer.jinja2', datasets=datasets)
@@ -216,6 +213,14 @@ def transfer():
 @app.route('/submit-transfer', methods=['POST'])
 @authenticated
 def submit_transfer():
+    """
+    Add code here to:
+
+    - Take the data returned by the Browse Endpoint helper page
+      and make a Globus transfer request.
+    - Send the user to the transfer status page with the task id
+      from the transfer.
+    """
     globus_form = request.form
 
     selected = session['form']['datasets']
