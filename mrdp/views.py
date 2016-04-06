@@ -14,6 +14,7 @@ from globus_sdk import TransferClient, TransferAPIError
 
 from mrdp import app, database, datasets
 from mrdp.decorators import authenticated
+from mrdp.processing import render_graphs
 from mrdp.utils import basic_auth_header, get_safe_redirect
 
 
@@ -322,59 +323,17 @@ def graph():
         source_https = source_https or 'https://mrdp-demo.appspot.com'
         dest_https = dest_https or 'https://mrdp-demo.appspot.com'
 
-    # TODO Externalize the downloading of the CSVs and the generation of the
-    # graphs, as conference participants won't necessarily find that part
-    # interesting or relevant.
-
-    from csv import reader
-    from datetime import date
-    from pygal import Line
-
     svgs = {}
-    x_labels = [date(2016, month, 1).strftime('%B') for month in range(1, 13)]
 
     for dataset in selected_datasets:
         source_path = dataset['path']
         response = requests.get('%s/%s/%s.csv' % (source_https, source_path,
                                                   selected_year),
                                 headers=auth_headers)
-        csv = reader(response.iter_lines())
-
-        header = next(csv)
-        date_index = header.index('DATE')
-        prcp_index = header.index('PRCP')
-        tmin_index = header.index('TMIN')
-        tmax_index = header.index('TMAX')
-
-        monthlies = [dict(days_of_data=0, precipitation_total=0,
-                          min_temperature_total=0, max_temperature_total=0)
-                     for _ in range(12)]
-        for row in csv:
-            month = int(row[date_index][4:6])
-            data = monthlies[month - 1]
-            data['days_of_data'] += 1
-            data['precipitation_total'] += int(row[prcp_index])
-            data['min_temperature_total'] += int(row[tmin_index])
-            data['max_temperature_total'] += int(row[tmax_index])
-
-        graph = Line(x_labels=x_labels, x_label_rotation=90)
-        graph.add("Precip(mm)", [monthly['precipitation_total'] / 10.
-                                 for monthly in monthlies])
-        graph.config.title = "%s from %s for %s" % \
-                             ("Precipitation", dataset['name'], selected_year)
-        svgs[graph.config.title] = graph.render()
-
-        # TODO Switch this to a box plot to be more interesting?
-        graph = Line(x_labels=x_labels, x_label_rotation=90)
-        graph.add("Avg High(C)", [monthly['max_temperature_total'] / 10. /
-                                  monthly['days_of_data']
-                                  for monthly in monthlies])
-        graph.add("Avg Low(C)", [monthly['min_temperature_total'] / 10. /
-                                 monthly['days_of_data']
-                                 for monthly in monthlies])
-        graph.config.title = "%s from %s for %s" % \
-                             ("Temperatures", dataset['name'], selected_year)
-        svgs[graph.config.title] = graph.render()
+        svgs.update(render_graphs(
+            csv_data=response.iter_lines(),
+            append_titles=" from %s for %s" % (dataset['name'], selected_year),
+        ))
 
     transfer.endpoint_autoactivate(dest_ep)
 
