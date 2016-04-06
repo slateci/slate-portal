@@ -51,8 +51,14 @@ def aggregate_monthly_data(csv_data):
     must be a header line.
 
     Returns a 12-member list of structured monthly data, each of which
-    is a dict containing `days_of_data`, `precipitation_total`,
-    `min_temperature_total`, and `max_temperature_total`.
+    is a dict containing
+
+    - `days_of_data`,
+    - `precipitation_total`,
+    - `min_temperature_total`,
+    - `max_temperature_total`,
+    - `all_min_temperatures`, and
+    - `all_max_temperatures`.
     """
 
     csv_data = csv_reader(csv_data)
@@ -64,15 +70,23 @@ def aggregate_monthly_data(csv_data):
     tmax_index = header_row.index('TMAX')
 
     monthlies = [dict(days_of_data=0, precipitation_total=0,
-                      min_temperature_total=0, max_temperature_total=0)
+                      min_temperature_total=0, max_temperature_total=0,
+                      all_min_temperatures=[], all_max_temperatures=[])
                  for _ in range(12)]
 
     for data_row in csv_data:
-        monthly = monthlies[int(data_row[date_index][4:6]) - 1]
+        row_month = int(data_row[date_index][4:6])
+        row_prcp = int(data_row[prcp_index])
+        row_tmin = int(data_row[tmin_index])
+        row_tmax = int(data_row[tmax_index])
+
+        monthly = monthlies[row_month - 1]
         monthly['days_of_data'] += 1
-        monthly['precipitation_total'] += int(data_row[prcp_index])
-        monthly['min_temperature_total'] += int(data_row[tmin_index])
-        monthly['max_temperature_total'] += int(data_row[tmax_index])
+        monthly['precipitation_total'] += row_prcp
+        monthly['min_temperature_total'] += row_tmin
+        monthly['max_temperature_total'] += row_tmax
+        monthly['all_min_temperatures'].append(row_tmin)
+        monthly['all_max_temperatures'].append(row_tmax)
 
     return monthlies
 
