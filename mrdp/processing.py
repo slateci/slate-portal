@@ -83,8 +83,8 @@ def monthly_total_precip_line(monthlies, append_title=""):
     returns a Pygal line graph of precipitation totals for each month.
     """
 
-    graph = Line(x_labels=MONTH_NAMES, x_label_rotation=90)
-    graph.config.title = "Precipitation" + append_title
+    graph = Line(title="Precipitation" + append_title,
+                 x_labels=MONTH_NAMES, x_label_rotation=90)
 
     graph.add("Precip(mm)", [monthly['precipitation_total'] / 10.
                              for monthly in monthlies])
@@ -99,8 +99,8 @@ def monthly_avg_min_max_temp_line(monthlies, append_title=""):
     temperatures for each month.
     """
 
-    graph = Line(x_labels=MONTH_NAMES, x_label_rotation=90)
-    graph.config.title = "Temperatures" + append_title
+    graph = Line(title="Average High/Low Temperature" + append_title,
+                 x_labels=MONTH_NAMES, x_label_rotation=90)
 
     graph.add("Avg High(C)", [monthly['max_temperature_total'] / 10. /
                               monthly['days_of_data']
