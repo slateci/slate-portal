@@ -226,7 +226,7 @@ def submit_transfer():
     selected = session['form']['datasets']
     filtered_datasets = [ds for ds in datasets if ds['id'] in selected]
 
-    transfer = TransferClient(auth_token=g.credentials.access_token)
+    transfer = TransferClient(token=g.credentials.access_token)
 
     source_endpoint_id = app.config['DATASET_ENDPOINT_ID']
     destination_endpoint_id = globus_form['endpoint_id']
@@ -300,9 +300,9 @@ def graph():
     # we want to use the portal's access token (retrieved via two-legged OAuth
     # for some Globus ID, e.g. `mrdpportaladmin`, or via a refresh token?) for
     # *all* the operations within this handler.
-    auth_token = g.credentials.access_token
-    auth_headers = dict(Authorization='Bearer ' + auth_token)
-    transfer = TransferClient(auth_token=auth_token)
+    token = g.credentials.access_token
+    auth_headers = dict(Authorization='Bearer ' + token)
+    transfer = TransferClient(token=token)
 
     source_ep = app.config['DATASET_ENDPOINT_ID']
     source_info = transfer.get_endpoint(source_ep).data
@@ -444,7 +444,7 @@ def browse(dataset_id):
     endpoint_id = app.config['DATASET_ENDPOINT_ID']
     path = dataset['path']
 
-    transfer = TransferClient(auth_token=g.credentials.access_token)
+    transfer = TransferClient(token=g.credentials.access_token)
 
     try:
         transfer.endpoint_autoactivate(endpoint_id)
@@ -494,7 +494,7 @@ def transfer_status(task_id):
     you must add those keys to the dictionary and modify the
     transfer_status.jinja2 template accordingly.
     """
-    transfer = TransferClient(auth_token=g.credentials.access_token)
+    transfer = TransferClient(token=g.credentials.access_token)
     task = transfer.get_task(task_id)
 
     return render_template('transfer_status.jinja2', task=task.data)
