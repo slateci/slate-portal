@@ -1,18 +1,15 @@
-"""
-Climate Data Online aggregation and graphing
-
-TODO Add a box plot of the temperature data to be more interesting?
-"""
+"""Climate Data Online aggregation and graphing"""
 
 from csv import reader as csv_reader
 from datetime import date
-from pygal import Line
+from pygal import Box, Line
 
 __all__ = [
     'render_graphs',
     'aggregate_monthly_data',
     'monthly_total_precip_line',
     'monthly_avg_min_max_temp_line',
+    'monthly_max_temps_box',
 ]
 
 
@@ -36,6 +33,7 @@ def render_graphs(csv_data, append_titles=""):
         for graph in [
             monthly_total_precip_line(monthlies, append_titles),
             monthly_avg_min_max_temp_line(monthlies, append_titles),
+            monthly_max_temps_box(monthlies, append_titles),
         ]
     }
 
@@ -123,5 +121,22 @@ def monthly_avg_min_max_temp_line(monthlies, append_title=""):
     graph.add("Avg Low(C)", [monthly['min_temperature_total'] / 10. /
                              monthly['days_of_data']
                              for monthly in monthlies])
+
+    return graph
+
+
+def monthly_max_temps_box(monthlies, append_title=""):
+    """
+    Given `monthlies` data as returned by `aggregate_monthly_data()`,
+    returns a Pygal box-and-whisker plot graph of the range of high
+    temperatures for each month.
+    """
+
+    graph = Box(title="High Temperature Ranges" + append_title,
+                show_legend=False, x_labels=MONTH_NAMES, x_label_rotation=90,
+                y_title=u"\u00b0C")
+
+    for i, month_name in enumerate(MONTH_NAMES):
+        graph.add(month_name, monthlies[i]['all_max_temperatures'])
 
     return graph
