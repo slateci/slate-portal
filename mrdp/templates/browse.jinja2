@@ -14,8 +14,8 @@
 
   <p>
     Displaying a list of files in {{target}}
-    {%-if dataset_uri%}
-      at <strong>{{dataset_uri}}</strong>.<br>
+    {%-if endpoint_uri%}
+      at <strong>{{endpoint_uri}}</strong>.<br>
       Click on a file name to display the contents in your browser or download
       via HTTP
     {%-endif%}.
@@ -30,8 +30,8 @@
           <tr>
             <td class="col-md-5 text-left">
               <i class="fa fa-file"></i>&nbsp;
-              {%if dataset_uri%}
-                <a href="{{dataset_uri}}/{{file.name}}">{{file.name}}</a>
+              {%if endpoint_uri%}
+                <a href="{{endpoint_uri}}/{{file.name}}">{{file.name}}</a>
               {%else%}
                 {{file.name}}
               {%endif%}

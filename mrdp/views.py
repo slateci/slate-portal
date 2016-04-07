@@ -378,14 +378,12 @@ def browse(dataset_id=None, endpoint_id=None, endpoint_path=None):
     - Get list of files for the selected dataset or endpoint ID/path
     - Return a list of files to a browse view
 
-    The target template (browse.jinja2) expects a unique dataset
-    identifier 'dataset_id' (str) and 'file_list' (list of
-    dictionaries) containing the following information about each file
-    in the dataset:
+    The target template (browse.jinja2) expects an `endpoint_uri` (if
+    available for the endpoint), `target` (either `"dataset"`
+    or `"endpoint"`), and 'file_list' (list of dictionaries) containing
+    the following information about each file in the result:
 
     {'name': 'file name', 'size': 'file size', 'id': 'file uri/path'}
-
-    'dataset_uri' is passed to the route in the URL as 'target_uri'.
 
     If you want to display additional information about each file, you
     must add those keys to the dictionary and modify the browse.jinja2
@@ -419,9 +417,9 @@ def browse(dataset_id=None, endpoint_id=None, endpoint_path=None):
     ep = transfer.get_endpoint(endpoint_id).data
 
     https_server = ep.get('https_server')
-    dataset_uri = https_server + endpoint_path if https_server else None
+    endpoint_uri = https_server + endpoint_path if https_server else None
 
-    return render_template('browse.jinja2', dataset_uri=dataset_uri,
+    return render_template('browse.jinja2', endpoint_uri=endpoint_uri,
                            target="dataset" if dataset_id else "endpoint",
                            file_list=file_list)
 
