@@ -419,7 +419,7 @@ def browse(dataset_id):
     dataset_uri = ep.get('https_server') + path
 
     return render_template('browse.jinja2', dataset_uri=dataset_uri,
-                           file_list=file_list)
+                           dataset_name=dataset['name'], file_list=file_list)
 
 
 @app.route('/status/<task_id>', methods=['GET'])
