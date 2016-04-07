@@ -13,12 +13,13 @@
     </div>
 
   <p>
-    Displaying a list of files in {{target}}
-    {%-if endpoint_uri%}
-      at <strong>{{endpoint_uri}}</strong>.<br>
+    Displaying a list of files in {{target}} <strong>{{description}}</strong>.
+
+    {%if endpoint_uri%}
+      <br>
       Click on a file name to display the contents in your browser or download
-      via HTTP
-    {%-endif%}.
+      via HTTP.
+    {%endif%}
 
     {%if webapp_xfer%}
       <br>
