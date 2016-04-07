@@ -390,11 +390,9 @@ def browse(dataset_id):
     template accordingly.
     """
 
-    filtered_datasets = [ds for ds in datasets if ds['id'] == dataset_id]
-
-    if len(filtered_datasets):
-        dataset = filtered_datasets[0]
-    else:
+    try:
+        dataset = next(ds for ds in datasets if ds['id'] == dataset_id)
+    except StopIteration:
         abort(404)
 
     endpoint_id = app.config['DATASET_ENDPOINT_ID']
