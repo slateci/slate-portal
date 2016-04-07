@@ -230,11 +230,12 @@ def submit_transfer():
     transfer = TransferClient(token=g.credentials.access_token)
 
     source_endpoint_id = app.config['DATASET_ENDPOINT_ID']
+    source_endpoint_base = app.config['DATASET_ENDPOINT_BASE']
     destination_endpoint_id = globus_form['endpoint_id']
 
     transfer_items = []
     for ds in filtered_datasets:
-        source_path = ds['path']
+        source_path = source_endpoint_base + ds['path']
         dest_path = globus_form['path']
 
         if globus_form.get('folder[0]'):
@@ -308,6 +309,7 @@ def graph():
     source_ep = app.config['DATASET_ENDPOINT_ID']
     source_info = transfer.get_endpoint(source_ep).data
     source_https = source_info.get('https_server')
+    source_base = app.config['DATASET_ENDPOINT_BASE']
 
     dest_ep = app.config['GRAPH_ENDPOINT_ID']
     dest_info = transfer.get_endpoint(dest_ep).data
@@ -316,20 +318,17 @@ def graph():
     dest_path = '%sGraphs for %s/' % (dest_base, session['primary_username'])
 
     if not (source_https and dest_https):
-        # FIXME Remove this temporary workaround once we have HTTPS endpoints.
-        #
-        # flash("Both dataset and graph endpoints must be HTTPS endpoints.")
-        # return redirect(url_for('graph'))
-        source_https = source_https or 'https://mrdp-demo.appspot.com'
-        dest_https = dest_https or 'https://mrdp-demo.appspot.com'
+        flash("Both dataset and graph endpoints must be HTTPS endpoints.")
+        return redirect(url_for('graph'))
 
     svgs = {}
 
     for dataset in selected_datasets:
         source_path = dataset['path']
-        response = requests.get('%s/%s/%s.csv' % (source_https, source_path,
-                                                  selected_year),
-                                headers=auth_headers)
+        response = requests.get('%s%s%s/%s.csv' % (source_https, source_base,
+                                                   source_path, selected_year),
+                                verify=False,  # FIXME
+                                allow_redirects=False, headers=auth_headers)
         svgs.update(render_graphs(
             csv_data=response.iter_lines(),
             append_titles=" from %s for %s" % (dataset['name'], selected_year),
@@ -343,24 +342,22 @@ def graph():
         if 'MkdirFailed.Exists' not in error.code:
             raise
 
-    # TODO The portal identity should be setup with access manager privileges
-    # on the graph destination endpoint.
-    #
-    # try:
-    #     transfer.add_endpoint_acl_rule(
-    #         dest_ep,
-    #         dict(principal=session['primary_identity'],
-    #              principal_type='identity', path=dest_path, permissions='r'),
-    #     )
-    # except TransferAPIError as error:
-    #     if error.code != 'Exists':
-    #         raise
+    try:
+        transfer.add_endpoint_acl_rule(
+            dest_ep,
+            dict(principal=session['primary_identity'],
+                 principal_type='identity', path=dest_path, permissions='r'),
+        )
+    except TransferAPIError as error:
+        if error.code != 'Exists':
+            raise
 
     for filename, svg in svgs.items():
         # TODO Does the HTTPS server throw an error for an already-existing
         # destination file, or is it silently overwritten?
         requests.put('%s%s%s.svg' % (dest_https, dest_path, filename),
-                     headers=auth_headers, data=svg)
+                     verify=False,  # FIXME
+                     allow_redirects=False, headers=auth_headers, data=svg)
 
     # TODO Instead of doing this, show a file list of the SVGs that were
     # generated and a link to "open in Transfer" that will open the directory
@@ -401,7 +398,8 @@ def browse(dataset_id):
         abort(404)
 
     endpoint_id = app.config['DATASET_ENDPOINT_ID']
-    path = dataset['path']
+    endpoint_base = app.config['DATASET_ENDPOINT_BASE']
+    path = endpoint_base + dataset['path']
 
     transfer = TransferClient(token=g.credentials.access_token)
 
@@ -418,9 +416,7 @@ def browse(dataset_id):
 
     ep = transfer.get_endpoint(endpoint_id).data
 
-    dataset_uri = '{}/{}'.format(ep.get('https_server') or
-                                 'https://mrdp-demo.appspot.com',  # FIXME
-                                 path)
+    dataset_uri = ep.get('https_server') + path
 
     return render_template('browse.jinja2', dataset_uri=dataset_uri,
                            file_list=file_list)
