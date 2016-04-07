@@ -330,7 +330,7 @@ def graph():
                                 verify=False,  # FIXME
                                 allow_redirects=False, headers=auth_headers)
         svgs.update(render_graphs(
-            csv_data=response.iter_lines(),
+            csv_data=response.iter_lines(decode_unicode=True),
             append_titles=" from %s for %s" % (dataset['name'], selected_year),
         ))
 
