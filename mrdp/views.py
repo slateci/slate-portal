@@ -414,7 +414,8 @@ def browse(dataset_id):
 
     ep = transfer.get_endpoint(endpoint_id).data
 
-    dataset_uri = ep.get('https_server') + path
+    https_server = ep.get('https_server')
+    dataset_uri = https_server + path if https_server else None
 
     return render_template('browse.jinja2', dataset_uri=dataset_uri,
                            file_list=file_list)
