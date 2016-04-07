@@ -367,13 +367,15 @@ def graph():
     return redirect(url_for('graph'))
 
 
-@app.route('/browse/<dataset_id>', methods=['GET'])
+@app.route('/browse/dataset/<dataset_id>', methods=['GET'])
+@app.route('/browse/endpoint/<endpoint_id>/<path:endpoint_path>',
+           methods=['GET'])
 @authenticated
-def browse(dataset_id):
+def browse(dataset_id=None, endpoint_id=None, endpoint_path=None):
     """
     Add code here to:
 
-    - Get list of files for the selected dataset
+    - Get list of files for the selected dataset or endpoint ID/path
     - Return a list of files to a browse view
 
     The target template (browse.jinja2) expects a unique dataset
@@ -390,20 +392,22 @@ def browse(dataset_id):
     template accordingly.
     """
 
-    try:
-        dataset = next(ds for ds in datasets if ds['id'] == dataset_id)
-    except StopIteration:
-        abort(404)
+    assert bool(dataset_id) != bool(endpoint_id and endpoint_path)
 
-    endpoint_id = app.config['DATASET_ENDPOINT_ID']
-    endpoint_base = app.config['DATASET_ENDPOINT_BASE']
-    path = endpoint_base + dataset['path']
+    if dataset_id:
+        try:
+            dataset = next(ds for ds in datasets if ds['id'] == dataset_id)
+        except StopIteration:
+            abort(404)
+
+        endpoint_id = app.config['DATASET_ENDPOINT_ID']
+        endpoint_path = app.config['DATASET_ENDPOINT_BASE'] + dataset['path']
 
     transfer = TransferClient(token=g.credentials.access_token)
 
     try:
         transfer.endpoint_autoactivate(endpoint_id)
-        res = transfer.operation_ls(endpoint_id, path=path)
+        res = transfer.operation_ls(endpoint_id, path=endpoint_path)
     except TransferAPIError as err:
         flash('Error [{}]: {}'.format(err.code, err.message))
         return redirect(url_for('transfer'))
@@ -415,9 +419,10 @@ def browse(dataset_id):
     ep = transfer.get_endpoint(endpoint_id).data
 
     https_server = ep.get('https_server')
-    dataset_uri = https_server + path if https_server else None
+    dataset_uri = https_server + endpoint_path if https_server else None
 
     return render_template('browse.jinja2', dataset_uri=dataset_uri,
+                           target="dataset" if dataset_id else "endpoint",
                            file_list=file_list)
 
 
