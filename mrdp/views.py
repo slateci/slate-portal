@@ -359,53 +359,51 @@ def graph():
                      verify=False,  # FIXME
                      allow_redirects=False, headers=auth_headers, data=svg)
 
-    # TODO Instead of doing this, show a file list of the SVGs that were
-    # generated and a link to "open in Transfer" that will open the directory
-    # in Transfer Files page in the webapp
     flash("%d-file SVG upload to %s on %s completed!" %
           (len(svgs), dest_path, dest_info['display_name']))
-    return redirect(url_for('graph'))
+    return redirect(url_for('browse', endpoint_id=dest_ep,
+                            endpoint_path=dest_path.lstrip('/')))
 
 
-@app.route('/browse/<dataset_id>', methods=['GET'])
+@app.route('/browse/dataset/<dataset_id>', methods=['GET'])
+@app.route('/browse/endpoint/<endpoint_id>/<path:endpoint_path>',
+           methods=['GET'])
 @authenticated
-def browse(dataset_id):
+def browse(dataset_id=None, endpoint_id=None, endpoint_path=None):
     """
     Add code here to:
 
-    - Get list of files for the selected dataset
+    - Get list of files for the selected dataset or endpoint ID/path
     - Return a list of files to a browse view
 
-    The target template (browse.jinja2) expects a unique dataset
-    identifier 'dataset_id' (str) and 'file_list' (list of
-    dictionaries) containing the following information about each file
-    in the dataset:
+    The target template (browse.jinja2) expects an `endpoint_uri` (if
+    available for the endpoint), `target` (either `"dataset"`
+    or `"endpoint"`), and 'file_list' (list of dictionaries) containing
+    the following information about each file in the result:
 
     {'name': 'file name', 'size': 'file size', 'id': 'file uri/path'}
-
-    'dataset_uri' is passed to the route in the URL as 'target_uri'.
 
     If you want to display additional information about each file, you
     must add those keys to the dictionary and modify the browse.jinja2
     template accordingly.
     """
 
-    filtered_datasets = [ds for ds in datasets if ds['id'] == dataset_id]
+    assert bool(dataset_id) != bool(endpoint_id and endpoint_path)
 
-    if len(filtered_datasets):
-        dataset = filtered_datasets[0]
-    else:
-        abort(404)
+    if dataset_id:
+        try:
+            dataset = next(ds for ds in datasets if ds['id'] == dataset_id)
+        except StopIteration:
+            abort(404)
 
-    endpoint_id = app.config['DATASET_ENDPOINT_ID']
-    endpoint_base = app.config['DATASET_ENDPOINT_BASE']
-    path = endpoint_base + dataset['path']
+        endpoint_id = app.config['DATASET_ENDPOINT_ID']
+        endpoint_path = app.config['DATASET_ENDPOINT_BASE'] + dataset['path']
 
     transfer = TransferClient(token=g.credentials.access_token)
 
     try:
         transfer.endpoint_autoactivate(endpoint_id)
-        res = transfer.operation_ls(endpoint_id, path=path)
+        res = transfer.operation_ls(endpoint_id, path=endpoint_path)
     except TransferAPIError as err:
         flash('Error [{}]: {}'.format(err.code, err.message))
         return redirect(url_for('transfer'))
@@ -416,10 +414,16 @@ def browse(dataset_id):
 
     ep = transfer.get_endpoint(endpoint_id).data
 
-    dataset_uri = ep.get('https_server') + path
+    https_server = ep.get('https_server')
+    endpoint_uri = https_server + endpoint_path if https_server else None
+    webapp_xfer = 'https://www.globus.org/app/transfer?' + \
+        urlencode(dict(origin_id=endpoint_id, origin_path=endpoint_path))
 
-    return render_template('browse.jinja2', dataset_uri=dataset_uri,
-                           dataset_name=dataset['name'], file_list=file_list)
+    return render_template('browse.jinja2', endpoint_uri=endpoint_uri,
+                           target="dataset" if dataset_id else "endpoint",
+                           description=(dataset['name'] if dataset_id
+                                        else ep['display_name']),
+                           file_list=file_list, webapp_xfer=webapp_xfer)
 
 
 @app.route('/status/<task_id>', methods=['GET'])
