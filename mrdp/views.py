@@ -359,12 +359,10 @@ def graph():
                      verify=False,  # FIXME
                      allow_redirects=False, headers=auth_headers, data=svg)
 
-    # TODO Instead of doing this, show a file list of the SVGs that were
-    # generated and a link to "open in Transfer" that will open the directory
-    # in Transfer Files page in the webapp
     flash("%d-file SVG upload to %s on %s completed!" %
           (len(svgs), dest_path, dest_info['display_name']))
-    return redirect(url_for('graph'))
+    return redirect(url_for('browse', endpoint_id=dest_ep,
+                            endpoint_path=dest_path.lstrip('/')))
 
 
 @app.route('/browse/dataset/<dataset_id>', methods=['GET'])
