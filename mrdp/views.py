@@ -52,7 +52,7 @@ def logout():
         'token': g.credentials.refresh_token
     }
 
-    # Invalidate the tokens with Globus Auth 
+    # Invalidate the tokens with Globus Auth
     requests.post(app.config['GA_REVOKE_URI'],
                   headers=headers,
                   data=data)
