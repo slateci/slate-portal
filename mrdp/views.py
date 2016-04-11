@@ -52,6 +52,10 @@ def logout():
         'token': g.credentials.refresh_token
     }
 
+    # If we don't get support for POST body client credentials,
+    # add a commented out example of using the oauth2client revoke
+    # method.
+
     # Invalidate the tokens with Globus Auth
     requests.post(app.config['GA_REVOKE_URI'],
                   headers=headers,
