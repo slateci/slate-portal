@@ -1,5 +1,3 @@
-# Copyright (C) 2016 University of Chicago
-
 from flask import Flask
 import httplib2
 import json
