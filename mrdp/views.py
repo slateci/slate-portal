@@ -302,24 +302,35 @@ def graph():
         flash("Please select at least one dataset and a year to graph.")
         return redirect(url_for('graph'))
 
-    # FIXME Instead of using the user's token (`g.credentials.access_token`),
-    # we want to use the portal's access token (retrieved via two-legged OAuth
-    # for some Globus ID, e.g. `mrdpportaladmin`, or via a refresh token?) for
-    # *all* the operations within this handler.
-    token = g.credentials.access_token
-    auth_headers = dict(Authorization='Bearer ' + token)
-    transfer = TransferClient(token=token)
+    # FIXME. Once the Auth API is patched to work with client ID/secret within
+    # the body of the POST, replace `PORTAL_REFRESH_TOKEN_TRANSFER` with a
+    # serialized refresh token (i.e. using `credentials.to_json()`) and use
+    # the Google `oauth2client` library to get the access token here.
+    #
+    # FIXME. Consider moving the action of getting an access token from the
+    # refresh token out of this route and to somewhere more global so that
+    # repeated graph requests do not generate lots of tokens.
+
+    transfer_token = requests.post(
+        app.config['GA_TOKEN_URI'],
+        data=dict(grant_type='refresh_token',
+                  refresh_token=app.config['PORTAL_REFRESH_TOKEN_TRANSFER']),
+        headers=dict(Authorization=basic_auth_header()),
+    ).json()['access_token']
+    transfer = TransferClient(token=transfer_token)
 
     source_ep = app.config['DATASET_ENDPOINT_ID']
     source_info = transfer.get_endpoint(source_ep).data
     source_https = source_info.get('https_server')
     source_base = app.config['DATASET_ENDPOINT_BASE']
+    source_token = 'XXX'  # FIXME
 
     dest_ep = app.config['GRAPH_ENDPOINT_ID']
     dest_info = transfer.get_endpoint(dest_ep).data
     dest_https = dest_info.get('https_server')
     dest_base = app.config['GRAPH_ENDPOINT_BASE']
     dest_path = '%sGraphs for %s/' % (dest_base, session['primary_username'])
+    dest_token = 'XXX'  # FIXME
 
     if not (source_https and dest_https):
         flash("Both dataset and graph endpoints must be HTTPS endpoints.")
@@ -332,7 +343,10 @@ def graph():
         response = requests.get('%s%s%s/%s.csv' % (source_https, source_base,
                                                    source_path, selected_year),
                                 verify=False,  # FIXME
-                                allow_redirects=False, headers=auth_headers)
+                                headers=dict(
+                                    Authorization='Basic ' + source_token,
+                                ),
+                                allow_redirects=False)
         svgs.update(render_graphs(
             csv_data=response.iter_lines(decode_unicode=True),
             append_titles=" from %s for %s" % (dataset['name'], selected_year),
@@ -360,8 +374,12 @@ def graph():
         # TODO Does the HTTPS server throw an error for an already-existing
         # destination file, or is it silently overwritten?
         requests.put('%s%s%s.svg' % (dest_https, dest_path, filename),
+                     data=svg,
                      verify=False,  # FIXME
-                     allow_redirects=False, headers=auth_headers, data=svg)
+                     headers=dict(
+                        Authorization='Basic ' + dest_token,
+                     ),
+                     allow_redirects=False)
 
     flash("%d-file SVG upload to %s on %s completed!" %
           (len(svgs), dest_path, dest_info['display_name']))
