@@ -1,4 +1,4 @@
 Flask==0.10.1
 oauth2client==2.0.1
 pygal==2.1.1
--e git+https://github.com/globusonline/globus-sdk-python.git#egg=globus_sdk
+-e git+https://github.com/globus/globus-sdk-python.git#egg=globus_sdk
