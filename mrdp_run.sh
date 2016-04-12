@@ -1,1 +1,1 @@
-python runserver.py
+python runportal.py
