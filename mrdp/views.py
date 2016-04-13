@@ -254,7 +254,7 @@ def submit_transfer():
             'recursive': True
         })
 
-    submission_id = transfer.get_submission_id().data['value']
+    submission_id = transfer.get_submission_id()['value']
     transfer_data = {
         'DATA_TYPE': 'transfer',
         'submission_id': submission_id,
@@ -266,7 +266,7 @@ def submit_transfer():
 
     transfer.endpoint_autoactivate(source_endpoint_id)
     transfer.endpoint_autoactivate(destination_endpoint_id)
-    task_id = transfer.submit_transfer(transfer_data).data['task_id']
+    task_id = transfer.submit_transfer(transfer_data)['task_id']
 
     flash('Transfer request submitted successfully. Task ID: ' + task_id)
 
@@ -320,14 +320,14 @@ def graph():
     transfer = TransferClient(token=transfer_token)
 
     source_ep = app.config['DATASET_ENDPOINT_ID']
-    source_info = transfer.get_endpoint(source_ep).data
-    source_https = source_info.get('https_server')
+    source_info = transfer.get_endpoint(source_ep)
+    source_https = source_info['https_server']
     source_base = app.config['DATASET_ENDPOINT_BASE']
     source_token = 'XXX'  # FIXME
 
     dest_ep = app.config['GRAPH_ENDPOINT_ID']
-    dest_info = transfer.get_endpoint(dest_ep).data
-    dest_https = dest_info.get('https_server')
+    dest_info = transfer.get_endpoint(dest_ep)
+    dest_https = dest_info['https_server']
     dest_base = app.config['GRAPH_ENDPOINT_BASE']
     dest_path = '%sGraphs for %s/' % (dest_base, session['primary_username'])
     dest_token = 'XXX'  # FIXME
@@ -425,18 +425,16 @@ def browse(dataset_id=None, endpoint_id=None, endpoint_path=None):
 
     try:
         transfer.endpoint_autoactivate(endpoint_id)
-        res = transfer.operation_ls(endpoint_id, path=endpoint_path)
+        listing = transfer.operation_ls(endpoint_id, path=endpoint_path)
     except TransferAPIError as err:
         flash('Error [{}]: {}'.format(err.code, err.message))
         return redirect(url_for('transfer'))
-    else:
-        listing = res.data['DATA']
 
     file_list = [e for e in listing if e['type'] == 'file']
 
-    ep = transfer.get_endpoint(endpoint_id).data
+    ep = transfer.get_endpoint(endpoint_id)
 
-    https_server = ep.get('https_server')
+    https_server = ep['https_server']
     endpoint_uri = https_server + endpoint_path if https_server else None
     webapp_xfer = 'https://www.globus.org/app/transfer?' + \
         urlencode(dict(origin_id=endpoint_id, origin_path=endpoint_path))
@@ -478,4 +476,4 @@ def transfer_status(task_id):
     transfer = TransferClient(token=g.credentials.access_token)
     task = transfer.get_task(task_id)
 
-    return render_template('transfer_status.jinja2', task=task.data)
+    return render_template('transfer_status.jinja2', task=task)
