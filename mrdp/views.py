@@ -330,11 +330,11 @@ def graph():
         source_path = dataset['path']
         response = requests.get('%s%s%s/%s.csv' % (source_https, source_base,
                                                    source_path, selected_year),
-                                verify=False,  # FIXME
                                 headers=dict(
                                     Authorization='Bearer ' + source_token,
                                 ),
                                 allow_redirects=False)
+        response.raise_for_status()
         svgs.update(render_graphs(
             csv_data=response.iter_lines(decode_unicode=True),
             append_titles=" from %s for %s" % (dataset['name'], selected_year),
@@ -359,15 +359,14 @@ def graph():
             raise
 
     for filename, svg in svgs.items():
-        # TODO Does the HTTPS server throw an error for an already-existing
-        # destination file, or is it silently overwritten?
+        # n.b. The HTTPS Server will overwrite existing files that you PUT.
+
         requests.put('%s%s%s.svg' % (dest_https, dest_path, filename),
                      data=svg,
-                     verify=False,  # FIXME
                      headers=dict(
                         Authorization='Bearer ' + dest_token,
                      ),
-                     allow_redirects=False)
+                     allow_redirects=False).raise_for_status()
 
     flash("%d-file SVG upload to %s on %s completed!" %
           (len(svgs), dest_path, dest_info['display_name']))
