@@ -8,7 +8,8 @@ from resource_server.utils import get_dependent_tokens
 @app.route('/api/doit', methods=['POST'])
 @authenticated
 def doit():
-    # dependent_tokens = get_dependent_tokens(g.req_token)
+    get_dependent_tokens(g.req_token)
+
     return request.headers.get('Authorization', '')
 
 
