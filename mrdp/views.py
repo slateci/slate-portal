@@ -15,7 +15,7 @@ from globus_sdk import TransferClient, TransferAPIError
 from mrdp import app, database, datasets
 from mrdp.decorators import authenticated
 from mrdp.processing import render_graphs
-from mrdp.utils import basic_auth_header, get_safe_redirect
+from mrdp.utils import basic_auth_header, get_safe_redirect, get_portal_tokens
 
 
 @app.route('/', methods=['GET'])
@@ -302,28 +302,8 @@ def graph():
         flash("Please select at least one dataset and a year to graph.")
         return redirect(url_for('graph'))
 
-    # FIXME. Once the Auth API is patched to work with client ID/secret within
-    # the body of the POST, replace `PORTAL_REFRESH_TOKEN_XXX` with serialized
-    # refresh tokens (i.e. using `credentials.to_json()`) and use the Google
-    # `oauth2client` library to get the access token here.
-    #
-    # FIXME. Consider moving the action of getting an access token from the
-    # refresh token out of this route and to somewhere more global so that
-    # repeated graph requests do not generate lots of tokens.
-
-    transfer_token = requests.post(
-        app.config['GA_TOKEN_URI'],
-        data=dict(grant_type='refresh_token',
-                  refresh_token=app.config['PORTAL_REFRESH_TOKEN_TRANSFER']),
-        headers=dict(Authorization=basic_auth_header()),
-    ).json()['access_token']
-
-    https_token = requests.post(
-        app.config['GA_TOKEN_URI'],
-        data=dict(grant_type='refresh_token',
-                  refresh_token=app.config['PORTAL_REFRESH_TOKEN_HTTPS']),
-        headers=dict(Authorization=basic_auth_header()),
-    ).json()['access_token']
+    transfer_token = get_portal_tokens()['transfer']
+    https_token = get_portal_tokens()['https']
 
     transfer = TransferClient(token=transfer_token)
 
