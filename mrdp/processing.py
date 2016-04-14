@@ -111,7 +111,7 @@ def monthly_avg_min_max_temp_line(monthlies, append_title=""):
     temperatures for each month.
     """
 
-    graph = Line(title="Average High/Low Temperature" + append_title,
+    graph = Line(title="Average High-Low Temperature" + append_title,
                  x_labels=MONTH_NAMES, x_label_rotation=90)
 
     graph.add("Avg High(C)", [monthly['max_temperature_total'] / 10. /
