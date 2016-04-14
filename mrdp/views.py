@@ -375,6 +375,55 @@ def graph():
                             endpoint_path=dest_path.lstrip('/')))
 
 
+@app.route('/graph/clean-up', methods=['POST'])
+@authenticated
+def graph_cleanup():
+    """
+    Add code here to:
+
+    - figure out the logged-in user's graph directory
+    - find the logged-in user's ACL for the graph directory
+    - delete both the directory and the associated ACL
+    """
+
+    transfer_token = get_portal_tokens()['transfer']
+    transfer = TransferClient(token=transfer_token)
+
+    dest_ep = app.config['GRAPH_ENDPOINT_ID']
+    dest_base = app.config['GRAPH_ENDPOINT_BASE']
+    dest_path = '%sGraphs for %s/' % (dest_base, session['primary_username'])
+
+    try:
+        acl = next(acl for acl in transfer.endpoint_acl_list(dest_ep)
+                   if dest_path == acl['path'])
+    except StopIteration:
+        pass
+    else:
+        transfer.delete_endpoint_acl_rule(dest_ep, acl['id'])
+
+    submission_id = transfer.get_submission_id()['value']
+
+    delete_request = dict(
+        DATA_TYPE='delete',
+        endpoint=dest_ep,
+        ignore_missing=True,
+        interpret_globs=False,
+        label="Delete Processed Graphs from the Data Portal Demo",
+        recursive=True,
+        submission_id=submission_id,
+
+        DATA=[dict(
+            DATA_TYPE='delete_item',
+            path=dest_path,
+        )],
+    )
+
+    transfer.submit_delete(delete_request)
+
+    flash("Your existing processed graphs have been removed.")
+    return redirect(url_for('graph'))
+
+
 @app.route('/browse/dataset/<dataset_id>', methods=['GET'])
 @app.route('/browse/endpoint/<endpoint_id>/<path:endpoint_path>',
            methods=['GET'])
