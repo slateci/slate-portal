@@ -15,7 +15,7 @@ from globus_sdk import TransferClient, TransferAPIError
 from mrdp import app, database, datasets
 from mrdp.decorators import authenticated
 from mrdp.processing import render_graphs
-from mrdp.utils import basic_auth_header, get_safe_redirect
+from mrdp.utils import basic_auth_header, get_safe_redirect, get_portal_tokens
 
 
 @app.route('/', methods=['GET'])
@@ -302,28 +302,8 @@ def graph():
         flash("Please select at least one dataset and a year to graph.")
         return redirect(url_for('graph'))
 
-    # FIXME. Once the Auth API is patched to work with client ID/secret within
-    # the body of the POST, replace `PORTAL_REFRESH_TOKEN_XXX` with serialized
-    # refresh tokens (i.e. using `credentials.to_json()`) and use the Google
-    # `oauth2client` library to get the access token here.
-    #
-    # FIXME. Consider moving the action of getting an access token from the
-    # refresh token out of this route and to somewhere more global so that
-    # repeated graph requests do not generate lots of tokens.
-
-    transfer_token = requests.post(
-        app.config['GA_TOKEN_URI'],
-        data=dict(grant_type='refresh_token',
-                  refresh_token=app.config['PORTAL_REFRESH_TOKEN_TRANSFER']),
-        headers=dict(Authorization=basic_auth_header()),
-    ).json()['access_token']
-
-    https_token = requests.post(
-        app.config['GA_TOKEN_URI'],
-        data=dict(grant_type='refresh_token',
-                  refresh_token=app.config['PORTAL_REFRESH_TOKEN_HTTPS']),
-        headers=dict(Authorization=basic_auth_header()),
-    ).json()['access_token']
+    transfer_token = get_portal_tokens()['transfer']
+    https_token = get_portal_tokens()['https']
 
     transfer = TransferClient(token=transfer_token)
 
@@ -393,6 +373,55 @@ def graph():
           (len(svgs), dest_path, dest_info['display_name']))
     return redirect(url_for('browse', endpoint_id=dest_ep,
                             endpoint_path=dest_path.lstrip('/')))
+
+
+@app.route('/graph/clean-up', methods=['POST'])
+@authenticated
+def graph_cleanup():
+    """
+    Add code here to:
+
+    - figure out the logged-in user's graph directory
+    - find the logged-in user's ACL for the graph directory
+    - delete both the directory and the associated ACL
+    """
+
+    transfer_token = get_portal_tokens()['transfer']
+    transfer = TransferClient(token=transfer_token)
+
+    dest_ep = app.config['GRAPH_ENDPOINT_ID']
+    dest_base = app.config['GRAPH_ENDPOINT_BASE']
+    dest_path = '%sGraphs for %s/' % (dest_base, session['primary_username'])
+
+    try:
+        acl = next(acl for acl in transfer.endpoint_acl_list(dest_ep)
+                   if dest_path == acl['path'])
+    except StopIteration:
+        pass
+    else:
+        transfer.delete_endpoint_acl_rule(dest_ep, acl['id'])
+
+    submission_id = transfer.get_submission_id()['value']
+
+    delete_request = dict(
+        DATA_TYPE='delete',
+        endpoint=dest_ep,
+        ignore_missing=True,
+        interpret_globs=False,
+        label="Delete Processed Graphs from the Data Portal Demo",
+        recursive=True,
+        submission_id=submission_id,
+
+        DATA=[dict(
+            DATA_TYPE='delete_item',
+            path=dest_path,
+        )],
+    )
+
+    transfer.submit_delete(delete_request)
+
+    flash("Your existing processed graphs have been removed.")
+    return redirect(url_for('graph'))
 
 
 @app.route('/browse/dataset/<dataset_id>', methods=['GET'])

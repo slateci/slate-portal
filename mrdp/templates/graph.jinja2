@@ -72,7 +72,15 @@
           </div>
         </div>
       </form>
-    </div> <!-- form -->
+
+      <hr>
+
+      <form class="form-inline" role="form"
+            action="{{url_for('graph_cleanup')}}" method="post">
+        <input type="submit" class="btn btn-primary"
+               value="Clean-Up My Previously-Generated Graphs">
+      </form>
+    </div>
 
   </div> <!-- container -->
 {%endblock%}
