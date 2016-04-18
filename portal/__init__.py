@@ -18,7 +18,7 @@ with open(app.config['DATASETS']) as f:
 
 # Full working portal
 import portal.views
-# import portal.views_graph
+import portal.views_graph
 
 # Exercise 1
 # import portal.views_ex1
