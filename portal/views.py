@@ -267,6 +267,39 @@ def submit_transfer():
     return(redirect(url_for('transfer_status', task_id=task_id)))
 
 
+@app.route('/status/<task_id>', methods=['GET'])
+@authenticated
+def transfer_status(task_id):
+    """
+    Add code here to call Globus to get status/details of transfer with
+    task_id.
+
+    The target template (tranfer_status.jinja2) expects a 'task_id'
+    (str) and a 'transfer_status' (dictionary) containing various
+    details about the task. 'transfer_status' is expected to contain the
+    following keys:
+
+    {
+        'source_ep_name': 'display name of source endpoint',
+        'dest_ep_name': 'display name of destination endpoint',
+        'request_time': time that the transfer request was submitted,
+        'status': 'status of the transfer task',
+        'files_transferred': number of files transferred so far,
+        'fault': number of faults encountered,
+    }
+
+    'task_id' is passed to the route in the URL as 'task_id'.
+
+    If you want to display additional information about the transfer,
+    you must add those keys to the dictionary and modify the
+    transfer_status.jinja2 template accordingly.
+    """
+    transfer = TransferClient(token=g.credentials.access_token)
+    task = transfer.get_task(task_id)
+
+    return render_template('transfer_status.jinja2', task=task)
+
+
 @app.route('/graph', methods=['GET', 'POST'])
 @authenticated
 def graph():
@@ -368,43 +401,6 @@ def graph():
                             endpoint_path=dest_path.lstrip('/')))
 
 
-@app.route('/graph/clean-up', methods=['POST'])
-@authenticated
-def graph_cleanup():
-    """
-    Add code here to:
-
-    - figure out the logged-in user's graph directory
-    - find the logged-in user's ACL for the graph directory
-    - delete both the directory and the associated ACL
-    """
-
-    transfer_token = get_portal_tokens()['transfer']
-    transfer = TransferClient(token=transfer_token)
-
-    dest_ep = app.config['GRAPH_ENDPOINT_ID']
-    dest_base = app.config['GRAPH_ENDPOINT_BASE']
-    dest_path = '%sGraphs for %s/' % (dest_base, session['primary_username'])
-
-    try:
-        acl = next(acl for acl in transfer.endpoint_acl_list(dest_ep)
-                   if dest_path == acl['path'])
-    except StopIteration:
-        pass
-    else:
-        transfer.delete_endpoint_acl_rule(dest_ep, acl['id'])
-
-    delete_request = DeleteData(transfer_client=transfer, endpoint=dest_ep,
-                                label="Delete Graphs from the Portal Demo",
-                                recursive=True)
-    delete_request.add_item(dest_path)
-
-    transfer.submit_delete(delete_request)
-
-    flash("Your existing processed graphs have been removed.")
-    return redirect(url_for('graph'))
-
-
 @app.route('/browse/dataset/<dataset_id>', methods=['GET'])
 @app.route('/browse/endpoint/<endpoint_id>/<path:endpoint_path>',
            methods=['GET'])
@@ -467,34 +463,38 @@ def browse(dataset_id=None, endpoint_id=None, endpoint_path=None):
                            file_list=file_list, webapp_xfer=webapp_xfer)
 
 
-@app.route('/status/<task_id>', methods=['GET'])
+@app.route('/graph/clean-up', methods=['POST'])
 @authenticated
-def transfer_status(task_id):
+def graph_cleanup():
     """
-    Add code here to call Globus to get status/details of transfer with
-    task_id.
+    Add code here to:
 
-    The target template (tranfer_status.jinja2) expects a 'task_id'
-    (str) and a 'transfer_status' (dictionary) containing various
-    details about the task. 'transfer_status' is expected to contain the
-    following keys:
-
-    {
-        'source_ep_name': 'display name of source endpoint',
-        'dest_ep_name': 'display name of destination endpoint',
-        'request_time': time that the transfer request was submitted,
-        'status': 'status of the transfer task',
-        'files_transferred': number of files transferred so far,
-        'fault': number of faults encountered,
-    }
-
-    'task_id' is passed to the route in the URL as 'task_id'.
-
-    If you want to display additional information about the transfer,
-    you must add those keys to the dictionary and modify the
-    transfer_status.jinja2 template accordingly.
+    - figure out the logged-in user's graph directory
+    - find the logged-in user's ACL for the graph directory
+    - delete both the directory and the associated ACL
     """
-    transfer = TransferClient(token=g.credentials.access_token)
-    task = transfer.get_task(task_id)
 
-    return render_template('transfer_status.jinja2', task=task)
+    transfer_token = get_portal_tokens()['transfer']
+    transfer = TransferClient(token=transfer_token)
+
+    dest_ep = app.config['GRAPH_ENDPOINT_ID']
+    dest_base = app.config['GRAPH_ENDPOINT_BASE']
+    dest_path = '%sGraphs for %s/' % (dest_base, session['primary_username'])
+
+    try:
+        acl = next(acl for acl in transfer.endpoint_acl_list(dest_ep)
+                   if dest_path == acl['path'])
+    except StopIteration:
+        pass
+    else:
+        transfer.delete_endpoint_acl_rule(dest_ep, acl['id'])
+
+    delete_request = DeleteData(transfer_client=transfer, endpoint=dest_ep,
+                                label="Delete Graphs from the Portal Demo",
+                                recursive=True)
+    delete_request.add_item(dest_path)
+
+    transfer.submit_delete(delete_request)
+
+    flash("Your existing processed graphs have been removed.")
+    return redirect(url_for('graph'))
