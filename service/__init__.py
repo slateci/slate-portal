@@ -3,6 +3,6 @@ from flask import Flask
 __author__ = 'Globus Team <info@globus.org>'
 
 app = Flask(__name__)
-app.config.from_pyfile('resource_server.conf')
+app.config.from_pyfile('service.conf')
 
-import resource_server.views
+import service.views
