@@ -124,8 +124,9 @@ def authcallback():
     # If we're coming back from Globus Auth in an error state, the error
     # will be in the "error" query string parameter.
     if 'error' in request.args:
-        pass
-        # handle error
+        flash("You could not be logged into the portal: " +
+              request.args.get('error_description', request.args['error']))
+        return redirect(url_for('home'))
 
     # Set up our Globus Auth/OAuth2 state
 
