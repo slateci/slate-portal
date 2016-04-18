@@ -48,6 +48,8 @@ def logout():
     - Destroy the session.
     - Redirect the user to the Globus Auth logout page.
     """
+    auth_config = app.config['GLOBUS_AUTH']
+
     headers = {'Authorization': basic_auth_header()}
     data = {
         'token_type_hint': 'refresh',
@@ -59,7 +61,7 @@ def logout():
     # method.
 
     # Invalidate the tokens with Globus Auth
-    requests.post(app.config['GA_REVOKE_URI'],
+    requests.post(auth_config['revoke_uri'],
                   headers=headers,
                   data=data)
 
@@ -69,8 +71,8 @@ def logout():
     redirect_uri = url_for('home', _external=True)
 
     ga_logout_url = []
-    ga_logout_url.append(app.config['GA_LOGOUT_URI'])
-    ga_logout_url.append('?client={}'.format(app.config['GA_CLIENT_ID']))
+    ga_logout_url.append(auth_config['logout_uri'])
+    ga_logout_url.append('?client={}'.format(auth_config['client_id']))
     ga_logout_url.append('&redirect_uri={}'.format(redirect_uri))
     ga_logout_url.append('&redirect_name=MRDP Demo App')
 
@@ -129,22 +131,12 @@ def authcallback():
         return redirect(url_for('home'))
 
     # Set up our Globus Auth/OAuth2 state
-
-    scopes = 'urn:globus:auth:scope:transfer.api.globus.org:all'
-    config = app.config
-
+    scope = 'urn:globus:auth:scope:transfer.api.globus.org:all'
+    redirect_uri = url_for('authcallback', _external=True)
+    flow = oauth.flow_from_clientsecrets('portal/auth.json', scope=scope,
+                                         redirect_uri=redirect_uri)
     if request.args.get('signup'):
-        authorize_uri = '{}?signup=1'.format(config['GA_AUTH_URI'])
-    else:
-        authorize_uri = config['GA_AUTH_URI']
-
-    flow = oauth.OAuth2WebServerFlow(app.config['GA_CLIENT_ID'],
-                                     scope=scopes,
-                                     authorization_header=basic_auth_header(),
-                                     redirect_uri=config['GA_REDIRECT_URI'],
-                                     auth_uri=authorize_uri,
-                                     token_uri=config['GA_TOKEN_URI'],
-                                     revoke_uri=config['GA_REVOKE_URI'])
+        flow.auth_uri += '?signup=1'
 
     # If there's no "code" query string parameter, we're in this route
     # starting a Globus Auth login flow.
