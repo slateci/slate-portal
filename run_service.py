@@ -1,4 +1,6 @@
-from portal import app
+#!/usr/bin/env python
+
+from service import app
 
 if __name__ == '__main__':
     app.run(host='localhost',
