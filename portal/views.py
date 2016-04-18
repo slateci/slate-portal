@@ -10,7 +10,8 @@ try:
 except:
     from urllib import urlencode
 
-from globus_sdk import TransferClient, TransferAPIError, DeleteData
+from globus_sdk import (TransferClient, TransferAPIError,
+                        DeleteData, TransferData)
 
 from portal import app, database, datasets
 from portal.decorators import authenticated
@@ -238,7 +239,11 @@ def submit_transfer():
     source_endpoint_base = app.config['DATASET_ENDPOINT_BASE']
     destination_endpoint_id = globus_form['endpoint_id']
 
-    transfer_items = []
+    transfer_data = TransferData(transfer_client=transfer,
+                                 source_endpoint=source_endpoint_id,
+                                 destination_endpoint=destination_endpoint_id,
+                                 label=globus_form.get('label') or None)
+
     for ds in filtered_datasets:
         source_path = source_endpoint_base + ds['path']
         dest_path = globus_form['path']
@@ -248,22 +253,9 @@ def submit_transfer():
 
         dest_path += ds['name'] + '/'
 
-        transfer_items.append({
-            'DATA_TYPE': 'transfer_item',
-            'source_path': source_path,
-            'destination_path': dest_path,
-            'recursive': True
-        })
-
-    submission_id = transfer.get_submission_id()['value']
-    transfer_data = {
-        'DATA_TYPE': 'transfer',
-        'submission_id': submission_id,
-        'source_endpoint': source_endpoint_id,
-        'destination_endpoint': destination_endpoint_id,
-        'label': globus_form.get('label') or None,
-        'DATA': transfer_items
-    }
+        transfer_data.add_item(source_path=source_path,
+                               destination_path=dest_path,
+                               recursive=True)
 
     transfer.endpoint_autoactivate(source_endpoint_id)
     transfer.endpoint_autoactivate(destination_endpoint_id)
