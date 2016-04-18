@@ -17,7 +17,7 @@ Simple web app framework for the exercises in the GlobusWorld developer workshop
 
 ##### Running the Portal App
 
-* `./run_app.sh`
+* `./run_portal.py`
 
 ### Linux (Ubuntu)
 
@@ -35,7 +35,7 @@ Simple web app framework for the exercises in the GlobusWorld developer workshop
 
 ##### Running the Portal App
 
-* `./run_app.sh`
+* `./run_portal.py`
 
 ### Windows
 
@@ -52,4 +52,4 @@ Simple web app framework for the exercises in the GlobusWorld developer workshop
 
 ##### Running the Portal App
 
-* `python runportal.py`
+* `python run_portal.py`
