@@ -1,7 +1,7 @@
 from base64 import urlsafe_b64encode
 import requests
 
-from resource_server import app
+from service import app
 
 
 def basic_auth_header():

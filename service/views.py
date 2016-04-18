@@ -1,8 +1,8 @@
 from flask import g, request
 
-from resource_server import app
-from resource_server.decorators import authenticated
-from resource_server.utils import get_dependent_tokens
+from service import app
+from service.decorators import authenticated
+from service.utils import get_dependent_tokens
 
 
 @app.route('/api/doit', methods=['POST'])

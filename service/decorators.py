@@ -1,9 +1,9 @@
 from flask import g, jsonify, request
 from functools import wraps
 
-from resource_server import app
-from resource_server.errors import UnauthorizedError, ForbiddenError
-from resource_server.utils import token_introspect, get_token
+from service import app
+from service.errors import UnauthorizedError, ForbiddenError
+from service.utils import token_introspect, get_token
 
 
 def authenticated(fn):
