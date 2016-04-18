@@ -10,7 +10,7 @@ try:
 except:
     from urllib import urlencode
 
-from globus_sdk import TransferClient, TransferAPIError
+from globus_sdk import TransferClient, TransferAPIError, DeleteData
 
 from portal import app, database, datasets
 from portal.decorators import authenticated
@@ -401,22 +401,10 @@ def graph_cleanup():
     else:
         transfer.delete_endpoint_acl_rule(dest_ep, acl['id'])
 
-    submission_id = transfer.get_submission_id()['value']
-
-    delete_request = dict(
-        DATA_TYPE='delete',
-        endpoint=dest_ep,
-        ignore_missing=True,
-        interpret_globs=False,
-        label="Delete Processed Graphs from the Data Portal Demo",
-        recursive=True,
-        submission_id=submission_id,
-
-        DATA=[dict(
-            DATA_TYPE='delete_item',
-            path=dest_path,
-        )],
-    )
+    delete_request = DeleteData(transfer_client=transfer, endpoint=dest_ep,
+                                label="Delete Graphs from the Portal Demo",
+                                recursive=True)
+    delete_request.add_item(dest_path)
 
     transfer.submit_delete(delete_request)
 
