@@ -10,12 +10,4 @@
   </div>
 </header>
 
-{%with messages = get_flashed_messages()%}
-  {%if messages%}
-    <ul class="alert alert-success container">
-      {%for message in messages%}
-        <li>{{message}}</li>
-      {%endfor%}
-    </ul>
-  {%endif%}
-{%endwith%}
+{%include 'messages.jinja2'%}
