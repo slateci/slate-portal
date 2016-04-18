@@ -13,8 +13,9 @@ from portal import app
 
 def basic_auth_header():
     """Generate a Globus Auth compatible basic auth header."""
-    cid = app.config['GA_CLIENT_ID']
-    csecret = app.config['GA_CLIENT_SECRET']
+    auth_config = app.config['GLOBUS_AUTH']
+    cid = auth_config['client_id']
+    csecret = auth_config['client_secret']
 
     creds = '{}:{}'.format(cid, csecret)
     basic_auth = urlsafe_b64encode(creds.encode(encoding='UTF-8'))
@@ -68,7 +69,7 @@ def get_portal_tokens():
                 refresh_token = app.config['PORTAL_REFRESH_TOKEN_' +
                                            service.upper()]
                 get_portal_tokens.access_tokens[service] = requests.post(
-                    app.config['GA_TOKEN_URI'],
+                    app.config['GLOBUS_AUTH']['token_uri'],
                     data=dict(grant_type='refresh_token',
                               refresh_token=refresh_token),
                     headers=dict(Authorization=basic_auth_header()),
