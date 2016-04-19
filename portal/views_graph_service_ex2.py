@@ -24,6 +24,7 @@ def graph():
     service_url = '{}/{}'.format(app.config['SERVICE_URL_BASE'], 'api/doit')
     req_headers = dict(Authorization='Bearer {}'.format(service_token))
 
+    # Begin exercise 2
     req_data = dict(datasets=selected_ids,
                     year=selected_year,
                     user_identity_id=session.get('primary_identity'),
@@ -40,6 +41,8 @@ def graph():
     dest_name = resp_data.get('dest_name')
     graph_count = resp_data.get('graph_count')
 
+    # End exercise 2
+
     flash("%d-file SVG upload to %s on %s completed!" %
           (graph_count, dest_path, dest_name))
 
@@ -54,6 +57,7 @@ def graph_cleanup():
     service_url = '{}/{}'.format(app.config['SERVICE_URL_BASE'], 'api/cleanup')
     req_headers = dict(Authorization='Bearer {}'.format(service_token))
 
+    # Begin exercise 2
     resp = requests.post(service_url,
                          headers=req_headers,
                          data=dict(
@@ -63,7 +67,10 @@ def graph_cleanup():
 
     resp.raise_for_status()
 
-    task_id = resp_data['task_id']
+    task_id = resp.json()['task_id']
+
+    # End exercise 2
+
     msg = '{} ({}).'.format('Your existing processed graphs have been removed',
                             task_id)
     flash(msg)
