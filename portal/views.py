@@ -49,19 +49,18 @@ def logout():
     auth_config = app.config['GLOBUS_AUTH']
 
     headers = {'Authorization': basic_auth_header()}
-    data = {
-        'token_type_hint': 'refresh',
-        'token': g.credentials.refresh_token
-    }
 
     # If we don't get support for POST body client credentials,
     # add a commented out example of using the oauth2client revoke
     # method.
 
     # Invalidate the tokens with Globus Auth
-    requests.post(auth_config['revoke_uri'],
-                  headers=headers,
-                  data=data)
+    for token_type in ['access_token', 'refresh_token']:
+        data = {'token_type_hint': token_type,
+                'token': getattr(g.credentials, token_type)}
+        requests.post(auth_config['revoke_uri'],
+                      headers=headers,
+                      data=data)
 
     # Destroy the session state
     session.clear()
