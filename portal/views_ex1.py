@@ -47,31 +47,7 @@ def logout():
     - Redirect the user to the Globus Auth logout page.
     """
     # Exercise 1 begin
-    auth_config = app.config['GLOBUS_AUTH']
 
-    headers = {'Authorization': basic_auth_header()}
-
-    # Revoke the tokens with Globus Auth
-    for token_type in ['access_token', 'refresh_token']:
-        data = {'token_type_hint': token_type,
-                'token': getattr(g.credentials, token_type)}
-        requests.post(auth_config['revoke_uri'],
-                      headers=headers,
-                      data=data)
-
-    # Destroy the session state
-    session.clear()
-
-    redirect_uri = url_for('home', _external=True)
-
-    ga_logout_url = []
-    ga_logout_url.append(auth_config['logout_uri'])
-    ga_logout_url.append('?client={}'.format(auth_config['client_id']))
-    ga_logout_url.append('&redirect_uri={}'.format(redirect_uri))
-    ga_logout_url.append('&redirect_name=MRDP Demo App')
-
-    # Redirect the user to the Globus Auth logout page
-    return redirect(''.join(ga_logout_url))
     # Exercise 1 end
 
 
@@ -250,20 +226,7 @@ def transfer():
             return redirect(url_for('transfer'))
 
         # Exercise 1 begin
-        params = {
-            'method': 'POST',
-            'action': url_for('submit_transfer', _external=True,
-                              _scheme='https'),
-            'filelimit': 0,
-            'folderlimit': 1
-        }
 
-        browse_endpoint = 'https://www.globus.org/app/browse-endpoint?{}' \
-            .format(urlencode(params))
-
-        session['form'] = {
-            'datasets': request.form.getlist('dataset')
-        }
         # Exercise 1 end
 
         return redirect(browse_endpoint)
@@ -286,34 +249,7 @@ def submit_transfer():
     filtered_datasets = [ds for ds in datasets if ds['id'] in selected]
 
     # Exercise 1 begin
-    transfer = TransferClient(token=g.credentials.access_token)
 
-    source_endpoint_id = app.config['DATASET_ENDPOINT_ID']
-    source_endpoint_base = app.config['DATASET_ENDPOINT_BASE']
-    destination_endpoint_id = browse_endpoint_form['endpoint_id']
-    destination_folder = browse_endpoint_form.get('folder[0]')
-
-    transfer_data = TransferData(transfer_client=transfer,
-                                 source_endpoint=source_endpoint_id,
-                                 destination_endpoint=destination_endpoint_id,
-                                 label=browse_endpoint_form.get('label'))
-
-    for ds in filtered_datasets:
-        source_path = source_endpoint_base + ds['path']
-        dest_path = browse_endpoint_form['path']
-
-        if destination_folder:
-            dest_path += destination_folder + '/'
-
-        dest_path += ds['name'] + '/'
-
-        transfer_data.add_item(source_path=source_path,
-                               destination_path=dest_path,
-                               recursive=True)
-
-    transfer.endpoint_autoactivate(source_endpoint_id)
-    transfer.endpoint_autoactivate(destination_endpoint_id)
-    task_id = transfer.submit_transfer(transfer_data)['task_id']
     # Exercise 1 end
 
     flash('Transfer request submitted successfully. Task ID: ' + task_id)
@@ -334,8 +270,7 @@ def transfer_status(task_id):
     'task_id' is passed to the route in the URL as 'task_id'.
     """
     # Exercise 1 begin
-    transfer = TransferClient(token=g.credentials.access_token)
-    task = transfer.get_task(task_id)
+
     # Exercise 1 end
 
     return render_template('transfer_status.jinja2', task=task)

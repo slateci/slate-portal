@@ -20,10 +20,14 @@ with open(app.config['DATASETS']) as f:
 import portal.views
 import portal.views_graph
 
+# Full working portal + service
+# import portal.views
+# import portal.views_graph_service
+
 # Exercise 1
 # import portal.views_ex1
 # import portal.views_graph_ex1
 
 # Exercise 2
-#import portal.views
-#import portal.views_graph_service_ex2
+# import portal.views
+# import portal.views_graph_service_ex2
