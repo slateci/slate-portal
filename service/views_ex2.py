@@ -30,15 +30,6 @@ def authenticated(fn):
         # Validate that the token audience contains
         # 'GlobusWorld Resource Server'
         # Exercise 2 begin
-        token_meta = requests.post(ga_token_url,
-                                   headers=dict(Authorization=auth_header),
-                                   data=dict(token=token)).json()
-
-        if not token_meta.get('active'):
-            raise ForbiddenError()
-
-        if 'GlobusWorld Resource Server' not in token_meta.get('aud', []):
-            raise ForbiddenError()
 
         # Exercise 2 end
 
@@ -47,8 +38,6 @@ def authenticated(fn):
         # Verify that the identities_set from the token introspection
         # includes the portal admin identity id (mrdpdemo@globusid.org)
         # Exercise 2 begin
-        if portal_admin_id != token_meta.get('sub'):
-            raise ForbiddenError()
 
         # Exercise 2 end
 
@@ -77,19 +66,7 @@ def doit():
     # create transfer_token and http_token variables containing
     # the correct token for each scope
     # Exercise 2 begin
-    try:
-        transfer_token = next(token['access_token']
-                              for token in dependent_tokens
-                              if token['scope'] == transfer_scope)
-    except StopIteration:
-        raise InternalServerError(message='Problem with dependent token grant')
 
-    try:
-        http_token = next(token['access_token']
-                          for token in dependent_tokens
-                          if token['scope'] == http_scope)
-    except StopIteration:
-        raise InternalServerError(message='Problem with dependent token grant')
     # Exercise 2 end
 
     selected_ids = request.form.getlist('datasets')
@@ -218,15 +195,7 @@ def cleanup():
 def get_dependent_tokens(token):
     # Call Globus Auth dependent token grant
     # Exercise 2 begin
-    url = app.config['GA_TOKEN_URI']
-    data = {
-        'grant_type': 'urn:globus:auth:grant_type:dependent_token',
-        'token': token
-    }
 
-    tokens = requests.post(url,
-                           headers=dict(Authorization=basic_auth_header()),
-                           data=data)
     # Exercise 2 end
 
     return tokens.json()
