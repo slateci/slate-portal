@@ -102,12 +102,7 @@ def graph():
 
         # Add call to put the svg to the dest_https + dest_path + filename
         # Exercise 1 begin
-        requests.put('%s%s%s.svg' % (dest_https, dest_path, filename),
-                     data=svg,
-                     headers=dict(
-                        Authorization='Bearer ' + dest_token,
-                     ),
-                     allow_redirects=False).raise_for_status()
+
         # Exercise 1 end
 
     flash("%d-file SVG upload to %s on %s completed!" %
@@ -137,20 +132,7 @@ def graph_cleanup():
     # Find and delete the acl rule for dest_ep
     # Delete the destination foler (dest_ep, dest_base, dest_path)
     # Exercise 1 begin
-    try:
-        acl = next(acl for acl in transfer.endpoint_acl_list(dest_ep)
-                   if dest_path == acl['path'])
-    except StopIteration:
-        pass
-    else:
-        transfer.delete_endpoint_acl_rule(dest_ep, acl['id'])
 
-    delete_request = DeleteData(transfer_client=transfer, endpoint=dest_ep,
-                                label="Delete Graphs from the Portal Demo",
-                                recursive=True)
-    delete_request.add_item(dest_path)
-
-    transfer.submit_delete(delete_request)
     # Exercise 1 end
 
     flash("Your existing processed graphs have been removed.")
