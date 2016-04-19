@@ -17,7 +17,6 @@ def graph():
     """
     Add code here to:
 
-    - Read the year and the IDs of the datasets the user wants
     - Instantiate a Transfer client as the identity of the portal
     - `GET` the CSVs for the selected datasets via HTTPS server as the
       identity of the portal
@@ -28,6 +27,7 @@ def graph():
     - Display a confirmation
     """
 
+    # Read the year and the IDs of the datasets the user wants
     if request.method == 'GET':
         return render_template('graph.jinja2', datasets=datasets)
 
@@ -40,6 +40,7 @@ def graph():
         flash("Please select at least one dataset and a year to graph.")
         return redirect(url_for('graph'))
 
+    # Get tokens for the portal admin user (not the requesting user)
     transfer_token = get_portal_tokens()['transfer']
     https_token = get_portal_tokens()['https']
 
@@ -99,12 +100,15 @@ def graph():
     for filename, svg in svgs.items():
         # n.b. The HTTPS Server will overwrite existing files that you PUT.
 
+        # Add call to put the svg to the dest_https + dest_path + filename
+        # Exercise 1 begin
         requests.put('%s%s%s.svg' % (dest_https, dest_path, filename),
                      data=svg,
                      headers=dict(
                         Authorization='Bearer ' + dest_token,
                      ),
                      allow_redirects=False).raise_for_status()
+        # Exercise 1 begin
 
     flash("%d-file SVG upload to %s on %s completed!" %
           (len(svgs), dest_path, dest_info['display_name']))
@@ -130,6 +134,9 @@ def graph_cleanup():
     dest_base = app.config['GRAPH_ENDPOINT_BASE']
     dest_path = '%sGraphs for %s/' % (dest_base, session['primary_username'])
 
+    # Find and delete the acl rule for dest_ep
+    # Delete the destination foler (dest_ep, dest_base, dest_path)
+    # Exercise 1 begin
     try:
         acl = next(acl for acl in transfer.endpoint_acl_list(dest_ep)
                    if dest_path == acl['path'])
@@ -144,6 +151,7 @@ def graph_cleanup():
     delete_request.add_item(dest_path)
 
     transfer.submit_delete(delete_request)
+    # Exercise 1 end
 
     flash("Your existing processed graphs have been removed.")
     return redirect(url_for('graph'))
