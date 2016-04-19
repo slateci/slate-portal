@@ -17,13 +17,13 @@ with open(app.config['DATASETS']) as f:
     datasets = json.load(f)
 
 # Full working portal
-import portal.views
-import portal.views_graph
+# import portal.views
+# import portal.views_graph
 
 # Exercise 1
 # import portal.views_ex1
 # import portal.views_graph_ex1
 
 # Exercise 2
-# import portal.views
-# import portal.views_graph_service_ex2
+import portal.views
+import portal.views_graph_service_ex2

@@ -63,7 +63,7 @@ def graph_cleanup():
     resp.raise_for_status()
 
     task_id = resp.json()['task_id']
-    message = '{} ({}).'.format('Your existing processed have been removed',
-                                task_id)
-    flash(message)
+    msg = '{} ({}).'.format('Your existing processed graphs have been removed',
+                            task_id)
+    flash(msg)
     return redirect(url_for('graph'))
