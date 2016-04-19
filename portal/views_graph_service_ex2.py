@@ -25,21 +25,6 @@ def graph():
     req_headers = dict(Authorization='Bearer {}'.format(service_token))
 
     # Begin exercise 2
-    req_data = dict(datasets=selected_ids,
-                    year=selected_year,
-                    user_identity_id=session.get('primary_identity'),
-                    user_identity_name=session.get('primary_username'))
-
-    resp = requests.post(service_url, headers=req_headers, data=req_data,
-                         verify=False)
-
-    resp.raise_for_status()
-
-    resp_data = resp.json()
-    dest_ep = resp_data.get('dest_ep')
-    dest_path = resp_data.get('dest_path')
-    dest_name = resp_data.get('dest_name')
-    graph_count = resp_data.get('graph_count')
 
     # End exercise 2
 
@@ -58,16 +43,6 @@ def graph_cleanup():
     req_headers = dict(Authorization='Bearer {}'.format(service_token))
 
     # Begin exercise 2
-    resp = requests.post(service_url,
-                         headers=req_headers,
-                         data=dict(
-                             user_identity_name=session['primary_username']
-                         ),
-                         verify=False)
-
-    resp.raise_for_status()
-
-    task_id = resp.json()['task_id']
 
     # End exercise 2
 
