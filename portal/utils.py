@@ -1,6 +1,7 @@
 from base64 import urlsafe_b64encode
 from flask import request
-import requests
+from httplib2 import Http
+from oauth2client import client as oauth
 from threading import Lock
 
 try:
@@ -47,33 +48,24 @@ def get_safe_redirect():
 
 def get_portal_tokens():
     """
-    Using our stored refresh tokens, get access tokens we can use to
+    Using our stored credentials, get access tokens we can use to
     perform actions as the identity of the portal rather than the
     identity of the logged-in user.
 
     A real long-running portal would periodically refresh these access
     tokens when they expire. (Currently, Globus Auth access tokens are
     good for 48 hours.)
-
-    FIXME. Once the Auth API is patched to work with client ID/secret within
-    the body of the POST, replace `PORTAL_REFRESH_TOKEN_XXX` with serialized
-    refresh tokens (i.e. using `credentials.to_json()`) and use the Google
-    `oauth2client` library to get the access token here.
     """
 
     with get_portal_tokens.lock:
         if not get_portal_tokens.access_tokens:
             get_portal_tokens.access_tokens = {}
 
-            for service in ['https', 'transfer']:
-                refresh_token = app.config['PORTAL_REFRESH_TOKEN_' +
-                                           service.upper()]
-                get_portal_tokens.access_tokens[service] = requests.post(
-                    app.config['GLOBUS_AUTH']['token_uri'],
-                    data=dict(grant_type='refresh_token',
-                              refresh_token=refresh_token),
-                    headers=dict(Authorization=basic_auth_header()),
-                ).json()['access_token']
+            for service in ['https', 'transfer', 'service']:
+                creds = app.config['PORTAL_CREDS_' + service.upper()]
+                creds = oauth.OAuth2Credentials.from_json(creds)
+                creds.refresh(Http())
+                get_portal_tokens.access_tokens[service] = creds.access_token
 
         return get_portal_tokens.access_tokens
 
