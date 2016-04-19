@@ -15,16 +15,6 @@ def basic_auth_header():
     return 'Basic ' + basic_auth.decode(encoding='UTF-8')
 
 
-def token_introspect(token):
-    url = app.config['GA_INTROSPECT_URI']
-
-    token_data = requests.post(url,
-                               headers=dict(Authorization=basic_auth_header()),
-                               data=dict(token=token))
-
-    return token_data.json()
-
-
 def get_token(header):
     return header.split(' ')[1].strip()
 
