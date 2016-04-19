@@ -34,10 +34,11 @@ def graph():
 
     resp.raise_for_status()
 
-    dest_ep = resp.json().get('dest_ep')
-    dest_path = resp.json().get('dest_path')
-    dest_name = resp.json().get('dest_name')
-    graph_count = resp.json().get('graph_count')
+    resp_data = resp.json()
+    dest_ep = resp_data.get('dest_ep')
+    dest_path = resp_data.get('dest_path')
+    dest_name = resp_data.get('dest_name')
+    graph_count = resp_data.get('graph_count')
 
     flash("%d-file SVG upload to %s on %s completed!" %
           (graph_count, dest_path, dest_name))
@@ -62,7 +63,7 @@ def graph_cleanup():
 
     resp.raise_for_status()
 
-    task_id = resp.json()['task_id']
+    task_id = resp_data['task_id']
     msg = '{} ({}).'.format('Your existing processed graphs have been removed',
                             task_id)
     flash(msg)
