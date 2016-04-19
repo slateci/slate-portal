@@ -34,6 +34,9 @@ def doit():
     transfer_scope = 'urn:globus:auth:scope:transfer.api.globus.org:all'
     http_scope = 'urn:globus:auth:scope:tutorial-https-endpoint.globus.org:all'
 
+    # dependent_tokens is a list of token response objects
+    # create transfer_token and http_token variables containing the correct token for each scope
+    # Exercise 2 begin
     try:
         transfer_token = next(token['access_token']
                               for token in dependent_tokens
@@ -47,6 +50,7 @@ def doit():
                           if token['scope'] == http_scope)
     except StopIteration:
         raise InternalServerError(message='Problem with dependent token grant')
+    # Exercise 2 end
 
     selected_ids = request.form.getlist('datasets')
     selected_year = request.form.get('year')

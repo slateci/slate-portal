@@ -42,19 +42,16 @@ def logout():
     """
     Add code here to:
 
-    - Revoke Globus Auth token(s).
-    - Destroy the session.
+    - Revoke the tokens with Globus Auth.
+    - Destroy the session state.
     - Redirect the user to the Globus Auth logout page.
     """
+    # Exercise 1 begin
     auth_config = app.config['GLOBUS_AUTH']
 
     headers = {'Authorization': basic_auth_header()}
 
-    # If we don't get support for POST body client credentials,
-    # add a commented out example of using the oauth2client revoke
-    # method.
-
-    # Invalidate the tokens with Globus Auth
+    # Revoke the tokens with Globus Auth
     for token_type in ['access_token', 'refresh_token']:
         data = {'token_type_hint': token_type,
                 'token': getattr(g.credentials, token_type)}
@@ -73,8 +70,9 @@ def logout():
     ga_logout_url.append('&redirect_uri={}'.format(redirect_uri))
     ga_logout_url.append('&redirect_name=MRDP Demo App')
 
-    # Send the user to the Globus Auth logout page
+    # Redirect the user to the Globus Auth logout page
     return redirect(''.join(ga_logout_url))
+    # Exercise 1 end
 
 
 @app.route('/profile', methods=['GET', 'POST'])
@@ -189,6 +187,7 @@ def transfer():
             flash('Please select at least one dataset.')
             return redirect(url_for('transfer'))
 
+        # Exercise 1 begin
         params = {
             'method': 'POST',
             'action': url_for('submit_transfer', _external=True,
@@ -203,6 +202,7 @@ def transfer():
         session['form'] = {
             'datasets': request.form.getlist('dataset')
         }
+        # Exercise 1 end
 
         return redirect(browse_endpoint)
 
@@ -223,11 +223,13 @@ def submit_transfer():
     selected = session['form']['datasets']
     filtered_datasets = [ds for ds in datasets if ds['id'] in selected]
 
+    # Exercise 1 begin
     transfer = TransferClient(token=g.credentials.access_token)
 
     source_endpoint_id = app.config['DATASET_ENDPOINT_ID']
     source_endpoint_base = app.config['DATASET_ENDPOINT_BASE']
     destination_endpoint_id = globus_form['endpoint_id']
+    destination_folder = globus_form.get('folder[0]')
 
     transfer_data = TransferData(transfer_client=transfer,
                                  source_endpoint=source_endpoint_id,
@@ -238,8 +240,8 @@ def submit_transfer():
         source_path = source_endpoint_base + ds['path']
         dest_path = globus_form['path']
 
-        if globus_form.get('folder[0]'):
-            dest_path += globus_form['folder[0]'] + '/'
+        if destination_folder:
+            dest_path += destination_folder + '/'
 
         dest_path += ds['name'] + '/'
 
@@ -250,6 +252,7 @@ def submit_transfer():
     transfer.endpoint_autoactivate(source_endpoint_id)
     transfer.endpoint_autoactivate(destination_endpoint_id)
     task_id = transfer.submit_transfer(transfer_data)['task_id']
+    # Exercise 1 end
 
     flash('Transfer request submitted successfully. Task ID: ' + task_id)
 
@@ -283,12 +286,16 @@ def transfer_status(task_id):
     you must add those keys to the dictionary and modify the
     transfer_status.jinja2 template accordingly.
     """
+    # TODO: update doc string
+
+    # Exercise 1 begin   
     transfer = TransferClient(token=g.credentials.access_token)
     task = transfer.get_task(task_id)
+    # Exercise 1 end
 
     return render_template('transfer_status.jinja2', task=task)
 
-
+# TODO: Move this route up to between /authcallback and /transfer
 @app.route('/browse/dataset/<dataset_id>', methods=['GET'])
 @app.route('/browse/endpoint/<endpoint_id>/<path:endpoint_path>',
            methods=['GET'])
