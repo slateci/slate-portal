@@ -24,7 +24,7 @@ Simple web app framework for the exercises in the GlobusWorld developer workshop
 ##### Environment Setup
 
 * `sudo apt-get update`
-* `sudo apt-get python-pip`
+* `sudo apt-get install python-pip`
 * `sudo pip install virtualenv`
 * `sudo apt-get install git`
 * `git clone https://github.com/globus/globus-sample-data-portal`
