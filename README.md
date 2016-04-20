@@ -92,8 +92,8 @@ Once connected, run the commands below, substituting `YOUR_IP` as required.
 * `virtualenv venv`
 * `source venv/bin/activate`
 * `pip install -r requirements.txt`
-* `sed -i 's/localhost/0.0.0.0/' run_*.py`
-* `sed -i '4,//s/localhost/YOUR_IP/' */*.conf`
+* `sed -i 's/localhost/0.0.0.0/' run_portal.py`
+* `sed -i '4,//s/localhost/YOUR_IP/' portal/portal.conf`
 * `echo "SESSION_COOKIE_DOMAIN = 'YOUR_IP'" >> portal/portal.conf`
 
 ##### Running the Portal App
