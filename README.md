@@ -94,6 +94,7 @@ Once connected, run the commands below, substituting `YOUR_IP` as required.
 * `pip install -r requirements.txt`
 * `sed -i 's/localhost/0.0.0.0/' run_*.py`
 * `sed -i '4,//s/localhost/YOUR_IP/' */*.conf`
+* `echo "SESSION_COOKIE_DOMAIN = 'YOUR_IP'" >> portal/portal.conf`
 
 ##### Running the Portal App
 
