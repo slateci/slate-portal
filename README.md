@@ -26,6 +26,11 @@ The second application, the "Service," is an example "resource server" that demo
 * `./run_portal.py`
 * point your browser to `https://localhost:5000`
 
+##### Running the Service App
+
+* `./run_service.py`
+* API is located at `https://localhost:5100/api`
+
 ### Linux (Ubuntu)
 
 ##### Environment Setup
@@ -45,6 +50,11 @@ The second application, the "Service," is an example "resource server" that demo
 * `./run_portal.py`
 * point your browser to `https://localhost:5000`
 
+##### Running the Service App
+
+* `./run_service.py`
+* API is located at `https://localhost:5100/api`
+
 ### Windows
 
 ##### Environment Setup
@@ -62,6 +72,11 @@ The second application, the "Service," is an example "resource server" that demo
 
 * `python run_portal.py`
 * point your browser to `https://localhost:5000`
+
+##### Running the Service App
+
+* `python run_service.py`
+* API is located at `https://localhost:5100/api`
 
 ### Globus-Provided AWS Instance
 
@@ -84,3 +99,8 @@ Once connected, run the commands below, substituting `YOUR_IP` as required.
 
 * `./run_portal.py`
 * point your web browser to `https://YOUR_IP:5000/`
+
+##### Running the Service App
+
+* `./run_service.py`
+* API is located at `https://localhost:5100/api`
