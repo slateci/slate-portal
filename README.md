@@ -5,7 +5,7 @@ Simple web app framework for the exercises in the GlobusWorld developer workshop
 This repository contains two separate server applications. The first, the "Portal," is an example "research portal"
 that demonstrates how to authenticate users with Globus Auth, how to make requests against the Globus Transfer API, and how to interact with an HTTPS-enabled Globus Endpoint. All of the Portal code can be found in the `portal/` directory.
 
-The second application, the "Service," is an example "resource server" that demonstrates how a research portal can offload tasks to a separate service that has the capability to perform tasks on behalf of users. All of the Service code can be found in the 'service/' directory.
+The second application, the "Service," is an example "resource server" that demonstrates how a research portal can offload tasks to a separate service that has the capability to perform tasks on behalf of users. All of the Service code can be found in the `service/` directory.
 
 ## Getting Started
 
