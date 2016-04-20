@@ -53,3 +53,25 @@ Simple web app framework for the exercises in the GlobusWorld developer workshop
 ##### Running the Portal App
 
 * `python run_portal.py`
+
+### Globus-Provided AWS Instance
+
+At the Globus World workshop, you will be given an IP address, username, and
+password. Using these, open an ssh connection to the remote instance.
+
+Once connected, run the commands below, substituting `YOUR_IP` as required.
+
+##### Environment Setup
+
+* `git clone https://github.com/globus/globus-sample-data-portal`
+* `cd globus-sample-data-portal`
+* `virtualenv venv`
+* `source venv/bin/activate`
+* `pip install -r requirements.txt`
+* `sed -i 's/localhost/0.0.0.0/' run_*.py`
+* `sed -i '4,//s/localhost/YOUR_IP/' */*.conf`
+
+##### Running the Portal App
+
+* `./run_portal.py`
+* point your web browser to `https://YOUR_IP:5000/`
