@@ -15,7 +15,8 @@ from globus_sdk import (TransferClient, TransferAPIError,
 
 from portal import app, database, datasets
 from portal.decorators import authenticated
-from portal.utils import basic_auth_header, get_safe_redirect
+from portal.utils import (basic_auth_header, get_portal_tokens,
+                          get_safe_redirect)
 
 
 @app.route('/', methods=['GET'])
@@ -46,7 +47,6 @@ def logout():
     - Destroy the session state.
     - Redirect the user to the Globus Auth logout page.
     """
-    # Exercise 1 begin
     auth_config = app.config['GLOBUS_AUTH']
 
     headers = {'Authorization': basic_auth_header()}
@@ -72,7 +72,6 @@ def logout():
 
     # Redirect the user to the Globus Auth logout page
     return redirect(''.join(ga_logout_url))
-    # Exercise 1 end
 
 
 @app.route('/profile', methods=['GET', 'POST'])
@@ -249,7 +248,6 @@ def transfer():
             flash('Please select at least one dataset.')
             return redirect(url_for('transfer'))
 
-        # Exercise 1 begin
         params = {
             'method': 'POST',
             'action': url_for('submit_transfer', _external=True,
@@ -264,7 +262,6 @@ def transfer():
         session['form'] = {
             'datasets': request.form.getlist('dataset')
         }
-        # Exercise 1 end
 
         return redirect(browse_endpoint)
 
@@ -285,7 +282,6 @@ def submit_transfer():
     selected = session['form']['datasets']
     filtered_datasets = [ds for ds in datasets if ds['id'] in selected]
 
-    # Exercise 1 begin
     transfer = TransferClient(token=g.credentials.access_token)
 
     source_endpoint_id = app.config['DATASET_ENDPOINT_ID']
@@ -314,7 +310,6 @@ def submit_transfer():
     transfer.endpoint_autoactivate(source_endpoint_id)
     transfer.endpoint_autoactivate(destination_endpoint_id)
     task_id = transfer.submit_transfer(transfer_data)['task_id']
-    # Exercise 1 end
 
     flash('Transfer request submitted successfully. Task ID: ' + task_id)
 
@@ -333,9 +328,71 @@ def transfer_status(task_id):
 
     'task_id' is passed to the route in the URL as 'task_id'.
     """
-    # Exercise 1 begin
     transfer = TransferClient(token=g.credentials.access_token)
     task = transfer.get_task(task_id)
-    # Exercise 1 end
 
     return render_template('transfer_status.jinja2', task=task)
+
+
+@app.route('/graph', methods=['GET', 'POST'])
+@authenticated
+def graph():
+    if request.method == 'GET':
+        return render_template('graph.jinja2', datasets=datasets)
+
+    selected_ids = request.form.getlist('dataset')
+    selected_year = request.form.get('year')
+
+    if not (selected_ids and selected_year):
+        flash("Please select at least one dataset and a year to graph.")
+        return redirect(url_for('graph'))
+
+    service_token = get_portal_tokens()['service']
+    service_url = '{}/{}'.format(app.config['SERVICE_URL_BASE'], 'api/doit')
+    req_headers = dict(Authorization='Bearer {}'.format(service_token))
+
+    req_data = dict(datasets=selected_ids,
+                    year=selected_year,
+                    user_identity_id=session.get('primary_identity'),
+                    user_identity_name=session.get('primary_username'))
+
+    resp = requests.post(service_url, headers=req_headers, data=req_data,
+                         verify=False)
+
+    resp.raise_for_status()
+
+    resp_data = resp.json()
+    dest_ep = resp_data.get('dest_ep')
+    dest_path = resp_data.get('dest_path')
+    dest_name = resp_data.get('dest_name')
+    graph_count = resp_data.get('graph_count')
+
+    flash("%d-file SVG upload to %s on %s completed!" %
+          (graph_count, dest_path, dest_name))
+
+    return redirect(url_for('browse', endpoint_id=dest_ep,
+                            endpoint_path=dest_path.lstrip('/')))
+
+
+@app.route('/graph/clean-up', methods=['POST'])
+@authenticated
+def graph_cleanup():
+    service_token = get_portal_tokens()['service']
+    service_url = '{}/{}'.format(app.config['SERVICE_URL_BASE'], 'api/cleanup')
+    req_headers = dict(Authorization='Bearer {}'.format(service_token))
+
+    resp = requests.post(service_url,
+                         headers=req_headers,
+                         data=dict(
+                             user_identity_name=session['primary_username']
+                         ),
+                         verify=False)
+
+    resp.raise_for_status()
+
+    task_id = resp.json()['task_id']
+
+    msg = '{} ({}).'.format('Your existing processed graphs have been removed',
+                            task_id)
+    flash(msg)
+    return redirect(url_for('graph'))

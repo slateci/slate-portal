@@ -1,5 +1,4 @@
 from flask import g, jsonify, request
-from functools import wraps
 
 from globus_sdk import (TransferClient, TransferAPIError,
                         DeleteData)
@@ -7,57 +6,10 @@ from globus_sdk import (TransferClient, TransferAPIError,
 import requests
 
 from service import app, datasets
-from service.errors import (BadRequestError, InternalServerError,
-                            ForbiddenError, UnauthorizedError)
+from service.decorators import authenticated
+from service.errors import BadRequestError, InternalServerError
 from service.processing import render_graphs
-from service.utils import basic_auth_header, get_token
-
-
-def authenticated(fn):
-    """Mark a route as requiring authentication."""
-    @wraps(fn)
-    def decorated_function(*args, **kwargs):
-        if 'Authorization' not in request.headers:
-            raise UnauthorizedError()
-
-        # Get the access token from the request
-        token = get_token(request.headers['Authorization'])
-        auth_header = basic_auth_header()
-        ga_token_url = app.config['GA_INTROSPECT_URI']
-
-        # Call /token/introspect
-        # Validate that the token is active
-        # Validate that the token audience contains
-        # 'GlobusWorld Resource Server'
-        # Exercise 2 begin
-        token_meta = requests.post(ga_token_url,
-                                   headers=dict(Authorization=auth_header),
-                                   data=dict(token=token)).json()
-
-        if not token_meta.get('active'):
-            raise ForbiddenError()
-
-        if 'GlobusWorld Resource Server' not in token_meta.get('aud', []):
-            raise ForbiddenError()
-
-        # Exercise 2 end
-
-        portal_admin_id = 'e12630ca-fcd2-11e5-9123-33cb1a3964b1'
-
-        # Verify that the identities_set from the token introspection
-        # includes the portal admin identity id (mrdpdemo@globusid.org)
-        # Exercise 2 begin
-        if portal_admin_id != token_meta.get('sub'):
-            raise ForbiddenError()
-
-        # Exercise 2 end
-
-        # Token has passed verification so we attach it to the
-        # request global object and proceed
-        g.req_token = token
-
-        return fn(*args, **kwargs)
-    return decorated_function
+from service.utils import basic_auth_header
 
 
 @app.route('/api/doit', methods=['POST'])
@@ -76,7 +28,6 @@ def doit():
     # dependent_tokens is a list of token response objects
     # create transfer_token and http_token variables containing
     # the correct token for each scope
-    # Exercise 2 begin
     try:
         transfer_token = next(token['access_token']
                               for token in dependent_tokens
@@ -90,7 +41,6 @@ def doit():
                           if token['scope'] == http_scope)
     except StopIteration:
         raise InternalServerError(message='Problem with dependent token grant')
-    # Exercise 2 end
 
     selected_ids = request.form.getlist('datasets')
     selected_year = request.form.get('year')
@@ -155,8 +105,6 @@ def doit():
             raise
 
     for filename, svg in svgs.items():
-        # n.b. The HTTPS Server will overwrite existing files that you PUT.
-
         requests.put('%s%s%s.svg' % (dest_https, dest_path, filename),
                      data=svg,
                      headers=dict(Authorization='Bearer ' + dest_token),
@@ -217,7 +165,6 @@ def cleanup():
 
 def get_dependent_tokens(token):
     # Call Globus Auth dependent token grant
-    # Exercise 2 begin
     url = app.config['GA_TOKEN_URI']
     data = {
         'grant_type': 'urn:globus:auth:grant_type:dependent_token',
@@ -227,6 +174,5 @@ def get_dependent_tokens(token):
     tokens = requests.post(url,
                            headers=dict(Authorization=basic_auth_header()),
                            data=data)
-    # Exercise 2 end
 
     return tokens.json()
