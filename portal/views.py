@@ -41,8 +41,6 @@ def login():
 @authenticated
 def logout():
     """
-    Add code here to:
-
     - Revoke the tokens with Globus Auth.
     - Destroy the session state.
     - Redirect the user to the Globus Auth logout page.
@@ -174,8 +172,6 @@ def authcallback():
 @authenticated
 def browse(dataset_id=None, endpoint_id=None, endpoint_path=None):
     """
-    Add code here to:
-
     - Get list of files for the selected dataset or endpoint ID/path
     - Return a list of files to a browse view
 
@@ -234,8 +230,6 @@ def browse(dataset_id=None, endpoint_id=None, endpoint_path=None):
 @authenticated
 def transfer():
     """
-    Add code here to:
-
     - Save the submitted form to the session.
     - Send to Globus to select a destination endpoint using the
       Browse Endpoint helper page.
@@ -270,8 +264,6 @@ def transfer():
 @authenticated
 def submit_transfer():
     """
-    Add code here to:
-
     - Take the data returned by the Browse Endpoint helper page
       and make a Globus transfer request.
     - Send the user to the transfer status page with the task id
@@ -320,7 +312,7 @@ def submit_transfer():
 @authenticated
 def transfer_status(task_id):
     """
-    Add code here to call Globus to get status/details of transfer with
+    Call Globus to get status/details of transfer with
     task_id.
 
     The target template (tranfer_status.jinja2) expects a Transfer API

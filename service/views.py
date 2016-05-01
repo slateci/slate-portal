@@ -16,7 +16,6 @@ from service.utils import basic_auth_header
 @authenticated
 def doit():
     """
-    Add code here to:
     - Call token introspect
     - Get dependent tokens
     """
