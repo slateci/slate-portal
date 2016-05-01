@@ -1,5 +1,6 @@
 # Modern Research Data Portal
-Simple web app framework for the exercises in the GlobusWorld developer workshop.
+Simple web app framework demonstrating how to build a data portal using
+the Globus platform.
 
 ## Overview
 This repository contains two separate server applications. The first, the "Portal," is an example "research portal"
