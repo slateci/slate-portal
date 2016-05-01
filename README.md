@@ -77,31 +77,3 @@ The second application, the "Service," is an example "resource server" that demo
 
 * `python run_service.py`
 * API is located at `https://localhost:5100/api`
-
-### Globus-Provided AWS Instance
-
-At the Globus World workshop, you will be given an IP address, username, and
-password. Using these, open an ssh connection to the remote instance.
-
-Once connected, run the commands below, substituting `YOUR_IP` as required.
-
-##### Environment Setup
-
-* `git clone https://github.com/globus/globus-sample-data-portal`
-* `cd globus-sample-data-portal`
-* `virtualenv venv`
-* `source venv/bin/activate`
-* `pip install -r requirements.txt`
-* `sed -i 's/localhost/0.0.0.0/' run_portal.py`
-* `sed -i '4,//s/localhost/YOUR_IP/' portal/portal.conf`
-* `echo "SESSION_COOKIE_DOMAIN = 'YOUR_IP'" >> portal/portal.conf`
-
-##### Running the Portal App
-
-* `./run_portal.py`
-* point your web browser to `https://YOUR_IP:5000/`
-
-##### Running the Service App
-
-* `./run_service.py`
-* API is located at `https://localhost:5100/api`
