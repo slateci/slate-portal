@@ -123,9 +123,9 @@ def authcallback():
         return redirect(url_for('home'))
 
     # Set up our Globus Auth/OAuth2 state
-    scope = 'urn:globus:auth:scope:transfer.api.globus.org:all'
+    scopes = 'urn:globus:auth:scope:transfer.api.globus.org:all openid profile email' # noqa
     redirect_uri = url_for('authcallback', _external=True)
-    flow = oauth.flow_from_clientsecrets('portal/auth.json', scope=scope,
+    flow = oauth.flow_from_clientsecrets('portal/auth.json', scope=scopes,
                                          redirect_uri=redirect_uri)
     if request.args.get('signup'):
         flow.auth_uri += '?signup=1'
