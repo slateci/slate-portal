@@ -329,6 +329,10 @@ def transfer_status(task_id):
 @app.route('/graph', methods=['GET', 'POST'])
 @authenticated
 def graph():
+    """
+    Make a request to the "resource server" (service app) API to
+    do the graph processing.
+    """
     if request.method == 'GET':
         return render_template('graph.jinja2', datasets=datasets)
 
@@ -369,6 +373,7 @@ def graph():
 @app.route('/graph/clean-up', methods=['POST'])
 @authenticated
 def graph_cleanup():
+    """Make a request to the service app API to do the graph processing."""
     service_token = get_portal_tokens()['service']
     service_url = '{}/{}'.format(app.config['SERVICE_URL_BASE'], 'api/cleanup')
     req_headers = dict(Authorization='Bearer {}'.format(service_token))
