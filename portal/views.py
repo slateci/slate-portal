@@ -66,7 +66,7 @@ def logout():
     ga_logout_url.append(auth_config['logout_uri'])
     ga_logout_url.append('?client={}'.format(auth_config['client_id']))
     ga_logout_url.append('&redirect_uri={}'.format(redirect_uri))
-    ga_logout_url.append('&redirect_name=MRDP Demo App')
+    ga_logout_url.append('&redirect_name=Globus Sample Data Portal')
 
     # Redirect the user to the Globus Auth logout page
     return redirect(''.join(ga_logout_url))
