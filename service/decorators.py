@@ -48,11 +48,6 @@ def authenticated(fn):
     return decorated_function
 
 
-def token_is_valid(data):
-    return (data.get('active') and
-            'GlobusWorld Resource Server' in data.get('aud', []))
-
-
 @app.errorhandler(BadRequestError)
 def handle_badrequest_error(error):
     response = jsonify(error.to_dict())
