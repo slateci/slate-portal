@@ -28,10 +28,12 @@ def authenticated(fn):
         if not token_meta.get('active'):
             raise ForbiddenError()
 
-        if 'GlobusWorld Resource Server' not in token_meta.get('aud', []):
-            raise ForbiddenError()
+        service_id = app.config['GA_SERVICE_ID']
+        portal_admin_id = app.config['PORTAL_ADMIN_ID']
 
-        portal_admin_id = 'e12630ca-fcd2-11e5-9123-33cb1a3964b1'
+        # Verify that the "audience" for this token is our service
+        if service_id not in token_meta.get('aud', []):
+            raise ForbiddenError()
 
         # Verify that the identities_set from the token introspection
         # includes the portal admin identity id (mrdpdemo@globusid.org)
