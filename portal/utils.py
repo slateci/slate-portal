@@ -1,7 +1,8 @@
+import requests
+
+from arrow import utcnow
 from base64 import urlsafe_b64encode
 from flask import request
-from httplib2 import Http
-from oauth2client import client as oauth
 from threading import Lock
 
 try:
@@ -46,26 +47,45 @@ def get_safe_redirect():
     return '/'
 
 
-def get_portal_tokens():
+def get_portal_tokens(
+        scopes=['openid', 'urn:globus:auth:scope:demo-resource-server:all']):
     """
-    Using our stored credentials, get access tokens we can use to
-    perform actions as the identity of the portal rather than the
-    identity of the logged-in user.
-
-    A real long-running portal would periodically refresh these access
-    tokens when they expire. (Currently, Globus Auth access tokens are
-    good for 48 hours.)
+    Uses the client_credentials grant to get access tokens on the
+    Portal's "client identity."
     """
-
     with get_portal_tokens.lock:
         if not get_portal_tokens.access_tokens:
             get_portal_tokens.access_tokens = {}
 
-            for service in ['https', 'transfer', 'service']:
-                creds = app.config['PORTAL_CREDS_' + service.upper()]
-                creds = oauth.OAuth2Credentials.from_json(creds)
-                creds.refresh(Http())
-                get_portal_tokens.access_tokens[service] = creds.access_token
+        client_id = app.config['GLOBUS_AUTH']['client_id']
+        secret = app.config['GLOBUS_AUTH']['client_secret']
+        url = app.config['GLOBUS_AUTH']['token_uri']
+        data = {
+            'grant_type': 'client_credentials',
+            'scope': ' '.join(scopes)
+        }
+
+        resp = requests.post(url, auth=(client_id, secret), data=data)
+        resp = resp.json()
+
+        get_portal_tokens.access_tokens.update({
+            resp['resource_server']: {
+                'token': resp['access_token'],
+                'scope': resp['scope'],
+                'expires_at': utcnow().replace(
+                    seconds=+resp['expires_in'])
+            }
+        })
+
+        for token in resp['other_tokens']:
+            get_portal_tokens.access_tokens.update({
+                token['resource_server']: {
+                    'token': token['access_token'],
+                    'scope': token['scope'],
+                    'expires_at': utcnow().replace(
+                        seconds=+resp['expires_in'])
+                }
+            })
 
         return get_portal_tokens.access_tokens
 

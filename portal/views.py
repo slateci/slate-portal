@@ -343,7 +343,9 @@ def graph():
         flash("Please select at least one dataset and a year to graph.")
         return redirect(url_for('graph'))
 
-    service_token = get_portal_tokens()['service']
+    tokens = get_portal_tokens()
+    service_token = tokens.get('GlobusWorld Resource Server')['token']
+
     service_url = '{}/{}'.format(app.config['SERVICE_URL_BASE'], 'api/doit')
     req_headers = dict(Authorization='Bearer {}'.format(service_token))
 
@@ -374,7 +376,9 @@ def graph():
 @authenticated
 def graph_cleanup():
     """Make a request to the service app API to do the graph processing."""
-    service_token = get_portal_tokens()['service']
+    tokens = get_portal_tokens()
+    service_token = tokens.get('GlobusWorld Resource Server')['token']
+
     service_url = '{}/{}'.format(app.config['SERVICE_URL_BASE'], 'api/cleanup')
     req_headers = dict(Authorization='Bearer {}'.format(service_token))
 

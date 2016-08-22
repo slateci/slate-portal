@@ -32,11 +32,11 @@ def authenticated(fn):
         if 'GlobusWorld Resource Server' not in token_meta.get('aud', []):
             raise ForbiddenError()
 
-        portal_admin_id = app.config['PORTAL_ADMIN_ID']
+        portal_client_id = app.config['PORTAL_CLIENT_ID']
 
         # Verify that the identities_set from the token introspection
-        # includes the portal admin identity id (mrdpdemo@globusid.org)
-        if portal_admin_id != token_meta.get('sub'):
+        # includes the portal client identity id
+        if portal_client_id != token_meta.get('sub'):
             raise ForbiddenError()
 
         # Token has passed verification so we attach it to the
