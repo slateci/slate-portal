@@ -141,6 +141,8 @@ def cleanup():
 
     transfer = TransferClient(token=transfer_token)
 
+    transfer.endpoint_autoactivate(dest_ep)
+
     try:
         acl = next(acl for acl in transfer.endpoint_acl_list(dest_ep)
                    if dest_path == acl['path'])
