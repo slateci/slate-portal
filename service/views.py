@@ -100,7 +100,13 @@ def doit():
                  principal_type='identity', path=dest_path, permissions='r'),
         )
     except TransferAPIError as error:
-        if error.code != 'Exists':
+        # PermissionDenied can happen if a new Portal client is swapped
+        # in and it doesn't have endpoint manager on the dest_ep.
+        # The /portal/processed directory has been set to to read/write
+        # for all users so the subsequent operations will succeed.
+        if error.code == 'PermissionDenied':
+            pass
+        elif error.code != 'Exists':
             raise
 
     for filename, svg in svgs.items():
@@ -148,6 +154,14 @@ def cleanup():
                    if dest_path == acl['path'])
     except StopIteration:
         pass
+    except TransferAPIError as ex:
+        # PermissionDenied can happen if a new Portal client is swapped
+        # in and it doesn't have endpoint manager on the dest_ep.
+        # The /portal/processed directory has been set to to writeable
+        # for all users so the delete task will succeed even if an ACL
+        # can't be set.
+        if ex.code == 'PermissionDenied':
+            pass
     else:
         transfer.delete_endpoint_acl_rule(dest_ep, acl['id'])
 
