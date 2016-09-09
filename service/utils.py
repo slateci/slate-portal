@@ -5,8 +5,8 @@ from service import app
 
 def basic_auth_header():
     """Generate a Globus Auth compatible basic auth header."""
-    cid = app.config['GA_CLIENT_ID']
-    csecret = app.config['GA_CLIENT_SECRET']
+    cid = app.config['CLIENT_ID']
+    csecret = app.config['CLIENT_SECRET']
 
     creds = '{}:{}'.format(cid, csecret)
     basic_auth = urlsafe_b64encode(creds.encode(encoding='UTF-8'))
