@@ -14,6 +14,9 @@ The second application, the "Service," is an example "resource server" that demo
     * [Linux](#linux-ubuntu)
     * [Windows](#windows)
 * Create your own App registration for use in the Portal. Visit the [Globus Developer Pages](https://developers.globus.org) to register an App.
+    * After creating your App the client id and secret can be copied into this project in the following two places:
+        * `portal/auth.json` where the `client_id` and `secret` properties are used during the login process.
+        * `service/service.conf` where the `PORTAL_CLIENT_ID` is used to validate the access token that the Portal sends to the Service.
 
 ### OS X
 
