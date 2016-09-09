@@ -9,6 +9,11 @@ that demonstrates how to authenticate users with Globus [Auth](https://docs.glob
 The second application, the "Service," is an example "resource server" that demonstrates how a research portal can offload tasks to a separate service that has the capability to perform tasks on behalf of users. All of the Service code can be found in the `service/` directory.
 
 ## Getting Started
+* Set up your environment.
+    * [OS X](https://github.com/globus/globus-sample-data-portal/#os-x)
+    * [Linux](https://github.com/globus/globus-sample-data-portal/#linux-ubuntu)
+    * [Windows](https://github.com/globus/globus-sample-data-portal/#windows)
+* Create your own App registration for use in the Portal. Visit the [Globus Developer Pages](https://developers.globus.org) to register an App.
 
 ### OS X
 
