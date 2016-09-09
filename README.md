@@ -10,9 +10,9 @@ The second application, the "Service," is an example "resource server" that demo
 
 ## Getting Started
 * Set up your environment.
-    * [OS X](https://github.com/globus/globus-sample-data-portal/#os-x)
-    * [Linux](https://github.com/globus/globus-sample-data-portal/#linux-ubuntu)
-    * [Windows](https://github.com/globus/globus-sample-data-portal/#windows)
+    * [OS X](#os-x)
+    * [Linux](#linux-ubuntu)
+    * [Windows](#windows)
 * Create your own App registration for use in the Portal. Visit the [Globus Developer Pages](https://developers.globus.org) to register an App.
 
 ### OS X
