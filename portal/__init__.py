@@ -1,13 +1,9 @@
 from flask import Flask
-import httplib2
 import json
 
 from portal.database import Database
 
 __author__ = 'Globus Team <info@globus.org>'
-
-# Uncomment to turn on oauth2client debug output.
-# httplib2.debuglevel = 4
 
 app = Flask(__name__)
 app.config.from_pyfile('portal.conf')

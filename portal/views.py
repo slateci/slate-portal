@@ -1,8 +1,5 @@
-import uuid
-
-from flask import (abort, flash, g, redirect, render_template, request,
+from flask import (abort, flash, redirect, render_template, request,
                    session, url_for)
-from oauth2client import client as oauth
 import requests
 
 try:
@@ -11,11 +8,11 @@ except:
     from urllib import urlencode
 
 from globus_sdk import (TransferClient, TransferAPIError,
-                        TransferData)
+                        TransferData, RefreshTokenAuthorizer)
 
 from portal import app, database, datasets
 from portal.decorators import authenticated
-from portal.utils import (basic_auth_header, get_portal_tokens,
+from portal.utils import (load_portal_client, get_portal_tokens,
                           get_safe_redirect)
 
 
@@ -45,17 +42,18 @@ def logout():
     - Destroy the session state.
     - Redirect the user to the Globus Auth logout page.
     """
-    auth_config = app.config['GLOBUS_AUTH']
-
-    headers = {'Authorization': basic_auth_header()}
+    client = load_portal_client()
 
     # Revoke the tokens with Globus Auth
-    for token_type in ['access_token', 'refresh_token']:
-        data = {'token_type_hint': token_type,
-                'token': getattr(g.credentials, token_type)}
-        requests.post(auth_config['revoke_uri'],
-                      headers=headers,
-                      data=data)
+    for token_info in session['tokens'].values():
+        for token_type in ['access_token', 'refresh_token']:
+            # if no refresh tokens, skip them when they show up -- detected by
+            # having None for this token type
+            if token_info[token_type] is None:
+                continue
+            data = {'token_type_hint': token_type,
+                    'token': token_info[token_type]}
+            client.post("/v2/oauth2/token/revoke", text_body=data)
 
     # Destroy the session state
     session.clear()
@@ -63,8 +61,8 @@ def logout():
     redirect_uri = url_for('home', _external=True)
 
     ga_logout_url = []
-    ga_logout_url.append(auth_config['logout_uri'])
-    ga_logout_url.append('?client={}'.format(auth_config['client_id']))
+    ga_logout_url.append(app.config['GLOBUS_AUTH_LOGOUT_URI'])
+    ga_logout_url.append('?client={}'.format(app.config['PORTAL_CLIENT_ID']))
     ga_logout_url.append('&redirect_uri={}'.format(redirect_uri))
     ga_logout_url.append('&redirect_name=Globus Sample Data Portal')
 
@@ -123,59 +121,52 @@ def authcallback():
         return redirect(url_for('home'))
 
     # Set up our Globus Auth/OAuth2 state
-    scopes = 'urn:globus:auth:scope:transfer.api.globus.org:all openid profile email'  # noqa
     redirect_uri = url_for('authcallback', _external=True)
-    flow = oauth.flow_from_clientsecrets('portal/auth.json', scope=scopes,
-                                         redirect_uri=redirect_uri)
-    if request.args.get('signup'):
-        flow.auth_uri += '?signup=1'
+
+    client = load_portal_client()
+    client.oauth2_start_flow_authorization_code(redirect_uri,
+                                                refresh_tokens=True)
 
     # If there's no "code" query string parameter, we're in this route
     # starting a Globus Auth login flow.
     if 'code' not in request.args:
-        state = str(uuid.uuid4())
+        additional_authorize_params = (
+            {'signup': 1} if request.args.get('signup') else {})
 
-        auth_uri = flow.step1_get_authorize_url(state=state)
-
-        session['oauth2_state'] = state
+        auth_uri = client.oauth2_get_authorize_url(
+            additional_params=additional_authorize_params)
 
         return redirect(auth_uri)
     else:
         # If we do have a "code" param, we're coming back from Globus Auth
         # and can start the process of exchanging an auth code for a token.
-        passed_state = request.args.get('state')
+        code = request.args.get('code')
+        tokens = client.oauth2_exchange_code_for_tokens(code)
 
-        if passed_state and passed_state == session.get('oauth2_state'):
-            code = request.args.get('code')
+        id_token = tokens.decode_id_token(client)
+        session.update(
+            tokens=tokens.by_resource_server,
+            is_authenticated=True,
+            name=id_token.get('name', ''),
+            email=id_token.get('email', ''),
+            project=id_token.get('project', ''),
+            primary_username=id_token.get('preferred_username'),
+            primary_identity=id_token.get('sub'),
+        )
 
-            try:
-                credentials = flow.step2_exchange(code)
-            except Exception as err:
-                return repr(err)
-            else:
-                session.pop('oauth2_state')
+        profile = database.load_profile(session['primary_identity'])
 
-                id_token = credentials.id_token
-                session.update(
-                    credentials=credentials.to_json(),
-                    is_authenticated=True,
-                    primary_username=id_token.get('preferred_username'),
-                    primary_identity=id_token.get('sub'),
-                )
+        if profile:
+            name, email, project = profile
 
-                profile = database.load_profile(session['primary_identity'])
+            session['name'] = name
+            session['email'] = email
+            session['project'] = project
+        else:
+            return redirect(url_for('profile',
+                            next=url_for('transfer')))
 
-                if profile:
-                    name, email, project = profile
-
-                    session['name'] = name
-                    session['email'] = email
-                    session['project'] = project
-                else:
-                    return redirect(url_for('profile',
-                                    next=url_for('transfer')))
-
-            return redirect(url_for('transfer'))
+        return redirect(url_for('transfer'))
 
 
 @app.route('/browse/dataset/<dataset_id>', methods=['GET'])
@@ -213,7 +204,9 @@ def browse(dataset_id=None, endpoint_id=None, endpoint_path=None):
     else:
         endpoint_path = '/' + endpoint_path
 
-    transfer = TransferClient(token=g.credentials.access_token)
+    transfer = TransferClient(authorizer=RefreshTokenAuthorizer(
+        session['tokens']['transfer.api.globus.org']['refresh_token'],
+        load_portal_client()))
 
     try:
         transfer.endpoint_autoactivate(endpoint_id)
@@ -286,7 +279,9 @@ def submit_transfer():
     selected = session['form']['datasets']
     filtered_datasets = [ds for ds in datasets if ds['id'] in selected]
 
-    transfer = TransferClient(token=g.credentials.access_token)
+    transfer = TransferClient(authorizer=RefreshTokenAuthorizer(
+        session['tokens']['transfer.api.globus.org']['refresh_token'],
+        load_portal_client()))
 
     source_endpoint_id = app.config['DATASET_ENDPOINT_ID']
     source_endpoint_base = app.config['DATASET_ENDPOINT_BASE']
@@ -332,7 +327,9 @@ def transfer_status(task_id):
 
     'task_id' is passed to the route in the URL as 'task_id'.
     """
-    transfer = TransferClient(token=g.credentials.access_token)
+    transfer = TransferClient(authorizer=RefreshTokenAuthorizer(
+        session['tokens']['transfer.api.globus.org']['refresh_token'],
+        load_portal_client()))
     task = transfer.get_task(task_id)
 
     return render_template('transfer_status.jinja2', task=task)

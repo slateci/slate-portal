@@ -1,17 +1,12 @@
-from base64 import urlsafe_b64encode
+import globus_sdk
 
 from service import app
 
 
-def basic_auth_header():
-    """Generate a Globus Auth compatible basic auth header."""
-    cid = app.config['CLIENT_ID']
-    csecret = app.config['CLIENT_SECRET']
-
-    creds = '{}:{}'.format(cid, csecret)
-    basic_auth = urlsafe_b64encode(creds.encode(encoding='UTF-8'))
-
-    return 'Basic ' + basic_auth.decode(encoding='UTF-8')
+def load_auth_client():
+    """Create a Globus Auth client from config info"""
+    return globus_sdk.ConfidentialAppAuthClient(
+        app.config['CLIENT_ID'], app.config['CLIENT_SECRET'])
 
 
 def get_token(header):
