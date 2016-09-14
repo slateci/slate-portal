@@ -1,7 +1,7 @@
 from flask import g, jsonify, request
 
 from globus_sdk import (TransferClient, TransferAPIError,
-                        DeleteData)
+                        DeleteData, AccessTokenAuthorizer)
 
 import requests
 
@@ -9,7 +9,7 @@ from service import app, datasets
 from service.decorators import authenticated
 from service.errors import BadRequestError, InternalServerError
 from service.processing import render_graphs
-from service.utils import basic_auth_header
+from service.utils import load_auth_client
 
 
 @app.route('/api/doit', methods=['POST'])
@@ -21,25 +21,13 @@ def doit():
     """
     dependent_tokens = get_dependent_tokens(g.req_token)
 
-    transfer_scope = 'urn:globus:auth:scope:transfer.api.globus.org:all'
-    http_scope = 'urn:globus:auth:scope:tutorial-https-endpoint.globus.org:all'
-
-    # dependent_tokens is a list of token response objects
+    # dependent_tokens is a token response object
     # create transfer_token and http_token variables containing
-    # the correct token for each scope
-    try:
-        transfer_token = next(token['access_token']
-                              for token in dependent_tokens
-                              if token['scope'] == transfer_scope)
-    except StopIteration:
-        raise InternalServerError(message='Problem with dependent token grant')
-
-    try:
-        http_token = next(token['access_token']
-                          for token in dependent_tokens
-                          if token['scope'] == http_scope)
-    except StopIteration:
-        raise InternalServerError(message='Problem with dependent token grant')
+    # the correct token for each resource server
+    transfer_token = dependent_tokens.by_resource_server[
+        'transfer.api.globus.org']['access_token']
+    http_token = dependent_tokens.by_resource_server[
+        'tutorial-https-endpoint.globus.org']['access_token']
 
     selected_ids = request.form.getlist('datasets')
     selected_year = request.form.get('year')
@@ -52,7 +40,7 @@ def doit():
     if not (selected_datasets and selected_year):
         raise BadRequestError()
 
-    transfer = TransferClient(token=transfer_token)
+    transfer = TransferClient(authorizer=AccessTokenAuthorizer(transfer_token))
 
     source_ep = app.config['DATASET_ENDPOINT_ID']
     source_info = transfer.get_endpoint(source_ep)
@@ -132,20 +120,14 @@ def cleanup():
 
     dependent_tokens = get_dependent_tokens(g.req_token)
 
-    transfer_scope = 'urn:globus:auth:scope:transfer.api.globus.org:all'
-
-    try:
-        transfer_token = next(token['access_token']
-                              for token in dependent_tokens
-                              if token['scope'] == transfer_scope)
-    except StopIteration:
-        raise InternalServerError(message='Problem with dependent token grant')
+    transfer_token = dependent_tokens.by_resource_server[
+        'transfer.api.globus.org']['access_token']
 
     dest_ep = app.config['GRAPH_ENDPOINT_ID']
     dest_base = app.config['GRAPH_ENDPOINT_BASE']
     dest_path = '%sGraphs for %s/' % (dest_base, user_identity_name)
 
-    transfer = TransferClient(token=transfer_token)
+    transfer = TransferClient(authorizer=AccessTokenAuthorizer(transfer_token))
 
     transfer.endpoint_autoactivate(dest_ep)
 
@@ -180,14 +162,5 @@ def cleanup():
 
 def get_dependent_tokens(token):
     # Call Globus Auth dependent token grant
-    url = app.config['GA_TOKEN_URI']
-    data = {
-        'grant_type': 'urn:globus:auth:grant_type:dependent_token',
-        'token': token
-    }
-
-    tokens = requests.post(url,
-                           headers=dict(Authorization=basic_auth_header()),
-                           data=data)
-
-    return tokens.json()
+    client = load_auth_client()
+    return client.oauth2_get_dependent_tokens(token)

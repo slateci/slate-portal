@@ -45,15 +45,16 @@ def logout():
     client = load_portal_client()
 
     # Revoke the tokens with Globus Auth
-    for token_info in session['tokens'].values():
-        for token_type in ['access_token', 'refresh_token']:
-            # if no refresh tokens, skip them when they show up -- detected by
-            # having None for this token type
-            if token_info[token_type] is None:
-                continue
-            data = {'token_type_hint': token_type,
-                    'token': token_info[token_type]}
-            client.post("/v2/oauth2/token/revoke", text_body=data)
+    for token, token_type in (
+            (token_info[ty], ty)
+            # get all of the token info dicts
+            for token_info in session['tokens'].values()
+            # cross product with the set of token types
+            for ty in ('access_token', 'refresh_token')
+            # only where the relevant token is actually present
+            if token_info[ty] is not None):
+        client.oauth2_revoke_token(
+            token, additional_params={'token_type_hint': token_type})
 
     # Destroy the session state
     session.clear()
