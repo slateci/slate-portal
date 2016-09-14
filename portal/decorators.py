@@ -2,8 +2,6 @@ from flask import g, redirect, request, session, url_for
 from functools import wraps
 from oauth2client import client as oauth
 
-from portal import database
-
 
 def authenticated(fn):
     """Mark a route as requiring authentication."""
@@ -15,14 +13,13 @@ def authenticated(fn):
         g.credentials = oauth.OAuth2Credentials.from_json(
             session['credentials'])
 
-        profile = database.load_profile(session['primary_identity'])
+        if request.path == '/logout':
+            return fn(*args, **kwargs)
 
-        if profile:
-            name, email, project = profile
-            session['name'] = name
-            session['email'] = email
-            session['project'] = project
-        else:
+        if (not session.get('name') or
+                not session.get('email') or
+                not session.get('project')):
+
             session['name'] = g.credentials.id_token.get('name', '')
             session['email'] = g.credentials.id_token.get('email', '')
             session['project'] = g.credentials.id_token.get('project', '')

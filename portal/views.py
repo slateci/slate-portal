@@ -163,6 +163,18 @@ def authcallback():
                     primary_identity=id_token.get('sub'),
                 )
 
+                profile = database.load_profile(session['primary_identity'])
+
+                if profile:
+                    name, email, project = profile
+
+                    session['name'] = name
+                    session['email'] = email
+                    session['project'] = project
+                else:
+                    return redirect(url_for('profile',
+                                    next=url_for('transfer')))
+
             return redirect(url_for('transfer'))
 
 
