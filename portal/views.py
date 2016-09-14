@@ -86,6 +86,9 @@ def profile():
             session['name'] = name
             session['email'] = email
             session['project'] = project
+        else:
+            flash(
+                'Please complete any missing profile fields and press Save.')
 
         if request.args.get('next'):
             session['next'] = get_safe_redirect()
