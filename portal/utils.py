@@ -1,9 +1,8 @@
-import requests
-
 from arrow import utcnow
-from base64 import urlsafe_b64encode
 from flask import request
 from threading import Lock
+
+import globus_sdk
 
 try:
     from urllib.parse import urlparse, urljoin
@@ -13,16 +12,10 @@ except:
 from portal import app
 
 
-def basic_auth_header():
-    """Generate a Globus Auth compatible basic auth header."""
-    auth_config = app.config['GLOBUS_AUTH']
-    cid = auth_config['client_id']
-    csecret = auth_config['client_secret']
-
-    creds = '{}:{}'.format(cid, csecret)
-    basic_auth = urlsafe_b64encode(creds.encode(encoding='UTF-8'))
-
-    return 'Basic ' + basic_auth.decode(encoding='UTF-8')
+def load_portal_client():
+    """Create an AuthClient for the portal"""
+    return globus_sdk.ConfidentialAppAuthClient(
+        app.config['PORTAL_CLIENT_ID'], app.config['PORTAL_CLIENT_SECRET'])
 
 
 def is_safe_redirect_url(target):
@@ -57,33 +50,22 @@ def get_portal_tokens(
         if not get_portal_tokens.access_tokens:
             get_portal_tokens.access_tokens = {}
 
-        client_id = app.config['GLOBUS_AUTH']['client_id']
-        secret = app.config['GLOBUS_AUTH']['client_secret']
-        url = app.config['GLOBUS_AUTH']['token_uri']
-        data = {
-            'grant_type': 'client_credentials',
-            'scope': ' '.join(scopes)
-        }
+        scope_string = ' '.join(scopes)
 
-        resp = requests.post(url, auth=(client_id, secret), data=data)
-        resp = resp.json()
+        client = load_portal_client()
+        tokens = client.oauth2_client_credentials_tokens(
+            requested_scopes=scope_string)
 
-        get_portal_tokens.access_tokens.update({
-            resp['resource_server']: {
-                'token': resp['access_token'],
-                'scope': resp['scope'],
-                'expires_at': utcnow().replace(
-                    seconds=+resp['expires_in'])
-            }
-        })
-
-        for token in resp['other_tokens']:
+        # walk all resource servers in the token response (includes the
+        # top-level server, as found in tokens.resource_server), and store the
+        # relevant Access Tokens
+        for resource_server, token_info in tokens.by_resource_server.items():
             get_portal_tokens.access_tokens.update({
-                token['resource_server']: {
-                    'token': token['access_token'],
-                    'scope': token['scope'],
+                resource_server: {
+                    'token': token_info['access_token'],
+                    'scope': token_info['scope'],
                     'expires_at': utcnow().replace(
-                        seconds=+resp['expires_in'])
+                        seconds=+token_info['expires_in'])
                 }
             })
 

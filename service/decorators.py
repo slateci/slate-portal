@@ -1,11 +1,10 @@
 from flask import g, jsonify, request
 from functools import wraps
-import requests
 
 from service import app
 from service.errors import (BadRequestError, UnauthorizedError, ForbiddenError,
                             InternalServerError)
-from service.utils import basic_auth_header, get_token
+from service.utils import load_auth_client, get_token
 
 
 def authenticated(fn):
@@ -17,13 +16,10 @@ def authenticated(fn):
 
         # Get the access token from the request
         token = get_token(request.headers['Authorization'])
-        auth_header = basic_auth_header()
-        ga_token_url = app.config['GA_INTROSPECT_URI']
 
-        # Call /token/introspect
-        token_meta = requests.post(ga_token_url,
-                                   headers=dict(Authorization=auth_header),
-                                   data=dict(token=token)).json()
+        # Call token introspect
+        client = load_auth_client()
+        token_meta = client.oauth2_token_introspect(token)
 
         if not token_meta.get('active'):
             raise ForbiddenError()
