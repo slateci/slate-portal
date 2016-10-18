@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/globus/globus-sample-data-portal.svg?branch=master)](https://travis-ci.org/globus/globus-sample-data-portal)
+
 # Modern Research Data Portal
 Simple web app framework demonstrating how to build a data portal using
 the Globus [platform](https://www.globus.org/platform).
