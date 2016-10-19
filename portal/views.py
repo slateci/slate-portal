@@ -80,11 +80,11 @@ def profile():
         profile = database.load_profile(identity_id)
 
         if profile:
-            name, email, project = profile
+            name, email, institution = profile
 
             session['name'] = name
             session['email'] = email
-            session['project'] = project
+            session['institution'] = institution
         else:
             flash(
                 'Please complete any missing profile fields and press Save.')
@@ -96,12 +96,12 @@ def profile():
     elif request.method == 'POST':
         name = session['name'] = request.form['name']
         email = session['email'] = request.form['email']
-        project = session['project'] = request.form['project']
+        institution = session['institution'] = request.form['institution']
 
         database.save_profile(identity_id=session['primary_identity'],
                               name=name,
                               email=email,
-                              project=project)
+                              institution=institution)
 
         flash('Thank you! Your profile has been successfully updated.')
 
@@ -153,7 +153,7 @@ def authcallback():
             is_authenticated=True,
             name=id_token.get('name', ''),
             email=id_token.get('email', ''),
-            project=id_token.get('project', ''),
+            institution=id_token.get('institution', ''),
             primary_username=id_token.get('preferred_username'),
             primary_identity=id_token.get('sub'),
         )
@@ -161,11 +161,11 @@ def authcallback():
         profile = database.load_profile(session['primary_identity'])
 
         if profile:
-            name, email, project = profile
+            name, email, institution = profile
 
             session['name'] = name
             session['email'] = email
-            session['project'] = project
+            session['institution'] = institution
         else:
             return redirect(url_for('profile',
                             next=url_for('transfer')))
