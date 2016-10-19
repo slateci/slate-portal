@@ -1,4 +1,3 @@
-from arrow import utcnow
 from flask import request
 from threading import Lock
 
@@ -64,8 +63,7 @@ def get_portal_tokens(
                 resource_server: {
                     'token': token_info['access_token'],
                     'scope': token_info['scope'],
-                    'expires_at': utcnow().replace(
-                        seconds=+token_info['expires_in'])
+                    'expires_at': token_info['expires_at_seconds']
                 }
             })
 
