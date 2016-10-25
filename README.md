@@ -23,7 +23,7 @@ The second application, the "Service," is an example "resource server" that demo
     * Redirect URL: `https://localhost:5000/authcallback`
     * Scopes: `urn:globus:auth:scope:transfer.api.globus.org:all`, `urn:globus:auth:scope:demo-resource-server:all`, `openid`, `profile`, `email`
 * After creating your App the client id and secret can be copied into this project in the following two places:
-    * `portal/auth.json` where the `client_id` and `client_secret` properties are used during the login process.
+    * `portal/portal.conf` in the `PORTAL_CLIENT_ID` and `PORTAL_CLIENT_SECRET` properties.
     * `service/service.conf` where the `PORTAL_CLIENT_ID` is used to validate the access token that the Portal sends to the Service.
 
 ### OS X
