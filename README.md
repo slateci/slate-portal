@@ -15,6 +15,7 @@ The second application, the "Service," is an example "resource server" that demo
 * [OS X](#os-x)
 * [Linux](#linux-ubuntu)
 * [Windows](#windows)
+* [Amazon EC2](#amazon-ec2)
 
 #### Create your own App registration for use in the Portal. 
 * Visit the [Globus Developer Pages](https://developers.globus.org) to register an App.
@@ -93,4 +94,27 @@ The second application, the "Service," is an example "resource server" that demo
 ##### Running the Service App
 
 * `python run_service.py`
+* API is located at `https://localhost:5100/api`
+
+### Amazon EC2
+
+##### Environment Setup
+
+* `git clone https://github.com/globus/globus-sample-data-portal`
+* `cd globus-sample-data-portal`
+* `virtualenv venv`
+* `source venv/bin/activate`
+* `pip install -r requirements.txt`
+* `sed -i 's/localhost/0.0.0.0/' run_portal.py`
+* `sed -i '4,//s/localhost/YOUR_IP/' portal/portal.conf`
+* `echo "SESSION_COOKIE_DOMAIN = 'YOUR_IP'" >> portal/portal.conf`
+
+##### Running the Portal App
+
+* `./run_portal.py`
+* point your web browser to `https://YOUR_IP:5000/`
+
+##### Running the Service App
+
+* `./run_service.py`
 * API is located at `https://localhost:5100/api`
