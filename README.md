@@ -21,7 +21,7 @@ The second application, the "Service," is an example "resource server" that demo
 * Visit the [Globus Developer Pages](https://developers.globus.org) to register an App.
 * If this is your first time visiting the Developer Pages you'll be asked to create a Project. A Project is a way to group Apps together.
 * When registering the App you'll be asked for some information, including the redirect URL and any scopes you will be requesting.
-    * Redirect URL: `https://localhost:5000/authcallback`
+    * Redirect URL: `https://localhost:5000/authcallback` (note: if using EC2 `localhost` should be replaced with the IP address of your instance).
     * Scopes: `urn:globus:auth:scope:transfer.api.globus.org:all`, `openid`, `profile`, `email`
 * After creating your App the client id and secret can be copied into this project in the following two places:
     * `portal/portal.conf` in the `PORTAL_CLIENT_ID` and `PORTAL_CLIENT_SECRET` properties.
