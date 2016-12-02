@@ -69,5 +69,6 @@ def get_portal_tokens(
 
         return get_portal_tokens.access_tokens
 
+
 get_portal_tokens.lock = Lock()
 get_portal_tokens.access_tokens = None
