@@ -1,4 +1,4 @@
-Flask==0.11.1
+Flask==0.12
 pygal==2.1.1
 globus-sdk==0.4.6
 # optional dependency of globus-sdk that enables ID Token parsing
