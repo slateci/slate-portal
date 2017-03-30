@@ -208,9 +208,15 @@ def browse(dataset_id=None, endpoint_id=None, endpoint_path=None):
     else:
         endpoint_path = '/' + endpoint_path
 
-    transfer = TransferClient(authorizer=RefreshTokenAuthorizer(
-        session['tokens']['transfer.api.globus.org']['refresh_token'],
-        load_portal_client()))
+    transfer_tokens = session['tokens']['transfer.api.globus.org']
+
+    authorizer = RefreshTokenAuthorizer(
+        transfer_tokens['refresh_token'],
+        load_portal_client(),
+        access_token=transfer_tokens['access_token'],
+        expires_at=transfer_tokens['expires_at_seconds'])
+
+    transfer = TransferClient(authorizer=authorizer)
 
     try:
         transfer.endpoint_autoactivate(endpoint_id)
@@ -283,9 +289,15 @@ def submit_transfer():
     selected = session['form']['datasets']
     filtered_datasets = [ds for ds in datasets if ds['id'] in selected]
 
-    transfer = TransferClient(authorizer=RefreshTokenAuthorizer(
-        session['tokens']['transfer.api.globus.org']['refresh_token'],
-        load_portal_client()))
+    transfer_tokens = session['tokens']['transfer.api.globus.org']
+
+    authorizer = RefreshTokenAuthorizer(
+        transfer_tokens['refresh_token'],
+        load_portal_client(),
+        access_token=transfer_tokens['access_token'],
+        expires_at=transfer_tokens['expires_at_seconds'])
+
+    transfer = TransferClient(authorizer=authorizer)
 
     source_endpoint_id = app.config['DATASET_ENDPOINT_ID']
     source_endpoint_base = app.config['DATASET_ENDPOINT_BASE']
@@ -331,9 +343,15 @@ def transfer_status(task_id):
 
     'task_id' is passed to the route in the URL as 'task_id'.
     """
-    transfer = TransferClient(authorizer=RefreshTokenAuthorizer(
-        session['tokens']['transfer.api.globus.org']['refresh_token'],
-        load_portal_client()))
+    transfer_tokens = session['tokens']['transfer.api.globus.org']
+
+    authorizer = RefreshTokenAuthorizer(
+        transfer_tokens['refresh_token'],
+        load_portal_client(),
+        access_token=transfer_tokens['access_token'],
+        expires_at=transfer_tokens['expires_at_seconds'])
+
+    transfer = TransferClient(authorizer=authorizer)
     task = transfer.get_task(task_id)
 
     return render_template('transfer_status.jinja2', task=task)
