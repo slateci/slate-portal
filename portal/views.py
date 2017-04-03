@@ -128,8 +128,7 @@ def authcallback():
     redirect_uri = url_for('authcallback', _external=True)
 
     client = load_portal_client()
-    client.oauth2_start_flow_authorization_code(redirect_uri,
-                                                refresh_tokens=True)
+    client.oauth2_start_flow(redirect_uri, refresh_tokens=True)
 
     # If there's no "code" query string parameter, we're in this route
     # starting a Globus Auth login flow.
