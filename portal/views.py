@@ -4,7 +4,7 @@ import requests
 
 try:
     from urllib.parse import urlencode
-except:
+except ImportError:
     from urllib import urlencode
 
 from globus_sdk import (TransferClient, TransferAPIError,
