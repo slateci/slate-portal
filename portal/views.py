@@ -1,6 +1,8 @@
 from flask import (abort, flash, redirect, render_template, request,
                    session, url_for)
 import requests
+import sqlite3
+import uuid
 
 try:
     from urllib.parse import urlencode
@@ -15,6 +17,15 @@ from portal.decorators import authenticated
 from portal.utils import (load_portal_client, get_portal_tokens,
                           get_safe_redirect)
 
+try: 
+    db = sqlite3.connect('data/clusters.db')
+    cursor = db.cursor()
+    cursor.execute('''CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, name TEXT, accesstoken TEXT unique, endpoint TEXT, email TEXT)''')
+except Exception as e:
+    db.rollback()
+    raise e
+finally:
+    db.close()
 
 @app.route('/', methods=['GET'])
 def home():
@@ -171,6 +182,67 @@ def authcallback():
 
         return redirect(url_for('transfer'))
 
+@app.route('/register', methods=['GET', 'POST'])
+@authenticated
+def register():
+    if request.method == 'GET':
+        return render_template('register.jinja2')
+    elif request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        endpoint = request.form['endpoint']
+
+        #database.save_profile(identity_id=session['primary_identity'],
+        #                      name=name,
+        #                      email=email,
+        #                      institution=institution)
+
+        accesstoken = str(uuid.uuid4())
+        print("%s %s %s %s" % (name, email, endpoint, accesstoken))
+
+        db = sqlite3.connect('data/clusters.db')
+        try:
+            with db:
+                db.execute('''INSERT INTO users(name, accesstoken, endpoint, email) VALUES(?,?,?,?)''', (name, accesstoken, endpoint, email))
+                flash('Your entry has been created.')
+        except sqlite3.IntegrityError:
+            print("record already exists")
+        finally:
+            db.close()
+
+        if 'next' in session:
+            redirect_to = session['next']
+            session.pop('next')
+        else:
+            redirect_to = url_for('clusters')
+
+        return redirect(redirect_to)
+
+@app.route('/clusters', methods=['GET'])
+@authenticated
+def clusters():
+    """
+    - Save the submitted form to the session.
+    - Send to Globus to select a destination endpoint using the
+      Browse Endpoint helper page.
+    """
+    clusters = []
+    db = sqlite3.connect('data/clusters.db')
+    c = db.cursor()
+    try:
+        with db:
+            n = (session['name'],)
+            for row in c.execute('''SELECT * FROM users WHERE name=?''', n):
+              """
+              Returns the clusters owned by the user of this session name
+              (1, u'Lincoln Bryant', u'1b9a2d06-ffa7-4e66-8587-b624e291c499', u'UChicago', u'lincolnb@uchicago.edu')
+
+              """
+              clusters += [{ 'name': str(row[1]), 'accesstoken': str(row[2]), 'endpoint': str(row[3]), 'email': str(row[4])}]
+    finally:
+        db.close()
+    if request.method == 'GET':
+        return render_template('clusters.jinja2', clusters=clusters)
 
 @app.route('/browse/dataset/<dataset_id>', methods=['GET'])
 @app.route('/browse/endpoint/<endpoint_id>/<path:endpoint_path>',
