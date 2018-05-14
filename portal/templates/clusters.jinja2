@@ -1,0 +1,60 @@
+{%extends "base.jinja2"%}
+
+{%block title%}Register{%endblock%}
+
+{%block body%}
+  {%include "header.jinja2"%}
+
+  <div class="container">
+
+    <div class="page-header">
+      <h1>Registration</h1>
+    </div>
+
+    <p>
+      My SLATE Clusters
+    </p>
+
+    <div class="form-wrapper">
+      <form class="form-inline" role="form" action="{{url_for('transfer')}}" method="post">
+        <div class="row">
+          <div class="col-md-12">
+            <table class="table">
+              <th class="col-md-5 text-left">
+                Cluster Name
+              </th>
+              <th class="col-md-1 text-center">
+                Access Token
+              </th>
+
+              {%if clusters%}
+                {%for cluster in clusters%}
+                  <tr>
+                    <td class="col-md-5 text-left">
+                      <p> {{cluster['endpoint']}} </p>
+                    </td>
+                    <td class="col-md-1 text-center">
+                      <p> {{cluster['accesstoken']}} </p>
+                    </td>
+                  </tr>
+                {%endfor%}
+              {%else%}
+                <p>No devices found.</p>
+              {%endif%}
+            </table>
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="row">
+          <div class="form-actions col-md-7 pull-right">
+            <input name="transfer" type="submit" class="btn btn-primary"
+                   value="Transfer">
+          </div>
+        </div>
+      </form>
+    </div> <!-- form -->
+
+  </div> <!-- container -->
+{%endblock%}

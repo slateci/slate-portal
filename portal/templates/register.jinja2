@@ -1,0 +1,68 @@
+{%extends "base.jinja2"%}
+
+{%block title%}
+  Profile
+{%endblock%}
+
+{%block body%}
+
+  {%include "header.jinja2"%}
+
+  <div class="container">
+    <div class="page-header">
+      <h1>New Cluster Registration</h1>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3">
+        <form role="form" action="{{url_for('register')}}" method="POST">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Firstname Lastname"
+              id="name"
+              name="name"
+              required="required"
+              tabindex="1"
+              value="{{session['name']}}"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-control"
+              placeholder="me@example.com"
+              required="required"
+              tabindex="2"
+              value="{{session['email']}}"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="Endpoint">Endpoint description</label>
+            <input
+              type="text"
+              id="endpoint"
+              name="endpoint"
+              class="form-control"
+              required="required"
+              placeholder="Some description..."
+              tabindex="3"
+              value="{{session['endpoint']}}"
+            >
+          </div>
+
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{%endblock%}
