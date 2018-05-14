@@ -7,7 +7,7 @@
     <link rel="shortcut icon" type="image/x-icon" href="{{url_for('static', filename='img/favicon.ico')}}" />
     <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='img/favicon.ico')}}" />
 
-    <title>MRDP - {%block title%}{%endblock%}</title>
+    <title>SLATE - {%block title%}{%endblock%}</title>
 
     {# CSS files #}
     <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/bootstrap.min.css')}}" />
@@ -32,7 +32,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="{{url_for('home')}}">Modern Research Data Portal</a>
+          <a class="navbar-brand" href="{{url_for('home')}}">SLATE Registration Dev Portal</a>
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -42,28 +42,24 @@
             <!-- Change the condition below to an actual test -->
             {%if session.get('is_authenticated')%}
               <li>
-                <a href="{{url_for('transfer')}}">Transfer</a>
+                <a href="{{url_for('clusters')}}">My Clusters</a>
               </li>
               <li class="divider">|</li>
 
               <li>
-                <a href="{{url_for('graph')}}">Graph</a>
-              </li>
-              <li class="divider">|</li>
-
-              <li>
-                <a href="{{url_for('profile')}}">Profile</a>
-              </li>
-              <li class="divider">|</li>
-
-              <li>
-                <a href="{{url_for('logout')}}">Logout</a>
+                <a href="{{url_for('register')}}">Register New Cluster</a>
               </li>
               <li class="divider">|</li>
 
               <li>
                 <a href="{{url_for('profile')}}">{{session["primary_username"]}}</a>
               </li>
+              <li class="divider">|</li>
+
+              <li>
+                <a href="{{url_for('logout')}}">Logout</a>
+              </li>
+
             <!-- Display these links if user is not authenticated -->
             {%else%}
                <li>
