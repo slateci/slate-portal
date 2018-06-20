@@ -327,6 +327,10 @@ select {
   font-weight: 700;
 }
 
+.section p {
+  font-size: 20px;
+}
+
 .caption {
   text-align: center;
   font-size: 14px;

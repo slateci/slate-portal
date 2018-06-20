@@ -1,23 +1,23 @@
-{%extends "base.jinja2"%}
+{%extends "base.html"%}
 
-{%block title%}Repository{%endblock%}
+{%block title%}Transfer{%endblock%}
 
 {%block body%}
-  {%include "header.jinja2"%}
-
+<section id="transfer" class="bg-light">
   <div class="container">
+
     <div class="page-header">
       <h1>Repository</h1>
     </div>
 
     <p>
-      Select some dataset(s) to graph
+      Select some dataset(s) to transfer
       <strong>or</strong>
       click on a dataset name to browse its files.
     </p>
 
     <div class="form-wrapper">
-      <form class="form-inline" role="form" action="{{url_for('graph')}}" method="post">
+      <form class="form-inline" role="form" action="{{url_for('transfer')}}" method="post">
         <div class="row">
           <div class="col-md-12">
             <table class="table">
@@ -52,35 +52,14 @@
         <hr>
 
         <div class="row">
-          <div class="form-group col-md-6">
-            <label class="col-md-5" for="year">Year</label>
-
-            <div class="col-md-5">
-              <select name="year" id="year" required>
-                <option value="">(select year)</option>
-
-                {%for year in range(1951, 2016)%}
-                  <option value="{{year}}">{{year}}</option>
-                {%endfor%}
-              </select>
-            </div>
-          </div>
-
-          <div class="form-actions col-md-6 pull-right">
-            <input name="graph" type="submit" class="btn btn-primary"
-                   value="Generate Graphs">
+          <div class="form-actions col-md-7 pull-right">
+            <input name="transfer" type="submit" class="btn btn-primary"
+                   value="Transfer">
           </div>
         </div>
       </form>
-
-      <hr>
-
-      <form class="form-inline" role="form"
-            action="{{url_for('graph_cleanup')}}" method="post">
-        <input type="submit" class="btn btn-primary"
-               value="Clean-Up My Previously-Generated Graphs">
-      </form>
-    </div>
+    </div> <!-- form -->
 
   </div> <!-- container -->
+</section>
 {%endblock%}

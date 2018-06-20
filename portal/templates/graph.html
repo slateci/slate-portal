@@ -1,0 +1,86 @@
+{%extends "base.html"%}
+
+{%block title%}Repository{%endblock%}
+
+{%block body%}
+<section id="graph" class="bg-light">
+  <div class="container">
+    <div class="page-header">
+      <h1>Repository</h1>
+    </div>
+
+    <p>
+      Select some dataset(s) to graph
+      <strong>or</strong>
+      click on a dataset name to browse its files.
+    </p>
+
+    <div class="form-wrapper">
+      <form class="form-inline" role="form" action="{{url_for('graph')}}" method="post">
+        <div class="row">
+          <div class="col-md-12">
+            <table class="table">
+              <th class="col-md-5 text-left">
+                Dataset Name
+              </th>
+              <th class="col-md-1 text-center">
+                Select
+              </th>
+
+              {%if datasets%}
+                {%for dataset in datasets%}
+                  <tr>
+                    <td class="col-md-5 text-left">
+                      <i class="fa fa-folder fa-lg"></i>&nbsp;
+                      <a href="{{url_for('browse', dataset_id=dataset['id'])}}">
+                        {{dataset["name"]}}
+                      </a>
+                    </td>
+                    <td class="col-md-1 text-center">
+                      <input type="checkbox" name="dataset" value="{{dataset['id']}}">
+                    </td>
+                  </tr>
+                {%endfor%}
+              {%else%}
+                <p>No datasets found.</p>
+              {%endif%}
+            </table>
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="row">
+          <div class="form-group col-md-6">
+            <label class="col-md-5" for="year">Year</label>
+
+            <div class="col-md-5">
+              <select name="year" id="year" required>
+                <option value="">(select year)</option>
+
+                {%for year in range(1951, 2016)%}
+                  <option value="{{year}}">{{year}}</option>
+                {%endfor%}
+              </select>
+            </div>
+          </div>
+
+          <div class="form-actions col-md-6 pull-right">
+            <input name="graph" type="submit" class="btn btn-primary"
+                   value="Generate Graphs">
+          </div>
+        </div>
+      </form>
+
+      <hr>
+
+      <form class="form-inline" role="form"
+            action="{{url_for('graph_cleanup')}}" method="post">
+        <input type="submit" class="btn btn-primary"
+               value="Clean-Up My Previously-Generated Graphs">
+      </form>
+    </div>
+
+  </div> <!-- container -->
+</section>
+{%endblock%}
