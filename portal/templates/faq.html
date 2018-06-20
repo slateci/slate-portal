@@ -1,0 +1,97 @@
+{%extends "base.html"%}
+
+{%block title%}
+  FAQ
+{%endblock%}
+
+{%block body%}
+
+<section id="faq">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <h2>Frequently Asked Questions</h2>
+        <p class="lead">
+          Here are some frequently asked questions about SLATE. If you don’t
+          find your questions answered here, be sure to check
+          <a href="https://stackoverflow.com/questions/tagged/slateci" target="_blank">
+            Stack Overflow
+          </a>
+          for more Q&A.
+        </p>
+
+        <hr/>
+
+        <div id="accordion">
+          <div class="card">
+            <div class="card-header" id="headingOne">
+              <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                  I am an HPC systems administrator. Why should I be interested in SLATE?
+                </button>
+              </h5>
+            </div>
+
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+              <div class="card-body">
+                When fully developed, SLATE will simplify the deployment and
+                operation of services necessary for your research community.
+                For example, if you have research groups on campus requiring a
+                domain specific task scheduler or science gateway, SLATE will
+                provide the framework to pull containerized service images from
+                trusted repositories and operate them with minimal effort or
+                specific expertise.
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header" id="headingTwo">
+              <h5 class="mb-0">
+                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                  I am a Science Gateway developer. How can SLATE help me integrate more resources?
+                </button>
+              </h5>
+            </div>
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+              <div class="card-body">
+                SLATE will provide the a “substrate” to host your backend
+                services connecting web portal frameworks to HPC and storage
+                resources. For example, if your gateway requires a Globus
+                endpoint or Open Science Grid “compute element” where there is
+                none, SLATE can be use to quickly deploy the needed service.
+                The benefits of SLATE for developers of distributed systems
+                have more tools available to practice a DevOps programming
+                model over wide area resources.
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header" id="headingThree">
+              <h5 class="mb-0">
+                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                  What provisions have been made for cybersecurity?
+                </button>
+              </h5>
+            </div>
+            <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
+              <div class="card-body">
+                The SLATE team is actively working with the cybersecurity
+                officers of our participating institutions to ensure best
+                practices in systems management. We are will also be working
+                with the
+                <a href="https://trustedci.org/" target="_blank">
+                  Center for Trustworthy Scientific Cyberinfrastructure
+                </a>
+                to periodically assess and review the trust model and
+                underlying assumptions on balancing risk and science benefit.
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+</section>
+{%endblock%}

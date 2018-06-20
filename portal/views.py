@@ -17,20 +17,34 @@ from portal.decorators import authenticated
 from portal.utils import (load_portal_client, get_portal_tokens,
                           get_safe_redirect)
 
-try: 
+try:
     db = sqlite3.connect('data/clusters.db')
     cursor = db.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, name TEXT, accesstoken TEXT unique, endpoint TEXT, email TEXT)''')
+    cursor.execute(
+        '''CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, name TEXT, accesstoken TEXT unique, endpoint TEXT, email TEXT)''')
 except Exception as e:
     db.rollback()
     raise e
 finally:
     db.close()
 
+
 @app.route('/', methods=['GET'])
 def home():
     """Home page - play with it if you must!"""
-    return render_template('home.jinja2')
+    return render_template('home.html')
+
+
+@app.route('/community', methods=['GET'])
+def community():
+    """Community page"""
+    return render_template('community.html')
+
+
+@app.route('/faq', methods=['GET'])
+def faq():
+    """FAQs page"""
+    return render_template('faq.html')
 
 
 @app.route('/signup', methods=['GET'])
@@ -103,7 +117,7 @@ def profile():
         if request.args.get('next'):
             session['next'] = get_safe_redirect()
 
-        return render_template('profile.jinja2')
+        return render_template('profile.html')
     elif request.method == 'POST':
         name = session['name'] = request.form['name']
         email = session['email'] = request.form['email']
@@ -178,21 +192,22 @@ def authcallback():
             session['institution'] = institution
         else:
             return redirect(url_for('profile',
-                            next=url_for('transfer')))
+                                    next=url_for('transfer')))
 
         return redirect(url_for('transfer'))
+
 
 @app.route('/register', methods=['GET', 'POST'])
 @authenticated
 def register():
     if request.method == 'GET':
-        return render_template('register.jinja2')
+        return render_template('register.html')
     elif request.method == 'POST':
         name = request.form['name']
         email = request.form['email']
         endpoint = request.form['endpoint']
 
-        #database.save_profile(identity_id=session['primary_identity'],
+        # database.save_profile(identity_id=session['primary_identity'],
         #                      name=name,
         #                      email=email,
         #                      institution=institution)
@@ -203,7 +218,8 @@ def register():
         db = sqlite3.connect('data/clusters.db')
         try:
             with db:
-                db.execute('''INSERT INTO users(name, accesstoken, endpoint, email) VALUES(?,?,?,?)''', (name, accesstoken, endpoint, email))
+                db.execute('''INSERT INTO users(name, accesstoken, endpoint, email) VALUES(?,?,?,?)''',
+                           (name, accesstoken, endpoint, email))
                 flash('Your entry has been created.')
         except sqlite3.IntegrityError:
             print("record already exists")
@@ -217,6 +233,7 @@ def register():
             redirect_to = url_for('clusters')
 
         return redirect(redirect_to)
+
 
 @app.route('/clusters', methods=['GET'])
 @authenticated
@@ -233,16 +250,18 @@ def clusters():
         with db:
             n = (session['name'],)
             for row in c.execute('''SELECT * FROM users WHERE name=?''', n):
-              """
-              Returns the clusters owned by the user of this session name
-              (1, u'Lincoln Bryant', u'1b9a2d06-ffa7-4e66-8587-b624e291c499', u'UChicago', u'lincolnb@uchicago.edu')
+                """
+                Returns the clusters owned by the user of this session name
+                (1, u'Lincoln Bryant', u'1b9a2d06-ffa7-4e66-8587-b624e291c499', u'UChicago', u'lincolnb@uchicago.edu')
 
-              """
-              clusters += [{ 'name': str(row[1]), 'accesstoken': str(row[2]), 'endpoint': str(row[3]), 'email': str(row[4])}]
+                """
+                clusters += [{'name': str(row[1]), 'accesstoken': str(
+                    row[2]), 'endpoint': str(row[3]), 'email': str(row[4])}]
     finally:
         db.close()
     if request.method == 'GET':
-        return render_template('clusters.jinja2', clusters=clusters)
+        return render_template('clusters.html', clusters=clusters)
+
 
 @app.route('/browse/dataset/<dataset_id>', methods=['GET'])
 @app.route('/browse/endpoint/<endpoint_id>/<path:endpoint_path>',
@@ -253,7 +272,7 @@ def browse(dataset_id=None, endpoint_id=None, endpoint_path=None):
     - Get list of files for the selected dataset or endpoint ID/path
     - Return a list of files to a browse view
 
-    The target template (browse.jinja2) expects an `endpoint_uri` (if
+    The target template (browse.html) expects an `endpoint_uri` (if
     available for the endpoint), `target` (either `"dataset"`
     or `"endpoint"`), and 'file_list' (list of dictionaries) containing
     the following information about each file in the result:
@@ -261,7 +280,7 @@ def browse(dataset_id=None, endpoint_id=None, endpoint_path=None):
     {'name': 'file name', 'size': 'file size', 'id': 'file uri/path'}
 
     If you want to display additional information about each file, you
-    must add those keys to the dictionary and modify the browse.jinja2
+    must add those keys to the dictionary and modify the browse.html
     template accordingly.
     """
 
@@ -305,7 +324,7 @@ def browse(dataset_id=None, endpoint_id=None, endpoint_path=None):
     webapp_xfer = 'https://www.globus.org/app/transfer?' + \
         urlencode(dict(origin_id=endpoint_id, origin_path=endpoint_path))
 
-    return render_template('browse.jinja2', endpoint_uri=endpoint_uri,
+    return render_template('browse.html', endpoint_uri=endpoint_uri,
                            target="dataset" if dataset_id else "endpoint",
                            description=(dataset['name'] if dataset_id
                                         else ep['display_name']),
@@ -321,7 +340,7 @@ def transfer():
       Browse Endpoint helper page.
     """
     if request.method == 'GET':
-        return render_template('transfer.jinja2', datasets=datasets)
+        return render_template('transfer.html', datasets=datasets)
 
     if request.method == 'POST':
         if not request.form.get('dataset'):
@@ -409,7 +428,7 @@ def transfer_status(task_id):
     Call Globus to get status/details of transfer with
     task_id.
 
-    The target template (tranfer_status.jinja2) expects a Transfer API
+    The target template (tranfer_status.html) expects a Transfer API
     'task' object.
 
     'task_id' is passed to the route in the URL as 'task_id'.
@@ -425,7 +444,7 @@ def transfer_status(task_id):
     transfer = TransferClient(authorizer=authorizer)
     task = transfer.get_task(task_id)
 
-    return render_template('transfer_status.jinja2', task=task)
+    return render_template('transfer_status.html', task=task)
 
 
 @app.route('/graph', methods=['GET', 'POST'])
@@ -436,7 +455,7 @@ def graph():
     do the graph processing.
     """
     if request.method == 'GET':
-        return render_template('graph.jinja2', datasets=datasets)
+        return render_template('graph.html', datasets=datasets)
 
     selected_ids = request.form.getlist('dataset')
     selected_year = request.form.get('year')

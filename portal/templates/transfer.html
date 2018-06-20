@@ -1,18 +1,19 @@
-{%extends "base.jinja2"%}
+{%extends "base.html"%}
 
-{%block title%}Register{%endblock%}
+{%block title%}Transfer{%endblock%}
 
 {%block body%}
-  {%include "header.jinja2"%}
 
   <div class="container">
 
     <div class="page-header">
-      <h1>Registration</h1>
+      <h1>Repository</h1>
     </div>
 
     <p>
-      My SLATE Clusters
+      Select some dataset(s) to transfer
+      <strong>or</strong>
+      click on a dataset name to browse its files.
     </p>
 
     <div class="form-wrapper">
@@ -21,25 +22,28 @@
           <div class="col-md-12">
             <table class="table">
               <th class="col-md-5 text-left">
-                Cluster Name
+                Dataset Name
               </th>
               <th class="col-md-1 text-center">
-                Access Token
+                Select
               </th>
 
-              {%if clusters%}
-                {%for cluster in clusters%}
+              {%if datasets%}
+                {%for dataset in datasets%}
                   <tr>
                     <td class="col-md-5 text-left">
-                      <p> {{cluster['endpoint']}} </p>
+                      <i class="fa fa-folder fa-lg"></i>&nbsp;
+                      <a href="{{url_for('browse', dataset_id=dataset['id'])}}">
+                        {{dataset["name"]}}
+                      </a>
                     </td>
                     <td class="col-md-1 text-center">
-                      <p> {{cluster['accesstoken']}} </p>
+                      <input type="checkbox" name="dataset" value="{{dataset['id']}}">
                     </td>
                   </tr>
                 {%endfor%}
               {%else%}
-                <p>No devices found.</p>
+                <p>No datasets found.</p>
               {%endif%}
             </table>
           </div>
