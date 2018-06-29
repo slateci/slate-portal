@@ -3,6 +3,7 @@ from flask import (abort, flash, redirect, render_template, request,
 import requests
 import sqlite3
 import uuid
+import textwrap
 
 try:
     from urllib.parse import urlencode
@@ -94,6 +95,38 @@ def logout():
 
     # Redirect the user to the Globus Auth logout page
     return redirect(''.join(ga_logout_url))
+
+
+@app.route('/cli', methods=['GET', 'POST'])
+@authenticated
+def cli_access():
+    if request.method == 'GET':
+        access_token = session['tokens']['auth.globus.org']['access_token']
+        access_token = textwrap.fill(access_token, 60)
+        return render_template('cli_access.html', access_token=access_token)
+
+
+@app.route('/testing', methods=['GET', 'POST'])
+@authenticated
+def testing():
+    if request.method == 'GET':
+        return render_template('testing.html')
+
+    elif request.method == 'POST':
+        user_id = request.form['name']
+        return redirect(url_for('user_info', user_id=user_id))
+
+
+@app.route('/testing/<user_id>', methods=['GET', 'POST'])
+@authenticated
+def user_info(user_id):
+    if request.method == 'GET':
+        cat_url = (
+            'http://128.135.158.222:18080/v1alpha1/users?token=' + user_id)
+        response = requests.get(cat_url)
+        user_info = response.json()
+
+        return render_template('testing_user.html', user_info=user_info)
 
 
 @app.route('/profile', methods=['GET', 'POST'])
@@ -192,9 +225,9 @@ def authcallback():
             session['institution'] = institution
         else:
             return redirect(url_for('profile',
-                                    next=url_for('transfer')))
+                                    next=url_for('profile')))
 
-        return redirect(url_for('transfer'))
+        return redirect(url_for('profile'))
 
 
 @app.route('/register', methods=['GET', 'POST'])

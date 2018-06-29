@@ -1,0 +1,61 @@
+{%extends "base.html"%}
+
+{%block title%}
+  Testing
+{%endblock%}
+
+{%block body%}
+<section id="testing" class="bg-light">
+  <div class="container">
+    <div class="page-header">
+      <h1>Testing</h1>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3">
+        <div id="test">
+        </div>
+        <div class="card" style="width: 18rem;">
+          <div class="card-body">
+            <h5 class="card-title">API Version: {{user_info['items'][0]['apiVersion']}}</h5>
+            <h6 class="card-subtitle mb-2 text-muted">Kind: {{user_info['items'][0]['kind']}}</h6>
+            <p class='card-text'>Name: {{user_info['items'][0]['metadata']['name']}}</p>
+            <p class='card-text'>Email: {{user_info['items'][0]['metadata']['email']}}</p>
+            <p class='card-text'>ID: {{user_info['items'][0]['metadata']['ID']}}</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+
+window.onload = get_states();
+
+function get_states(){
+  $.ajax({
+    url: "http://128.135.158.222:18080/v1alpha1/users?token=3acc9bdc-1243-40ea-96df-373c8a616a16",
+    type: "get",
+    dataType: 'json',
+    success: function(data){
+      if(data.items){
+         $('#test').html(data.items);
+      }
+
+    },
+    error: function(xhr){
+      //Do Something to handle error
+    }
+  });
+}
+
+// $(document).ajaxComplete(function(){
+//   if($('#test').length != 0){
+//     $('#test').css('color', 'red');
+//   }
+// });
+
+</script>
+{%endblock%}

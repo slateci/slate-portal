@@ -1,0 +1,92 @@
+{%extends "base.html"%}
+
+{%block title%}
+  CLI Access
+{%endblock%}
+
+{%block body%}
+<section id="cli-access" class="bg-light">
+  <div class="container">
+    <div class="page-header">
+      <!-- <h1>CLI Access</h1> -->
+      <!-- <p>{{session['tokens']['auth.globus.org']['access_token']}}</p> -->
+    </div>
+
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <h2>CLI Access</h2>
+        <p class="lead">
+          <ul>
+            <li>Run the following script with <kbd>sh store_slate_token</kbd></li>
+            <li>Delete the script afterwards with <kbd>rm store_slate_token</kbd></li>
+          </ul>
+        </p>
+
+        <hr/>
+
+        <div id="accordion">
+          <div class="card">
+            <div class="card-header" id="headingOne">
+              <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                  Shell script with user token data subsituted in:
+                </button>
+              </h5>
+            </div>
+
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+              <div class="card-body">
+                <xmp>
+                  mkdir -p -m 0700 "$HOME/.slate"
+                  if [ "$?" -ne 0 ] ; then
+                  	echo "Not able to create $HOME/.slate" 1>&2
+                  	exit 1
+                  fi
+
+                  echo "{{session['primary_identity']}}" > "$HOME/.slate/token"
+                  if [ "$?" -ne 0 ] ; then
+                  	echo "Not able to write token data to $HOME/.slate/token" 1>&2
+                  	exit 1
+                  fi
+
+                  echo "SLATE access token successfully stored"
+                </xmp>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+
+window.onload = get_states();
+
+function get_states(){
+  $.ajax({
+    url: "http://128.135.158.222:18080/v1alpha1/users?token=3acc9bdc-1243-40ea-96df-373c8a616a16",
+    type: "get",
+    dataType: 'json',
+    success: function(data){
+      if(data.items){
+         $('#test').html(data.items);
+      }
+
+    },
+    error: function(xhr){
+      //Do Something to handle error
+    }
+  });
+}
+
+// $(document).ajaxComplete(function(){
+//   if($('#test').length != 0){
+//     $('#test').css('color', 'red');
+//   }
+// });
+
+</script>
+{%endblock%}

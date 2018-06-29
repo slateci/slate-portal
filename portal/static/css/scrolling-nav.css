@@ -57,3 +57,7 @@ section {
   background: #007bff;
   color: #fff;
 }
+
+xmp {
+white-space: pre-wrap;/* css-3 problematic browser support */
+}
