@@ -9,10 +9,12 @@
   <div class="container">
     <div class="page-header">
       <h1>New Cluster Registration</h1>
+      <!-- <p>{{vo_list}}</p> -->
     </div>
 
     <div class="row">
       <div class="col-md-6 col-md-offset-3">
+        {% if vo_list %}
         <form role="form" action="{{url_for('register')}}" method="POST">
           <div class="form-group">
             <label for="name">Cluster Name</label>
@@ -29,20 +31,15 @@
           </div>
 
           <div class="form-group">
-            <label for="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              class="form-control"
-              placeholder="me@example.com"
-              required="required"
-              tabindex="2"
-              value="{{session['email']}}"
-            >
+            <label for="vo">VO ID</label>
+            <select class="form-control" id="vo" name="vo">
+            {% for vo in vo_list %}
+              <option value="{{vo}}">{{ vo }}</option>
+            {% endfor %}
+            </select>
           </div>
 
-          <div class="form-group">
+          <!-- <div class="form-group">
             <label for="Endpoint">Endpoint description</label>
             <input
               type="text"
@@ -54,12 +51,15 @@
               tabindex="3"
               value="{{session['endpoint']}}"
             >
-          </div>
+          </div> -->
 
           <div class="form-group">
             <button type="submit" class="btn btn-primary">Submit</button>
           </div>
         </form>
+        {% else %}
+        <p>You are not in a VO, you may register one...</p>
+        {% endif %}
       </div>
     </div>
   </div>

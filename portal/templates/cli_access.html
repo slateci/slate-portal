@@ -43,7 +43,7 @@
                   	exit 1
                   fi
 
-                  echo "{{session['primary_identity']}}" > "$HOME/.slate/token"
+                  echo "{{user_info['metadata']['access_token']}}" > "$HOME/.slate/token"
                   if [ "$?" -ne 0 ] ; then
                   	echo "Not able to write token data to $HOME/.slate/token" 1>&2
                   	exit 1

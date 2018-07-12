@@ -103,7 +103,17 @@ def cli_access():
     if request.method == 'GET':
         access_token = session['tokens']['auth.globus.org']['access_token']
         access_token = textwrap.fill(access_token, 60)
-        return render_template('cli_access.html', access_token=access_token)
+
+        # Schema and query for getting user info and access token from Slate DB
+        globus_id = session['primary_identity']
+        query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16',
+                 'globus_id': globus_id}
+
+        r = requests.get(
+            'http://128.135.158.222:18080/v1alpha1/find_user', params=query)
+        user_info = r.json()
+
+        return render_template('cli_access.html', user_info=user_info)
 
 
 @app.route('/testing', methods=['GET', 'POST'])
@@ -155,13 +165,24 @@ def profile():
         name = session['name'] = request.form['name']
         email = session['email'] = request.form['email']
         institution = session['institution'] = request.form['institution']
+        globus_id = session['primary_identity']
+        admin = False
 
-        database.save_profile(identity_id=session['primary_identity'],
-                              name=name,
-                              email=email,
-                              institution=institution)
+        # Schema and query for adding users to Slate DB
+        add_user = {"apiVersion": 'v1alpha1',
+                    'metadata': {'globusID': globus_id,
+                                 'name': name, 'email': email, 'admin': admin}}
+        query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16'}
 
-        flash('Thank you! Your profile has been successfully updated.')
+        r = requests.post(
+            'http://128.135.158.222:18080/v1alpha1/users', params=query, json=add_user)
+
+        # database.save_profile(identity_id=session['primary_identity'],
+        #                       name=name,
+        #                       email=email,
+        #                       institution=institution)
+
+        flash('Your profile has successfully been updated!')
 
         if 'next' in session:
             redirect_to = session['next']
@@ -234,38 +255,37 @@ def authcallback():
 @authenticated
 def register():
     if request.method == 'GET':
-        return render_template('register.html')
+        globus_id = session['primary_identity']
+        query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16',
+                 'globus_id': globus_id}
+
+        r = requests.get(
+            'http://128.135.158.222:18080/v1alpha1/find_user', params=query)
+        user_info = r.json()
+        slate_user_id = user_info['metadata']['id']
+        # vo_url = 'http://128.135.158.222:18080/v1alpha1/users/' + slate_user_id + '/vos'
+
+        token_query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16'}
+        s = requests.get(
+            'http://128.135.158.222:18080/v1alpha1/users/' + slate_user_id + '/vos', params=token_query)
+
+        s_info = s.json()
+        vo_list = s_info['items']
+
+        return render_template('register.html', user_info=user_info,
+                               vo_list=vo_list, slate_user_id=slate_user_id)
     elif request.method == 'POST':
         name = request.form['name']
-        email = request.form['email']
-        endpoint = request.form['endpoint']
+        vo = request.form['vo']
+        return render_template('clusters.html', name=name, vo=vo)
 
-        # database.save_profile(identity_id=session['primary_identity'],
-        #                      name=name,
-        #                      email=email,
-        #                      institution=institution)
-
-        accesstoken = str(uuid.uuid4())
-        print("%s %s %s %s" % (name, email, endpoint, accesstoken))
-
-        db = sqlite3.connect('data/clusters.db')
-        try:
-            with db:
-                db.execute('''INSERT INTO users(name, accesstoken, endpoint, email) VALUES(?,?,?,?)''',
-                           (name, accesstoken, endpoint, email))
-                flash('Your entry has been created.')
-        except sqlite3.IntegrityError:
-            print("record already exists")
-        finally:
-            db.close()
-
-        if 'next' in session:
-            redirect_to = session['next']
-            session.pop('next')
-        else:
-            redirect_to = url_for('clusters')
-
-        return redirect(redirect_to)
+        # if 'next' in session:
+        #     redirect_to = session['next']
+        #     session.pop('next')
+        # else:
+        #     redirect_to = url_for('clusters', name=name, vo=vo)
+        #
+        # return redirect(redirect_to)
 
 
 @app.route('/clusters', methods=['GET'])
@@ -276,24 +296,24 @@ def clusters():
     - Send to Globus to select a destination endpoint using the
       Browse Endpoint helper page.
     """
-    clusters = []
-    db = sqlite3.connect('data/clusters.db')
-    c = db.cursor()
-    try:
-        with db:
-            n = (session['name'],)
-            for row in c.execute('''SELECT * FROM users WHERE name=?''', n):
-                """
-                Returns the clusters owned by the user of this session name
-                (1, u'Lincoln Bryant', u'1b9a2d06-ffa7-4e66-8587-b624e291c499', u'UChicago', u'lincolnb@uchicago.edu')
-
-                """
-                clusters += [{'name': str(row[1]), 'accesstoken': str(
-                    row[2]), 'endpoint': str(row[3]), 'email': str(row[4])}]
-    finally:
-        db.close()
+    # clusters = []
+    # db = sqlite3.connect('data/clusters.db')
+    # c = db.cursor()
+    # try:
+    #     with db:
+    #         n = (session['name'],)
+    #         for row in c.execute('''SELECT * FROM users WHERE name=?''', n):
+    #             """
+    #             Returns the clusters owned by the user of this session name
+    #             (1, u'Lincoln Bryant', u'1b9a2d06-ffa7-4e66-8587-b624e291c499', u'UChicago', u'lincolnb@uchicago.edu')
+    #
+    #             """
+    #             clusters += [{'name': str(row[1]), 'accesstoken': str(
+    #                 row[2]), 'endpoint': str(row[3]), 'email': str(row[4])}]
+    # finally:
+    #     db.close()
     if request.method == 'GET':
-        return render_template('clusters.html', clusters=clusters)
+        return render_template('clusters.html')
 
 
 @app.route('/browse/dataset/<dataset_id>', methods=['GET'])

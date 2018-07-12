@@ -7,11 +7,11 @@
 <section id="clusters" class="bg-light">
   <div class="container">
 
-    <div class="page-header">
-      <h1>Registration</h1>
-    </div>
+    <!-- <div class="page-header">
+      <h1>CLI Registration Script</h1>
+    </div> -->
 
-    <p>
+    <!-- <p>
       My SLATE Clusters
     </p>
 
@@ -54,7 +54,117 @@
           </div>
         </div>
       </form>
-    </div> <!-- form -->
+    </div> -->
+
+    <div class='row'>
+      <div class="col-lg-8 mx-auto">
+        <h2>CLI Registration Script</h2>
+        <p class="lead">
+          <!-- <ul>
+            <li>The correct API endpoint to contact, which should be the same as the one the portal is using itself, (`POST_URL`)</li>
+          </ul> -->
+        </p>
+
+        <hr/>
+
+        <div id="accordion">
+          <div class="card">
+            <div class="card-header" id="headingOne">
+              <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                  CLI Registration Script
+                </button>
+              </h5>
+            </div>
+
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+              <div class="card-body">
+                <xmp>
+                  #!/bin/sh
+
+                  if [ "$#" -gt 1 ]; then
+                  	echo "Too many arguments" 1>&2
+                  	exit 1
+                  fi
+
+                  # This is the SLATE endpoint to contact
+                  POST_URL="http://128.135.158.222:18080/v1alpha1/clusters"
+
+                  # This is the ID of the VO for whom we are registering the cluster
+                  VO_ID="{{vo}}"
+
+                  # This is the human-readable name that the cluster should be registered under in SLATE
+                  CLUSTERNAME="{{name}}"
+
+                  # By default we just look for the standard location
+                  KUBECONFIG="$HOME/.kube/config"
+
+                  # We need the user's access token to talk to the SLATE API. Try to fetch it.
+                  TOKEN_LOC="$HOME/.slate/token"
+                  if [ ! -r "$TOKEN_LOC" ] ; then
+                  	echo "Unable to read access token file $TOKEN_LOC" 1>&2
+                  	exit 1
+                  fi
+                  ACCESS_TOKEN=`cat "$TOKEN_LOC"`
+
+                  # If the user specifies a different location to read, use that
+                  if [ "$#" -eq 1 ]; then
+                  	KUBECONFIG="$1"
+                  fi
+
+                  if [ ! -r "$KUBECONFIG" ] ; then
+                  	echo "Not able to read kubernetes configuration from $KUBECONFIG" 1>&2
+                  	exit 1
+                  fi
+
+                  # We want to put this data in a JSON string, so we should escape it.
+                  # https://www.ietf.org/rfc/rfc4627.txt 2.5 says to escape '"' and '\'
+                  # as well as control characters. The only control characters allowed
+                  # in YAML are TAB, CR, and LF.
+                  #ESCAPEDCONFIG=`< $KUBECONFIG sed -e 's|\\\\|\\\\\\\\\\\\\\\\|g' -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\\\\\\\n/g' -e 's|	|\\\\\\\\t|g' -e 's|\"|\\\"|g'`
+                  # Apparently escaping is not necessary? More investigation required.
+                  ESCAPEDCONFIG=`cat $KUBECONFIG`
+
+                  # To upload data, we need curl. Check for that
+                  if which curl > /dev/null ; then
+                  	: # All good
+                  else
+                  	echo "curl is needed to contact the SLATE infrastructure." 1>&2
+                  	echo "Please install it and try again" 1>&2
+                  	exit 1
+                  fi
+
+                  PAYLOAD='{
+                    "apiVersion": "v1alpha1",
+                    "metadata": {
+                      "name": "'"$CLUSTERNAME"'",
+                      "vo": "'"$VO_ID"'",
+                      "kubeconfig": "'"$ESCAPEDCONFIG"'"
+                    }
+                  }'
+
+                  echo "Sending kubernetes information to SLATE API server. . . "
+                  RESPONSE=`curl -s -d "$PAYLOAD" "${POST_URL}?token=${ACCESS_TOKEN}"`
+
+                  if [ "$?" -ne 0 ] ; then
+                  	echo "POSTing registration request with curl failed" 1>&2
+                  	exit 1
+                  fi
+
+                  if echo "$RESPONSE" | grep '"kind":"Cluster"' > /dev/null ; then
+                  	CLUSTER_ID=`echo "$RESPONSE" | sed -n 's|.*id":"\([^"]*\)".*|\1|p'`
+                  	echo "Cluster successfully registered with ID $CLUSTER_ID"
+                  else
+                  	echo "Problem registering cluster"
+                  	echo "Raw API response: $RESPONSE"
+                  fi
+                </xmp>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
   </div> <!-- container -->
 </section>
