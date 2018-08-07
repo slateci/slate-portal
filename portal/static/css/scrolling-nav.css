@@ -61,3 +61,16 @@ section {
 xmp {
 white-space: pre-wrap;/* css-3 problematic browser support */
 }
+
+textarea {
+   resize: none;
+   width: 100%;
+   font-size: 14px;
+   height: 175px;
+   background-color: transparent;
+   border-color: lightgrey;
+}
+
+button {
+  padding: 10px;
+}

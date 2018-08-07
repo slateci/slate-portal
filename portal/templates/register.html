@@ -34,7 +34,7 @@
             <label for="vo">VO ID</label>
             <select class="form-control" id="vo" name="vo">
             {% for vo in vo_list %}
-              <option value="{{vo}}">{{ vo }}</option>
+              <option value="{{vo['metadata']['name']}}">{{ vo['metadata']['name'] }}</option>
             {% endfor %}
             </select>
           </div>

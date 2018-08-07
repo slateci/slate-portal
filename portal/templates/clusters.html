@@ -59,7 +59,9 @@
     <div class='row'>
       <div class="col-lg-8 mx-auto">
         <h2>CLI Registration Script</h2>
+        <!-- <p>{{ vo }}</p> -->
         <p class="lead">
+          <li>Before running this command, you should verify that you have the correct cluster selected</li>
           <!-- <ul>
             <li>The correct API endpoint to contact, which should be the same as the one the portal is using itself, (`POST_URL`)</li>
           </ul> -->
@@ -79,7 +81,7 @@
 
             <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
               <div class="card-body">
-                <xmp>
+                <textarea type="text" id="cluster-registration">
                   #!/bin/sh
 
                   if [ "$#" -gt 1 ]; then
@@ -158,7 +160,8 @@
                   	echo "Problem registering cluster"
                   	echo "Raw API response: $RESPONSE"
                   fi
-                </xmp>
+                </textarea>
+                <button class="btn btn-primary" onclick="myFunction()">Copy Script to Clipboard</button>
               </div>
             </div>
           </div>
@@ -168,4 +171,20 @@
 
   </div> <!-- container -->
 </section>
+
+<script>
+function myFunction() {
+  /* Get the text field */
+  var copyText = document.getElementById("cluster-registration");
+
+  /* Select the text field */
+  copyText.select();
+
+  /* Copy the text inside the text field */
+  document.execCommand("copy");
+
+  /* Alert the copied text */
+  alert("Copied the text: " + copyText.value);
+}
+</script>
 {%endblock%}

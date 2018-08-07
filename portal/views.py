@@ -110,7 +110,7 @@ def cli_access():
                  'globus_id': globus_id}
 
         r = requests.get(
-            'http://128.135.158.222:18080/v1alpha1/find_user', params=query)
+            'https://api-dev.slateci.io:18080/v1alpha1/find_user', params=query)
         user_info = r.json()
 
         return render_template('cli_access.html', user_info=user_info)
@@ -132,7 +132,7 @@ def testing():
 def user_info(user_id):
     if request.method == 'GET':
         cat_url = (
-            'http://128.135.158.222:18080/v1alpha1/users?token=' + user_id)
+            'https://api-dev.slateci.io:18080/v1alpha1/users?token=' + user_id)
         response = requests.get(cat_url)
         user_info = response.json()
 
@@ -167,7 +167,6 @@ def profile():
         institution = session['institution'] = request.form['institution']
         globus_id = session['primary_identity']
         admin = False
-
         # Schema and query for adding users to Slate DB
         add_user = {"apiVersion": 'v1alpha1',
                     'metadata': {'globusID': globus_id,
@@ -175,7 +174,7 @@ def profile():
         query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16'}
 
         r = requests.post(
-            'http://128.135.158.222:18080/v1alpha1/users', params=query, json=add_user)
+            'https://api-dev.slateci.io:18080/v1alpha1/users', params=query, json=add_user)
 
         # database.save_profile(identity_id=session['primary_identity'],
         #                       name=name,
@@ -260,14 +259,14 @@ def register():
                  'globus_id': globus_id}
 
         r = requests.get(
-            'http://128.135.158.222:18080/v1alpha1/find_user', params=query)
+            'https://api-dev.slateci.io:18080/v1alpha1/find_user', params=query)
         user_info = r.json()
         slate_user_id = user_info['metadata']['id']
-        # vo_url = 'http://128.135.158.222:18080/v1alpha1/users/' + slate_user_id + '/vos'
+        # vo_url = 'https://api-dev.slateci.io:18080/v1alpha1/users/' + slate_user_id + '/vos'
 
         token_query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16'}
         s = requests.get(
-            'http://128.135.158.222:18080/v1alpha1/users/' + slate_user_id + '/vos', params=token_query)
+            'https://api-dev.slateci.io:18080/v1alpha1/users/' + slate_user_id + '/vos', params=token_query)
 
         s_info = s.json()
         vo_list = s_info['items']
