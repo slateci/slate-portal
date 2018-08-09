@@ -123,9 +123,7 @@
                   # https://www.ietf.org/rfc/rfc4627.txt 2.5 says to escape '"' and '\'
                   # as well as control characters. The only control characters allowed
                   # in YAML are TAB, CR, and LF.
-                  #ESCAPEDCONFIG=`< $KUBECONFIG sed -e 's|\\\\|\\\\\\\\\\\\\\\\|g' -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\\\\\\\n/g' -e 's|	|\\\\\\\\t|g' -e 's|\"|\\\"|g'`
-                  # Apparently escaping is not necessary? More investigation required.
-                  ESCAPEDCONFIG=`cat $KUBECONFIG`
+                  ESCAPEDCONFIG=`kubectl config view --minify --flatten --kubeconfig=$KUBECONFIG | sed -e 's|\\\\|\\\\\\\\\\\\\\\\|g' -e ':a' -e 'N' -e '$!ba' -e 's/\n/\\\\\\\\n/g' -e 's|	|\\\\\\\\t|g' -e 's|\"|\\\"|g'`
 
                   # To upload data, we need curl. Check for that
                   if which curl > /dev/null ; then
