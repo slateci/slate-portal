@@ -34,18 +34,18 @@
 
 
 // Smooth scrolling using jQuery easing
-jQuery('a.js-scroll-trigger[href*="#"]:not([href="#"])').click(function() {
-  if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
-    var target = jQuery(this.hash);
-    target = target.length ? target : jQuery('[name=' + this.hash.slice(1) + ']');
-    if (target.length) {
-      jQuery('html, body').animate({
-        scrollTop: (target.offset().top - 54)
-      }, 1000, "easeInOutExpo");
-      return false;
-    }
-  }
-});
+// jQuery('a.js-scroll-trigger[href*="#"]:not([href="#"])').click(function() {
+//   if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
+//     var target = jQuery(this.hash);
+//     target = target.length ? target : jQuery('[name=' + this.hash.slice(1) + ']');
+//     if (target.length) {
+//       jQuery('html, body').animate({
+//         scrollTop: (target.offset().top - 54)
+//       }, 1000, "easeInOutExpo");
+//       return false;
+//     }
+//   }
+// });
 
 // Closes responsive menu when a scroll trigger link is clicked
 jQuery('.js-scroll-trigger').click(function() {
@@ -60,17 +60,16 @@ jQuery('body').scrollspy({
 
 
 // Back to top button
-jQuery(window).scroll(function() {
-
-    if (jQuery(this).scrollTop() > 100) {
-        jQuery('.back-to-top').fadeIn('slow');
-    } else {
-        jQuery('.back-to-top').fadeOut('slow');
-    }
-
-});
-
-jQuery('.back-to-top').click(function(){
-    jQuery('html, body').animate({scrollTop : 0},1500, 'easeInOutExpo');
-    return false;
+$(document).ready(function(){
+    $(window).scroll(function(){
+        if ($(this).scrollTop() > 100) {
+            $('#scroll').fadeIn();
+        } else {
+            $('#scroll').fadeOut();
+        }
+    });
+    $('#scroll').click(function(){
+        $("html, body").animate({ scrollTop: 0 }, 600);
+        return false;
+    });
 });
