@@ -1,0 +1,83 @@
+{%extends "base.html"%}
+
+{%block title%}
+  Create New VO
+{%endblock%}
+
+{%block body%}
+<section id="cli-access" class="bg-light">
+  <div class="container">
+    <div class="page-header">
+    </div>
+
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <h2>Create New VO</h2>
+        <p class="lead">
+          Enter VO information below
+        </p>
+
+        <hr/>
+
+            <form role="form" action="{{url_for('create_vo')}}" method="POST">
+              <div class="form-group">
+                <label for="name">VO Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="name"
+                  name="name"
+                  placeholder="VO name"
+                  required="required"
+                  tabindex="1"
+                >
+              </div>
+
+              <div class="form-group">
+                <button type="submit" class="btn btn-primary">Create</button>
+              </div>
+            </form>
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+
+window.onload = get_states();
+
+function get_states(){
+  $.ajax({
+    url: "http://128.135.158.222:18080/v1alpha1/users?token=3acc9bdc-1243-40ea-96df-373c8a616a16",
+    type: "get",
+    dataType: 'json',
+    success: function(data){
+      if(data.items){
+         $('#test').html(data.items);
+      }
+
+    },
+    error: function(xhr){
+      //Do Something to handle error
+    }
+  });
+}
+
+function myFunction() {
+  /* Get the text field */
+  var copyText = document.getElementById("cli_access");
+
+  /* Select the text field */
+  copyText.select();
+
+  /* Copy the text inside the text field */
+  document.execCommand("copy");
+
+  /* Alert the copied text */
+  alert("Copied the text: " + copyText.value);
+}
+
+</script>
+{%endblock%}

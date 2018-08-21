@@ -116,9 +116,93 @@ def cli_access():
         return render_template('cli_access.html', user_info=user_info)
 
 
+@app.route('/vos', methods=['GET', 'POST'])
+@authenticated
+def list_vos():
+    if request.method == 'GET':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+
+        s = requests.get(
+            'https://api-dev.slateci.io:18080/v1alpha1/users/' + slate_user_id + '/vos', params=token_query)
+
+        s_info = s.json()
+        vo_list = s_info['items']
+
+        return render_template('vos.html', vo_list=vo_list)
+
+
+@app.route('/vos/new', methods=['GET', 'POST'])
+@authenticated
+def create_vo():
+    if request.method == 'GET':
+        return render_template('vos_create.html')
+
+    elif request.method == 'POST':
+        """Route method to handle query to create a new VO"""
+
+        name = request.form['name']
+        token_query = {'token': session['slate_token']}
+        add_vo = {"apiVersion": 'v1alpha1',
+                  'metadata': {'name': name}}
+
+        requests.post(
+            'https://api-dev.slateci.io:18080/v1alpha1/vos', params=token_query, json=add_vo)
+
+        return redirect(url_for('view_vo', name=name))
+
+
+@app.route('/vos/<name>', methods=['GET', 'POST'])
+@authenticated
+def view_vo(name):
+    if request.method == 'GET':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+
+        s = requests.get(
+            'https://api-dev.slateci.io:18080/v1alpha1/users/' + slate_user_id + '/vos', params=token_query)
+        s_info = s.json()
+        vo_list = s_info['items']
+
+        users = requests.get(
+            'https://api-dev.slateci.io:18080/v1alpha1/users', params=token_query)
+        users = users.json()['items']
+
+        return render_template('vos_profile.html', vo_list=vo_list, users=users, name=name)
+
+
+@app.route('/vos/<name>/add_member', methods=['POST'])
+@authenticated
+def vo_add_member(name):
+    if request.method == 'POST':
+        new_user_id = request.form['newuser']
+        token_query = {'token': session['slate_token']}
+        vo_id = name
+
+        s = requests.put(
+            'https://api-dev.slateci.io:18080/v1alpha1/users/' + new_user_id + '/vos/' + vo_id, params=token_query)
+
+        return redirect(url_for('view_vo', name=name))
+
+
+@app.route('/vos/<name>/remove_member', methods=['POST'])
+@authenticated
+def vo_remove_member(name):
+    if request.method == 'POST':
+        remove_user_id = request.form['remove_member']
+        token_query = {'token': session['slate_token']}
+        vo_id = name
+
+        s = requests.delete(
+            'https://api-dev.slateci.io:18080/v1alpha1/users/' + remove_user_id + '/vos/' + vo_id, params=token_query)
+
+        return redirect(url_for('view_vo', name=name))
+
+
 @app.route('/testing', methods=['GET', 'POST'])
 @authenticated
 def testing():
+    """testing route function to retrieve user info by id"""
     if request.method == 'GET':
         return render_template('testing.html')
 
@@ -175,11 +259,6 @@ def profile():
 
         r = requests.post(
             'https://api-dev.slateci.io:18080/v1alpha1/users', params=query, json=add_user)
-
-        # database.save_profile(identity_id=session['primary_identity'],
-        #                       name=name,
-        #                       email=email,
-        #                       institution=institution)
 
         flash('Your profile has successfully been updated!')
 
@@ -243,6 +322,16 @@ def authcallback():
             session['name'] = name
             session['email'] = email
             session['institution'] = institution
+
+            globus_id = session['primary_identity']
+            query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16',
+                     'globus_id': globus_id}
+
+            r = requests.get(
+                'https://api-dev.slateci.io:18080/v1alpha1/find_user', params=query)
+            session['slate_token'] = r.json()['metadata']['access_token']
+            session['slate_id'] = r.json()['metadata']['id']
+
         else:
             return redirect(url_for('profile',
                                     next=url_for('profile')))
