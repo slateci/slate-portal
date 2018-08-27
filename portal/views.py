@@ -229,7 +229,13 @@ def profile():
     """User profile information. Assocated with a Globus Auth identity."""
     if request.method == 'GET':
         identity_id = session.get('primary_identity')
-        profile = database.load_profile(identity_id)
+        # profile = database.load_profile(identity_id)
+        globus_id = identity_id
+        query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16',
+                 'globus_id': globus_id}
+
+        profile = requests.get(
+            'https://api-dev.slateci.io:18080/v1alpha1/find_user', params=query)
 
         if profile:
             name, email, institution = profile
@@ -314,7 +320,16 @@ def authcallback():
             primary_identity=id_token.get('sub'),
         )
 
-        profile = database.load_profile(session['primary_identity'])
+        # profile = database.load_profile(session['primary_identity'])
+        # Need to query a request to view all users in Slate DB, then iterate
+        # to see if profile exists by matching globus_id ideally. Get rid of
+        # database.load_profile line above this once done
+        globus_id = session['primary_identity']
+        query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16',
+                 'globus_id': globus_id}
+
+        profile = requests.get(
+            'https://api-dev.slateci.io:18080/v1alpha1/find_user', params=query)
 
         if profile:
             name, email, institution = profile
@@ -322,15 +337,9 @@ def authcallback():
             session['name'] = name
             session['email'] = email
             session['institution'] = institution
-
-            globus_id = session['primary_identity']
-            query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16',
-                     'globus_id': globus_id}
-
-            r = requests.get(
-                'https://api-dev.slateci.io:18080/v1alpha1/find_user', params=query)
-            session['slate_token'] = r.json()['metadata']['access_token']
-            session['slate_id'] = r.json()['metadata']['id']
+            slate_user_info = profile.json()
+            session['slate_token'] = slate_user_info['metadata']['access_token']
+            session['slate_id'] = slate_user_info['metadata']['id']
 
         else:
             return redirect(url_for('profile',
