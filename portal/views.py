@@ -163,12 +163,20 @@ def view_vo(name):
             'https://api-dev.slateci.io:18080/v1alpha1/users/' + slate_user_id + '/vos', params=token_query)
         s_info = s.json()
         vo_list = s_info['items']
+        vo_id = None
+        for vo in vo_list:
+            if vo['metadata']['name'] == name:
+                vo_id = vo['metadata']['id']
 
         users = requests.get(
             'https://api-dev.slateci.io:18080/v1alpha1/users', params=token_query)
         users = users.json()['items']
 
-        return render_template('vos_profile.html', vo_list=vo_list, users=users, name=name)
+        vo_members = requests.get(
+            'https://api-dev.slateci.io:18080/v1alpha1/vos/' + vo_id + '/members', params=token_query)
+        vo_members = vo_members.json()['items']
+
+        return render_template('vos_profile.html', vo_list=vo_list, users=users, name=name, vo_members=vo_members)
 
 
 @app.route('/vos/<name>/add_member', methods=['POST'])
@@ -229,13 +237,13 @@ def profile():
     """User profile information. Assocated with a Globus Auth identity."""
     if request.method == 'GET':
         identity_id = session.get('primary_identity')
-        # profile = database.load_profile(identity_id)
+        profile = database.load_profile(identity_id)
         globus_id = identity_id
         query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16',
                  'globus_id': globus_id}
 
-        profile = requests.get(
-            'https://api-dev.slateci.io:18080/v1alpha1/find_user', params=query)
+        # profile = requests.get(
+        #     'https://api-dev.slateci.io:18080/v1alpha1/find_user', params=query)
 
         if profile:
             name, email, institution = profile
@@ -332,11 +340,17 @@ def authcallback():
             'https://api-dev.slateci.io:18080/v1alpha1/find_user', params=query)
 
         if profile:
-            name, email, institution = profile
+            # name, email, institution = profile
 
-            session['name'] = name
-            session['email'] = email
-            session['institution'] = institution
+            # session['name'] = name
+            # session['email'] = email
+            # session['institution'] = institution
+            globus_id = session['primary_identity']
+            query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16',
+                     'globus_id': globus_id}
+
+            profile = requests.get(
+                'https://api-dev.slateci.io:18080/v1alpha1/find_user', params=query)
             slate_user_info = profile.json()
             session['slate_token'] = slate_user_info['metadata']['access_token']
             session['slate_id'] = slate_user_info['metadata']['id']
