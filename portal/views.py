@@ -13,21 +13,21 @@ except ImportError:
 from globus_sdk import (TransferClient, TransferAPIError,
                         TransferData, RefreshTokenAuthorizer)
 
-from portal import app, database, datasets
+from portal import app, database
 from portal.decorators import authenticated
 from portal.utils import (load_portal_client, get_portal_tokens,
                           get_safe_redirect)
 
-try:
-    db = sqlite3.connect('data/clusters.db')
-    cursor = db.cursor()
-    cursor.execute(
-        '''CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, name TEXT, accesstoken TEXT unique, endpoint TEXT, email TEXT)''')
-except Exception as e:
-    db.rollback()
-    raise e
-finally:
-    db.close()
+# try:
+#     db = sqlite3.connect('data/clusters.db')
+#     cursor = db.cursor()
+#     cursor.execute(
+#         '''CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, name TEXT, accesstoken TEXT unique, endpoint TEXT, email TEXT)''')
+# except Exception as e:
+#     db.rollback()
+#     raise e
+# finally:
+#     db.close()
 
 
 @app.route('/', methods=['GET'])
@@ -237,20 +237,23 @@ def profile():
     """User profile information. Assocated with a Globus Auth identity."""
     if request.method == 'GET':
         identity_id = session.get('primary_identity')
-        profile = database.load_profile(identity_id)
+        # profile = database.load_profile(identity_id)
         globus_id = identity_id
         query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16',
                  'globus_id': globus_id}
 
-        # profile = requests.get(
-        #     'https://api-dev.slateci.io:18080/v1alpha1/find_user', params=query)
+        profile = requests.get(
+            'https://api-dev.slateci.io:18080/v1alpha1/find_user', params=query)
 
         if profile:
-            name, email, institution = profile
-
-            session['name'] = name
-            session['email'] = email
-            session['institution'] = institution
+            profile = profile.json()['metadata']
+            session['slate_token'] = profile['access_token']
+            session['slate_id'] = profile['id']
+        #     name, email, institution = profile
+        #
+        #     session['name'] = name
+        #     session['email'] = email
+        #     session['institution'] = institution
         else:
             flash(
                 'Please complete any missing profile fields and press Save.')
@@ -262,6 +265,7 @@ def profile():
     elif request.method == 'POST':
         name = session['name'] = request.form['name']
         email = session['email'] = request.form['email']
+        # Chris should maybe add institution into user info within DB?
         institution = session['institution'] = request.form['institution']
         globus_id = session['primary_identity']
         admin = False
@@ -271,7 +275,7 @@ def profile():
                                  'name': name, 'email': email, 'admin': admin}}
         query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16'}
 
-        r = requests.post(
+        requests.post(
             'https://api-dev.slateci.io:18080/v1alpha1/users', params=query, json=add_user)
 
         flash('Your profile has successfully been updated!')
