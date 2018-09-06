@@ -1,3 +1,11 @@
+import sys
+# sys.path.insert(
+#     0, '/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets')
+sys.path.insert(
+    0, '/etc/slate/secrets')
+
+from slate_api_token import slate_api_token
+
 from flask import (abort, flash, redirect, render_template, request,
                    session, url_for)
 import requests
@@ -106,14 +114,14 @@ def cli_access():
 
         # Schema and query for getting user info and access token from Slate DB
         globus_id = session['primary_identity']
-        query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16',
+        query = {'token': slate_api_token,
                  'globus_id': globus_id}
 
         r = requests.get(
-            'https://api-dev.slateci.io:18080/v1alpha1/find_user', params=query)
+            'https://api-dev.slateci.io:18081/v1alpha1/find_user', params=query)
         user_info = r.json()
 
-        return render_template('cli_access.html', user_info=user_info)
+        return render_template('cli_access.html', user_info=user_info, slate_api_token=slate_api_token)
 
 
 @app.route('/vos', methods=['GET', 'POST'])
@@ -124,7 +132,7 @@ def list_vos():
         token_query = {'token': session['slate_token']}
 
         s = requests.get(
-            'https://api-dev.slateci.io:18080/v1alpha1/users/' + slate_user_id + '/vos', params=token_query)
+            'https://api-dev.slateci.io:18081/v1alpha1/users/' + slate_user_id + '/vos', params=token_query)
 
         s_info = s.json()
         vo_list = s_info['items']
@@ -147,7 +155,7 @@ def create_vo():
                   'metadata': {'name': name}}
 
         requests.post(
-            'https://api-dev.slateci.io:18080/v1alpha1/vos', params=token_query, json=add_vo)
+            'https://api-dev.slateci.io:18081/v1alpha1/vos', params=token_query, json=add_vo)
 
         return redirect(url_for('view_vo', name=name))
 
@@ -160,7 +168,7 @@ def view_vo(name):
         token_query = {'token': session['slate_token']}
 
         s = requests.get(
-            'https://api-dev.slateci.io:18080/v1alpha1/users/' + slate_user_id + '/vos', params=token_query)
+            'https://api-dev.slateci.io:18081/v1alpha1/users/' + slate_user_id + '/vos', params=token_query)
         s_info = s.json()
         vo_list = s_info['items']
         vo_id = None
@@ -169,11 +177,11 @@ def view_vo(name):
                 vo_id = vo['metadata']['id']
 
         users = requests.get(
-            'https://api-dev.slateci.io:18080/v1alpha1/users', params=token_query)
+            'https://api-dev.slateci.io:18081/v1alpha1/users', params=token_query)
         users = users.json()['items']
 
         vo_members = requests.get(
-            'https://api-dev.slateci.io:18080/v1alpha1/vos/' + vo_id + '/members', params=token_query)
+            'https://api-dev.slateci.io:18081/v1alpha1/vos/' + vo_id + '/members', params=token_query)
         vo_members = vo_members.json()['items']
 
         return render_template('vos_profile.html', vo_list=vo_list, users=users, name=name, vo_members=vo_members)
@@ -188,7 +196,7 @@ def vo_add_member(name):
         vo_id = name
 
         s = requests.put(
-            'https://api-dev.slateci.io:18080/v1alpha1/users/' + new_user_id + '/vos/' + vo_id, params=token_query)
+            'https://api-dev.slateci.io:18081/v1alpha1/users/' + new_user_id + '/vos/' + vo_id, params=token_query)
 
         return redirect(url_for('view_vo', name=name))
 
@@ -202,7 +210,7 @@ def vo_remove_member(name):
         vo_id = name
 
         s = requests.delete(
-            'https://api-dev.slateci.io:18080/v1alpha1/users/' + remove_user_id + '/vos/' + vo_id, params=token_query)
+            'https://api-dev.slateci.io:18081/v1alpha1/users/' + remove_user_id + '/vos/' + vo_id, params=token_query)
 
         return redirect(url_for('view_vo', name=name))
 
@@ -224,7 +232,7 @@ def testing():
 def user_info(user_id):
     if request.method == 'GET':
         cat_url = (
-            'https://api-dev.slateci.io:18080/v1alpha1/users?token=' + user_id)
+            'https://api-dev.slateci.io:18081/v1alpha1/users?token=' + user_id)
         response = requests.get(cat_url)
         user_info = response.json()
 
@@ -239,11 +247,11 @@ def profile():
         identity_id = session.get('primary_identity')
         # profile = database.load_profile(identity_id)
         globus_id = identity_id
-        query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16',
+        query = {'token': slate_api_token,
                  'globus_id': globus_id}
 
         profile = requests.get(
-            'https://api-dev.slateci.io:18080/v1alpha1/find_user', params=query)
+            'https://api-dev.slateci.io:18081/v1alpha1/find_user', params=query)
 
         if profile:
             profile = profile.json()['metadata']
@@ -261,7 +269,7 @@ def profile():
         if request.args.get('next'):
             session['next'] = get_safe_redirect()
 
-        return render_template('profile.html')
+        return render_template('profile.html', slate_api_token=slate_api_token)
     elif request.method == 'POST':
         name = session['name'] = request.form['name']
         email = session['email'] = request.form['email']
@@ -273,10 +281,10 @@ def profile():
         add_user = {"apiVersion": 'v1alpha1',
                     'metadata': {'globusID': globus_id,
                                  'name': name, 'email': email, 'admin': admin}}
-        query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16'}
+        query = {'token': slate_api_token}
 
         requests.post(
-            'https://api-dev.slateci.io:18080/v1alpha1/users', params=query, json=add_user)
+            'https://api-dev.slateci.io:18081/v1alpha1/users', params=query, json=add_user)
 
         flash('Your profile has successfully been updated!')
 
@@ -337,11 +345,11 @@ def authcallback():
         # to see if profile exists by matching globus_id ideally. Get rid of
         # database.load_profile line above this once done
         globus_id = session['primary_identity']
-        query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16',
+        query = {'token': slate_api_token,
                  'globus_id': globus_id}
 
         profile = requests.get(
-            'https://api-dev.slateci.io:18080/v1alpha1/find_user', params=query)
+            'https://api-dev.slateci.io:18081/v1alpha1/find_user', params=query)
 
         if profile:
             # name, email, institution = profile
@@ -350,11 +358,11 @@ def authcallback():
             # session['email'] = email
             # session['institution'] = institution
             globus_id = session['primary_identity']
-            query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16',
+            query = {'token': slate_api_token,
                      'globus_id': globus_id}
 
             profile = requests.get(
-                'https://api-dev.slateci.io:18080/v1alpha1/find_user', params=query)
+                'https://api-dev.slateci.io:18081/v1alpha1/find_user', params=query)
             slate_user_info = profile.json()
             session['slate_token'] = slate_user_info['metadata']['access_token']
             session['slate_id'] = slate_user_info['metadata']['id']
@@ -371,18 +379,18 @@ def authcallback():
 def register():
     if request.method == 'GET':
         globus_id = session['primary_identity']
-        query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16',
+        query = {'token': slate_api_token,
                  'globus_id': globus_id}
 
         r = requests.get(
-            'https://api-dev.slateci.io:18080/v1alpha1/find_user', params=query)
+            'https://api-dev.slateci.io:18081/v1alpha1/find_user', params=query)
         user_info = r.json()
         slate_user_id = user_info['metadata']['id']
         # vo_url = 'https://api-dev.slateci.io:18080/v1alpha1/users/' + slate_user_id + '/vos'
 
-        token_query = {'token': '3acc9bdc-1243-40ea-96df-373c8a616a16'}
+        token_query = {'token': slate_api_token}
         s = requests.get(
-            'https://api-dev.slateci.io:18080/v1alpha1/users/' + slate_user_id + '/vos', params=token_query)
+            'https://api-dev.slateci.io:18081/v1alpha1/users/' + slate_user_id + '/vos', params=token_query)
 
         s_info = s.json()
         vo_list = s_info['items']
