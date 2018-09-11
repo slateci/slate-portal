@@ -1,10 +1,8 @@
 import sys
-# sys.path.insert(
-#     0, '/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets')
-sys.path.insert(
-    0, '/etc/slate/secrets')
-
-from slate_api_token import slate_api_token
+sys.path.insert(0, '/etc/slate/secrets')
+# f = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_token.txt", "r")
+f = open("/etc/slate/secrets/slate_api_token.txt", "r")
+slate_api_token = f.read().split()[0]
 
 from flask import (abort, flash, redirect, render_template, request,
                    session, url_for)
@@ -121,7 +119,7 @@ def cli_access():
             'https://api-dev.slateci.io:18081/v1alpha1/find_user', params=query)
         user_info = r.json()
 
-        return render_template('cli_access.html', user_info=user_info, slate_api_token=slate_api_token)
+        return render_template('cli_access.html', user_info=user_info)
 
 
 @app.route('/vos', methods=['GET', 'POST'])
@@ -183,8 +181,13 @@ def view_vo(name):
         vo_members = requests.get(
             'https://api-dev.slateci.io:18081/v1alpha1/vos/' + vo_id + '/members', params=token_query)
         vo_members = vo_members.json()['items']
+        # print(type(users))
+        # print(type(vo_members))
 
-        return render_template('vos_profile.html', vo_list=vo_list, users=users, name=name, vo_members=vo_members)
+        vo_nonmembers = [u for u in users if u['metadata']['id']
+                         not in set([u['metadata']['id'] for u in vo_members])]
+
+        return render_template('vos_profile.html', vo_list=vo_list, users=vo_nonmembers, name=name, vo_members=vo_members)
 
 
 @app.route('/vos/<name>/add_member', methods=['POST'])
