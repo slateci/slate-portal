@@ -3,7 +3,7 @@ sys.path.insert(0, '/etc/slate/secrets')
 # f = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_token.txt", "r")
 # g = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_endpoint.txt", "r")
 f = open("/etc/slate/secrets/slate_api_token.txt", "r")
-g = open("/etc/slate/secrets/slate_api_endpoint.txt", "r")
+g = open("slate_api_endpoint.txt", "r")
 slate_api_token = f.read().split()[0]
 slate_api_endpoint = g.read().split()[0]
 

@@ -39,7 +39,8 @@
             <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
               <div class="card-body">
                 <!-- <textarea id="pubtoken" readonly disabled font-size="16"></textarea> -->
-                <textarea type="text" id="cli_access" disabled>#!/bin/sh
+                <textarea type="text" id="cli_access">
+#!/bin/sh
 mkdir -p -m 0700 "$HOME/.slate"
 if [ "$?" -ne 0 ] ; then
 	echo "Not able to create $HOME/.slate" 1>&2
@@ -68,25 +69,6 @@ echo "SLATE access token successfully stored"
 </section>
 
 <script>
-
-// window.onload = get_states();
-//
-// function get_states(){
-//   $.ajax({
-//     url: "http://128.135.158.222:18080/v1alpha1/users?token= + slate_api_token",
-//     type: "get",
-//     dataType: 'json',
-//     success: function(data){
-//       if(data.items){
-//          $('#test').html(data.items);
-//       }
-//
-//     },
-//     error: function(xhr){
-//       //Do Something to handle error
-//     }
-//   });
-// }
 
 
 function myFunction() {
