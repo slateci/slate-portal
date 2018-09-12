@@ -122,7 +122,7 @@ def cli_access():
             slate_api_endpoint + '/v1alpha1/find_user', params=query)
         user_info = r.json()
 
-        return render_template('cli_access.html', user_info=user_info)
+        return render_template('cli_access.html', user_info=user_info, slate_api_endpoint=slate_api_endpoint)
 
 
 @app.route('/vos', methods=['GET', 'POST'])
@@ -187,10 +187,17 @@ def view_vo(name):
         # print(type(users))
         # print(type(vo_members))
 
-        vo_nonmembers = [u for u in users if u['metadata']['id']
-                         not in set([u['metadata']['id'] for u in vo_members])]
+        # List of vo members by their unique user ID
+        vo_member_ids = [members['metadata']['id'] for members in vo_members]
+        non_members = [user['metadata']
+                       for user in users if user['metadata']['id'] not in vo_member_ids]
 
-        return render_template('vos_profile.html', vo_list=vo_list, users=vo_nonmembers, name=name, vo_members=vo_members)
+        # vo_nonmembers = [u for u in users if u['metadata']['id']
+        # not in set([u['metadata']['id'] for u in vo_members])]
+
+        return render_template('vos_profile.html', vo_list=vo_list,
+                               users=users, name=name, vo_members=vo_members,
+                               non_members=non_members)
 
 
 @app.route('/vos/<name>/add_member', methods=['POST'])

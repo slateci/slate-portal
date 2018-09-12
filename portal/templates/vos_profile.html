@@ -63,8 +63,8 @@
                   <fieldset>
                    <label for="newuser">Select New Users</label>
                    <select class="form-control input-group" name="newuser" tabindex="1" required style="width: 100%;">
-                     {% for user in users %}
-                     <option value="{{user['metadata']['id']}}" required>{{user['metadata']['name']}}</option>
+                     {% for user in non_members %}
+                     <option value="{{user['id']}}" required>{{user['name']}}</option>
                      {% endfor %}
                    </select>
                  </fieldset>
