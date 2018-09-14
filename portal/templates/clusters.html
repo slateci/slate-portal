@@ -41,7 +41,8 @@ if [ "$#" -gt 1 ]; then
 fi
 
 # This is the SLATE endpoint to contact
-POST_URL="{{slate_api_endpoint}}"
+#TODO: Fix POST_URL="{{slate_api_endpoint}}"
+POST_URL="https://api-dev.slateci.io:18080/v1alpha1/clusters"
 
 # This is the ID of the VO for whom we are registering the cluster
 VO_ID="{{vo}}"
