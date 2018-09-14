@@ -36,8 +36,8 @@
 #!/bin/sh
 
 if [ "$#" -gt 1 ]; then
-echo "Too many arguments" 1>&2
-exit 1
+	echo "Too many arguments" 1>&2
+	exit 1
 fi
 
 # This is the SLATE endpoint to contact
@@ -55,19 +55,19 @@ KUBECONFIG="$HOME/.kube/config"
 # We need the user's access token to talk to the SLATE API. Try to fetch it.
 TOKEN_LOC="$HOME/.slate/token"
 if [ ! -r "$TOKEN_LOC" ] ; then
-echo "Unable to read access token file $TOKEN_LOC" 1>&2
-exit 1
+	echo "Unable to read access token file $TOKEN_LOC" 1>&2
+	exit 1
 fi
 ACCESS_TOKEN=`cat "$TOKEN_LOC"`
 
 # If the user specifies a different location to read, use that
 if [ "$#" -eq 1 ]; then
-KUBECONFIG="$1"
+	KUBECONFIG="$1"
 fi
 
 if [ ! -r "$KUBECONFIG" ] ; then
-echo "Not able to read kubernetes configuration from $KUBECONFIG" 1>&2
-exit 1
+	echo "Not able to read kubernetes configuration from $KUBECONFIG" 1>&2
+	exit 1
 fi
 
 # We want to put this data in a JSON string, so we should escape it.
@@ -80,36 +80,36 @@ ESCAPEDCONFIG=`cat $KUBECONFIG`
 
 # To upload data, we need curl. Check for that
 if which curl > /dev/null ; then
-: # All good
+	: # All good
 else
-echo "curl is needed to contact the SLATE infrastructure." 1>&2
-echo "Please install it and try again" 1>&2
-exit 1
+	echo "curl is needed to contact the SLATE infrastructure." 1>&2
+	echo "Please install it and try again" 1>&2
+	exit 1
 fi
 
 PAYLOAD='{
-"apiVersion": "v1alpha1",
-"metadata": {
-"name": "'"$CLUSTERNAME"'",
-"vo": "'"$VO_ID"'",
-"kubeconfig": "'"$ESCAPEDCONFIG"'"
-}
-}'
+    "apiVersion": "v1alpha1",
+    "metadata": {
+      "name": "'"$CLUSTERNAME"'",
+      "vo": "'"$VO_ID"'",
+      "kubeconfig": "'"$ESCAPEDCONFIG"'"
+    }
+  }'
 
 echo "Sending kubernetes information to SLATE API server. . . "
 RESPONSE=`curl -s -d "$PAYLOAD" "${POST_URL}?token=${ACCESS_TOKEN}"`
 
 if [ "$?" -ne 0 ] ; then
-echo "POSTing registration request with curl failed" 1>&2
-exit 1
+	echo "POSTing registration request with curl failed" 1>&2
+	exit 1
 fi
 
 if echo "$RESPONSE" | grep '"kind":"Cluster"' > /dev/null ; then
-CLUSTER_ID=`echo "$RESPONSE" | sed -n 's|.*id":"\([^"]*\)".*|\1|p'`
-echo "Cluster successfully registered with ID $CLUSTER_ID"
+	CLUSTER_ID=`echo "$RESPONSE" | sed -n 's|.*id":"\([^"]*\)".*|\1|p'`
+	echo "Cluster successfully registered with ID $CLUSTER_ID"
 else
-echo "Problem registering cluster"
-echo "Raw API response: $RESPONSE"
+	echo "Problem registering cluster"
+	echo "Raw API response: $RESPONSE"
 fi
                 </textarea>
                 <button class="btn btn-primary" onclick="myFunction()">Copy Script to Clipboard</button>
