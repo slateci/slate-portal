@@ -413,7 +413,7 @@ def register():
     elif request.method == 'POST':
         name = request.form['name']
         vo = request.form['vo']
-        return render_template('clusters.html', name=name, vo=vo)
+        return render_template('clusters.html', name=name, vo=vo, slate_api_endpoint=slate_api_endpoint)
 
         # if 'next' in session:
         #     redirect_to = session['next']
