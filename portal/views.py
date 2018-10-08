@@ -1,9 +1,13 @@
+# Use these four lines on container
 import sys
 sys.path.insert(0, '/etc/slate/secrets')
-# f = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_token.txt", "r")
-# g = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_endpoint.txt", "r")
 f = open("/etc/slate/secrets/slate_api_token.txt", "r")
 g = open("slate_api_endpoint.txt", "r")
+
+# Use these two lines below on local
+# f = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_token.txt", "r")
+# g = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_endpoint.txt", "r")
+#
 slate_api_token = f.read().split()[0]
 slate_api_endpoint = g.read().split()[0]
 
@@ -192,12 +196,14 @@ def view_vo(name):
         non_members = [user['metadata']
                        for user in users if user['metadata']['id'] not in vo_member_ids]
 
-        # vo_nonmembers = [u for u in users if u['metadata']['id']
-        # not in set([u['metadata']['id'] for u in vo_members])]
+        # Grab/list all Clusters in DB for now
+        listclusters = requests.get(
+            slate_api_endpoint + '/v1alpha1/clusters', params=token_query)
+        list_clusters = listclusters.json()['items']
 
         return render_template('vos_profile.html', vo_list=vo_list,
                                users=users, name=name, vo_members=vo_members,
-                               non_members=non_members)
+                               non_members=non_members, clusters=list_clusters)
 
 
 @app.route('/vos/<name>/add_member', methods=['POST'])
@@ -270,11 +276,6 @@ def profile():
             profile = profile.json()['metadata']
             session['slate_token'] = profile['access_token']
             session['slate_id'] = profile['id']
-        #     name, email, institution = profile
-        #
-        #     session['name'] = name
-        #     session['email'] = email
-        #     session['institution'] = institution
         else:
             flash(
                 'Please complete any missing profile fields and press Save.')
@@ -287,7 +288,7 @@ def profile():
         name = session['name'] = request.form['name']
         email = session['email'] = request.form['email']
         # Chris should maybe add institution into user info within DB?
-        institution = session['institution'] = request.form['institution']
+        # institution = session['institution'] = request.form['institution']
         globus_id = session['primary_identity']
         admin = False
         # Schema and query for adding users to Slate DB
@@ -414,14 +415,6 @@ def register():
         name = request.form['name']
         vo = request.form['vo']
         return render_template('clusters.html', name=name, vo=vo, slate_api_endpoint=slate_api_endpoint)
-
-        # if 'next' in session:
-        #     redirect_to = session['next']
-        #     session.pop('next')
-        # else:
-        #     redirect_to = url_for('clusters', name=name, vo=vo)
-        #
-        # return redirect(redirect_to)
 
 
 @app.route('/clusters', methods=['GET'])
