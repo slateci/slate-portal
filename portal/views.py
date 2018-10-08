@@ -1,12 +1,12 @@
 # Use these four lines on container
-import sys
-sys.path.insert(0, '/etc/slate/secrets')
-f = open("/etc/slate/secrets/slate_api_token.txt", "r")
-g = open("slate_api_endpoint.txt", "r")
+# import sys
+# sys.path.insert(0, '/etc/slate/secrets')
+# f = open("/etc/slate/secrets/slate_api_token.txt", "r")
+# g = open("slate_api_endpoint.txt", "r")
 
 # Use these two lines below on local
-# f = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_token.txt", "r")
-# g = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_endpoint.txt", "r")
+f = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_token.txt", "r")
+g = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_endpoint.txt", "r")
 #
 slate_api_token = f.read().split()[0]
 slate_api_endpoint = g.read().split()[0]
@@ -349,7 +349,6 @@ def authcallback():
             is_authenticated=True,
             name=id_token.get('name', ''),
             email=id_token.get('email', ''),
-            institution=id_token.get('institution', ''),
             primary_username=id_token.get('preferred_username'),
             primary_identity=id_token.get('sub'),
         )
