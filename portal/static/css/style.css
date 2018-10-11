@@ -8,6 +8,7 @@ body {
   font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 20px;
   color: #404040;
+  background-color: #286AC7;
 }
 
 p {
@@ -345,6 +346,7 @@ select {
 footer {
   padding: 50px 0 65px;
 }
+
 
 footer .list-inline {
   margin: 0;

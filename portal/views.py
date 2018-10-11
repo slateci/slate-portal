@@ -214,7 +214,8 @@ def vo_add_member(name):
         token_query = {'token': session['slate_token']}
         vo_id = name
 
-        s = requests.put(
+        # Add member to VO
+        requests.put(
             slate_api_endpoint + '/v1alpha1/users/' + new_user_id + '/vos/' + vo_id, params=token_query)
 
         return redirect(url_for('view_vo', name=name))
