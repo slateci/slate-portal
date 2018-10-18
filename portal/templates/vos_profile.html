@@ -30,49 +30,46 @@
         <div class="tab-content" id="nav-tabContent">
           <div class="tab-pane fade show active" id="nav-members" role="tabpanel" aria-labelledby="nav-members-tab">
 
-            <div class="row">
-              <div class="col-lg-8">
-              <table class="table table-hover col-lg-8 mx-auto">
-                <thead>
-                  <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Remove</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for member in vo_members %}
-                  {% set member_name = member['metadata']['name'] %}
-                  <tr>
-                    <td>{{member_name}}</td>
-                    <td>{{member['metadata']['email']}}</td>
-                    <td>
-                      <form role="form" action="{{url_for('vo_remove_member', name=name)}}" method="POST">
-                        <button type="submit" name="remove_member" value="{{member['metadata']['id']}}" class="btn btn-danger btn-xs" data-submit="Removing User...">Remove User</button>
-                      </form>
-                    </td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
+              <div class="col-lg-12">
+                <div class="container" style="padding:10px;">
+                  <h4>Select New Users</h4>
+                  <form class="form-inline" role="form" action="{{url_for('vo_add_member', name=name)}}" method="POST">
+                    <!-- <div class="input-group"> -->
+                      <fieldset class="form-group">
+                       <select class="form-control input-group" name="newuser" tabindex="1" required style="width: 100%;">
+                         {% for user in non_members %}
+                         <option value="{{user['id']}}" required>{{user['name']}}</option>
+                         {% endfor %}
+                       </select>
+                     </fieldset>
+                      <button type="submit" name="btn" value="adduser" class="btn btn-primary btn-xs" data-submit="...Sending">Add User</button>
+                  </form>
+                </div>
+                <table class="table table-hover col-lg-8 mx-auto">
+                  <thead>
+                    <tr>
+                      <th scope="col">Name</th>
+                      <th scope="col">Email</th>
+                      <th scope="col">Remove</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for member in vo_members %}
+                    {% set member_name = member['metadata']['name'] %}
+                    <tr>
+                      <td>{{member_name}}</td>
+                      <td>{{member['metadata']['email']}}</td>
+                      <td>
+                        <form role="form" action="{{url_for('vo_remove_member', name=name)}}" method="POST">
+                          <button type="submit" name="remove_member" value="{{member['metadata']['id']}}" class="btn btn-danger btn-xs" data-submit="Removing User...">Remove User</button>
+                        </form>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
             </div>
-
-            <div class="col-lg-4 mx-auto">
-              <form role="form" action="{{url_for('vo_add_member', name=name)}}" method="POST">
-                <!-- <div class="input-group"> -->
-                  <fieldset>
-                   <label for="newuser">Select New Users</label>
-                   <select class="form-control input-group" name="newuser" tabindex="1" required style="width: 100%;">
-                     {% for user in non_members %}
-                     <option value="{{user['id']}}" required>{{user['name']}}</option>
-                     {% endfor %}
-                   </select>
-                 </fieldset>
-                  <button type="submit" name="btn" value="adduser" class="btn btn-primary btn-xs" data-submit="...Sending">Add User</button>
-              </form>
-            </div>
-          </div>
-          </div>
 
           <div class="tab-pane fade" id="nav-clusters" role="tabpanel" aria-labelledby="nav-profile-tab">
             <table class="table table-hover">

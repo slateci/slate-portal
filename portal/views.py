@@ -1,12 +1,12 @@
 # Use these four lines on container
-import sys
-sys.path.insert(0, '/etc/slate/secrets')
-f = open("/etc/slate/secrets/slate_api_token.txt", "r")
-g = open("slate_api_endpoint.txt", "r")
+# import sys
+# sys.path.insert(0, '/etc/slate/secrets')
+# f = open("/etc/slate/secrets/slate_api_token.txt", "r")
+# g = open("slate_api_endpoint.txt", "r")
 
 # Use these two lines below on local
-# f = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_token.txt", "r")
-# g = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_endpoint.txt", "r")
+f = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_token.txt", "r")
+g = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_endpoint.txt", "r")
 #
 slate_api_token = f.read().split()[0]
 slate_api_endpoint = g.read().split()[0]
@@ -195,6 +195,12 @@ def view_vo(name):
         vo_member_ids = [members['metadata']['id'] for members in vo_members]
         non_members = [user['metadata']
                        for user in users if user['metadata']['id'] not in vo_member_ids]
+
+        # Remove slate client accounts from user lists
+        account_names = ['WebPortal', 'GitHub Webhook Account']
+        for non_member in non_members:
+            if non_member['name'] in account_names:
+                non_members.remove(non_member)
 
         # Grab/list all Clusters in DB for now
         listclusters = requests.get(
