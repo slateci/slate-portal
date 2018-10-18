@@ -1,12 +1,12 @@
 # Use these four lines on container
-# import sys
-# sys.path.insert(0, '/etc/slate/secrets')
-# f = open("/etc/slate/secrets/slate_api_token.txt", "r")
-# g = open("slate_api_endpoint.txt", "r")
+import sys
+sys.path.insert(0, '/etc/slate/secrets')
+f = open("/etc/slate/secrets/slate_api_token.txt", "r")
+g = open("slate_api_endpoint.txt", "r")
 
 # Use these two lines below on local
-f = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_token.txt", "r")
-g = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_endpoint.txt", "r")
+# f = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_token.txt", "r")
+# g = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_endpoint.txt", "r")
 #
 slate_api_token = f.read().split()[0]
 slate_api_endpoint = g.read().split()[0]
