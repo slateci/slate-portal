@@ -9,8 +9,12 @@
     <img src="{{url_for('static', filename='img/slate-logo-large.png')}}" style="width:60%;">
     <h1>Welcome to SLATE CI</h1>
     <p class="lead">Services Layer at the Edge and the Mobility of Capability</p>
+    {% if session.get('is_authenticated') %}
+    <a role="button" href="{{url_for('profile')}}" class="btn btn-outline-light">Dashboard</a>
+    {% else %}
     <a role="button" href="{{url_for('login')}}" class="btn btn-outline-light">Login</a>
     <a role="button" href="{{url_for('signup')}}" class="btn btn-outline-light">Sign Up</a>
+    {% endif %}
   </div>
 </header>
 {%endblock%}

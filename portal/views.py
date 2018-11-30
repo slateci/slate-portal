@@ -1,3 +1,13 @@
+from portal.utils import (
+    load_portal_client, get_portal_tokens, get_safe_redirect)
+from portal.decorators import authenticated
+from portal import app, database
+import textwrap
+import uuid
+import sqlite3
+import requests
+from flask import (abort, flash, redirect, render_template,
+                   request, session, url_for)
 # Use these four lines on container
 import sys
 sys.path.insert(0, '/etc/slate/secrets')
@@ -11,36 +21,11 @@ g = open("slate_api_endpoint.txt", "r")
 slate_api_token = f.read().split()[0]
 slate_api_endpoint = g.read().split()[0]
 
-from flask import (abort, flash, redirect, render_template, request,
-                   session, url_for)
-import requests
-import sqlite3
-import uuid
-import textwrap
 
 try:
     from urllib.parse import urlencode
 except ImportError:
     from urllib import urlencode
-
-from globus_sdk import (TransferClient, TransferAPIError,
-                        TransferData, RefreshTokenAuthorizer)
-
-from portal import app, database
-from portal.decorators import authenticated
-from portal.utils import (load_portal_client, get_portal_tokens,
-                          get_safe_redirect)
-
-# try:
-#     db = sqlite3.connect('data/clusters.db')
-#     cursor = db.cursor()
-#     cursor.execute(
-#         '''CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, name TEXT, accesstoken TEXT unique, endpoint TEXT, email TEXT)''')
-# except Exception as e:
-#     db.rollback()
-#     raise e
-# finally:
-#     db.close()
 
 
 @app.route('/', methods=['GET'])
@@ -180,10 +165,20 @@ def view_vo(name):
         for vo in vo_list:
             if vo['metadata']['name'] == name:
                 vo_id = vo['metadata']['id']
+                vo_name = vo['metadata']['name']
 
+        # List all members
         users = requests.get(
             slate_api_endpoint + '/v1alpha1/users', params=token_query)
         users = users.json()['items']
+
+        # Check if user is Admin of VO
+        user = requests.get(
+            slate_api_endpoint + '/v1alpha1/users/' + slate_user_id, params=token_query)
+        user_admin = user.json()['metadata']['admin']
+        admin = False
+        if user_admin:
+            admin = True
 
         vo_members = requests.get(
             slate_api_endpoint + '/v1alpha1/vos/' + vo_id + '/members', params=token_query)
@@ -207,9 +202,15 @@ def view_vo(name):
             slate_api_endpoint + '/v1alpha1/clusters', params=token_query)
         list_clusters = listclusters.json()['items']
 
+        # Get clusters owned by VO
+        vo_clusters = requests.get(
+            slate_api_endpoint + '/v1alpha1/vos/' + vo_id + '/clusters', params=token_query)
+        vo_clusters = vo_clusters.json()['items']
+
         return render_template('vos_profile.html', vo_list=vo_list,
                                users=users, name=name, vo_members=vo_members,
-                               non_members=non_members, clusters=list_clusters)
+                               non_members=non_members, clusters=list_clusters,
+                               vo_clusters=vo_clusters, admin=admin)
 
 
 @app.route('/vos/<name>/add_member', methods=['POST'])
@@ -239,6 +240,41 @@ def vo_remove_member(name):
             slate_api_endpoint + '/v1alpha1/users/' + remove_user_id + '/vos/' + vo_id, params=token_query)
 
         return redirect(url_for('view_vo', name=name))
+
+
+@app.route('/vos/<project_name>/clusters/<name>', methods=['GET', 'POST'])
+@authenticated
+def view_cluster(project_name, name):
+    if request.method == 'GET':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+        cluster_name = name
+        vo_name = project_name
+
+        cluster_vos = requests.get(
+            slate_api_endpoint + '/v1alpha1/clusters/' + cluster_name + '/allowed_vos', params=token_query)
+        cluster_vos = cluster_vos.json()['items']
+
+        applications = requests.get(
+            slate_api_endpoint + '/v1alpha1/clusters/' + cluster_name + '/allowed_vos/' + vo_name + '/applications', params=token_query)
+        applications = applications.json()['items']
+
+        return render_template('cluster_profile.html', cluster_vos=cluster_vos,
+                               project_name=project_name, name=name,
+                               applications=applications)
+
+    elif request.method == 'POST':
+        """Route method to handle query to create a new VO"""
+
+        name = request.form['delete_cluster']
+        token_query = {'token': session['slate_token']}
+        add_vo = {"apiVersion": 'v1alpha1',
+                  'metadata': {'name': name}}
+
+        requests.delete(
+            slate_api_endpoint + '/v1alpha1/clusters/' + name, params=token_query, json=add_vo)
+
+        return redirect(url_for('view_cluster', name=name))
 
 
 @app.route('/testing', methods=['GET', 'POST'])
@@ -425,27 +461,78 @@ def register():
 
 @app.route('/clusters', methods=['GET'])
 @authenticated
-def clusters():
+def list_clusters():
     """
-    - Save the submitted form to the session.
-    - Send to Globus to select a destination endpoint using the
-      Browse Endpoint helper page.
+    - List Clusters Registered on SLATE
     """
-    # clusters = []
-    # db = sqlite3.connect('data/clusters.db')
-    # c = db.cursor()
-    # try:
-    #     with db:
-    #         n = (session['name'],)
-    #         for row in c.execute('''SELECT * FROM users WHERE name=?''', n):
-    #             """
-    #             Returns the clusters owned by the user of this session name
-    #             (1, u'Lincoln Bryant', u'1b9a2d06-ffa7-4e66-8587-b624e291c499', u'UChicago', u'lincolnb@uchicago.edu')
-    #
-    #             """
-    #             clusters += [{'name': str(row[1]), 'accesstoken': str(
-    #                 row[2]), 'endpoint': str(row[3]), 'email': str(row[4])}]
-    # finally:
-    #     db.close()
     if request.method == 'GET':
-        return render_template('clusters.html')
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+
+        slate_clusters = requests.get(
+            slate_api_endpoint + '/v1alpha1/clusters', params=token_query)
+        slate_clusters = slate_clusters.json()['items']
+        return render_template('clusters.html', slate_clusters=slate_clusters)
+
+# @app.route('/clusters/<name>', methods=['GET'])
+# @authenticated
+# def view_cluster():
+#     """
+#     - View Clusters Detailed Page on SLATE
+#     """
+#     if request.method == 'GET':
+#         slate_user_id = session['slate_id']
+#         token_query = {'token': session['slate_token']}
+#
+#         cluster = requests.get(
+#             slate_api_endpoint + '/v1alpha1/clusters', params=token_query)
+#         cluster = cluster.json()['items']
+#         return render_template('cluster_profile.html', cluster=cluster)
+
+
+@app.route('/applications', methods=['GET'])
+@authenticated
+def list_applications():
+    """
+    - List Known Applications on SLATE
+    """
+    if request.method == 'GET':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+
+        applications = requests.get(
+            slate_api_endpoint + '/v1alpha1/apps', params=token_query)
+        applications = applications.json()['items']
+        return render_template('applications.html', applications=applications)
+
+
+@app.route('/applications/<name>', methods=['GET'])
+@authenticated
+def view_application(name):
+    """
+    - View Known Applications Detail Page on SLATE
+    """
+    if request.method == 'GET':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+
+        app_config = requests.get(
+            slate_api_endpoint + '/v1alpha1/apps/' + name, params=token_query)
+        app_config = app_config.json()
+        return render_template('applications_profile.html', name=name, app_config=app_config)
+
+
+@app.route('/instances', methods=['GET'])
+@authenticated
+def list_instances():
+    """
+    - List deployed application instances on SLATE
+    """
+    if request.method == 'GET':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+
+        instances = requests.get(
+            slate_api_endpoint + '/v1alpha1/instances', params=token_query)
+        instances = instances.json()['items']
+        return render_template('instances.html', instances=instances)

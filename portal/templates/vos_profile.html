@@ -8,12 +8,15 @@
 <section id="cli-access" class="bg-light">
   <div class="container">
     <div class="page-header">
-      <!-- <h1>CLI Access</h1> -->
-      <!-- <p>{{session['tokens']['auth.globus.org']['access_token']}}</p> -->
     </div>
 
     <div class="row">
       <div class="col-lg-8 mx-auto">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item"><a href="{{url_for('list_vos')}}">VO</a></li>
+          <li class="breadcrumb-item active">{{name}}</li>
+        </ol>
         <h2>VO {{name}}</h2>
         <p class="lead">
           VO members and resources
@@ -24,7 +27,7 @@
         <nav>
           <div class="nav nav-tabs" id="nav-tab" role="tablist">
             <a class="nav-item nav-link active" id="nav-members-tab" data-toggle="tab" href="#nav-members" role="tab" aria-controls="nav-members" aria-selected="true">Members</a>
-            <a class="nav-item nav-link" id="nav-clusters-tab" data-toggle="tab" href="#nav-clusters" role="tab" aria-controls="nav-clusters" aria-selected="false">Clusters</a>
+            <a class="nav-item nav-link" id="nav-clusters-tab" data-toggle="tab" href="#nav-clusters" role="tab" aria-controls="nav-clusters" aria-selected="false">Clusters in VO</a>
           </div>
         </nav>
         <div class="tab-content" id="nav-tabContent">
@@ -79,9 +82,20 @@
                 </tr>
               </thead>
               <tbody>
-                {% for cluster in clusters %}
+                {% for cluster in vo_clusters %}
+                {% set cluster_name = cluster['metadata']['name']%}
                 <tr>
-                  <td>{{cluster['metadata']['name']}}</td>
+                  <td>
+                    <a href="{{url_for('view_cluster', project_name=name, name=cluster_name)}}">{{cluster['metadata']['name']}}</a>
+                  </td>
+                  {% if admin %}
+                  <td>
+                    <form role="form" action="{{url_for('view_vo', name=name)}}" method="POST">
+                      <button type="submit" name="delete_cluster" value="{{cluster['metadata']['id']}}" class="btn btn-danger btn-xs" data-submit="Removing Cluster...">Delete Cluster</button>
+                    </form>
+                  </td>
+                  {% else %}
+                  {% endif %}
                 </tr>
                 {% endfor %}
               </tbody>

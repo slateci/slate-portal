@@ -3,7 +3,9 @@
  * Copyright 2013-2017 Start Bootstrap
  * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap-scrolling-nav/blob/master/LICENSE)
  */
-
+body {
+  background-color: #f8f9fa!important;
+}
 header {
   padding: 154px 0 100px;
 }
@@ -15,7 +17,8 @@ header {
 }
 
 section {
-  padding: 150px 0;
+  padding: 20px 0;
+  width: 100%;
 }
 
 .lead {
@@ -73,4 +76,92 @@ textarea {
 
 button {
   padding: 10px;
+}
+
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+}
+footer {
+  z-index: 3;
+}
+
+#content {
+  width: 100%;
+  min-height: 100vh;
+}
+#content nav {
+  padding-left: 250px;
+}
+#sidebar {
+    min-width: 250px;
+    max-width: 250px;
+    min-height: 100vh;
+    background: #eee;
+    color: #212529;
+    position: fixed;
+    overflow-x: hidden;
+    transition: all 0.3s;
+    z-index: 1;
+}
+
+#sidebar.active {
+    margin-left: -250px;
+}
+
+#sidebar .sidebar-header {
+    padding: 20px;
+    background: #eee;
+}
+
+#sidebar ul.components {
+    padding: 20px 0;
+    border-bottom: 1px solid #fff;
+}
+
+#sidebar ul p {
+    color: #212529;
+    padding: 10px;
+}
+
+#sidebar ul li a {
+    color: #212529;
+    padding: 10px;
+    font-size: 1.1em;
+    display: block;
+}
+#sidebar ul li a:hover {
+    color: #212529;
+    background: rgba(158,158,158,.2);
+}
+
+#sidebar ul li.active > a, a[aria-expanded="true"] {
+    background: rgba(158,158,158,.2);
+}
+ul ul a {
+    font-size: 0.9em !important;
+    padding-left: 30px !important;
+    background: #6d7fcc;
+}
+
+a[data-toggle="collapse"] {
+    position: relative;
+}
+
+.dropdown-toggle::after {
+    display: block;
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+}
+
+@media (max-width: 768px) {
+    #sidebar {
+        margin-left: -250px;
+    }
+    #sidebar.active {
+        margin-left: 0;
+    }
 }

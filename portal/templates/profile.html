@@ -8,12 +8,11 @@
 {%include 'messages.html'%}
 <section id="profile" class="bg-light">
   <div class="container">
-    <div class="page-header">
-      <h1>Profile</h1>
-    </div>
 
     <div class="row">
-      <div class="col-md-6 col-md-offset-3">
+      <div class="col-lg-8 mx-auto">
+        <h1>Profile</h1>
+        <hr/>
         <form role="form" action="{{url_for('profile')}}" method="POST">
           <div class="form-group">
             <label for="name">Name</label>
@@ -42,19 +41,6 @@
               value="{{session['email']}}"
             >
           </div>
-
-          <!-- <div class="form-group">
-            <label for="institution">Institution/Department</label>
-            <input
-              type="text"
-              id="institution"
-              name="institution"
-              class="form-control"
-              required="required"
-              tabindex="3"
-              value="{{session['institution']}}"
-            >
-          </div> -->
 
           <div class="form-group">
             <button type="submit" class="btn btn-primary">Update</button>
