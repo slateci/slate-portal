@@ -1,0 +1,50 @@
+{%extends "base.html"%}
+
+{%block title%}Instances{%endblock%}
+
+{%block body%}
+
+<section id="clusters" class="bg-light">
+  <div class="container">
+
+    <div class='row'>
+      <div class="col-lg-8 mx-auto">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item active">Instances</li>
+        </ol>
+        <h2>Application Instances</h2>
+        <p class="lead">
+          List of deployed application instances
+        </p>
+
+        <div class="table-responsive">
+          <table class="table" id="myTable" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+            <thead>
+              <tr>
+                <th data-field="name" data-sortable="true">Instance Name</th>
+                <th data-field="app" data-sortable="true">Application</th>
+                <th data-field="vo" data-sortable="true">VO</th>
+                <th data-field="cluster" data-sortable="true">Cluster</th>
+              </tr>
+            </thead>
+            <tbody data-link="row" class="rowlink" style="font-size:12px;">
+              {% for instance in instances %}
+              <tr>
+                <td><a href="#">{{instance['metadata']['name']}}</a></td>
+                <td><a href="#">{{instance['metadata']['application']}}</a></td>
+                <td><a href="#">{{instance['metadata']['vo']}}</a></td>
+                <td><a href="#">{{instance['metadata']['cluster']}}</a></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+  </div> <!-- container -->
+</section>
+{%endblock%}

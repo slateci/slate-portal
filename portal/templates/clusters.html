@@ -14,50 +14,33 @@
           <li class="breadcrumb-item active">Clusters</li>
         </ol>
         <h2>Clusters</h2>
-        <!-- <p>{{ vo }}</p> -->
         <p class="lead">
           List of clusters registered on SLATE
         </p>
 
-        <hr/>
+        <div class="table-responsive">
+          <table class="table" id="#" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+            <thead>
+              <tr>
+                <th data-field="name" data-sortable="true">Cluster Name</th>
+                <th data-field="vo_id" data-sortable="true">VO</th>
+              </tr>
+            </thead>
+            <tbody data-link="row" class="rowlink" style="font-size:12px;">
+              {% for cluster in slate_clusters %}
+              <tr>
+                <td>{{cluster['metadata']['name']}}</td>
+                <td>{{cluster['metadata']['owningVO']}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
 
-        <table data-toggle="table" data-sort-name="name" data-sort-order="desc">
-          <thead>
-            <tr>
-              <th data-field="name" data-sortable="true">Cluster Name</th>
-              <th data-field="vo_id" data-sortable="true">VO</th>
-            </tr>
-          </thead>
-          <tbody data-link="row" class="rowlink" style="font-size:12px;">
-            {% for cluster in slate_clusters %}
-            <tr>
-              <td>{{cluster['metadata']['name']}}</td>
-              <td>{{cluster['metadata']['owningVO']}}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-
-        </table>
+          </table>
+        </div>
 
       </div>
     </div>
 
   </div> <!-- container -->
 </section>
-
-<script>
-function myFunction() {
-  /* Get the text field */
-  var copyText = document.getElementById("cluster-registration");
-
-  /* Select the text field */
-  copyText.select();
-
-  /* Copy the text inside the text field */
-  document.execCommand("copy");
-
-  /* Alert the copied text */
-  alert("Copied the text: " + copyText.value);
-}
-</script>
 {%endblock%}

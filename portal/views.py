@@ -360,8 +360,8 @@ def authcallback():
     # If we're coming back from Globus Auth in an error state, the error
     # will be in the "error" query string parameter.
     if 'error' in request.args:
-        flash("You could not be logged into the portal: " +
-              request.args.get('error_description', request.args['error']))
+        flash("You could not be logged into the portal: "
+              + request.args.get('error_description', request.args['error']))
         return redirect(url_for('home'))
 
     # Set up our Globus Auth/OAuth2 state
@@ -473,21 +473,6 @@ def list_clusters():
             slate_api_endpoint + '/v1alpha1/clusters', params=token_query)
         slate_clusters = slate_clusters.json()['items']
         return render_template('clusters.html', slate_clusters=slate_clusters)
-
-# @app.route('/clusters/<name>', methods=['GET'])
-# @authenticated
-# def view_cluster():
-#     """
-#     - View Clusters Detailed Page on SLATE
-#     """
-#     if request.method == 'GET':
-#         slate_user_id = session['slate_id']
-#         token_query = {'token': session['slate_token']}
-#
-#         cluster = requests.get(
-#             slate_api_endpoint + '/v1alpha1/clusters', params=token_query)
-#         cluster = cluster.json()['items']
-#         return render_template('cluster_profile.html', cluster=cluster)
 
 
 @app.route('/applications', methods=['GET'])

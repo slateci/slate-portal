@@ -1,0 +1,79 @@
+{%extends "base.html"%}
+
+{%block title%}
+  Cluster Profile
+{%endblock%}
+
+{%block body%}
+{%include 'messages.html'%}
+<section id="cluster-profile" class="bg-light">
+  <div class="container">
+
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item"><a href="{{url_for('list_vos')}}">VO</a></li>
+          <li class="breadcrumb-item"><a href="{{url_for('view_vo', name=project_name)}}">{{project_name}}</a></li>
+          <li class="breadcrumb-item active">{{name}}</li>
+        </ol>
+        <h1>Cluster Info: {{name}}</h1>
+        <!-- <hr/> -->
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col">VOs with access to cluster</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for vo in cluster_vos %}
+            <tr>
+              <td>{{vo['metadata']['name']}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col">Applications that may run on {{name}} cluster</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for app in applications %}
+            <tr>
+              <td>{{app}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+
+window.onload = get_states();
+
+function get_states(){
+  $.ajax({
+    url: "http://128.135.158.222:18080/v1alpha1/users?token=3acc9bdc-1243-40ea-96df-373c8a616a16",
+    type: "get",
+    dataType: 'json',
+    success: function(data){
+      if(data.items){
+         $('#test').html(data.items);
+      }
+
+    },
+    error: function(xhr){
+      //Do Something to handle error
+    }
+  });
+}
+
+</script>
+{%endblock%}
