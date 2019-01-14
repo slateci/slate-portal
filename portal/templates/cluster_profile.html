@@ -5,7 +5,6 @@
 {%endblock%}
 
 {%block body%}
-{%include 'messages.html'%}
 <section id="cluster-profile" class="bg-light">
   <div class="container">
 
@@ -19,17 +18,40 @@
         </ol>
         <h1>Cluster Info: {{name}}</h1>
         <!-- <hr/> -->
+        <div class="container" style="padding:10px;">
+          <h4>Grant VO Access to Cluster Whitelist</h4>
+          <form class="form-inline" role="form" action="{{url_for('view_cluster', project_name=project_name, name=name)}}" method="POST">
+            <!-- <div class="input-group"> -->
+              <fieldset class="form-group">
+               <select class="form-control input-group" name="new_vo" tabindex="1" required style="width: 100%;">
+                 {% for vo in non_access_vos %}
+                 <option value="{{vo}}" required>{{vo}}</option>
+                 {% endfor %}
+               </select>
+             </fieldset>
+              <button type="submit" name="btn" value="adduser" class="btn btn-primary btn-xs" data-submit="...Sending">Add VO</button>
+          </form>
+        </div>
+
         <table class="table table-hover">
           <thead>
             <tr>
               <th scope="col">VOs with access to cluster</th>
+              <th scope="col"></th>
             </tr>
           </thead>
           <tbody>
             {% for vo in cluster_vos %}
+              {% if vo['metadata']['name'] != project_name %}
             <tr>
               <td>{{vo['metadata']['name']}}</td>
+              <td>
+                <form role="form" action="{{url_for('view_cluster', project_name=project_name, name=name)}}" method="POST">
+                  <button type="submit" name="remove_vo" value="{{vo['metadata']['name']}}" class='btn btn-danger btn-xs'>Revoke Access</button>
+                </form>
+              </td>
             </tr>
+              {% endif %}
             {% endfor %}
           </tbody>
         </table>

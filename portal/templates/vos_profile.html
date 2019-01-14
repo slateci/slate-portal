@@ -27,7 +27,8 @@
         <nav>
           <div class="nav nav-tabs" id="nav-tab" role="tablist">
             <a class="nav-item nav-link active" id="nav-members-tab" data-toggle="tab" href="#nav-members" role="tab" aria-controls="nav-members" aria-selected="true">Members</a>
-            <a class="nav-item nav-link" id="nav-clusters-tab" data-toggle="tab" href="#nav-clusters" role="tab" aria-controls="nav-clusters" aria-selected="false">Clusters in VO</a>
+            <a class="nav-item nav-link" id="nav-clusters-owned-tab" data-toggle="tab" href="#nav-clusters-owned" role="tab" aria-controls="nav-clusters-owned" aria-selected="false">Clusters Owned by VO</a>
+            <a class="nav-item nav-link" id="nav-clusters-tab" data-toggle="tab" href="#nav-clusters" role="tab" aria-controls="nav-clusters" aria-selected="false">VO Cluster Access</a>
           </div>
         </nav>
         <div class="tab-content" id="nav-tabContent">
@@ -74,7 +75,7 @@
               </div>
             </div>
 
-          <div class="tab-pane fade" id="nav-clusters" role="tabpanel" aria-labelledby="nav-profile-tab">
+          <div class="tab-pane fade" id="nav-clusters-owned" role="tabpanel" aria-labelledby="nav-clusters-owned-tab">
             <table class="table table-hover">
               <thead>
                 <tr>
@@ -87,6 +88,33 @@
                 <tr>
                   <td>
                     <a href="{{url_for('view_cluster', project_name=name, name=cluster_name)}}">{{cluster['metadata']['name']}}</a>
+                  </td>
+                  {% if admin %}
+                  <td>
+                    <form role="form" action="{{url_for('view_vo', name=name)}}" method="POST">
+                      <button type="submit" name="delete_cluster" value="{{cluster['metadata']['id']}}" class="btn btn-danger btn-xs" data-submit="Removing Cluster...">Delete Cluster</button>
+                    </form>
+                  </td>
+                  {% else %}
+                  {% endif %}
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="tab-pane fade" id="nav-clusters" role="tabpanel" aria-labelledby="nav-clusters-tab">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">Cluster Name</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for cluster in vo_access %}
+                <tr>
+                  <td>
+                    <a href="{{url_for('view_cluster', project_name=name, name=cluster['metadata']['name'])}}">{{cluster['metadata']['name']}}</a>
                   </td>
                   {% if admin %}
                   <td>

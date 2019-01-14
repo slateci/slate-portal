@@ -586,3 +586,18 @@ def view_instance(name):
                                 instance_detail=instance_detail,
                                 instance_status=instance_status,
                                 instance_log=instance_log)
+
+@app.route('/secrets', methods=['GET'])
+@authenticated
+def list_secrets():
+    """
+    - List stored secrets on SLATE
+    """
+    if request.method == 'GET':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+
+        secrets = requests.get(
+            slate_api_endpoint + '/v1alpha2/instances', params=token_query)
+        secrets = secrets.json()['items']
+        return render_template('secrets.html', secrets=secrets)

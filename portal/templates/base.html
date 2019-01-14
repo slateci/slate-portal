@@ -116,6 +116,9 @@
                 <a class="nav-link js-scroll-trigger" href="{{url_for('list_vos')}}">VOs</a>
               </li>
               <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="{{url_for('list_secrets')}}">Secrets</a>
+              </li>
+              <li class="nav-item">
                 <a class="nav-link js-scroll-trigger" href="{{url_for('cli_access')}}">CLI Access</a>
               </li>
               <li class="nav-item">
@@ -130,7 +133,7 @@
       </nav>
 
       <div id="content">
-        {% if session.get('is_authenticated') %}
+        <!-- {% if session.get('is_authenticated') %}
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
           <div class="container-fluid">
             <button type="button" id="sidebarCollapse" class="btn btn-info">
@@ -139,7 +142,7 @@
             </button>
           </div>
         </nav>
-        {% endif %}
+        {% endif %} -->
 
         <!-- Page body -->
         {%block body%}
