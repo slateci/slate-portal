@@ -157,7 +157,7 @@ a[data-toggle="collapse"] {
     transform: translateY(-50%);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1068px) {
     #sidebar {
         margin-left: -250px;
     }

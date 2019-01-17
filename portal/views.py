@@ -216,10 +216,26 @@ def view_vo(name):
                 if vo['metadata']['name'] == name:
                     vo_access.append(clusters)
 
+        # Get VO Secrets
+        secrets_content = []
+
+        secrets_query = {'token': session['slate_token'], 'vo': name}
+        secrets = requests.get(
+            slate_api_endpoint + '/v1alpha2/secrets', params=secrets_query)
+        secrets = secrets.json()['items']
+
+        for secret in secrets:
+            secret_id = secret['metadata']['id']
+            secret_details = requests.get(
+                slate_api_endpoint + '/v1alpha2/secrets/' + secret_id, params=token_query)
+            secret_details = secret_details.json()
+            secrets_content.append(secret_details)
+
         return render_template('vos_profile.html', vo_list=vo_list,
                                users=users, name=name, vo_members=vo_members,
                                non_members=non_members, clusters=list_clusters,
-                               vo_clusters=vo_clusters, admin=admin, vo_access=vo_access)
+                               vo_clusters=vo_clusters, admin=admin,
+                               vo_access=vo_access, secrets=secrets, secrets_content=secrets_content)
 
 
 @app.route('/vos/<name>/add_member', methods=['POST'])
@@ -544,6 +560,59 @@ def view_application(name):
         return render_template('applications_profile.html', name=name, app_config=app_config)
 
 
+@app.route('/applications/<name>/new', methods=['GET', 'POST'])
+@authenticated
+def create_application(name):
+    """ View form to install new application """
+    if request.method == 'GET':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+
+        app_config = requests.get(
+            slate_api_endpoint + '/v1alpha2/apps/' + name, params=token_query)
+        app_config = app_config.json()
+
+        vos = requests.get(
+            slate_api_endpoint + '/v1alpha2/users/' + slate_user_id + '/vos', params=token_query)
+        vos = vos.json()
+        vos = vos['items']
+
+        vo_clusters_dict = {}
+        cluster_list = []
+
+        for vo in vos:
+            vo_clusters = requests.get(
+                slate_api_endpoint + '/v1alpha2/vos/' + vo['metadata']['id'] + '/clusters', params=token_query)
+            vo_clusters = vo_clusters.json()['items']
+
+            # cluster_list = []
+            for cluster in vo_clusters:
+                if cluster['metadata']['name']:
+                    cluster_list.append(cluster['metadata']['name'])
+
+            # vo_name = vo['metadata']['name']
+            # vo_clusters_dict[vo_name] = cluster_list
+
+
+        return render_template('applications_create.html', name=name, app_config=app_config, vos=vos, vo_clusters_dict=vo_clusters_dict, cluster_list=cluster_list)
+
+    elif request.method == 'POST':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+
+        vo = request.form["vo"]
+        cluster = request.form["cluster"]
+        configuration = request.form["config"]
+
+        install_app = {"apiVersion": 'v1alpha2', "vo": vo, "cluster": cluster, "configuration": configuration}
+
+        # Post query to install application config
+        requests.post(
+            slate_api_endpoint + '/v1alpha2/apps/' + name, params=token_query, json=install_app)
+
+        return redirect(url_for('view_application', name=name))
+
+
 @app.route('/instances', methods=['GET'])
 @authenticated
 def list_instances():
@@ -586,18 +655,3 @@ def view_instance(name):
                                 instance_detail=instance_detail,
                                 instance_status=instance_status,
                                 instance_log=instance_log)
-
-@app.route('/secrets', methods=['GET'])
-@authenticated
-def list_secrets():
-    """
-    - List stored secrets on SLATE
-    """
-    if request.method == 'GET':
-        slate_user_id = session['slate_id']
-        token_query = {'token': session['slate_token']}
-
-        secrets = requests.get(
-            slate_api_endpoint + '/v1alpha2/instances', params=token_query)
-        secrets = secrets.json()['items']
-        return render_template('secrets.html', secrets=secrets)

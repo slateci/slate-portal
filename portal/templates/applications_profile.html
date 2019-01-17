@@ -16,6 +16,11 @@
           <li class="breadcrumb-item active">{{name}}</li>
         </ol>
         <h1>App: {{name}}</h1>
+        <div class="install-app" style="padding: 10px 0;">
+          <form action="{{url_for('create_application', name=name)}}">
+            <button class="btn btn-primary" type="submit" name="button">Install App</button>
+          </form>
+        </div>
         <!-- <hr/> -->
         <table class="table table-hover">
           <thead>

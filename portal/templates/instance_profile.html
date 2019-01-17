@@ -1,0 +1,142 @@
+{%extends "base.html"%}
+
+{%block title%}
+  Instance Profile
+{%endblock%}
+
+{%block body%}
+<section id="app-profile" class="bg-light">
+  <div class="container">
+
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item"><a href="{{url_for('list_instances')}}">Instances</a></li>
+          {% if instance_status == 'Not Error' and instance_detail['services']%}
+          <li class="breadcrumb-item active">{{instance_detail['services'][0]['name']}}</li>
+          {% else %}
+          {% endif %}
+        </ol>
+        {% if instance_status == 'Not Error' %}
+          {% if instance_detail['services'] %}
+        <h1>Instance: {{instance_detail['services'][0]['name']}}</h1>
+        <!-- <hr/> -->
+        <div class="table-responsive">
+          <h4>Instance Detailed Services</h4>
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">External IP</th>
+                <th scope="col">Ports</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{{instance_detail['services'][0]['name']}}</td>
+                <td>{{instance_detail['services'][0]['externalIP']}}</td>
+                <td>{{instance_detail['services'][0]['ports']}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+          {% endif %}
+        <div class="table-responsive">
+          <h4>Pods</h4>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Host Name</th>
+                <th scope="col">Host IP</th>
+                <th scope="col">Status</th>
+                <th scope="col">Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {% if instance_detail['details']['pods']%}
+                <td>{{instance_detail['details']['pods'][0]['hostName']}}</td>
+                <td>{{instance_detail['details']['pods'][0]['hostIP']}}</td>
+                <td>{{instance_detail['details']['pods'][0]['status']}}</td>
+                <td>{{instance_detail['details']['pods'][0]['created']}}</td>
+                {% else %}
+                <td>No pods available</td>
+                {% endif %}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-responsive">
+          <h4>Condition</h4>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Type</th>
+                <th scope="col">Status</th>
+                <th scope="col">Last Transition Time</th>
+                <th scope="col">Last Probe Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% if instance_detail['details']['pods']%}
+                {% for condition in instance_detail['details']['pods'][0]['conditions']%}
+              <tr>
+                <td>{{condition['type']}}</td>
+                <td>{{condition['status']}}</td>
+                <td>{{condition['lastTransitionTime']}}</td>
+                <td>{{condition['lastProbeTime']}}</td>
+              </tr>
+                {% endfor %}
+              {% else %}
+              <tr>
+                <td>N/A</td>
+              </tr>
+              {% endif%}
+            </tbody>
+          </table>
+        </div>
+        <div class="table-responsive">
+          <h4>Pod Containers</h4>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Image</th>
+                <th scope="col">Restart Count</th>
+                <th scope="col">Started Running</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {% if instance_detail['details']['pods']%}
+                  {% if instance_detail['details']['pods'][0]['containers'] %}
+                <td>{{instance_detail['details']['pods'][0]['containers'][0]['name']}}</td>
+                <td>{{instance_detail['details']['pods'][0]['containers'][0]['image']}}</td>
+                <td>{{instance_detail['details']['pods'][0]['containers'][0]['restartCount']}}</td>
+                <td>{{instance_detail['details']['pods'][0]['containers'][0]['state']['running']['startedAt']}}</td>
+                  {% else %}
+                <td>No Containers Currently Running</td>
+                  {% endif %}
+                {% else %}
+                <td>N/A</td>
+                {% endif %}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div>
+          <h4>Logs</h4>
+          <pre class="app-logs">{{instance_log['logs']}}</pre>
+        </div>
+        {% else%}
+        <h1>Detailed services information currently not available</h1>
+        {% endif %}
+
+      </div>
+
+    </div>
+  </div>
+</section>
+{%endblock%}
