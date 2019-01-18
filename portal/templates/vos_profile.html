@@ -41,7 +41,9 @@
                 <h5 class="card-title">Cluster: {{secret['metadata']['cluster']}}</h5>
                 <h6 class="card-subtitle mb-2 text-muted">Created: {{secret['metadata']['created']}}</h6>
                 <!-- <p class="card-text">Associated secrets below</p> -->
-                <textarea name="secret" rows="8" cols="80">{% for key, value in secret['contents'].iteritems() %}{{key}}: {{value}}{% endfor %}</textarea>
+                <div id="pre-text">
+                  <pre>{% for key, value in secret['contents'].iteritems() %}{{key}}: {{value}}{% endfor %}</pre>
+                </div>
                 <!-- <a href="#" class="card-link">Card link</a>
                 <a href="#" class="card-link">Another link</a> -->
               </div>

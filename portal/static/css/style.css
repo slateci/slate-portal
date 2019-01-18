@@ -506,3 +506,11 @@ ul {
 p.task-detail {
   margin: 10px 0;
 }
+
+#pre-text {
+    height: auto;
+    max-height: 200px;
+    overflow: auto;
+    /*overflow-y: none;*/
+    background-color: #eeeeee;
+}
