@@ -568,10 +568,12 @@ def create_application(name):
         slate_user_id = session['slate_id']
         token_query = {'token': session['slate_token']}
 
+        # Get configuration of app <name> selected
         app_config = requests.get(
             slate_api_endpoint + '/v1alpha2/apps/' + name, params=token_query)
         app_config = app_config.json()
 
+        # Get VOs that user belongs to
         vos = requests.get(
             slate_api_endpoint + '/v1alpha2/users/' + slate_user_id + '/vos', params=token_query)
         vos = vos.json()
@@ -594,7 +596,10 @@ def create_application(name):
             # vo_clusters_dict[vo_name] = cluster_list
 
 
-        return render_template('applications_create.html', name=name, app_config=app_config, vos=vos, vo_clusters_dict=vo_clusters_dict, cluster_list=cluster_list)
+        return render_template('applications_create.html', name=name,
+                                app_config=app_config, vos=vos,
+                                vo_clusters_dict=vo_clusters_dict,
+                                cluster_list=cluster_list)
 
     elif request.method == 'POST':
         slate_user_id = session['slate_id']
@@ -607,8 +612,13 @@ def create_application(name):
         install_app = {"apiVersion": 'v1alpha2', "vo": vo, "cluster": cluster, "configuration": configuration}
 
         # Post query to install application config
-        requests.post(
+        app_install = requests.post(
             slate_api_endpoint + '/v1alpha2/apps/' + name, params=token_query, json=install_app)
+
+        if app_install.status_code == 200:
+            flash('You have successfully installed an application instance', 'success')
+        else:
+            flash('Failed to install application instance', 'warning')
 
         return redirect(url_for('view_application', name=name))
 

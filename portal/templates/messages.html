@@ -1,9 +1,10 @@
-{%with messages = get_flashed_messages()%}
+{%with messages = get_flashed_messages(with_categories=true)%}
   {%if messages%}
-    <ul class="alert alert-success container">
-      {%for message in messages%}
-        <li>{{message}}</li>
-      {%endfor%}
+    {%for category, message in messages%}
+    <ul class="alert alert-{{category}} container" style="list-style: none;">
+      <button type="button" class="close" data-dismiss="alert" name="button">&times;</button>
+        <li class="{{category}}">{{message}}</li>
     </ul>
+    {%endfor%}
   {%endif%}
 {%endwith%}
