@@ -114,10 +114,10 @@
                 <td>{{instance_detail['details']['pods'][0]['containers'][0]['name']}}</td>
                 <td>{{instance_detail['details']['pods'][0]['containers'][0]['image']}}</td>
                 <td>{{instance_detail['details']['pods'][0]['containers'][0]['restartCount']}}</td>
-                    {% if instance_detail['details']['pods'][0]['containers']['running'] %}
+                    {% if instance_detail['details']['pods'][0]['containers'][0]['state'] %}
                 <td>{{instance_detail['details']['pods'][0]['containers'][0]['state']['running']['startedAt']}}</td>
                     {% else %}
-                    <td>Currently Not Running</td>
+                <td>Currently Not Running</td>
                     {% endif %}
 
                   {% else %}
