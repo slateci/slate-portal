@@ -44,8 +44,12 @@
                 <div id="pre-text">
                   <pre>{% for key, value in secret['contents'].iteritems() %}{{key}}: {{value}}{% endfor %}</pre>
                 </div>
-                <!-- <a href="#" class="card-link">Card link</a>
-                <a href="#" class="card-link">Another link</a> -->
+                <hr/>
+                <form role="form" action="{{url_for('view_vo', name=name)}}" method="POST">
+                  <button type="submit" name="secret_id" value="{{secret['metadata']['id']}}" class="btn btn-danger btn-sm" data-submit="Removing Secret...">Delete Secret</button>
+                </form>
+                <!-- <a href="#" class="card-link btn btn-danger btn-sm">Delete Secret</a> -->
+                <!-- <a href="#" class="card-link">Another link</a> -->
               </div>
             </div>
             {% endfor %}
@@ -54,7 +58,7 @@
           <div id="menu1" class="tab-pane fade">
             <br>
             <div class="table-responsive">
-              <h4>Owned by VO</h4>
+              <h4>Administering Clusters</h4>
               <table class="table table-hover">
                 <thead>
                   <tr>
@@ -83,7 +87,7 @@
             </div>
             <br>
             <div class="table-responsive">
-              <h4>Accessible by VO</h4>
+              <h4>Accessible Clusters</h4>
               <table class="table table-hover">
                 <thead>
                   <tr>

@@ -7,7 +7,7 @@ import uuid
 import sqlite3
 import requests
 from flask import (abort, flash, redirect, render_template,
-                   request, session, url_for)
+                   request, session, url_for, jsonify)
 # Use these four lines on container
 import sys
 sys.path.insert(0, '/etc/slate/secrets')
@@ -153,10 +153,10 @@ def create_vo():
 @app.route('/vos/<name>', methods=['GET', 'POST'])
 @authenticated
 def view_vo(name):
-    if request.method == 'GET':
-        slate_user_id = session['slate_id']
-        token_query = {'token': session['slate_token']}
+    slate_user_id = session['slate_id']
+    token_query = {'token': session['slate_token']}
 
+    if request.method == 'GET':
         s = requests.get(
             slate_api_endpoint + '/v1alpha2/users/' + slate_user_id + '/vos', params=token_query)
         s_info = s.json()
@@ -236,6 +236,14 @@ def view_vo(name):
                                non_members=non_members, clusters=list_clusters,
                                vo_clusters=vo_clusters, admin=admin,
                                vo_access=vo_access, secrets=secrets, secrets_content=secrets_content)
+    elif request.method == 'POST':
+
+        secret_id = request.form['secret_id']
+        secrets_query = {'token': session['slate_token'], 'vo': name}
+        requests.delete(
+            slate_api_endpoint + '/v1alpha2/secrets/' + secret_id, params=secrets_query)
+
+        return redirect(url_for('view_vo', name=name))
 
 
 @app.route('/vos/<name>/add_member', methods=['POST'])
@@ -595,6 +603,9 @@ def create_application(name):
             # vo_name = vo['metadata']['name']
             # vo_clusters_dict[vo_name] = cluster_list
 
+        # testData = requests.get("https://api-dev.slateci.io:18080/v1alpha2/vos/slate-dev/clusters", params=token_query)
+        # testData = testData.json()['items']
+
 
         return render_template('applications_create.html', name=name,
                                 app_config=app_config, vos=vos,
@@ -622,6 +633,11 @@ def create_application(name):
 
         return redirect(url_for('view_application', name=name))
 
+@app.route('/_get_data', methods=["GET", "POST"])
+def _get_data():
+    myList = ['elements1', 'elements2', 'elements3']
+
+    return jsonify({'data': render_template('response.html', mylist=myList)})
 
 @app.route('/instances', methods=['GET'])
 @authenticated
@@ -665,3 +681,37 @@ def view_instance(name):
                                 instance_detail=instance_detail,
                                 instance_status=instance_status,
                                 instance_log=instance_log)
+
+
+@app.route('/provisioning', methods=['GET'])
+@authenticated
+def list_provisionings():
+    """
+     List cluster node provisionings on SLATE
+    """
+    if request.method == 'GET':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+
+        # instances = requests.get(
+        #     slate_api_endpoint + '/v1alpha2/instances', params=token_query)
+        # instances = instances.json()['items']
+        return render_template('provisionings.html')
+
+
+@app.route('/provisioning/new', methods=['GET'])
+@authenticated
+def create_provisionings():
+    """
+     List cluster node provisionings on SLATE
+    """
+    if request.method == 'GET':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+
+        # https://api-dev.slateci.io:18080/v1alpha2/clusters?token=9b3bff41-dc76-405b-9a84-5cbea43afaf2
+
+        clusters = requests.get(
+            slate_api_endpoint + '/v1alpha2/clusters', params=token_query)
+        clusters = clusters.json()['items']
+        return render_template('provisionings_create.html', clusters=clusters)
