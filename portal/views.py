@@ -652,7 +652,20 @@ def list_instances():
         instances = requests.get(
             slate_api_endpoint + '/v1alpha2/instances', params=token_query)
         instances = instances.json()['items']
-        return render_template('instances.html', instances=instances)
+        # {{instance['metadata']['vo']}}
+        # Get VOs to which the user belongs
+
+        s = requests.get(
+            slate_api_endpoint + '/v1alpha2/users/' + slate_user_id + '/vos', params=token_query)
+
+        s_info = s.json()
+        vo_list = s_info['items']
+        user_vos = []
+
+        for vos in vo_list:
+            user_vos.append(vos['metadata']['name'].encode('utf-8'))
+
+        return render_template('instances.html', instances=instances, user_vos=user_vos)
 
 
 @app.route('/instances/<name>', methods=['GET'])
