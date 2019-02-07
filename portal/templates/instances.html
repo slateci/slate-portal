@@ -31,15 +31,17 @@
             </thead>
             <tbody data-link="row" class="rowlink" style="font-size:12px;">
               {% for instance in instances %}
-                {% if instance['metadata']['vo'] in user_vos %}
               <tr>
+                {% if instance['metadata']['vo'] in user_vos %}
                 <td><a href="{{url_for('view_instance', name=instance['metadata']['id'])}}">{{instance['metadata']['name']}}</a></td>
-                <td><a href="#">{{instance['metadata']['application']}}</a></td>
-                <td><a href="#">{{instance['metadata']['vo']}}</a></td>
-                <td><a href="#">{{instance['metadata']['cluster']}}</a></td>
-                <td><a href="#">{{instance['metadata']['id']}}</a></td>
-              </tr>
+                {% else %}
+                <td>{{instance['metadata']['name']}}</td>
                 {% endif %}
+                <td>{{instance['metadata']['application']}}</td>
+                <td>{{instance['metadata']['vo']}}</td>
+                <td>{{instance['metadata']['cluster']}}</td>
+                <td>{{instance['metadata']['id']}}</td>
+              </tr>
               {% endfor %}
             </tbody>
 
