@@ -674,9 +674,9 @@ def view_instance(name):
     """
     - View detailed instance information on SLATE
     """
+    slate_user_id = session['slate_id']
+    token_query = {'token': session['slate_token']}
     if request.method == 'GET':
-        slate_user_id = session['slate_id']
-        token_query = {'token': session['slate_token']}
 
         instance_detail = requests.get(
             slate_api_endpoint + '/v1alpha2/instances/' + name + '?token=' + session['slate_token'] + '&detailed')
@@ -695,6 +695,16 @@ def view_instance(name):
                                 instance_status=instance_status,
                                 instance_log=instance_log)
 
+
+@app.route('/instances/<name>/delete_instance', methods=['GET'])
+@authenticated
+def delete_instance(name):
+    slate_user_id = session['slate_id']
+    token_query = {'token': session['slate_token']}
+
+    requests.delete(slate_api_endpoint + '/v1alpha2/instances/' + name, params=token_query)
+
+    return redirect(url_for('list_instances'))
 
 @app.route('/provisioning', methods=['GET'])
 @authenticated
