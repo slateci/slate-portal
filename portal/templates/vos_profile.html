@@ -33,6 +33,10 @@
         <div class="tab-content">
 
           <div id="home" class="tab-pane fade in show active">
+            <br>
+            <form role="form" action="{{url_for('create_secret', name=name)}}" method="GET">
+              <button type="submit" class="btn btn-primary btn-sm">Add New Secret</button>
+            </form>
             {% for secret in secrets_content %}
             <br>
             <div class="card" style="width: 100%;">
@@ -48,6 +52,7 @@
                 <form role="form" action="{{url_for('view_vo', name=name)}}" method="POST">
                   <button type="submit" name="secret_id" value="{{secret['metadata']['id']}}" class="btn btn-danger btn-sm" data-submit="Removing Secret...">Delete Secret</button>
                 </form>
+                <!-- <a href="#" class="btn btn-danger btn-sm" onclick="btnConfirm()">Delete Secret</a> -->
                 <!-- <a href="#" class="card-link btn btn-danger btn-sm">Delete Secret</a> -->
                 <!-- <a href="#" class="card-link">Another link</a> -->
               </div>
@@ -162,4 +167,18 @@
     </div>
   </div>
 </section>
+
+<script>
+
+function btnConfirm() {
+    var r = confirm("Are you sure you want to delete this secret?");
+    if(r == true){
+      // window.location.href = "{{url_for('view_vo', name=name)}}";
+      return
+    } else {
+      window.location.href = "{{url_for('view_vo', name=name)}}";
+    }
+}
+
+</script>
 {%endblock%}

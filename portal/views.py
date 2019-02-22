@@ -17,7 +17,7 @@ g = open("slate_api_endpoint.txt", "r")
 # Use these two lines below on local
 # f = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_token.txt", "r")
 # g = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_endpoint.txt", "r")
-#
+
 slate_api_token = f.read().split()[0]
 slate_api_endpoint = g.read().split()[0]
 
@@ -237,11 +237,57 @@ def view_vo(name):
                                vo_clusters=vo_clusters, admin=admin,
                                vo_access=vo_access, secrets=secrets, secrets_content=secrets_content)
     elif request.method == 'POST':
-
         secret_id = request.form['secret_id']
         secrets_query = {'token': session['slate_token'], 'vo': name}
-        requests.delete(
-            slate_api_endpoint + '/v1alpha2/secrets/' + secret_id, params=secrets_query)
+        requests.delete(slate_api_endpoint + '/v1alpha2/secrets/' + secret_id, params=secrets_query)
+
+        return redirect(url_for('view_vo', name=name))
+
+
+# @app.route('/vos/<vo>/<secret>/delete_vo', methods=['GET'])
+# @authenticated
+# def delete_vo(vo, secret):
+#
+#     slate_user_id = session['slate_id']
+#     token_query = {'token': session['slate_token']}
+#     secrets_query = {'token': session['slate_token'], 'vo': vo}
+#     requests.delete(slate_api_endpoint + '/v1alpha2/secrets/' + secret, params=secrets_query)
+#
+#     return redirect(url_for('view_vo', name=vo))
+
+
+@app.route('/vos/<name>/new_secret', methods=['GET', 'POST'])
+@authenticated
+def create_secret(name):
+    slate_user_id = session['slate_id']
+    token_query = {'token': session['slate_token']}
+    if request.method == 'GET':
+        vo_id = name
+        # Get clusters owned by VO
+        clusters = requests.get(
+            slate_api_endpoint + '/v1alpha2/vos/' + vo_id + '/clusters', params=token_query)
+        clusters = clusters.json()['items']
+
+        return render_template('secrets_create.html', name=name, clusters=clusters)
+    elif request.method == 'POST':
+        # Initialize empty contents dict
+        contents = {}
+
+        cluster = request.form['cluster']
+        secret_name = request.form['secret_name']
+        key_name = request.form['key_name']
+        key_contents = request.form['key_contents']
+
+        # Add secret contents key-value to dict
+        contents[key_name] = key_contents
+
+        add_secret = {"apiVersion": 'v1alpha2',
+                    'metadata': {'name': secret_name, 'vo': name, 'cluster': cluster},
+                    'contents': contents}
+
+        # Add secret to VO
+        requests.post(
+            slate_api_endpoint + '/v1alpha2/secrets', params=token_query, json=add_secret)
 
         return redirect(url_for('view_vo', name=name))
 
@@ -536,6 +582,27 @@ def list_clusters():
         return render_template('clusters.html', slate_clusters=slate_clusters)
 
 
+@app.route('/clusters/new', methods=['GET'])
+@authenticated
+def create_cluster():
+    """
+    - Create Cluster on SLATE
+    """
+    if request.method == 'GET':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+
+        # Get VOs to which the user belongs
+        s = requests.get(
+            slate_api_endpoint + '/v1alpha2/users/' + slate_user_id + '/vos', params=token_query)
+
+        s_info = s.json()
+        vo_list = s_info['items']
+
+        return render_template('clusters_new.html', vo_list=vo_list)
+
+
+
 @app.route('/applications', methods=['GET'])
 @authenticated
 def list_applications():
@@ -654,7 +721,6 @@ def list_instances():
         instances = instances.json()['items']
         # {{instance['metadata']['vo']}}
         # Get VOs to which the user belongs
-
         s = requests.get(
             slate_api_endpoint + '/v1alpha2/users/' + slate_user_id + '/vos', params=token_query)
 

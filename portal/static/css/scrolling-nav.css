@@ -198,3 +198,7 @@ a[data-toggle="collapse"] {
     -moz-border-radius: 4px;
     border-radius: 4px;
 }
+
+.card-header {
+  background-color: transparent;
+}
