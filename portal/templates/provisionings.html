@@ -1,6 +1,6 @@
 {%extends "base.html"%}
 
-{%block title%}Clusters{%endblock%}
+{%block title%}Provisionings{%endblock%}
 
 {%block body%}
 
@@ -11,34 +11,32 @@
       <div class="col-lg-8 mx-auto">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="#">Home</a></li>
-          <li class="breadcrumb-item active">Clusters</li>
+          <li class="breadcrumb-item active">Provisionings</li>
         </ol>
-        <h2>Clusters</h2>
+        <h2>Provisionings</h2>
         <p class="lead">
-          List of clusters registered on SLATE
+          List of Provisionings registered on SLATE
         </p>
         <div class="install-app" style="padding: 0 0 10px 0;">
-          <form action="{{url_for('create_cluster')}}" method="GET">
-            <button class="btn btn-primary btn-sm" type="submit">Register New Cluster</button>
+          <form action="{{url_for('create_provisionings')}}" method="GET">
+            <button class="btn btn-primary btn-sm" type="submit">Install Provisioning</button>
           </form>
         </div>
 
         <div class="table-responsive">
-          <h4>Slate Clusters</h4>
+          <h4>Slate Provisionings</h4>
           <table class="table" id="#" data-toggle="table" data-sort-name="name" data-sort-order="desc">
             <thead>
               <tr>
-                <th data-field="name" data-sortable="true">Cluster Name</th>
-                <th data-field="group_id" data-sortable="true">Administering Group</th>
+                <th data-field="name" data-sortable="true">My Nodes</th>
+                <th data-field="group_id" data-sortable="true">Clusters</th>
               </tr>
             </thead>
             <tbody data-link="row" class="rowlink" style="font-size:12px;">
-              {% for cluster in slate_clusters %}
               <tr>
-                <td>{{cluster['metadata']['name']}}</td>
-                <td>{{cluster['metadata']['owningGroup']}}</td>
+                <td>test name</td>
+                <td>test info</td>
               </tr>
-              {% endfor %}
             </tbody>
 
           </table>

@@ -42,6 +42,37 @@
           </div>
 
           <div class="form-group">
+            <label for="institution">Institution</label>
+            <input
+              type="text"
+              id="institution"
+              name="institution"
+              class="form-control"
+              placeholder="Institution"
+              required="required"
+              tabindex="3"
+              value="{{session['institution']}}"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="phone-number">Phone Number *</label>
+            <input
+              type="tel"
+              class="form-control"
+              id="phone-number"
+              name="phone-number"
+              placeholder="888-888-8888"
+              pattern="[0-9]{3} [0-9]{3} [0-9]{4}"
+              maxlength="12"
+              title="Ten digits code"
+              value="{{session['phone']}}"
+              required="required"
+              tabindex="4"
+            >
+          </div>
+
+          <div class="form-group">
             <button type="submit" class="btn btn-primary">Update</button>
           </div>
         </form>

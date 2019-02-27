@@ -1,7 +1,7 @@
 {%extends "base.html"%}
 
 {%block title%}
-  VOs
+  Groups
 {%endblock%}
 
 {%block body%}
@@ -16,27 +16,27 @@
       <div class="col-lg-8 mx-auto">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="#">Home</a></li>
-          <li class="breadcrumb-item active">VO</li>
+          <li class="breadcrumb-item active">Group</li>
         </ol>
-        <h2>VOs</h2>
+        <h2>Groups</h2>
         <p class="lead">
-          A list of your current VOs
+          A list of your Groups
         </p>
-        <a href="{{url_for('create_vo')}}" class="btn btn-primary btn-sm">Register New VO</a>
+        <a href="{{url_for('create_group')}}" class="btn btn-primary btn-sm">Register New Group</a>
         <hr/>
         <div class="table-responsive">
           <table class="table" id="#" data-toggle="table" data-sort-name="name" data-sort-order="desc">
             <thead>
               <tr>
-                <th data-field="name" data-sortable="true">VO Name</th>
-                <th data-field="vo_id" data-sortable="true">VO ID</th>
+                <th data-field="name" data-sortable="true">Group Name</th>
+                <th data-field="group_id" data-sortable="true">Group ID</th>
               </tr>
             </thead>
             <tbody data-link="row" class="rowlink" style="font-size:12px;">
-              {% for vo in vo_list %}
+              {% for group in group_list %}
               <tr>
-                <td><a href="{{url_for('view_vo', name=vo['metadata']['name'])}}" title="View VO Profile" style="font-weight:bold">{{ vo['metadata']['name'] }}</a></td>
-                <td>{{ vo['metadata']['id'] }}</td>
+                <td><a href="{{url_for('view_group', name=group['metadata']['name'])}}" title="View Group Profile" style="font-weight:bold">{{ group['metadata']['name'] }}</a></td>
+                <td>{{ group['metadata']['id'] }}</td>
               </tr>
               {% endfor %}
             </tbody>

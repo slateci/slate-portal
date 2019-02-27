@@ -1,0 +1,12 @@
+apiVersion: v1alpha1
+kind: Service
+metadata:
+  name: slate-portal
+spec:
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    name: slate-portal
+  type: LoadBalancer

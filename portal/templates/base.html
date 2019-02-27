@@ -72,7 +72,7 @@
 
     // Dynamically update Install App dropdown menus
     // $(document).ready(function () {
-    //     $("#vo").change(function () {
+    //     $("#group").change(function () {
     //         var val = $(this).val();
     //
     //         if (val = 10) {
@@ -108,19 +108,9 @@
             <span class="navbar-toggler-icon"></span>
           </button> -->
             <ul class="list-unstyled components">
-              <!-- <li class="nav-item">
-                <a href="#pageSubmenu" data-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                  Clusters
-                </a>
-                <ul class="collapse list-unstyled" id="pageSubmenu">
-                  <li>
-                    <a href="{{url_for('list_clusters')}}">Slate Clusters</a>
-                  </li>
-                  <li>
-                    <a href="{{url_for('cli_access')}}">My Clusters</a>
-                  </li>
-                </ul>
-              </li> -->
+              <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="{{url_for('profile')}}">{{session['name']}}</a>
+              </li>
               <li class="nav-item">
                 <a class="nav-link js-scroll-trigger" href="{{url_for('list_clusters')}}">Clusters</a>
               </li>
@@ -131,13 +121,13 @@
                 <a class="nav-link js-scroll-trigger" href="{{url_for('list_instances')}}">Instances</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link js-scroll-trigger" href="{{url_for('list_vos')}}">VOs</a>
+                <a class="nav-link js-scroll-trigger" href="{{url_for('list_groups')}}">Groups</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="{{url_for('list_provisionings')}}">Provisionings</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link js-scroll-trigger" href="{{url_for('cli_access')}}">CLI Access</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link js-scroll-trigger" href="{{url_for('profile')}}">{{session['name']}}</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link js-scroll-trigger" href="{{url_for('logout')}}">Logout</a>

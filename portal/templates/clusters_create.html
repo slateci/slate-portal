@@ -1,7 +1,7 @@
 {%extends "base.html"%}
 
 {%block title%}
-  Create New VO
+  Register New Cluster
 {%endblock%}
 
 {%block body%}
@@ -12,30 +12,39 @@
 
     <div class="row">
       <div class="col-lg-8 mx-auto">
-        <h2>Create New VO</h2>
+        <h2>Register New Cluster</h2>
         <p class="lead">
-          Enter VO information below
+          Enter Cluster information below
         </p>
 
         <hr/>
 
-            <form role="form" action="{{url_for('create_vo')}}" method="POST">
+            <form role="form" action="{{url_for('create_group')}}" method="POST">
               <div class="form-group">
-                <label for="name">VO Name</label>
+                <label for="name">Cluster Name</label>
                 <input
                   type="text"
                   class="form-control"
+                  placeholder="Cluster Name"
                   id="name"
                   name="name"
-                  placeholder="VO name"
                   required="required"
                   tabindex="1"
+                  value=""
                 >
+              </div>
+
+              <div class="form-group">
+                <label for="group">Group ID</label>
+                <select class="form-control" id="group" name="group">
+                  <option value="">testing</option>
+                </select>
               </div>
 
               <div class="form-group">
                 <button type="submit" class="btn btn-primary">Create</button>
               </div>
+
             </form>
 
       </div>

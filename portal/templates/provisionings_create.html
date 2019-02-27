@@ -1,0 +1,155 @@
+{%extends "base.html"%}
+
+{%block title%}
+  New Cluster Provisionings
+{%endblock%}
+
+{%block body%}
+<section id="app-profile" class="bg-light">
+  <div class="container">
+
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item"><a href="{{url_for('list_provisionings')}}">Provisionings</a></li>
+          <li class="breadcrumb-item active">Install Cluster Provisionings </li>
+        </ol>
+        <h1>Install Provisioning: </h1>
+        <hr/>
+
+        <form role="form" action="#" method="POST">
+
+          <div class="form-group">
+            <label for="cluster">Cluster</label>
+            <select class="form-control" id="cluster" name="cluster" required="required" tabindex="2">
+              <option value="" selected disabled>--- Select One ---</option>
+              <option value="new-cluster">< New ></option>
+              {% for cluster in clusters %}
+              <option value="{{cluster}}">{{cluster['metadata']['name']}}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group radio">
+            <label><input type="radio" name="install-opt"> SLATE Team Install</label>
+          </div>
+          <div class="form-group radio">
+            <label><input type="radio" name="install-opt"> Self Install</label>
+          </div>
+
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary">Install</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="col-md-4">
+
+        <!-- <h2 class="title">
+          <small>Adding or generating your SSH public key:</small>
+        </h2> -->
+
+        <div id="accordion" role="tablist" aria-multiselectable="true">
+
+          <div class="card panel panel-info resource-profile" style="margin: 1em;">
+            <div class="card-header panel-title" role="tab" id="headingTwo" style="margin: 1em;">
+              <h5 class="mb-0">
+                <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                  SLATE Team Install <i class="fa fa-info-circle" aria-hidden="true"></i>
+                </a>
+              </h5>
+            </div>
+            <div id="collapseTwo" class="collapse" role="tabpanel" aria-labelledby="headingTwo">
+              <div class="card-block panel-body disabled" style="font-size: 16px">
+                <ol>
+                  <li>Access instructions and form</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
+          <div class="card panel panel-info resource-profile" style="margin: 1em;">
+            <div class="card-header panel-title" role="tab" id="headingThree" style="margin: 1em">
+              <h5 class="mb-0">
+                <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                  Self Install<i class="fa fa-info-circle" aria-hidden="true"></i>
+                </a>
+              </h5>
+            </div>
+            <div id="collapseThree" class="collapse" role="tabpanel" aria-labelledby="headingThree">
+              <div class="card-block panel-body disabled" style="font-size: 16px">
+                <ol>
+                  <li>Setup access port and GHCP on control plane</li>
+                  <li>Create and plugin USB</li>
+                  <li>Generate PIN (done from provisioning API server)</li>
+                  <li>Boot USB, enter PIN</li>
+                  <li>Generate and display hostname</li>
+                  <li>Finalize</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /.accordion-->
+      </div><!-- /.col-md-6 -->
+
+    </div>
+  </div>
+</section>
+
+<script>
+
+  // $(document).ready(function () {
+  //     $("#group").change(function () {
+  //         var groupName = $(this).val();
+  //
+  //         $.ajax({
+  //           url: "https://api-dev.slateci.io:18080/v1alpha2/groups/" + groupName + "/clusters?token=9b3bff41-dc76-405b-9a84-5cbea43afaf2",
+  //           type: "get",
+  //           dataType: 'json',
+  //           success: function(data){
+  //             console.log(data);
+  //           },
+  //           error: function(jqXHR, textStatus, errorThrown) {
+  //             console.log(jqXHR.status);
+  //             console.log(textStatus);
+  //             console.log(errorThrown);
+  //           }
+  //         });
+  //
+  //         if (val = 10) {
+  //             $("#cluster").html("<option value='test'>item1: YO</option><option value='test2'>item1: test 2</option>");
+  //         } else if (val == "testing") {
+  //             $("#cluster").html("<option value='test'>item2: test 1</option><option value='test2'>item2: test 2</option>");
+  //         } else if (val == "item3") {
+  //             $("#cluster").html("<option value='test'>item3: test 1</option><option value='test2'>item3: test 2</option>");
+  //         } else if (val == "item0") {
+  //             $("#size").html("<option value=''>--select one--</option>");
+  //         }
+  //     });
+  // });
+  //
+  //
+  //
+  // window.onload = get_states();
+  //
+  // function get_states(){
+  //   $.ajax({
+  //     url: "https://api-dev.slateci.io:18080/v1alpha2/groups/slate-dev/clusters?token=9b3bff41-dc76-405b-9a84-5cbea43afaf2",
+  //     type: "get",
+  //     dataType: 'json',
+  //     success: function(data){
+  //       console.log(data);
+  //     },
+  //     error: function(jqXHR, textStatus, errorThrown) {
+  //       console.log(jqXHR.status);
+  //       console.log(textStatus);
+  //       console.log(errorThrown);
+  //     }
+  //   });
+  // }
+
+</script>
+
+{%endblock%}

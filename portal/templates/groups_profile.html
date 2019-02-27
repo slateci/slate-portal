@@ -1,7 +1,7 @@
 {%extends "base.html"%}
 
 {%block title%}
-  VO - {{name}}
+  Group - {{name}}
 {%endblock%}
 
 {%block body%}
@@ -14,12 +14,12 @@
       <div class="col-lg-8 mx-auto">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="#">Home</a></li>
-          <li class="breadcrumb-item"><a href="{{url_for('list_vos')}}">VO</a></li>
+          <li class="breadcrumb-item"><a href="{{url_for('list_groups')}}">Group</a></li>
           <li class="breadcrumb-item active">{{name}}</li>
         </ol>
-        <h2>VO {{name}}</h2>
+        <h2>Group {{name}}</h2>
         <p class="lead">
-          VO members and resources
+          Group members and resources
         </p>
 
         <hr/>
@@ -49,7 +49,7 @@
                   <pre>{% for key, value in secret['contents'].iteritems() %}{{key}}: {{value}}{% endfor %}</pre>
                 </div>
                 <hr/>
-                <form role="form" action="{{url_for('view_vo', name=name)}}" method="POST">
+                <form role="form" action="{{url_for('view_group', name=name)}}" method="POST">
                   <button type="submit" name="secret_id" value="{{secret['metadata']['id']}}" class="btn btn-danger btn-sm" data-submit="Removing Secret...">Delete Secret</button>
                 </form>
                 <!-- <a href="#" class="btn btn-danger btn-sm" onclick="btnConfirm()">Delete Secret</a> -->
@@ -71,7 +71,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for cluster in vo_clusters %}
+                  {% for cluster in group_clusters %}
                   {% set cluster_name = cluster['metadata']['name']%}
                   <tr>
                     <td>
@@ -79,7 +79,7 @@
                     </td>
                     {% if admin %}
                     <td>
-                      <form role="form" action="{{url_for('view_vo', name=name)}}" method="POST">
+                      <form role="form" action="{{url_for('view_group', name=name)}}" method="POST">
                         <button type="submit" name="delete_cluster" value="{{cluster['metadata']['id']}}" class="btn btn-danger btn-xs" data-submit="Removing Cluster...">Delete Cluster</button>
                       </form>
                     </td>
@@ -100,14 +100,14 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for cluster in vo_access %}
+                  {% for cluster in group_access %}
                   <tr>
                     <td>
                       <a href="{{url_for('view_cluster', project_name=name, name=cluster['metadata']['name'])}}">{{cluster['metadata']['name']}}</a>
                     </td>
                     {% if admin %}
                     <td>
-                      <form role="form" action="{{url_for('view_vo', name=name)}}" method="POST">
+                      <form role="form" action="{{url_for('view_group', name=name)}}" method="POST">
                         <button type="submit" name="delete_cluster" value="{{cluster['metadata']['id']}}" class="btn btn-danger btn-xs" data-submit="Removing Cluster...">Delete Cluster</button>
                       </form>
                     </td>
@@ -124,7 +124,7 @@
           <div id="menu2" class="tab-pane fade">
             <div class="container" style="padding:10px;">
               <h4>Select New Users</h4>
-              <form class="form-inline" role="form" action="{{url_for('vo_add_member', name=name)}}" method="POST">
+              <form class="form-inline" role="form" action="{{url_for('group_add_member', name=name)}}" method="POST">
                 <!-- <div class="input-group"> -->
                   <fieldset class="form-group">
                    <select class="form-control input-group" name="newuser" tabindex="1" required style="width: 100%;">
@@ -145,13 +145,13 @@
                 </tr>
               </thead>
               <tbody>
-                {% for member in vo_members %}
+                {% for member in group_members %}
                 {% set member_name = member['metadata']['name'] %}
                 <tr>
                   <td>{{member_name}}</td>
                   <td>{{member['metadata']['email']}}</td>
                   <td>
-                    <form role="form" action="{{url_for('vo_remove_member', name=name)}}" method="POST">
+                    <form role="form" action="{{url_for('group_remove_member', name=name)}}" method="POST">
                       <button type="submit" name="remove_member" value="{{member['metadata']['id']}}" class="btn btn-danger btn-xs" data-submit="Removing User...">Remove User</button>
                     </form>
                   </td>
@@ -173,10 +173,10 @@
 function btnConfirm() {
     var r = confirm("Are you sure you want to delete this secret?");
     if(r == true){
-      // window.location.href = "{{url_for('view_vo', name=name)}}";
+      // window.location.href = "{{url_for('view_group', name=name)}}";
       return
     } else {
-      window.location.href = "{{url_for('view_vo', name=name)}}";
+      window.location.href = "{{url_for('view_group', name=name)}}";
     }
 }
 
