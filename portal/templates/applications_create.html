@@ -14,18 +14,18 @@
           <li class="breadcrumb-item"><a href="#">Home</a></li>
           <li class="breadcrumb-item"><a href="{{url_for('list_applications')}}">App</a></li>
           <li class="breadcrumb-item"><a href="{{url_for('view_application', name=name)}}">{{name}}</a></li>
-          <li class="breadcrumb-item active">Install Application</li>
+          <li class="breadcrumb-item active">Install Application </li>
         </ol>
-        <h1>Install Application: {{name}}</h1>
+        <h1>Install Application: </h1>
         <hr/>
 
         <form role="form" action="{{url_for('create_application', name=name)}}" method="POST">
           <div class="form-group">
-            <label for="vo">VO</label>
-            <select class="form-control" id="vo" name="vo" required="required" tabindex="1">
-              <option value="" selected disabled>Select VO</option>
-              {% for vo in vos %}
-              <option value="{{vo['metadata']['name']}}">{{vo['metadata']['name']}}</option>
+            <label for="group">Group</label>
+            <select class="form-control" id="group" name="group" required="required" tabindex="1">
+              <option value="" selected disabled>Select Group</option>
+              {% for group in groups %}
+              <option value="{{group['metadata']['name']}}">{{group['metadata']['name']}}</option>
               {% endfor %}
             </select>
           </div>
@@ -54,5 +54,59 @@
     </div>
   </div>
 </section>
+
+<script>
+
+  $(document).ready(function () {
+      $("#group").change(function () {
+          var groupName = $(this).val();
+
+          $.ajax({
+            url: "https://api-dev.slateci.io:18080/v1alpha2/groups/" + groupName + "/clusters?token=9b3bff41-dc76-405b-9a84-5cbea43afaf2",
+            type: "get",
+            dataType: 'json',
+            success: function(data){
+              console.log(data);
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+              console.log(jqXHR.status);
+              console.log(textStatus);
+              console.log(errorThrown);
+            }
+          });
+
+          if (val = 10) {
+              $("#cluster").html("<option value='test'>item1: YO</option><option value='test2'>item1: test 2</option>");
+          } else if (val == "testing") {
+              $("#cluster").html("<option value='test'>item2: test 1</option><option value='test2'>item2: test 2</option>");
+          } else if (val == "item3") {
+              $("#cluster").html("<option value='test'>item3: test 1</option><option value='test2'>item3: test 2</option>");
+          } else if (val == "item0") {
+              $("#size").html("<option value=''>--select one--</option>");
+          }
+      });
+  });
+
+
+
+  window.onload = get_states();
+
+  function get_states(){
+    $.ajax({
+      url: "https://api-dev.slateci.io:18080/v1alpha2/groups/slate-dev/clusters?token=9b3bff41-dc76-405b-9a84-5cbea43afaf2",
+      type: "get",
+      dataType: 'json',
+      success: function(data){
+        console.log(data);
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR.status);
+        console.log(textStatus);
+        console.log(errorThrown);
+      }
+    });
+  }
+
+</script>
 
 {%endblock%}

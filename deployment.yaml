@@ -1,0 +1,17 @@
+apiVersion: v1alpha1
+kind: Deployment
+metadata:
+  name: slate-portal
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        name: slate-portal
+    spec:
+      containers:
+        - name: slate-portal
+          image: docker.io/<PROJECT_ID>/slate-website:dev
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: 8080

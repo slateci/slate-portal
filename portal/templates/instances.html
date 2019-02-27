@@ -24,7 +24,7 @@
               <tr>
                 <th data-field="name" data-sortable="true">Instance Name</th>
                 <th data-field="app" data-sortable="true">Application</th>
-                <th data-field="vo" data-sortable="true">VO</th>
+                <th data-field="group" data-sortable="true">Group</th>
                 <th data-field="cluster" data-sortable="true">Cluster</th>
                 <th data-field="instance_id" data-sortable="true">Instance ID</th>
               </tr>
@@ -32,13 +32,13 @@
             <tbody data-link="row" class="rowlink" style="font-size:12px;">
               {% for instance in instances %}
               <tr>
-                {% if instance['metadata']['vo'] in user_vos %}
+                {% if instance['metadata']['group'] in user_groups %}
                 <td><a href="{{url_for('view_instance', name=instance['metadata']['id'])}}">{{instance['metadata']['name']}}</a></td>
                 {% else %}
                 <td>{{instance['metadata']['name']}}</td>
                 {% endif %}
                 <td>{{instance['metadata']['application']}}</td>
-                <td>{{instance['metadata']['vo']}}</td>
+                <td>{{instance['metadata']['group']}}</td>
                 <td>{{instance['metadata']['cluster']}}</td>
                 <td>{{instance['metadata']['id']}}</td>
               </tr>

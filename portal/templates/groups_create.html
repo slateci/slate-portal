@@ -1,0 +1,114 @@
+{%extends "base.html"%}
+
+{%block title%}
+  Create New Group
+{%endblock%}
+
+{%block body%}
+<section id="cli-access" class="bg-light">
+  <div class="container">
+    <div class="page-header">
+    </div>
+
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <h2>Create New Group</h2>
+        <p class="lead">
+          Enter Group information below
+        </p>
+
+        <hr/>
+
+            <form role="form" action="{{url_for('create_group')}}" method="POST">
+              <div class="form-group">
+                <label for="name">Group Name *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="name"
+                  name="name"
+                  placeholder="Group name"
+                  required="required"
+                  tabindex="1"
+                >
+              </div>
+
+              <div class="form-group">
+                <label for="phone-number">Phone Number *</label>
+                <input
+                  type="tel"
+                  class="form-control"
+                  id="phone-number"
+                  name="phone-number"
+                  placeholder="888-888-8888"
+                  pattern="[0-9]{3} [0-9]{3} [0-9]{4}"
+                  maxlength="10"
+                  title="Ten digits code"
+                  required="required"
+                  tabindex="2"
+                >
+              </div>
+
+              <div class="form-group">
+                <label for="field-of-science">Field of Science *</label>
+                <select class="form-control" id="field-of-science" name="field-of-science" required="required" tabindex="3">
+                  <option value="" selected disabled>Select Field of Science</option>
+                  {% for science in sciences %}
+                  <option value="{{science}}">{{science}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="name">Description</label>
+                <textarea name="name" rows="8" cols="80" class="form-control" id="description" placeholder="Brief Description" tabindex="4"></textarea>
+              </div>
+
+              <div class="form-group">
+                <button type="submit" class="btn btn-primary">Create</button>
+              </div>
+            </form>
+
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+
+window.onload = get_states();
+
+function get_states(){
+  $.ajax({
+    url: "http://128.135.158.222:18080/v1alpha1/users?token=3acc9bdc-1243-40ea-96df-373c8a616a16",
+    type: "get",
+    dataType: 'json',
+    success: function(data){
+      if(data.items){
+         $('#test').html(data.items);
+      }
+
+    },
+    error: function(xhr){
+      //Do Something to handle error
+    }
+  });
+}
+
+function myFunction() {
+  /* Get the text field */
+  var copyText = document.getElementById("cli_access");
+
+  /* Select the text field */
+  copyText.select();
+
+  /* Copy the text inside the text field */
+  document.execCommand("copy");
+
+  /* Alert the copied text */
+  alert("Copied the text: " + copyText.value);
+}
+
+</script>
+{%endblock%}
