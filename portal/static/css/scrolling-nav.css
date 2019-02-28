@@ -97,8 +97,8 @@ footer {
   padding-left: 250px;
 } */
 #sidebar {
-    min-width: 250px;
-    max-width: 250px;
+    min-width: 220px;
+    max-width: 220px;
     min-height: 100vh;
     background: #eee;
     color: #212529;
