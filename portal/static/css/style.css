@@ -437,6 +437,11 @@ form .row:first-child .floating-label-form-group {
   color: white;
 }
 
+.btn-info {
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
 .pager {
   margin: 20px 0 0;
 }
