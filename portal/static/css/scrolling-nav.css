@@ -17,7 +17,7 @@ header {
 }
 
 section {
-  padding: 20px 0;
+  padding: 65px 0;
   width: 100%;
 }
 
@@ -86,14 +86,16 @@ button {
 footer {
   z-index: 3;
 }
-
+.navbar {
+  padding: 0.15rem 1rem;
+}
 #content {
   width: 100%;
   min-height: 100vh;
 }
-#content nav {
+/* #content nav {
   padding-left: 250px;
-}
+} */
 #sidebar {
     min-width: 250px;
     max-width: 250px;
@@ -104,6 +106,7 @@ footer {
     overflow-x: hidden;
     transition: all 0.3s;
     z-index: 1;
+    padding-top: 40px;
 }
 
 #sidebar.active {
