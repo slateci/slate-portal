@@ -270,12 +270,12 @@ def view_group(name):
 @authenticated
 def create_secret(name):
     slate_user_id = session['slate_id']
-    token_query = {'token': session['slate_token']}
+    token_query = {'token': session['slate_token'], 'group': name}
     if request.method == 'GET':
         group_id = name
         # Get clusters owned by group
         clusters = requests.get(
-            slate_api_endpoint + '/v1alpha3/groups/' + group_id + '/clusters', params=token_query)
+            slate_api_endpoint + '/v1alpha3/clusters', params=token_query)
         clusters = clusters.json()['items']
 
         return render_template('secrets_create.html', name=name, clusters=clusters)
@@ -459,7 +459,7 @@ def profile():
         query = {'token': slate_api_token}
 
         r = requests.put(slate_api_endpoint + '/v1alpha3/users/' + session['slate_id'], params=query, json=add_user)
-        print(r)
+        # print(r)
         flash('Your profile has successfully been updated!')
 
         if 'next' in session:
@@ -504,7 +504,7 @@ def authcallback():
         tokens = client.oauth2_exchange_code_for_tokens(code)
 
         id_token = tokens.decode_id_token(client)
-        print("Session: ", session)
+        # print("Session: ", session)
         session.update(
             tokens=tokens.by_resource_server,
             is_authenticated=True,
@@ -535,7 +535,7 @@ def authcallback():
             # session['name'] = name
             # session['email'] = email
             # session['institution'] = institution
-            print("Institution:", session['institution'])
+            # print("Institution:", session['institution'])
             globus_id = session['primary_identity']
             query = {'token': slate_api_token,
                      'globus_id': globus_id}
