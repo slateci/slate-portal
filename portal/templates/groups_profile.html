@@ -95,7 +95,6 @@
                         <button type="submit" name="delete_cluster" value="{{cluster['metadata']['id']}}" class="btn btn-danger btn-xs" data-submit="Removing Cluster...">Delete Cluster</button>
                       </form>
                     </td>
-                    {% else %}
                     {% endif %}
                   </tr>
                   {% endfor %}
@@ -117,14 +116,6 @@
                     <td>
                       <a href="{{url_for('view_cluster', project_name=name, name=cluster['metadata']['name'])}}">{{cluster['metadata']['name']}}</a>
                     </td>
-                    {% if admin %}
-                    <td>
-                      <form role="form" action="{{url_for('view_group', name=name)}}" method="POST">
-                        <button type="submit" name="delete_cluster" value="{{cluster['metadata']['id']}}" class="btn btn-danger btn-xs" data-submit="Removing Cluster...">Delete Cluster</button>
-                      </form>
-                    </td>
-                    {% else %}
-                    {% endif %}
                   </tr>
                   {% endfor %}
                 </tbody>
