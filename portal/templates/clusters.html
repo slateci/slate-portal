@@ -17,11 +17,11 @@
         <p class="lead">
           List of clusters registered on SLATE
         </p>
-        <div class="install-app" style="padding: 0 0 10px 0;">
+        <!-- <div class="install-app" style="padding: 0 0 10px 0;">
           <form action="{{url_for('create_cluster')}}" method="GET">
             <button class="btn btn-primary btn-sm" type="submit">Register New Cluster</button>
           </form>
-        </div>
+        </div> -->
 
         <div class="table-responsive">
           <h4>Slate Clusters</h4>
@@ -33,7 +33,7 @@
                 <th data-field="location" data-sortable="true">Location</th>
               </tr>
             </thead>
-            <tbody data-link="row" class="rowlink" style="font-size:12px;">
+            <tbody data-link="row" class="rowlink" style="font-size:14px;">
               {% for cluster in slate_clusters %}
               <tr>
                 <td>{{cluster['metadata']['name']}}</td>
