@@ -162,9 +162,16 @@ def create_group():
         """Route method to handle query to create a new Group"""
 
         name = request.form['name']
+        phone = request.form['phone-number']
+        scienceField = request.form['field-of-science']
+        try:
+            description = request.form['description']
+        except:
+            description = "Currently no description"
+
         token_query = {'token': session['slate_token']}
         add_group = {"apiVersion": 'v1alpha3',
-                  'metadata': {'name': name}}
+                  'metadata': {'name': name, 'phone': phone, 'scienceField': scienceField, 'description': description}}
 
         requests.post(
             slate_api_endpoint + '/v1alpha3/groups', params=token_query, json=add_group)
