@@ -209,3 +209,9 @@ a[data-toggle="collapse"] {
 .bg-light {
     background-color: #f5f7fa!important;
 }
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background-color: transparent!important;
+  background: transparent!important;
+  border-color: transparent!important;
+}
