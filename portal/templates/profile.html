@@ -23,7 +23,7 @@
               placeholder="full name"
               required="required"
               tabindex="1"
-              value="{{session['name']}}"
+              value="{{profile['name']}}"
             >
           </div>
 
@@ -37,7 +37,7 @@
               placeholder="me@example.com"
               required="required"
               tabindex="2"
-              value="{{session['email']}}"
+              value="{{profile['email']}}"
             >
           </div>
 
@@ -51,7 +51,7 @@
               placeholder="Institution"
               required="required"
               tabindex="3"
-              value="{{session['institution']}}"
+              value="{{profile['institution']}}"
             >
           </div>
 
@@ -66,7 +66,7 @@
               pattern="[0-9]{3} [0-9]{3} [0-9]{4}"
               maxlength="12"
               title="Ten digits code"
-              value="{{session['phone']}}"
+              value="{{profile['phone']}}"
               required="required"
               tabindex="4"
             >
