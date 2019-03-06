@@ -60,7 +60,11 @@
                 {% set member_name = member['metadata']['name'] %}
                 <tr>
                   <td>{{member_name}}</td>
-                  <td>{{member['metadata']['email']}}</td>
+                  <td>
+                    <a href="mailto:{{member['metadata']['email']}}">
+                      {{member['metadata']['email']}}
+                    </a>
+                  </td>
                   <td>
                     <form role="form" action="{{url_for('group_remove_member', name=name)}}" method="POST">
                       <button type="submit" name="remove_member" value="{{member['metadata']['id']}}" class="btn btn-danger btn-xs" data-submit="Removing User...">Remove User</button>
