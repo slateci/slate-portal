@@ -51,13 +51,9 @@
 
           <div id="menu1" class="tab-pane fade">
             <br/>
-            {% if app_readme['spec']['body'] %}
-              {% filter markdown %}
-              {{app_readme['spec']['body']}}
-              {% endfilter %}
-            {% else %}
-            Read Me current unavailable
-            {% endif %}
+            <pre id='json'>
+              {{app_readme['spec']['body']}}]
+            </pre>
           </div>
 
         </div>
