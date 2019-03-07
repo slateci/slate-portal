@@ -57,14 +57,13 @@
 
           <div class="form-group">
             <label for="phone-number">Phone Number *</label>
-            <p class="text-muted">10 digit number separated by space)</p>
+            <p class="text-muted">(10 digit phone number)</p>
             <input
               type="tel"
               class="form-control"
               id="phone-number"
               name="phone-number"
               placeholder="888 888 8888"
-              pattern="[0-9]{3} [0-9]{3} [0-9]{4}"
               maxlength="12"
               title="Phone number"
               value="{{profile['phone']}}"

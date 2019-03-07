@@ -25,58 +25,14 @@
         <hr/>
 
         <ul class="nav nav-tabs">
-          <li class="active"><a class="nav-item nav-link active" data-toggle="tab" href="#home">Members</a></li>
-          <li><a class="nav-item nav-link" data-toggle="tab" href="#menu1">Clusters</a></li>
+          <li class="active"><a class="nav-item nav-link active" data-toggle="tab" href="#home">Clusters</a></li>
+          <li><a class="nav-item nav-link" data-toggle="tab" href="#menu1">Members</a></li>
           <li><a class="nav-item nav-link" data-toggle="tab" href="#menu2">Secrets</a></li>
         </ul>
 
         <div class="tab-content">
 
           <div id="home" class="tab-pane fade in show active">
-            <div class="container" style="padding:10px;">
-              <h4>Select New Users</h4>
-              <form class="form-inline" role="form" action="{{url_for('group_add_member', name=name)}}" method="POST">
-                <!-- <div class="input-group"> -->
-                  <fieldset class="form-group">
-                   <select class="form-control input-group" name="newuser" tabindex="1" required style="width: 100%;">
-                     {% for user in non_members %}
-                     <option value="{{user['id']}}" required>{{user['name']}}</option>
-                     {% endfor %}
-                   </select>
-                 </fieldset>
-                  <button type="submit" name="btn" value="adduser" class="btn btn-primary btn-xs" data-submit="...Sending">Add User</button>
-              </form>
-            </div>
-            <table class="table table-hover col-lg-8 mx-auto">
-              <thead>
-                <tr>
-                  <th scope="col">Name</th>
-                  <th scope="col">Email</th>
-                  <th scope="col">Remove</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for member in group_members %}
-                {% set member_name = member['metadata']['name'] %}
-                <tr>
-                  <td>{{member_name}}</td>
-                  <td>
-                    <a href="mailto:{{member['metadata']['email']}}">
-                      {{member['metadata']['email']}}
-                    </a>
-                  </td>
-                  <td>
-                    <form role="form" action="{{url_for('group_remove_member', name=name)}}" method="POST">
-                      <button type="submit" name="remove_member" value="{{member['metadata']['id']}}" class="btn btn-danger btn-xs" data-submit="Removing User...">Remove User</button>
-                    </form>
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-
-          <div id="menu1" class="tab-pane fade">
             <br>
             <div class="table-responsive">
               <h4>Administering Clusters</h4>
@@ -125,7 +81,50 @@
                 </tbody>
               </table>
             </div>
+          </div>
 
+          <div id="menu1" class="tab-pane fade">
+            <div class="container" style="padding:10px;">
+              <h4>Select New Users</h4>
+              <form class="form-inline" role="form" action="{{url_for('group_add_member', name=name)}}" method="POST">
+                <!-- <div class="input-group"> -->
+                  <fieldset class="form-group">
+                   <select class="form-control input-group" name="newuser" tabindex="1" required style="width: 100%;">
+                     {% for user in non_members %}
+                     <option value="{{user['id']}}" required>{{user['name']}}</option>
+                     {% endfor %}
+                   </select>
+                 </fieldset>
+                  <button type="submit" name="btn" value="adduser" class="btn btn-primary btn-xs" data-submit="...Sending">Add User</button>
+              </form>
+            </div>
+            <table class="table table-hover col-lg-8 mx-auto">
+              <thead>
+                <tr>
+                  <th scope="col">Name</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">Remove</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for member in group_members %}
+                {% set member_name = member['metadata']['name'] %}
+                <tr>
+                  <td>{{member_name}}</td>
+                  <td>
+                    <a href="mailto:{{member['metadata']['email']}}">
+                      {{member['metadata']['email']}}
+                    </a>
+                  </td>
+                  <td>
+                    <form role="form" action="{{url_for('group_remove_member', name=name)}}" method="POST">
+                      <button type="submit" name="remove_member" value="{{member['metadata']['id']}}" class="btn btn-danger btn-xs" data-submit="Removing User...">Remove User</button>
+                    </form>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
 
           <div id="menu2" class="tab-pane fade">
@@ -135,22 +134,30 @@
             </form>
             {% for secret in secrets_content %}
             <br>
-            <div class="card" style="width: 100%;">
-              <div class="card-header">{{secret['metadata']['name']}}</div>
-              <div class="card-body">
-                <h5 class="card-title">Cluster: {{secret['metadata']['cluster']}}</h5>
-                <h6 class="card-subtitle mb-2 text-muted">Created: {{secret['metadata']['created']}}</h6>
-                <!-- <p class="card-text">Associated secrets below</p> -->
-                <div id="pre-text">
-                  <pre>{% for key, value in secret['contents'].iteritems() %}{{key}}: {{value}}{% endfor %}</pre>
+            <div id="accordion">
+              <div class="card" style="width: 100%;">
+                <div class="card-header">
+                  <a class="card-link" data-toggle="collapse" href="#{{secret['metadata']['name']}}">
+                    {{secret['metadata']['name']}}
+                  </a>
                 </div>
-                <hr/>
-                <form role="form" action="{{url_for('view_group', name=name)}}" method="POST">
-                  <button type="submit" name="secret_id" value="{{secret['metadata']['id']}}" class="btn btn-danger btn-sm" data-submit="Removing Secret...">Delete Secret</button>
-                </form>
-                <!-- <a href="#" class="btn btn-danger btn-sm" onclick="btnConfirm()">Delete Secret</a> -->
-                <!-- <a href="#" class="card-link btn btn-danger btn-sm">Delete Secret</a> -->
-                <!-- <a href="#" class="card-link">Another link</a> -->
+                <div id="{{secret['metadata']['name']}}" class="collapse" data-parent="#accordion">
+                  <div class="card-body">
+                    <h5 class="card-title">Cluster: {{secret['metadata']['cluster']}}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">Created: {{secret['metadata']['created']}}</h6>
+                    <!-- <p class="card-text">Associated secrets below</p> -->
+                    <div id="pre-text">
+                      <pre>{% for key, value in secret['contents'].iteritems() %}{{key}}: {{value}}{% endfor %}</pre>
+                    </div>
+                    <hr/>
+                    <form role="form" action="{{url_for('view_group', name=name)}}" method="POST">
+                      <button type="submit" name="secret_id" value="{{secret['metadata']['id']}}" class="btn btn-danger btn-sm" data-submit="Removing Secret...">Delete Secret</button>
+                    </form>
+                    <!-- <a href="#" class="btn btn-danger btn-sm" onclick="btnConfirm()">Delete Secret</a> -->
+                    <!-- <a href="#" class="card-link btn btn-danger btn-sm">Delete Secret</a> -->
+                    <!-- <a href="#" class="card-link">Another link</a> -->
+                  </div>
+                </div>
               </div>
             </div>
             {% endfor %}
