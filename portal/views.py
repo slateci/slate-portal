@@ -656,7 +656,11 @@ def view_application(name):
         app_config = requests.get(
             slate_api_endpoint + '/v1alpha3/apps/' + name, params=token_query)
         app_config = app_config.json()
-        return render_template('applications_profile.html', name=name, app_config=app_config)
+
+        app_readme = requests.get(
+            slate_api_endpoint + '/v1alpha3/apps/' + name + '/info', params=token_query)
+        app_readme = app_readme.json()
+        return render_template('applications_profile.html', name=name, app_config=app_config, app_readme=app_readme)
 
 
 @app.route('/applications/<name>/new', methods=['GET', 'POST'])
