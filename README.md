@@ -54,7 +54,7 @@ The second application, the "Service," is an example "resource server" that demo
 ##### Environment Setup
 
 * `sudo apt-get update`
-* `sudo apt-get install python-pip`
+* `sudo apt-get install python-pip python-dev gcc`
 * `sudo pip install virtualenv`
 * `sudo apt-get install git`
 * `git clone https://github.com/globus/globus-sample-data-portal`
