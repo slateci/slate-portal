@@ -11,12 +11,14 @@ from flask import (abort, flash, redirect, render_template,
 # Use these four lines on container
 import sys
 sys.path.insert(0, '/etc/slate/secrets')
-f = open("/etc/slate/secrets/slate_api_token.txt", "r")
-g = open("slate_api_endpoint.txt", "r")
 
-# Use these two lines below on local
-# f = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_token.txt", "r")
-# g = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_endpoint.txt", "r")
+try:
+    f = open("/etc/slate/secrets/slate_api_token.txt", "r")
+    g = open("slate_api_endpoint.txt", "r")
+except:
+    # Use these two lines below on local
+    f = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_token.txt", "r")
+    g = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_endpoint.txt", "r")
 
 slate_api_token = f.read().split()[0]
 slate_api_endpoint = g.read().split()[0]
@@ -229,6 +231,12 @@ def view_group(name):
             slate_api_endpoint + '/v1alpha3/clusters', params=token_query)
         list_clusters = listclusters.json()['items']
 
+        # Get Group Info
+        group_info = requests.get(
+            slate_api_endpoint + '/v1alpha3/groups/' + group_id, params=token_query)
+        group_info = group_info.json()
+
+
         # Get clusters owned by group
         group_clusters = requests.get(
             slate_api_endpoint + '/v1alpha3/groups/' + group_id + '/clusters', params=token_query)
@@ -264,7 +272,8 @@ def view_group(name):
                                users=users, name=name, group_members=group_members,
                                non_members=non_members, clusters=list_clusters,
                                group_clusters=group_clusters, admin=admin,
-                               group_access=group_access, secrets=secrets, secrets_content=secrets_content)
+                               group_access=group_access, secrets=secrets,
+                               secrets_content=secrets_content, group_info=group_info)
     elif request.method == 'POST':
         secret_id = request.form['secret_id']
         secrets_query = {'token': session['slate_token'], 'group': name}

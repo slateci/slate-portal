@@ -18,8 +18,20 @@
           <li class="breadcrumb-item active">{{name}}</li>
         </ol>
         <h2>Group {{name}}</h2>
-        <p class="lead">
+        <!-- <p class="lead">
           Group members and resources
+        </p> -->
+        <p class="lead">
+          <strong>Description:</strong>
+          {{group_info['metadata']['description']}}
+          </p>
+        <p class="lead">
+          <strong>Field of Science:</strong>
+          {{group_info['metadata']['scienceField']}}
+        </p>
+        <p class="lead">
+          <strong>Contact:</strong>
+          {{group_info['metadata']['email']}}
         </p>
 
         <hr/>
