@@ -51,7 +51,9 @@
 
           <div id="menu1" class="tab-pane fade">
             <br/>
-            <pre id="json">{{app_readme['spec']['body']}}</pre>
+            {% filter markdown %}
+              {{app_readme['spec']['body']}}
+            {% endfilter %}
           </div>
 
         </div>
