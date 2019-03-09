@@ -35,6 +35,11 @@ def home():
     """Home page - play with it if you must!"""
     return render_template('home.html')
 
+@app.route('/', methods=['GET'])
+def slateci():
+    """Home page - play with it if you must!"""
+    return redirect('http://slateci.io/')
+
 
 @app.route('/community', methods=['GET'])
 def community():
@@ -91,10 +96,40 @@ def logout():
     ga_logout_url.append(app.config['GLOBUS_AUTH_LOGOUT_URI'])
     ga_logout_url.append('?client={}'.format(app.config['PORTAL_CLIENT_ID']))
     ga_logout_url.append('&redirect_uri={}'.format(redirect_uri))
-    ga_logout_url.append('&redirect_name=Globus Sample Data Portal')
+    ga_logout_url.append('&redirect_name=Slate Portal')
 
     # Redirect the user to the Globus Auth logout page
     return redirect(''.join(ga_logout_url))
+    # return redirect("http://slateci.io/")
+
+
+@app.route('/dashboard', methods=['GET'])
+def dashboard():
+    """Send the user to dashboard"""
+    if request.method == 'GET':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+
+        instances = requests.get(
+            slate_api_endpoint + '/v1alpha3/instances', params=token_query)
+        instances = instances.json()['items']
+        # Get groups to which the user belongs
+        s = requests.get(
+            slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=token_query)
+
+        s_info = s.json()
+        group_list = s_info['items']
+        user_groups = []
+        user_instances = []
+
+        for groups in group_list:
+            user_groups.append(groups['metadata']['name'].encode('utf-8'))
+
+        for instance in instances:
+            if instance['metadata']['group'] in user_groups:
+                user_instances.append(instance)
+
+        return render_template('dashboard.html', user_instances=user_instances)
 
 
 @app.route('/cli', methods=['GET', 'POST'])

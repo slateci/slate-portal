@@ -86,6 +86,9 @@ button {
 footer {
   z-index: 3;
 }
+nav a {
+  color: white;
+}
 .navbar {
   padding: 0.15rem 1rem;
 }

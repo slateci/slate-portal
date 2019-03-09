@@ -1,0 +1,76 @@
+{%extends "base.html"%}
+
+{%block title%}Dashboard{%endblock%}
+
+{%block body%}
+
+<section id="dashboard" class="bg-light">
+  <div class="container">
+
+    <div class='row'>
+      <div class="col-lg-8 mx-auto">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
+        </ol>
+        <h2>Dashboard</h2>
+        <p class="lead">
+          Account Summary
+        </p>
+
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="card">
+              <div class="card-header">
+                System Load
+              </div>
+              <div class="card-body">
+                <!-- <h5 class="card-title" style="text-align: center"><i class="fas fa-wrench fa-2x"></i></h5> -->
+                <!-- <p class="card-text">With supporting text below as a natural lead-in to additional content.</p> -->
+                <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+                <iframe src="https://grafana.mwt2.org/d-solo/TJJNJgCiz/k8s-monitoring-test?orgId=1&from=1552059655391&to=1552081255392&theme=light&panelId=2" width="100%" height="200" frameborder="0"></iframe>              </div>
+            </div>
+          </div>
+        </div>
+        <br/>
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="card">
+              <div class="card-header">
+                Application Instances
+              </div>
+              <div class="card-body">
+                <h5 class="card-title" style="text-align: center"><i class="fas fa-coins fa-2x"></i></h5>
+                <!-- <p class="card-text">You can view your apps here after you install them</p> -->
+                <ul class="list-unstyled">
+                {% for instance in user_instances %}
+                  <li><a href="{{url_for('view_instance', name=instance['metadata']['id'])}}">{{instance['metadata']['name']}}</a></li>
+                {% endfor %}
+                </ul>
+                <a href="{{url_for('list_applications')}}" class="btn btn-primary">Install an app</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-sm-12 col-md-6">
+            <div class="card">
+              <div class="card-header">
+                Learn
+              </div>
+              <div class="card-body">
+                <h5 class="card-title" style="text-align: center"><i class="fas fa-chalkboard-teacher fa-2x"></i></h5>
+                <ul class="list-unstyled">
+                  <li><a href="http://slateci.io/docs/" target="_blank">Read through SLATE documentation</a></li>
+                  <li><a href="https://sandbox.slateci.io:5000/" target="_blank">Try SLATE Sandbox</a></li>
+                </ul>
+                <!-- <a href="#" class="btn btn-primary">Register a cluster</a> -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+
+  </div> <!-- container -->
+</section>
+{%endblock%}
