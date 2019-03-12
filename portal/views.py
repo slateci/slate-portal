@@ -527,12 +527,20 @@ def profile():
         globus_id = session['primary_identity']
         admin = False
         # Schema and query for adding users to Slate DB
-        add_user = {"apiVersion": 'v1alpha3',
+        put_user = {"apiVersion": 'v1alpha3',
                     'metadata': {'name': name, 'email': email,
                                  'phone': phone, 'institution': institution}}
+
+        post_user = {"apiVersion": 'v1alpha3',
+                    'metadata': {'globusID': globus_id, 'name': name, 'email': email,
+                                 'phone': phone, 'institution': institution}}
+
         query = {'token': slate_api_token}
 
-        r = requests.put(slate_api_endpoint + '/v1alpha3/users/' + session['slate_id'], params=query, json=add_user)
+        try:
+            requests.put(slate_api_endpoint + '/v1alpha3/users/' + session['slate_id'], params=query, json=put_user)
+        except:
+            requests.post(slate_api_endpoint + '/v1alpha3/users', params=query, json=post_user)
         # print(r)
         flash('Your profile has successfully been updated!')
 
