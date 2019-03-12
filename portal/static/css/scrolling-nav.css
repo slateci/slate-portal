@@ -218,3 +218,7 @@ a[data-toggle="collapse"] {
   background: transparent!important;
   border-color: transparent!important;
 }
+
+.input-group {
+  align-items: center!important;
+}

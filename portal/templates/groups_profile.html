@@ -98,18 +98,31 @@
           <div id="menu1" class="tab-pane fade">
             <div class="container" style="padding:10px;">
               <h4>Select New Users</h4>
-              <form class="form-inline" role="form" action="{{url_for('group_add_member', name=name)}}" method="POST">
-                <!-- <div class="input-group"> -->
+              <!-- <form class="form-inline" role="form" action="" method="POST">
                   <fieldset class="form-group">
-                   <select class="form-control input-group" name="newuser" tabindex="1" required style="width: 100%;">
-                     {% for user in non_members %}
-                     <option value="{{user['id']}}" required>{{user['name']}}</option>
-                     {% endfor %}
+                   <select class="form-control input-group" name="newuser" tabindex="1" required>
+
+                     <option value="" required></option>
+
                    </select>
                  </fieldset>
-                  <button type="submit" name="btn" value="adduser" class="btn btn-primary btn-xs" data-submit="...Sending">Add User</button>
+                  <button type="submit" name="btn my-1" value="adduser" class="btn btn-primary btn-xs" data-submit="...Sending">Add User</button>
+              </form> -->
+
+              <form class="form-inline" role="form" action="{{url_for('group_add_member', name=name)}}" method="POST">
+                <label class="my-1 mr-2" for="newuser">Add User</label>
+                <select class="custom-select my-1 mr-sm-2" name="newuser" id="newuser" required>
+                  <option selected>Choose...</option>
+                  {% for user in non_members %}
+                  <option value="{{user['id']}}" required>{{user['name']}}</option>
+                  {% endfor %}
+                </select>
+
+                <button type="submit" class="btn btn-primary my-1">Submit</button>
               </form>
+
             </div>
+
             <table class="table table-hover col-lg-8 mx-auto">
               <thead>
                 <tr>

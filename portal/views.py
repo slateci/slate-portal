@@ -199,6 +199,8 @@ def create_group():
         """Route method to handle query to create a new Group"""
 
         name = request.form['name']
+        # Sanitize white space in name
+        name = name.replace(" ", "-")
         phone = request.form['phone-number']
         scienceField = request.form['field-of-science']
         try:
@@ -648,6 +650,33 @@ def list_clusters():
         slate_clusters = slate_clusters.json()['items']
 
         return render_template('clusters.html', slate_clusters=slate_clusters)
+
+
+@app.route('/clusters/<name>', methods=['GET'])
+@authenticated
+def view_public_cluster(name):
+    """
+    - List Clusters Registered on SLATE
+    """
+    if request.method == 'GET':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+        # Get cluster information
+        cluster = requests.get(
+            slate_api_endpoint + '/v1alpha3/clusters/' + name, params=token_query)
+        cluster = cluster.json()
+        # Get owning group information for contact info
+        owningGroupName = cluster['metadata']['owningGroup']
+        owningGroup = requests.get(
+            slate_api_endpoint + '/v1alpha3/groups/' + owningGroupName, params=token_query)
+        owningGroup = owningGroup.json()
+        owningGroupEmail = owningGroup['metadata']['email']
+        # Get list of groups allowed to use this cluster
+        allowed_groups = requests.get(
+            slate_api_endpoint + '/v1alpha3/clusters/' + name + '/allowed_groups', params=token_query)
+        allowed_groups = allowed_groups.json()['items']
+
+        return render_template('cluster_public_profile.html', cluster=cluster, owningGroupEmail=owningGroupEmail, allowed_groups=allowed_groups)
 
 
 @app.route('/clusters/new', methods=['GET'])
