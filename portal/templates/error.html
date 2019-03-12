@@ -1,0 +1,23 @@
+{%extends "base.html"%}
+
+{%block title%}
+  Error
+{%endblock%}
+
+{%block body%}
+<section id="profile" class="bg-light">
+  <div class="container">
+
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <h1><i class="fa fa-exclamation-circle" style="color:red"></i> Error </h1>
+        <hr/>
+        {% if debug %}
+        <h5>Python Stacktrace:</h5>
+        <div class="description">{{ exception|safe }}</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{%endblock%}

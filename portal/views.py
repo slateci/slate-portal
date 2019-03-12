@@ -6,6 +6,8 @@ import textwrap
 import uuid
 import sqlite3
 import requests
+import traceback
+import time
 from flask import (abort, flash, redirect, render_template,
                    request, session, url_for, jsonify)
 # Use these four lines on container
@@ -101,6 +103,25 @@ def logout():
     # Redirect the user to the Globus Auth logout page
     return redirect(''.join(ga_logout_url))
     # return redirect("http://slateci.io/")
+
+
+# Create a custom error handler for Exceptions
+
+
+@app.errorhandler(Exception)
+def exception_occurred(e):
+    trace = traceback.format_tb(sys.exc_info()[2])
+    app.logger.error("{0} Traceback occurred:\n".format(time.ctime()) +
+                     "{0}\nTraceback completed".format("n".join(trace)))
+    trace = "<br>".join(trace)
+    trace.replace('\n', '<br>')
+    return render_template('error.html', exception=trace,
+                           debug=app.config['DEBUG'])
+
+@app.route('/error', methods=['GET'])
+def errorpage():
+    if request.method == 'GET':
+        return render_template('error.html')
 
 
 @app.route('/dashboard', methods=['GET'])
@@ -568,16 +589,20 @@ def authcallback():
             primary_identity=id_token.get('sub'),
             identity_provider=id_token.get('identity_provider')
         )
-        # profile = database.load_profile(session['primary_identity'])
         # Need to query a request to view all users in Slate DB, then iterate
-        # to see if profile exists by matching globus_id ideally. Get rid of
-        # database.load_profile line above this once done
+        # to see if profile exists by matching globus_id ideally.
         globus_id = session['primary_identity']
         query = {'token': slate_api_token,
                  'globus_id': globus_id}
 
         profile = requests.get(
             slate_api_endpoint + '/v1alpha3/find_user', params=query)
+
+        users = requests.get(
+            slate_api_endpoint + '/v1alpha3/users', params=query)
+        users = users.json()['items']
+
+        print(users)
         # print("GLOBUS ID:", globus_id)
         # print("QUERY:", query)
         # print("Profile:", profile)
@@ -601,9 +626,9 @@ def authcallback():
 
         else:
             return redirect(url_for('profile',
-                                    next=url_for('profile')))
+                                    next=url_for('dashboard')))
 
-        return redirect(url_for('profile'))
+        return redirect(url_for('dashboard'))
 
 
 @app.route('/register', methods=['GET', 'POST'])
