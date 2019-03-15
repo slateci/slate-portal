@@ -1,0 +1,67 @@
+{%extends "base.html"%}
+
+{%block title%}
+  Cluster Profile
+{%endblock%}
+
+{%block body%}
+<section id="cluster-profile" class="bg-light">
+  <div class="container">
+
+    <div class="row">
+      <div class="col-lg-12 mx-auto">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item"><a href="{{url_for('list_clusters')}}">Clusters</a></li>
+          <li class="breadcrumb-item active">{{cluster['metadata']['name']}}</li>
+        </ol>
+        <h1>Cluster: {{cluster['metadata']['name']}}</h1>
+        <hr/>
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="card">
+              <div class="card-header">
+                Cluster Information
+              </div>
+              <div class="card-body">
+                <p class="lead">
+                  <strong>Administering Group:</strong>
+                  {{cluster['metadata']['owningGroup']}}
+                </p>
+                <p class="lead">
+                  <strong>Contact:</strong>
+                  {{owningGroupEmail}}
+                </p>
+                <p class="lead">
+                  <strong>Institution:</strong>
+                  {{cluster['metadata']['owningOrganization']}}
+                </p>
+                <p class="lead">
+                  <strong>Location:</strong>{% for loc in cluster['metadata']['location'] %} {{loc['lat'], loc['lon']}} {% endfor %}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-sm-6">
+            <div class="card">
+              <div class="card-header">
+                Groups
+              </div>
+              <div class="card-body">
+                <ul class="list-unstyled">
+                {% for group in allowed_groups %}
+                  <li><a href="#">{{group['metadata']['name']}}</a></li>
+                {% endfor %}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+{%endblock%}

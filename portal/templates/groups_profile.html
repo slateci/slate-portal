@@ -11,7 +11,7 @@
     </div>
 
     <div class="row">
-      <div class="col-lg-8 mx-auto">
+      <div class="col-lg-12 mx-auto">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
           <li class="breadcrumb-item"><a href="{{url_for('list_groups')}}">Group</a></li>
@@ -33,6 +33,12 @@
           <strong>Contact:</strong>
           {{group_info['metadata']['email']}}
         </p>
+
+        <div>
+          <form role="form" action="{{url_for('delete_group', name=name)}}" method="POST" onsubmit="return confirm('Are you sure you want to delete this group?');">
+            <button type="submit" name="delete_group" class="btn btn-danger btn-xs" data-submit="Deleting Group...">Delete Group</button>
+          </form>
+        </div>
 
         <hr/>
 
@@ -200,10 +206,9 @@
 function btnConfirm() {
     var r = confirm("Are you sure you want to delete this secret?");
     if(r == true){
-      // window.location.href = "{{url_for('view_group', name=name)}}";
-      return
+      window.location.href = "{{url_for('delete_group', name=name)}}";
     } else {
-      window.location.href = "{{url_for('view_group', name=name)}}";
+      return
     }
 }
 

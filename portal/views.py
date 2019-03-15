@@ -467,6 +467,19 @@ def view_cluster(project_name, name):
         return redirect(url_for('view_group', name=project_name))
 
 
+@app.route('/groups/<name>/delete', methods=['POST'])
+@authenticated
+def delete_group(name):
+    if request.method == 'POST':
+        token_query = {'token': session['slate_token']}
+        group_id = name
+
+        requests.delete(
+            slate_api_endpoint + '/v1alpha3/groups/' + group_id, params=token_query)
+
+        return redirect(url_for('list_groups'))
+
+
 @app.route('/testing', methods=['GET', 'POST'])
 @authenticated
 def testing():
@@ -541,6 +554,7 @@ def profile():
             requests.put(slate_api_endpoint + '/v1alpha3/users/' + session['slate_id'], params=query, json=put_user)
         except:
             requests.post(slate_api_endpoint + '/v1alpha3/users', params=query, json=post_user)
+            return redirect(url_for('authcallback'))
         # print(r)
         flash('Your profile has successfully been updated!')
 
@@ -586,7 +600,7 @@ def authcallback():
         tokens = client.oauth2_exchange_code_for_tokens(code)
 
         id_token = tokens.decode_id_token(client)
-        # print("Session: ", session)
+
         session.update(
             tokens=tokens.by_resource_server,
             is_authenticated=True,
@@ -610,7 +624,7 @@ def authcallback():
             slate_api_endpoint + '/v1alpha3/users', params=query)
         users = users.json()['items']
 
-        print(users)
+        # print(users)
         # print("GLOBUS ID:", globus_id)
         # print("QUERY:", query)
         # print("Profile:", profile)
@@ -634,9 +648,9 @@ def authcallback():
 
         else:
             return redirect(url_for('profile',
-                                    next=url_for('dashboard')))
+                                    next=url_for('profile')))
 
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('profile'))
 
 
 @app.route('/register', methods=['GET', 'POST'])

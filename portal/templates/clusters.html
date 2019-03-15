@@ -8,7 +8,7 @@
   <div class="container">
 
     <div class='row'>
-      <div class="col-lg-8 mx-auto">
+      <div class="col-lg-12 mx-auto">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
           <li class="breadcrumb-item active">Clusters</li>
@@ -36,7 +36,7 @@
             <tbody data-link="row" class="rowlink" style="font-size:14px;">
               {% for cluster in slate_clusters %}
               <tr>
-                <td>{{cluster['metadata']['name']}}</td>
+                <td><a href="{{url_for('view_public_cluster', name=cluster['metadata']['name'])}}">{{cluster['metadata']['name']}}</a></td>
                 <td>{{cluster['metadata']['owningGroup']}}</td>
                 <td>{% for location in cluster['metadata']['location'] %}{{location['lat']}}, {{location['lon']}}{%endfor%}</td>
               </tr>

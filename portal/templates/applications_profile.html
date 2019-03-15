@@ -11,7 +11,7 @@
   <div class="container">
 
     <div class="row">
-      <div class="col-lg-8 mx-auto">
+      <div class="col-lg-12 mx-auto">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
           <li class="breadcrumb-item"><a href="{{url_for('list_applications')}}">App</a></li>
@@ -20,7 +20,6 @@
 
         <h1>App: {{name}}</h1>
 
-        <!-- <p>{{app_readme['spec']['body']}}</p> -->
         <div class="install-app" style="padding: 10px 0;">
           <form action="{{url_for('create_application', name=name)}}" method="GET">
             <button class="btn btn-primary" type="submit">Install App</button>
@@ -36,11 +35,6 @@
           <div id="home" class="tab-pane fade in show active">
             <!-- <hr/> -->
             <table class="table table-hover">
-              <!-- <thead>
-                <tr>
-                  <th scope="col">App Configuration</th>
-                </tr>
-              </thead> -->
               <tbody>
                 <tr>
                   <td><pre id="json">{{app_config['spec']['body']}}</pre></td>
