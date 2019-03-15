@@ -23,7 +23,6 @@
               placeholder="full name"
               required="required"
               tabindex="1"
-              value="{% if profile %}{{profile['name']}}{%endif%}"
             >
           </div>
 
@@ -37,7 +36,6 @@
               placeholder="me@example.com"
               required="required"
               tabindex="2"
-              value="{% if profile %}{{profile['email']}}{%endif%}"
             >
           </div>
 
@@ -51,7 +49,6 @@
               placeholder="Institution"
               required="required"
               tabindex="3"
-              value="{% if profile %}{{profile['institution']}}{%endif%}"
             >
           </div>
 
@@ -66,7 +63,6 @@
               placeholder="888 888 8888"
               maxlength="12"
               title="Phone number"
-              value="{% if profile %}{{profile['phone']}}{%endif%}"
               required="required"
               tabindex="4"
             >

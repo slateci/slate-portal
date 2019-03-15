@@ -480,6 +480,64 @@ def delete_group(name):
         return redirect(url_for('list_groups'))
 
 
+@app.route('/groups/<name>/edit', methods=['GET', 'POST'])
+@authenticated
+def edit_group(name):
+    token_query = {'token': session['slate_token']}
+    if request.method == 'GET':
+        sciences = ["Resource Provider", "Astronomy", "Astrophysics",
+                            "Biology", "Biochemistry", "Bioinformatics",
+                            "Biomedical research", "Biophysics", "Botany",
+                            "Cellular Biology", "Ecology", "Evolutionary Biology",
+                            "Microbiology", "Molecular Biology", "Neuroscience",
+                            "Physiology", "Structural Biology", "Zoology",
+                            "Chemistry", "Biochemistry", "Physical Chemistry",
+                            "Earth Sciences", "Economics", "Education",
+                            "Educational Psychology", "Engineering",
+                            "Electronic Engineering", "Nanoelectronics",
+                            "Mathematics & Computer Science", "Computer Science",
+                            "Geographic Information Science", "Information Theory",
+                            "Mathematics", "Medicine", "Medical Imaging",
+                            "Neuroscience", "Physiology", "Logic", "Statistics",
+                            "Physics", "Accelerator Physics", "Astro-particle Physics",
+                            "Astrophysics", "Biophysics",
+                            "Computational Condensed Matter Physics",
+                            "Gravitational Physics", "High Energy Physics",
+                            "Neutrino Physics", "Nuclear Physics", "Physical Chemistry",
+                            "Psychology", "Child Psychology", "Educational Psychology",
+                            "Materials Science", "Multidisciplinary",
+                            "Network Science", "Technology"]
+
+        group = requests.get(slate_api_endpoint + '/v1alpha3/groups/' + name,
+                                params=token_query)
+        group = group.json()
+
+        return render_template('groups_edit.html', sciences=sciences, group=group, name=name)
+
+    elif request.method == 'POST':
+        """Route method to handle query to edit Group inro"""
+
+        phone = request.form['phone-number']
+        email = request.form['email']
+        scienceField = request.form['field-of-science']
+        try:
+            description = request.form['description']
+        except:
+            description = "Currently no description"
+        # print("Info: ", phone, email, scienceField)
+
+        token_query = {'token': session['slate_token']}
+        add_group = {"apiVersion": 'v1alpha3',
+                  'metadata': {'email': email, 'phone': phone, 'scienceField': scienceField, 'description': description}}
+
+        r = requests.put(
+            slate_api_endpoint + '/v1alpha3/groups/' + name, params=token_query, json=add_group)
+        # print(r)
+
+        return redirect(url_for('view_group', name=name))
+
+
+
 @app.route('/testing', methods=['GET', 'POST'])
 @authenticated
 def testing():
@@ -550,11 +608,7 @@ def profile():
 
         query = {'token': slate_api_token}
 
-        try:
-            requests.put(slate_api_endpoint + '/v1alpha3/users/' + session['slate_id'], params=query, json=put_user)
-        except:
-            requests.post(slate_api_endpoint + '/v1alpha3/users', params=query, json=post_user)
-            return redirect(url_for('authcallback'))
+        requests.post(slate_api_endpoint + '/v1alpha3/users', params=query, json=post_user)
         # print(r)
         flash('Your profile has successfully been updated!')
 
