@@ -1,0 +1,81 @@
+{%extends "base.html"%}
+
+{%block title%}
+  Create Profile
+{%endblock%}
+
+{%block body%}
+<section id="profile" class="bg-light">
+  <div class="container">
+
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <h1>Create Profile</h1>
+        {{session['primary_identity']}}
+        <hr/>
+        <form role="form" action="{{url_for('create_profile')}}" method="POST">
+          <div class="form-group">
+            <label for="name">Name *</label>
+            <input
+              type="text"
+              class="form-control"
+              id="name"
+              name="name"
+              placeholder="{{session['name']}}"
+              required="required"
+              tabindex="1"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email *</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-control"
+              placeholder="{{session['email']}}"
+              required="required"
+              tabindex="2"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="institution">Institution *</label>
+            <input
+              type="text"
+              id="institution"
+              name="institution"
+              class="form-control"
+              placeholder="Institution Name"
+              required="required"
+              tabindex="3"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="phone-number">Phone Number *</label>
+            <p class="text-muted">(10 digit phone number)</p>
+            <input
+              type="tel"
+              class="form-control"
+              id="phone-number"
+              name="phone-number"
+              placeholder="888 888 8888"
+              maxlength="12"
+              title="Phone number"
+              required="required"
+              tabindex="4"
+            >
+          </div>
+
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary">Create Profile</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</section>
+{%endblock%}

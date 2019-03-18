@@ -9,72 +9,48 @@
   <div class="container">
 
     <div class="row">
-      <div class="col-lg-8 mx-auto">
+      <div class="col-lg-12 mx-auto">
         <h1>Profile</h1>
         <hr/>
-        <form role="form" action="{{url_for('profile')}}" method="POST">
-          <div class="form-group">
-            <label for="name">Name</label>
-            <input
-              type="text"
-              class="form-control"
-              id="name"
-              name="name"
-              placeholder="full name"
-              required="required"
-              tabindex="1"
-            >
+        <div class="row">
+          <div class="col-sm-12 col-md-6">
+            <div class="card">
+              <div class="card-header">
+                Information
+              </div>
+              <div class="card-body">
+                <h5 class="card-title" style="text-align: center"><i class="fas fa-user-edit fa-2x"></i></h5>
+                <ul class="list-unstyled">
+                  <li><strong>Name:</strong> {{profile['name']}}</li>
+                  <li><strong>Email:</strong> {{profile['email']}}</li>
+                  <li><strong>Phone:</strong> {{profile['phone']}}</li>
+                  <li><strong>Institution:</strong> {{profile['institution']}}</li>
+                </ul>
+                <a href="{{url_for('edit_profile', name=name)}}" class="btn btn-primary">Edit Profile</a>
+              </div>
+            </div>
           </div>
-
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              class="form-control"
-              placeholder="me@example.com"
-              required="required"
-              tabindex="2"
-            >
+          <br>
+          <div class="col-sm-12 col-md-6">
+            <div class="card">
+              <div class="card-header">
+                Groups
+              </div>
+              <div class="card-body">
+                <h5 class="card-title" style="text-align: center"><i class="fas fa-users fa-2x"></i></h5>
+                <ul class="list-unstyled">
+                  {% for group in profile['groups'] %}
+                  <li><a href="{{url_for('view_group', name=group)}}">{{group}}</a></li>
+                  {% endfor %}
+                </ul>
+                <a href="{{url_for('create_group')}}" class="btn btn-primary">Create a group</a>
+              </div>
+            </div>
           </div>
-
-          <div class="form-group">
-            <label for="institution">Institution</label>
-            <input
-              type="text"
-              id="institution"
-              name="institution"
-              class="form-control"
-              placeholder="Institution"
-              required="required"
-              tabindex="3"
-            >
-          </div>
-
-          <div class="form-group">
-            <label for="phone-number">Phone Number *</label>
-            <p class="text-muted">(10 digit phone number)</p>
-            <input
-              type="tel"
-              class="form-control"
-              id="phone-number"
-              name="phone-number"
-              placeholder="888 888 8888"
-              maxlength="12"
-              title="Phone number"
-              required="required"
-              tabindex="4"
-            >
-          </div>
-
-          <div class="form-group">
-            <button type="submit" class="btn btn-primary">Update</button>
-          </div>
-        </form>
+        </div>
       </div>
-
     </div>
+
   </div>
 </section>
 

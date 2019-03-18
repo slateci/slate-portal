@@ -222,3 +222,12 @@ a[data-toggle="collapse"] {
 .input-group {
   align-items: center!important;
 }
+
+.btn-primary {
+  background-color: #317dd4;
+  border-color: #317dd4;
+}
+
+a:hover {
+  color: #317dd4;
+}

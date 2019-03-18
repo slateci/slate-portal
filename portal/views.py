@@ -35,13 +35,29 @@ except ImportError:
 @app.route('/', methods=['GET'])
 def home():
     """Home page - play with it if you must!"""
-    return render_template('home.html')
+    try:
+        session['primary_identity']
+        return redirect(url_for('dashboard'))
+    except:
+        return render_template('home.html')
 
 @app.route('/', methods=['GET'])
 def slateci():
     """Home page - play with it if you must!"""
     return redirect('http://slateci.io/')
 
+@app.route('/slate_applications', methods=['GET'])
+def list_public_applications():
+    """
+    - List Known Applications on SLATE
+    """
+    if request.method == 'GET':
+        token_query = {'token': session['slate_token']}
+
+        applications = requests.get(
+            slate_api_endpoint + '/v1alpha3/apps', params=token_query)
+        applications = applications.json()['items']
+        return render_template('applications_public.html', applications=applications)
 
 @app.route('/community', methods=['GET'])
 def community():
@@ -102,12 +118,9 @@ def logout():
 
     # Redirect the user to the Globus Auth logout page
     return redirect(''.join(ga_logout_url))
-    # return redirect("http://slateci.io/")
 
 
 # Create a custom error handler for Exceptions
-
-
 @app.errorhandler(Exception)
 def exception_occurred(e):
     trace = traceback.format_tb(sys.exc_info()[2])
@@ -561,6 +574,45 @@ def user_info(user_id):
 
         return render_template('testing_user.html', user_info=user_info)
 
+@app.route('/profile/new', methods=['GET', 'POST'])
+@authenticated
+def create_profile():
+    identity_id = session.get('primary_identity')
+    institution = session.get('institution')
+    globus_id = identity_id
+    query = {'token': slate_api_token,
+             'globus_id': globus_id}
+
+    if request.method == 'GET':
+
+        return render_template('profile_create.html')
+
+    elif request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        phone = request.form['phone-number']
+        # Chris should maybe add institution into user info within DB?
+        institution = request.form['institution']
+        globus_id = session['primary_identity']
+        admin = False
+        # Schema and query for adding users to Slate DB
+        post_user = {"apiVersion": 'v1alpha3',
+                    'metadata': {'globusID': globus_id, 'name': name, 'email': email,
+                                 'phone': phone, 'institution': institution, 'admin': admin}}
+
+        query = {'token': slate_api_token}
+
+        r = requests.post(slate_api_endpoint + '/v1alpha3/users', params=query, json=post_user)
+        print("Added User: ", r)
+
+        if 'next' in session:
+            redirect_to = session['next']
+            session.pop('next')
+        else:
+            redirect_to = url_for('profile')
+
+        return redirect(redirect_to)
+
 
 @app.route('/profile', methods=['GET', 'POST'])
 @authenticated
@@ -611,6 +663,57 @@ def profile():
         requests.post(slate_api_endpoint + '/v1alpha3/users', params=query, json=post_user)
         # print(r)
         flash('Your profile has successfully been updated!')
+
+        if 'next' in session:
+            redirect_to = session['next']
+            session.pop('next')
+        else:
+            redirect_to = url_for('profile')
+
+        return redirect(redirect_to)
+
+
+@app.route('/profile/edit', methods=['GET', 'POST'])
+@authenticated
+def edit_profile():
+    if request.method == 'GET':
+        identity_id = session.get('primary_identity')
+        institution = session.get('institution')
+        globus_id = identity_id
+        query = {'token': slate_api_token,
+                 'globus_id': globus_id}
+
+        profile = requests.get(
+            slate_api_endpoint + '/v1alpha3/find_user', params=query)
+
+        if profile:
+            profile = requests.get(slate_api_endpoint + '/v1alpha3/users/' + session['slate_id'], params=query)
+            profile = profile.json()['metadata']
+            session['slate_token'] = profile['access_token']
+            session['slate_id'] = profile['id']
+        else:
+            flash(
+                'Please complete any missing profile fields and press Save.')
+
+        if request.args.get('next'):
+            session['next'] = get_safe_redirect()
+        return render_template('profile_edit.html', profile=profile)
+    elif request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        phone = request.form['phone-number']
+        # Chris should maybe add institution into user info within DB?
+        institution = request.form['institution']
+        globus_id = session['primary_identity']
+        admin = False
+        # Schema and query for adding users to Slate DB
+        put_user = {"apiVersion": 'v1alpha3',
+                    'metadata': {'name': name, 'email': email,
+                                 'phone': phone, 'institution': institution}}
+
+        query = {'token': slate_api_token}
+
+        requests.put(slate_api_endpoint + '/v1alpha3/users/' + session['slate_id'], params=query, json=put_user)
 
         if 'next' in session:
             redirect_to = session['next']
@@ -677,12 +780,8 @@ def authcallback():
         users = requests.get(
             slate_api_endpoint + '/v1alpha3/users', params=query)
         users = users.json()['items']
-
-        # print(users)
-        # print("GLOBUS ID:", globus_id)
-        # print("QUERY:", query)
-        # print("Profile:", profile)
-
+        print(users)
+        print(len(users))
         if profile:
             # name, email, institution = profile
 
@@ -701,10 +800,10 @@ def authcallback():
             session['slate_id'] = slate_user_info['metadata']['id']
 
         else:
-            return redirect(url_for('profile',
-                                    next=url_for('profile')))
+            return redirect(url_for('create_profile',
+                                    next=url_for('dashboard')))
 
-        return redirect(url_for('profile'))
+        return redirect(url_for('dashboard'))
 
 
 @app.route('/register', methods=['GET', 'POST'])

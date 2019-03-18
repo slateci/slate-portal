@@ -1,0 +1,109 @@
+{%extends "base.html"%}
+
+{%block title%}
+  Edit Profile
+{%endblock%}
+
+{%block body%}
+<section id="profile" class="bg-light">
+  <div class="container">
+
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        <h1>Edit Profile</h1>
+        <hr/>
+        <form role="form" action="{{url_for('edit_profile')}}" method="POST">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="name"
+              name="name"
+              placeholder="{{profile['name']}}"
+              required="required"
+              tabindex="1"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="form-control"
+              placeholder="{{profile['email']}}"
+              required="required"
+              tabindex="2"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="institution">Institution</label>
+            <input
+              type="text"
+              id="institution"
+              name="institution"
+              class="form-control"
+              placeholder="{{profile['institution']}}"
+              required="required"
+              tabindex="3"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="phone-number">Phone Number *</label>
+            <p class="text-muted">(10 digit phone number)</p>
+            <input
+              type="tel"
+              class="form-control"
+              id="phone-number"
+              name="phone-number"
+              placeholder="{{profile['phone']}}"
+              maxlength="12"
+              title="Phone number"
+              required="required"
+              tabindex="4"
+            >
+          </div>
+
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary">Update</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<script>
+
+window.onload = get_states();
+
+function get_states(){
+  $.ajax({
+    url: "http://128.135.158.222:18080/v1alpha1/users?token=3acc9bdc-1243-40ea-96df-373c8a616a16",
+    type: "get",
+    dataType: 'json',
+    success: function(data){
+      if(data.items){
+         $('#test').html(data.items);
+      }
+
+    },
+    error: function(xhr){
+      //Do Something to handle error
+    }
+  });
+}
+
+// $(document).ajaxComplete(function(){
+//   if($('#test').length != 0){
+//     $('#test').css('color', 'red');
+//   }
+// });
+
+</script>
+{%endblock%}

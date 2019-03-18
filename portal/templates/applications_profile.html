@@ -27,12 +27,17 @@
         </div>
 
         <ul class="nav nav-tabs">
-          <li class="active"><a class="nav-item nav-link active" data-toggle="tab" href="#home">App Configuration</a></li>
-          <li><a class="nav-item nav-link" data-toggle="tab" href="#menu1">Read Me</a></li>
+          <li class="active"><a class="nav-item nav-link active" data-toggle="tab" href="#home">Read Me</a></li>
+          <li><a class="nav-item nav-link" data-toggle="tab" href="#menu1">App Configuration</a></li>
         </ul>
 
         <div class="tab-content">
           <div id="home" class="tab-pane fade in show active">
+            <br/>
+            {% filter markdown %}{{app_readme['spec']['body']}}{% endfilter %}
+          </div>
+
+          <div id="menu1" class="tab-pane fade">
             <!-- <hr/> -->
             <table class="table table-hover">
               <tbody>
@@ -41,11 +46,6 @@
                 </tr>
               </tbody>
             </table>
-          </div>
-
-          <div id="menu1" class="tab-pane fade">
-            <br/>
-            {% filter markdown %}{{app_readme['spec']['body']}}{% endfilter %}
           </div>
 
         </div>

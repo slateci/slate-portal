@@ -123,22 +123,31 @@
       <div id="content">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
           <div class="container-fluid">
-            {% if session.get('is_authenticated') %}
             <form class="form-inline">
+              {% if session.get('is_authenticated') %}
               <button type="button" id="sidebarCollapse" class="btn btn-primary">
                 <i id="sidebar-icon" class="fas fa-align-left"></i>
               </button>
-              <a class="navbar-brand js-scroll-trigger" href="http://slateci.io/" style="padding-left: 15px;" target="_blank">
+              {% endif %}
+              {% if session.get('is_authenticated') %}
+              <a class="navbar-brand js-scroll-trigger" href="{{url_for('dashboard')}}" style="padding-left: 15px;">
                 <img src="{{url_for('static', filename='img/slate-logo-150.png')}}" width="30" height="30" class="d-inline-block align-top" alt=""> SLATE
               </a>
+              {% else %}
+              <a class="navbar-brand js-scroll-trigger" href="{{url_for('home')}}" style="padding-left: 15px;">
+                <img src="{{url_for('static', filename='img/slate-logo-150.png')}}" width="30" height="30" class="d-inline-block align-top" alt=""> SLATE
+              </a>
+              {% endif %}
             </form>
             <!-- <i class="fas fa-align-left"></i> -->
             <form class="form-inline">
+              <a class="nav-link js-scroll-trigger" href="{{url_for('list_public_applications')}}">Applications</a>
+              {% if session.get('is_authenticated') %}
               <a class="nav-link js-scroll-trigger" href="http://slateci.io/" target="_blank">Docs</a>
               <a class="nav-link js-scroll-trigger" href="{{url_for('profile')}}"><i class="fas fa-user-astronaut fa-2x"></i></a>
               <a class="nav-link js-scroll-trigger" href="{{url_for('logout')}}"><i class="fas fa-sign-out-alt fa-2x"></i></a>
+              {% endif %}
             </form>
-            {% endif %}
           </div>
         </nav>
 
@@ -150,7 +159,6 @@
     </div>
 
     <!-- Page footer -->
-    {%include 'footer.html'%}
 
   </body>
 </html>
