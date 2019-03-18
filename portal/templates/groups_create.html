@@ -50,8 +50,21 @@
               </div>
 
               <div class="form-group">
+                <label for="email">Email *</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  class="form-control"
+                  placeholder="email@domain.com"
+                  required="required"
+                  tabindex="3"
+                >
+              </div>
+
+              <div class="form-group">
                 <label for="field-of-science">Field of Science *</label>
-                <select class="form-control" id="field-of-science" name="field-of-science" required="required" tabindex="3">
+                <select class="form-control" id="field-of-science" name="field-of-science" required="required" tabindex="4">
                   <option value="" selected disabled>Select Field of Science</option>
                   {% for science in sciences %}
                   <option value="{{science}}">{{science}}</option>
@@ -61,7 +74,7 @@
 
               <div class="form-group">
                 <label for="name">Description</label>
-                <textarea name="name" rows="8" cols="80" class="form-control" id="description" placeholder="Brief Description" tabindex="4"></textarea>
+                <textarea name="name" rows="8" cols="80" class="form-control" id="description" placeholder="Brief Description" tabindex="5"></textarea>
               </div>
 
               <div class="form-group">

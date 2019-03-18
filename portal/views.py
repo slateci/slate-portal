@@ -236,6 +236,7 @@ def create_group():
         # Sanitize white space in name
         name = name.replace(" ", "-")
         phone = request.form['phone-number']
+        email = request.form['email']
         scienceField = request.form['field-of-science']
         try:
             description = request.form['description']
@@ -244,10 +245,11 @@ def create_group():
 
         token_query = {'token': session['slate_token']}
         add_group = {"apiVersion": 'v1alpha3',
-                  'metadata': {'name': name, 'phone': phone, 'scienceField': scienceField, 'description': description}}
+                  'metadata': {'name': name, 'scienceField': scienceField, 'email': email, 'phone': phone, 'description': description}}
 
-        requests.post(
+        r = requests.post(
             slate_api_endpoint + '/v1alpha3/groups', params=token_query, json=add_group)
+        # print(r.content)
 
         return redirect(url_for('view_group', name=name))
 
