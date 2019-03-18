@@ -1,0 +1,62 @@
+{%extends "base.html"%}
+
+{%block title%}Applications{%endblock%}
+
+{%block body%}
+
+<section id="clusters" class="bg-light">
+  <div class="container">
+
+    <div class='row'>
+      <div class="col-lg-12 mx-auto">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{url_for('home')}}">Home</a></li>
+          <li class="breadcrumb-item active">Applications</li>
+        </ol>
+        <h2>Applications</h2>
+        <p class="lead">
+          List of curated applications
+        </p>
+
+        <div class="table-responsive">
+          <table class="table" id="#" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+            <thead>
+              <tr>
+                <th data-field="name" data-sortable="true">Name</th>
+                <th data-field="group_id" data-sortable="true">Description</th>
+              </tr>
+            </thead>
+            <tbody data-link="row" class="rowlink" style="font-size:14px;">
+              {% for application in applications %}
+              <tr>
+                <td><a href="{{url_for('view_public_application', name=application['metadata']['name'])}}">{{application['metadata']['name']}}</a></td>
+                <td>{{application['metadata']['description']}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+  </div> <!-- container -->
+</section>
+
+<script>
+function myFunction() {
+  /* Get the text field */
+  var copyText = document.getElementById("cluster-registration");
+
+  /* Select the text field */
+  copyText.select();
+
+  /* Copy the text inside the text field */
+  document.execCommand("copy");
+
+  /* Alert the copied text */
+  alert("Copied the text: " + copyText.value);
+}
+</script>
+{%endblock%}

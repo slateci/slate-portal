@@ -52,12 +52,27 @@ def list_public_applications():
     - List Known Applications on SLATE
     """
     if request.method == 'GET':
-        token_query = {'token': session['slate_token']}
 
         applications = requests.get(
-            slate_api_endpoint + '/v1alpha3/apps', params=token_query)
+            slate_api_endpoint + '/v1alpha3/apps')
         applications = applications.json()['items']
         return render_template('applications_public.html', applications=applications)
+
+@app.route('/slate_applications/<name>', methods=['GET'])
+def view_public_application(name):
+    """
+    - View Known Applications Detail Page on SLATE
+    """
+    if request.method == 'GET':
+
+        app_config = requests.get(
+            slate_api_endpoint + '/v1alpha3/apps/' + name)
+        app_config = app_config.json()
+
+        app_readme = requests.get(
+            slate_api_endpoint + '/v1alpha3/apps/' + name + '/info')
+        app_readme = app_readme.json()
+        return render_template('applications_public_profile.html', name=name, app_config=app_config, app_readme=app_readme)
 
 @app.route('/community', methods=['GET'])
 def community():
