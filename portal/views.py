@@ -540,30 +540,6 @@ def edit_group(name):
         return redirect(url_for('view_group', name=name))
 
 
-
-@app.route('/testing', methods=['GET', 'POST'])
-@authenticated
-def testing():
-    """testing route function to retrieve user info by id"""
-    if request.method == 'GET':
-        return render_template('testing.html')
-
-    elif request.method == 'POST':
-        user_id = request.form['name']
-        return redirect(url_for('user_info', user_id=user_id))
-
-
-@app.route('/testing/<user_id>', methods=['GET', 'POST'])
-@authenticated
-def user_info(user_id):
-    if request.method == 'GET':
-        cat_url = (
-            slate_api_endpoint + '/v1alpha3/users?token=' + user_id)
-        response = requests.get(cat_url)
-        user_info = response.json()
-
-        return render_template('testing_user.html', user_info=user_info)
-
 @app.route('/profile/new', methods=['GET', 'POST'])
 @authenticated
 def create_profile():
