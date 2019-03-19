@@ -46,33 +46,6 @@ def slateci():
     """Home page - play with it if you must!"""
     return redirect('http://slateci.io/')
 
-@app.route('/slate_applications', methods=['GET'])
-def list_public_applications():
-    """
-    - List Known Applications on SLATE
-    """
-    if request.method == 'GET':
-
-        applications = requests.get(
-            slate_api_endpoint + '/v1alpha3/apps')
-        applications = applications.json()['items']
-        return render_template('applications_public.html', applications=applications)
-
-@app.route('/slate_applications/<name>', methods=['GET'])
-def view_public_application(name):
-    """
-    - View Known Applications Detail Page on SLATE
-    """
-    if request.method == 'GET':
-
-        app_config = requests.get(
-            slate_api_endpoint + '/v1alpha3/apps/' + name)
-        app_config = app_config.json()
-
-        app_readme = requests.get(
-            slate_api_endpoint + '/v1alpha3/apps/' + name + '/info')
-        app_readme = app_readme.json()
-        return render_template('applications_public_profile.html', name=name, app_config=app_config, app_readme=app_readme)
 
 @app.route('/community', methods=['GET'])
 def community():
@@ -918,37 +891,33 @@ def create_cluster():
 
 
 @app.route('/applications', methods=['GET'])
-@authenticated
+# @authenticated
 def list_applications():
     """
     - List Known Applications on SLATE
     """
     if request.method == 'GET':
-        slate_user_id = session['slate_id']
-        token_query = {'token': session['slate_token']}
 
         applications = requests.get(
-            slate_api_endpoint + '/v1alpha3/apps', params=token_query)
+            slate_api_endpoint + '/v1alpha3/apps')
         applications = applications.json()['items']
         return render_template('applications.html', applications=applications)
 
 
 @app.route('/applications/<name>', methods=['GET'])
-@authenticated
+# @authenticated
 def view_application(name):
     """
     - View Known Applications Detail Page on SLATE
     """
     if request.method == 'GET':
-        slate_user_id = session['slate_id']
-        token_query = {'token': session['slate_token']}
 
         app_config = requests.get(
-            slate_api_endpoint + '/v1alpha3/apps/' + name, params=token_query)
+            slate_api_endpoint + '/v1alpha3/apps/' + name)
         app_config = app_config.json()
 
         app_readme = requests.get(
-            slate_api_endpoint + '/v1alpha3/apps/' + name + '/info', params=token_query)
+            slate_api_endpoint + '/v1alpha3/apps/' + name + '/info')
         app_readme = app_readme.json()
         return render_template('applications_profile.html', name=name, app_config=app_config, app_readme=app_readme)
 

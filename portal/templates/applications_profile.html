@@ -13,18 +13,19 @@
     <div class="row">
       <div class="col-lg-12 mx-auto">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
+          <li class="breadcrumb-item"><a href="{% if session.get('is_authenticated') %}{{url_for('dashboard')}}{% else %}{{url_for('home')}}{% endif %}">Home</a></li>
           <li class="breadcrumb-item"><a href="{{url_for('list_applications')}}">App</a></li>
           <li class="breadcrumb-item active">{{name}}</li>
         </ol>
 
         <h1>App: {{name}}</h1>
-
+        {% if session.get('is_authenticated') %}
         <div class="install-app" style="padding: 10px 0;">
           <form action="{{url_for('create_application', name=name)}}" method="GET">
             <button class="btn btn-primary" type="submit">Install App</button>
           </form>
         </div>
+        {% endif %}
 
         <ul class="nav nav-tabs">
           <li class="active"><a class="nav-item nav-link active" data-toggle="tab" href="#home">Read Me</a></li>

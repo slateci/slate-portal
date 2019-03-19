@@ -10,7 +10,7 @@
     <div class='row'>
       <div class="col-lg-12 mx-auto">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
+          <li class="breadcrumb-item"><a href="{% if session.get('is_authenticated') %}{{url_for('dashboard')}}{%else%}{{url_for('home')}}{% endif %}">Home</a></li>
           <li class="breadcrumb-item active">Applications</li>
         </ol>
         <h2>Applications</h2>
@@ -43,20 +43,4 @@
 
   </div> <!-- container -->
 </section>
-
-<script>
-function myFunction() {
-  /* Get the text field */
-  var copyText = document.getElementById("cluster-registration");
-
-  /* Select the text field */
-  copyText.select();
-
-  /* Copy the text inside the text field */
-  document.execCommand("copy");
-
-  /* Alert the copied text */
-  alert("Copied the text: " + copyText.value);
-}
-</script>
 {%endblock%}
