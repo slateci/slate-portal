@@ -881,7 +881,6 @@ def list_applications():
 
 
 @app.route('/applications/<name>', methods=['GET'])
-# @authenticated
 def view_application(name):
     """
     - View Known Applications Detail Page on SLATE

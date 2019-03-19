@@ -2,6 +2,7 @@ from flask import Flask
 import json
 
 from portal.database import Database
+# from flask import Markup
 from flask_misaka import markdown
 from flask_misaka import Misaka
 import logging.handlers
@@ -9,10 +10,10 @@ import logging
 
 __author__ = 'Jeremy Van'
 
-md = Misaka()
 app = Flask(__name__)
 app.config.from_pyfile('portal.conf')
-md.__init__(app, tables=True)
+md = Misaka()
+md.__init__(app, tables=True, autolink=True, fenced_code=True, smartypants=True, quote=True, math=True, math_explicit=True)
 
 # set up logging
 handler = logging.handlers.RotatingFileHandler(
