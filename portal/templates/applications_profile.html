@@ -19,10 +19,13 @@
         </ol>
 
         <h1>App: {{name}}</h1>
+        <p class="lead">
+          See <a href="https://github.com/slateci/slate-catalog/tree/master/stable/{{name}}/{{name}}" target="_blank">chart source</a> for any further details
+        </p>
         {% if session.get('is_authenticated') %}
         <div class="install-app" style="padding: 10px 0;">
           <form action="{{url_for('create_application', name=name)}}" method="GET">
-            <button class="btn btn-primary" type="submit">Install App</button>
+            <button class="btn btn-primary btn-sm" type="submit">Install App</button>
           </form>
         </div>
         {% endif %}
