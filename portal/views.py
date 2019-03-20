@@ -173,6 +173,37 @@ def cli_access():
         return render_template('cli_access.html', user_info=user_info, slate_api_endpoint=slate_api_endpoint)
 
 
+@app.route('/public_groups', methods=['GET', 'POST'])
+@authenticated
+def list_public_groups():
+    if request.method == 'GET':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+
+        s = requests.get(
+            slate_api_endpoint + '/v1alpha3/groups', params=token_query)
+
+        s_info = s.json()
+        group_list = s_info['items']
+
+        return render_template('groups_public.html', group_list=group_list)
+
+
+@app.route('/public_groups/<name>', methods=['GET', 'POST'])
+@authenticated
+def view_public_group(name):
+    slate_user_id = session['slate_id']
+    token_query = {'token': session['slate_token']}
+    if request.method == 'GET':
+        group_info = requests.get(slate_api_endpoint + '/v1alpha3/groups/' + name, params=token_query)
+        group_info = group_info.json()
+
+        group_clusters = requests.get(slate_api_endpoint + '/v1alpha3/groups/' + name + '/clusters', params=token_query)
+        group_clusters = group_clusters.json()['items']
+
+        return render_template('groups_public_profile.html', group_info=group_info, group_clusters=group_clusters, name=name)
+
+
 @app.route('/groups', methods=['GET', 'POST'])
 @authenticated
 def list_groups():

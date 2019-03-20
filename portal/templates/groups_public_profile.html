@@ -1,7 +1,7 @@
 {%extends "base.html"%}
 
 {%block title%}
-  Cluster Profile
+  Group Profile Details
 {%endblock%}
 
 {%block body%}
@@ -12,32 +12,26 @@
       <div class="col-lg-12 mx-auto">
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="#">Home</a></li>
-          <li class="breadcrumb-item"><a href="{{url_for('list_clusters')}}">Clusters</a></li>
-          <li class="breadcrumb-item active">{{cluster['metadata']['name']}}</li>
+          <li class="breadcrumb-item"><a href="{{url_for('list_public_groups')}}">Public Groups</a></li>
+          <li class="breadcrumb-item active">{{name}}</li>
         </ol>
-        <h1>Cluster: {{cluster['metadata']['name']}}</h1>
+        <h1>Group: {{name}}</h1>
         <hr/>
         <div class="row">
           <div class="col-sm-6">
             <div class="card">
               <div class="card-header">
-                Cluster Information
+                Group Information:
               </div>
               <div class="card-body">
                 <p class="lead">
-                  <strong>Administering Group:</strong>
-                  {{cluster['metadata']['owningGroup']}}
+                  <strong>Contact Email:</strong> <a href="mailto:{{group_info['metadata']['email']}}">{{group_info['metadata']['email']}}</a>
                 </p>
                 <p class="lead">
-                  <strong>Contact:</strong>
-                  <a href="mailto:{{owningGroupEmail}}">{{owningGroupEmail}}</a>
+                  <strong>Field of Science:</strong> {{group_info['metadata']['scienceField']}}
                 </p>
                 <p class="lead">
-                  <strong>Institution:</strong>
-                  {{cluster['metadata']['owningOrganization']}}
-                </p>
-                <p class="lead">
-                  <strong>Location:</strong>{% for loc in cluster['metadata']['location'] %} {{loc['lat'], loc['lon']}} {% endfor %}
+                  <strong>Description:</strong> {{group_info['metadata']['description']}}
                 </p>
               </div>
             </div>
@@ -46,13 +40,17 @@
           <div class="col-sm-6">
             <div class="card">
               <div class="card-header">
-                Groups with access
+                Administering Clusters
               </div>
               <div class="card-body">
                 <ul class="list-unstyled">
-                {% for group in allowed_groups %}
-                  <li><a href="{{url_for('view_public_group', name=group['metadata']['name'])}}">{{group['metadata']['name']}}</a></li>
-                {% endfor %}
+                  {% if group_clusters %}
+                  {% for cluster in group_clusters %}
+                  <li><a href="{{url_for('view_public_cluster', name=cluster['metadata']['name'])}}">{{cluster['metadata']['name']}}</a></li>
+                  {% endfor %}
+                  {% else %}
+                  <li>Currently not administering any clusters</li>
+                  {% endif %}
                 </ul>
               </div>
             </div>
