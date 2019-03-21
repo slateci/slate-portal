@@ -79,31 +79,19 @@
 </section>
 
 <script>
+var name = {{profile['name']|tojson}};
+var email = {{profile['email']|tojson}};
+var institution = {{profile['institution']|tojson}};
+var phone = {{profile['phone']|tojson}};
 
-window.onload = get_states();
+window.onload = setEditFields(name, email, institution, phone);
 
-function get_states(){
-  $.ajax({
-    url: "http://128.135.158.222:18080/v1alpha1/users?token=3acc9bdc-1243-40ea-96df-373c8a616a16",
-    type: "get",
-    dataType: 'json',
-    success: function(data){
-      if(data.items){
-         $('#test').html(data.items);
-      }
-
-    },
-    error: function(xhr){
-      //Do Something to handle error
-    }
-  });
+function setEditFields(name, email, institution, phone){
+  document.getElementById('name').value = name;
+  document.getElementById('email').value = email;
+  document.getElementById('institution').value = institution;
+  document.getElementById('phone-number').value = phone;
 }
-
-// $(document).ajaxComplete(function(){
-//   if($('#test').length != 0){
-//     $('#test').css('color', 'red');
-//   }
-// });
 
 </script>
 {%endblock%}
