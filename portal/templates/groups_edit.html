@@ -78,12 +78,18 @@
 </section>
 
 <script>
+var email = {{group['metadata']['email']|tojson}};
 var scienceField = {{group['metadata']['scienceField']|tojson}};
+var description = {{group['metadata']['description']|tojson}};
+var phone = {{group['metadata']['phone']|tojson}};
 
-window.onload = getScienceField(scienceField);
+window.onload = setEditGroupFields(email, scienceField, description, phone);
 
-function getScienceField(scienceField){
+function setEditGroupFields(email, scienceField, description, phone){
+  document.getElementById('email').value = email;
   document.getElementById('field-of-science').value = scienceField;
+  document.getElementById('description').value = description;
+  document.getElementById('phone-number').value = phone;
 }
 
 </script>
