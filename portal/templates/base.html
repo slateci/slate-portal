@@ -111,7 +111,7 @@
             <a class="nav-link js-scroll-trigger" href="{{url_for('list_groups')}}"><i class="fas fa-users"></i> My Groups</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="{{url_for('list_public_groups')}}"><i class="fas fa-users"></i> Public Groups</a>
+            <a class="nav-link js-scroll-trigger" href="{{url_for('list_public_groups')}}"><i class="far fa-object-ungroup"></i> All Groups</a>
           </li>
           <!-- <li class="nav-item">
             <a class="nav-link js-scroll-trigger" href="{{url_for('list_provisionings')}}">Provisionings</a>
@@ -145,7 +145,7 @@
             <!-- <i class="fas fa-align-left"></i> -->
             <form class="form-inline">
               <a class="nav-link js-scroll-trigger" href="{{url_for('list_applications')}}">Applications</a>
-              <a class="nav-link js-scroll-trigger" href="http://slateci.io/" target="_blank">Docs</a>
+              <a class="nav-link js-scroll-trigger" href="http://slateci.io/docs/" target="_blank">Docs</a>
               {% if session.get('is_authenticated') %}
               <a class="nav-link js-scroll-trigger" href="{{url_for('profile')}}"><i class="fas fa-user-astronaut fa-2x"></i></a>
               <a class="nav-link js-scroll-trigger" href="{{url_for('logout')}}"><i class="fas fa-sign-out-alt fa-2x"></i></a>
