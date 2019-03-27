@@ -608,7 +608,7 @@ def create_profile():
         else:
             redirect_to = url_for('profile')
 
-        return redirect(redirect_to)
+        return redirect(url_for('profile'))
 
 
 @app.route('/profile', methods=['GET', 'POST'])
@@ -624,8 +624,10 @@ def profile():
 
         profile = requests.get(
             slate_api_endpoint + '/v1alpha3/find_user', params=query)
+        # print(profile.json()['metadata']['id'])
 
         if profile:
+            session['slate_id'] = profile.json()['metadata']['id']
             profile = requests.get(slate_api_endpoint + '/v1alpha3/users/' + session['slate_id'], params=query)
             profile = profile.json()['metadata']
             session['slate_token'] = profile['access_token']
@@ -777,8 +779,6 @@ def authcallback():
         users = requests.get(
             slate_api_endpoint + '/v1alpha3/users', params=query)
         users = users.json()['items']
-        print(users)
-        print(len(users))
         if profile:
             # name, email, institution = profile
 

@@ -11,7 +11,6 @@
     <div class="row">
       <div class="col-lg-8 mx-auto">
         <h1>Create Profile</h1>
-        {{session['primary_identity']}}
         <hr/>
         <form role="form" action="{{url_for('create_profile')}}" method="POST">
           <div class="form-group">
@@ -78,4 +77,19 @@
 
   </div>
 </section>
+
+<script>
+var name = {{session['name']|tojson}};
+var email = {{session['email']|tojson}};
+var institution = {{session['institution']|tojson}};
+
+window.onload = setEditFields(name, email, institution);
+
+function setEditFields(name, email, institution){
+  document.getElementById('name').value = name;
+  document.getElementById('email').value = email;
+  document.getElementById('institution').value = institution;
+}
+
+</script>
 {%endblock%}
