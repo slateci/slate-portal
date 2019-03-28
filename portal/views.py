@@ -517,6 +517,7 @@ def edit_cluster(project_name, name):
     cluster = cluster.json()
     if request.method == 'GET':
         """Members of group may edit information about cluster"""
+        # Setting lat/lon coordinates for edit fields to autofill
         try:
             latitude = cluster['metadata']['location'][0]['lat']
             longitude = cluster['metadata']['location'][0]['lon']
@@ -1099,7 +1100,11 @@ def delete_instance(name):
     slate_user_id = session['slate_id']
     token_query = {'token': session['slate_token']}
 
-    requests.delete(slate_api_endpoint + '/v1alpha3/instances/' + name, params=token_query)
+    r = requests.delete(slate_api_endpoint + '/v1alpha3/instances/' + name, params=token_query)
+    if r.status_code == requests.codes.ok:
+        flash('Successfully deleted instance', 'success')
+    else:
+        flash('Failed to delete instance', 'warning')
 
     return redirect(url_for('list_instances'))
 
