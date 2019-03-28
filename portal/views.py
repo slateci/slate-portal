@@ -1030,7 +1030,7 @@ def create_application(name):
         if app_install.status_code == 200:
             flash('You have successfully installed an application instance', 'success')
         else:
-            err_message = r.json()['message']
+            err_message = app_install.json()['message']
             flash('Failed to install application instance: {}'.format(err_message), 'warning')
 
         return redirect(url_for('view_application', name=name))
