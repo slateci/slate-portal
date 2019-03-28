@@ -519,10 +519,10 @@ def edit_cluster(project_name, name):
         """Members of group may edit information about cluster"""
         return render_template('cluster_edit.html', cluster=cluster, project_name=project_name, name=name)
     elif request.method == 'POST':
+        owningOrganization = request.form['owningOrganization']
         latitude = request.form['latitude']
         longitude = request.form['longitude']
         location = [{'lat': float(latitude), 'lon': float(longitude)}]
-        owningOrganization = cluster['metadata']['owningOrganization']
         add_cluster = {"apiVersion": 'v1alpha3',
                   'metadata': {'owningOrganization': owningOrganization, 'location': location}}
         r = requests.put(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_id, params=token_query, json=add_cluster)
