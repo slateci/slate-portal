@@ -532,7 +532,11 @@ def edit_cluster(project_name, name):
         add_cluster = {"apiVersion": 'v1alpha3',
                   'metadata': {'owningOrganization': owningOrganization, 'location': location}}
         r = requests.put(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_id, params=token_query, json=add_cluster)
-        # print("Update Cluster: ", r)
+        # print("Update Cluster: ", r.content)
+        if r.status_code == requests.codes.ok:
+            flash("Successfully updated cluster information", 'success')
+        else:
+            flash("Failed to update cluster information", 'warning')
         return redirect(url_for('view_cluster', project_name=project_name, name=name))
 
 

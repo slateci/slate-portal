@@ -12,6 +12,7 @@
 
     <div class="row">
       <div class="col-lg-12 mx-auto">
+        {%include 'messages.html' %}
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{% if session.get('is_authenticated') %}{{url_for('dashboard')}}{% else %}{{url_for('home')}}{% endif %}">Home</a></li>
           <li class="breadcrumb-item"><a href="{{url_for('list_applications')}}">App</a></li>
