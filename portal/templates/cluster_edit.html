@@ -77,9 +77,9 @@
 </section>
 
 <script>
-var owningOrganization = {{cluster['metadata']['owningOrganization']|tojson}};
-var latitude = {{cluster['metadata']['location'][0]['lat']|tojson}};
-var longitude = {{cluster['metadata']['location'][0]['lon']|tojson}};
+var owningOrganization = {{cluster['metadata']['owningOrganization']|tojson}} || "Organization";
+var latitude = {{latitude|tojson}};
+var longitude = {{longitude|tojson}};
 window.onload = setEditFields(owningOrganization, latitude, longitude);
 
 function setEditFields(owningOrganization, latitude, longitude){

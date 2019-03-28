@@ -517,7 +517,13 @@ def edit_cluster(project_name, name):
     cluster = cluster.json()
     if request.method == 'GET':
         """Members of group may edit information about cluster"""
-        return render_template('cluster_edit.html', cluster=cluster, project_name=project_name, name=name)
+        try:
+            latitude = cluster['metadata']['location'][0]['lat']
+            longitude = cluster['metadata']['location'][0]['lon']
+        except:
+            latitude = cluster['metadata']['location']
+            longitude = cluster['metadata']['location']
+        return render_template('cluster_edit.html', cluster=cluster, project_name=project_name, name=name, latitude=latitude, longitude=longitude)
     elif request.method == 'POST':
         owningOrganization = request.form['owningOrganization']
         latitude = request.form['latitude']
