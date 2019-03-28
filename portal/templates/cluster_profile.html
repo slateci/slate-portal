@@ -17,59 +17,76 @@
           <li class="breadcrumb-item active">{{name}}</li>
         </ol>
         <h1>Cluster Info: {{name}}</h1>
-        <!-- <hr/> -->
-        <div class="container" style="padding:10px;">
-          <h4>Grant Group Access to Cluster Whitelist</h4>
-          <form class="form-inline" role="form" action="{{url_for('view_cluster', project_name=project_name, name=name)}}" method="POST">
-            <!-- <div class="input-group"> -->
-              <fieldset class="form-group">
-               <select class="form-control input-group" name="new_group" tabindex="1" required style="width: 100%;">
-                 {% for group in non_access_groups %}
-                 <option value="{{group}}" required>{{group}}</option>
-                 {% endfor %}
-               </select>
-             </fieldset>
-              <button type="submit" name="btn" value="adduser" class="btn btn-primary btn-xs" data-submit="...Sending">Add Group</button>
-          </form>
+        <p class="lead">
+          <strong>Organization:</strong>
+          {{cluster['metadata']['owningOrganization']}}
+          </p>
+        <p class="lead">
+          <strong>Location:</strong>
+          {% for loc in cluster['metadata']['location']%}
+          {{loc['lat']}}, {{loc['lon']}}
+          {%endfor%}
+        </p>
+        <a href="{{url_for('edit_cluster', project_name=project_name, name=name)}}" class="btn btn-secondary btn-sm">Edit Info</a>
+        <hr/>
+        <div class="row">
+          <div class="col-sm-12">
+            <h4>Grant Group Access to Cluster Whitelist</h4>
+            <form class="form-inline" role="form" action="{{url_for('view_cluster', project_name=project_name, name=name)}}" method="POST">
+              <!-- <div class="input-group"> -->
+              <label class="my-1 mr-2" for="new_group">Select Group</label>
+              <select class="custom-select my-1 mr-sm-2" name="new_group" id="new_group" required>
+                <!-- <option disabled selected>Choose User...</option> -->
+                {% for group in non_access_groups %}
+                <option value="{{group}}" required>{{group}}</option>
+                {% endfor %}
+              </select>
+
+              <button type="submit" class="btn btn-primary my-1">Add Group</button>
+            </form>
+          </div>
         </div>
+        <div class="row">
+          <div class="col-sm-12">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">Groups with access to cluster</th>
+                  <th scope="col"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for group in cluster_groups %}
+                  {% if group['metadata']['name'] != project_name %}
+                <tr>
+                  <td>{{group['metadata']['name']}}</td>
+                  <td>
+                    <form role="form" action="{{url_for('remove_group_from_cluster', project_name=project_name, name=name)}}" method="POST">
+                      <button type="submit" name="remove_group" value="{{group['metadata']['name']}}" class='btn btn-danger btn-sm'>Revoke Access</button>
+                    </form>
+                  </td>
+                </tr>
+                  {% endif %}
+                {% endfor %}
+              </tbody>
+            </table>
 
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th scope="col">Groups with access to cluster</th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for group in cluster_groups %}
-              {% if group['metadata']['name'] != project_name %}
-            <tr>
-              <td>{{group['metadata']['name']}}</td>
-              <td>
-                <form role="form" action="{{url_for('view_cluster', project_name=project_name, name=name)}}" method="POST">
-                  <button type="submit" name="remove_group" value="{{group['metadata']['name']}}" class='btn btn-danger btn-xs'>Revoke Access</button>
-                </form>
-              </td>
-            </tr>
-              {% endif %}
-            {% endfor %}
-          </tbody>
-        </table>
-
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th scope="col">Applications that may run on {{name}} cluster</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for app in applications %}
-            <tr>
-              <td>{{app}}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">Applications that may run on {{name}} cluster</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for app in applications %}
+                <tr>
+                  <td>{{app}}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
 
     </div>

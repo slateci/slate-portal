@@ -447,7 +447,6 @@ def view_cluster(project_name, name):
         token_query = {'token': session['slate_token']}
         cluster_name = name
         group_name = project_name
-        # list_clusters = []
 
         list_groups = requests.get(
             slate_api_endpoint + '/v1alpha3/groups', params=token_query)
@@ -457,6 +456,9 @@ def view_cluster(project_name, name):
         cluster_groups = requests.get(
             slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=token_query)
         cluster_groups = cluster_groups.json()['items']
+
+        cluster = requests.get(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name, params=token_query)
+        cluster = cluster.json()
 
         for group in cluster_groups:
             if group['metadata']['name'] in list_groups:
@@ -472,7 +474,7 @@ def view_cluster(project_name, name):
 
         return render_template('cluster_profile.html', cluster_groups=cluster_groups,
                                project_name=project_name, name=name,
-                               applications=applications, non_access_groups=list_groups)
+                               applications=applications, non_access_groups=list_groups, cluster=cluster)
 
     elif request.method == 'POST':
         """Members of group may give other groups access to this cluster"""
@@ -487,18 +489,45 @@ def view_cluster(project_name, name):
 
         return redirect(url_for('view_cluster', name=name, project_name=project_name))
 
-    elif request.method == 'DELETE':
-        """Members of group may give other groups access to this cluster"""
 
-        remove_group = request.form['remove_group']
+@app.route('/groups/<project_name>/clusters/<name>/remove_group_from_cluster', methods=['POST'])
+@authenticated
+def remove_group_from_cluster(project_name, name):
+    if request.method == 'POST':
+        """Members of group may revoke other groups access to this cluster"""
+
+        group_id = request.form['remove_group']
+        cluster_id = name
         token_query = {'token': session['slate_token']}
 
-        # print(remove_group)
+        # print(cluster_id, group_id)
         # delete group from cluster whitelist
-        requests.delete(
-            slate_api_endpoint + '/v1alpha3/clusters/' + name + '/allowed_groups/' + remove_group, params=token_query)
+        r=requests.delete(
+            slate_api_endpoint + '/v1alpha3/clusters/' + cluster_id + '/allowed_groups/' + group_id, params=token_query)
+        # print("Remove from Whitelist: ", r)
+        return redirect(url_for('view_cluster', project_name=project_name, name=name))
 
-        return redirect(url_for('view_group', name=project_name))
+
+@app.route('/groups/<project_name>/clusters/<name>/edit', methods=['GET','POST'])
+@authenticated
+def edit_cluster(project_name, name):
+    token_query = {'token': session['slate_token']}
+    cluster_id = name
+    cluster = requests.get(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_id, params=token_query)
+    cluster = cluster.json()
+    if request.method == 'GET':
+        """Members of group may edit information about cluster"""
+        return render_template('cluster_edit.html', cluster=cluster, project_name=project_name, name=name)
+    elif request.method == 'POST':
+        latitude = request.form['latitude']
+        longitude = request.form['longitude']
+        location = [{'lat': float(latitude), 'lon': float(longitude)}]
+        owningOrganization = cluster['metadata']['owningOrganization']
+        add_cluster = {"apiVersion": 'v1alpha3',
+                  'metadata': {'owningOrganization': owningOrganization, 'location': location}}
+        r = requests.put(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_id, params=token_query, json=add_cluster)
+        # print("Update Cluster: ", r)
+        return redirect(url_for('view_cluster', project_name=project_name, name=name))
 
 
 @app.route('/groups/<name>/delete', methods=['POST'])
