@@ -529,7 +529,7 @@ def edit_cluster(project_name, name):
         owningOrganization = request.form['owningOrganization']
         latitude = request.form['latitude']
         longitude = request.form['longitude']
-        location = [{'lat': float(latitude), 'lon': float(longitude)}]
+        location = ['lat', 'lon']
         add_cluster = {"apiVersion": 'v1alpha3',
                   'metadata': {'owningOrganization': owningOrganization, 'location': location}}
         r = requests.put(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_id, params=token_query, json=add_cluster)
@@ -537,7 +537,8 @@ def edit_cluster(project_name, name):
         if r.status_code == requests.codes.ok:
             flash("Successfully updated cluster information", 'success')
         else:
-            flash("Failed to update cluster information", 'warning')
+            err_message = r.json()['message']
+            flash('Failed to update cluster info: {}'.format(err_message), 'warning')
         return redirect(url_for('view_cluster', project_name=project_name, name=name))
 
 
@@ -1029,7 +1030,8 @@ def create_application(name):
         if app_install.status_code == 200:
             flash('You have successfully installed an application instance', 'success')
         else:
-            flash('Failed to install application instance', 'warning')
+            err_message = r.json()['message']
+            flash('Failed to install application instance: {}'.format(err_message), 'warning')
 
         return redirect(url_for('view_application', name=name))
 
