@@ -453,6 +453,11 @@ def view_cluster(project_name, name):
         list_groups = list_groups.json()['items']
         list_groups = [group['metadata']['name'] for group in list_groups]
 
+        # Get clusters owned by group
+        group_clusters = requests.get(
+            slate_api_endpoint + '/v1alpha3/groups/' + group_name + '/clusters', params=token_query)
+        group_clusters = group_clusters.json()['items']
+
         cluster_groups = requests.get(
             slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=token_query)
         cluster_groups = cluster_groups.json()['items']
@@ -460,9 +465,13 @@ def view_cluster(project_name, name):
         cluster = requests.get(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name, params=token_query)
         cluster = cluster.json()
 
+        administering = False
         for group in cluster_groups:
             if group['metadata']['name'] in list_groups:
                 list_groups.remove(group['metadata']['name'])
+        for group in group_clusters:
+            if group['metadata']['name'] == cluster_name:
+                administering = True
 
         non_access_groups = requests.get(
             slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=token_query)
@@ -474,7 +483,8 @@ def view_cluster(project_name, name):
 
         return render_template('cluster_profile.html', cluster_groups=cluster_groups,
                                project_name=project_name, name=name,
-                               applications=applications, non_access_groups=list_groups, cluster=cluster)
+                               applications=applications, non_access_groups=list_groups,
+                               cluster=cluster, administering=administering, group_clusters=group_clusters)
 
     elif request.method == 'POST':
         """Members of group may give other groups access to this cluster"""

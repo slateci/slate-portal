@@ -28,7 +28,9 @@
           {{loc['lat']}}, {{loc['lon']}}
           {%endfor%}
         </p>
+        {% if administering %}
         <a href="{{url_for('edit_cluster', project_name=project_name, name=name)}}" class="btn btn-secondary btn-sm">Edit Info</a>
+        {% endif %}
         <hr/>
         <div class="row">
           <div class="col-sm-12">
