@@ -526,14 +526,17 @@ def edit_cluster(project_name, name):
             longitude = cluster['metadata']['location']
         return render_template('cluster_edit.html', cluster=cluster, project_name=project_name, name=name, latitude=latitude, longitude=longitude)
     elif request.method == 'POST':
+        # locations param is a list of coordinates, initialized as empty list
+        locations = []
         owningOrganization = request.form['owningOrganization']
-        latitude = request.form['latitude']
-        longitude = request.form['longitude']
-        location = ['lat', 'lon']
+        # grab one or many location coordinates from dynamic form fields
+        for latitude, longitude in zip (request.form.getlist('latitude'), request.form.getlist('longitude')):
+            locations.append({'lat': float(latitude), 'lon': float(longitude)})
+        # print("Locations: ", locations)
+        # Set up JSON and request query
         add_cluster = {"apiVersion": 'v1alpha3',
-                  'metadata': {'owningOrganization': owningOrganization, 'location': location}}
+                  'metadata': {'owningOrganization': owningOrganization, 'location': locations}}
         r = requests.put(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_id, params=token_query, json=add_cluster)
-        # print("Update Cluster: ", r.content)
         if r.status_code == requests.codes.ok:
             flash("Successfully updated cluster information", 'success')
         else:

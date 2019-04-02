@@ -35,34 +35,23 @@
                 >
               </div>
 
-              <!-- <div class="form-group">
-                <label for="phone-number">Phone Number *</label>
-                <p class="muted">(10 digit phone number)</p>
-                <input
-                  type="tel"
-                  class="form-control"
-                  id="phone-number"
-                  name="phone-number"
-                  placeholder=""
-                  maxlength="12"
-                  title="Phone number"
-                  required="required"
-                  tabindex="2"
-                >
-              </div> -->
-
-              <div class="form-group">
-                <!-- <label for="location">Location (coordinates)</label> -->
-                <label for="latitude">Latitude</label>
-                <div name="latitude">
-                  <input type="number" step="0.01" class="form-control" placeholder="Latitude" id="latitude" name="latitude" tabindex="2" style="width:25%;">
+              <div class="form-group input-fields-wrap">
+                <div class="form-row">
+                  <div class="col">
+                    <label for="latitude">Latitude</label>
+                    <input type="number" step="0.01" class="form-control" placeholder="Latitude" id="latitude" name="latitude" tabindex="2">
+                  </div>
+                  <div class="col">
+                    <label for="longitude">Latitude</label>
+                    <input type="number" step="0.01" class="form-control" placeholder="Longitude" id="longitude" name="longitude" tabindex="3">
+                  </div>
+                  <div class="col">
+                  </div>
                 </div>
               </div>
+
               <div class="form-group">
-                <label for="longitude">Longitude</label>
-                <div name="longitude">
-                  <input type="number" step="0.01" class="form-control" placeholder="Longitude" id="longitude" name="longitude" tabindex="3" style="width:25%;">
-                </div>
+                <button class="btn btn-secondary btn-sm add-field-button">Add Another Location</button>
               </div>
 
               <div class="form-group">
@@ -87,6 +76,38 @@ function setEditFields(owningOrganization, latitude, longitude){
   document.getElementById('latitude').value = latitude;
   document.getElementById('longitude').value = longitude;
 }
+
+$(document).ready(function() {
+	var max_fields = 10; //maximum input boxes allowed
+	var wrapper = $(".input-fields-wrap"); //Fields wrapper
+	var add_button = $(".add-field-button"); //Add button ID
+
+	var x = 1; //initlal text box count
+	$(add_button).click(function(e){ //on add input button click
+		e.preventDefault();
+		if(x < max_fields){ //max input box allowed
+			x++; //text box increment
+			$(wrapper).append(
+      "<div class='form-row'>"+
+        "<div class='col'>"+
+          "<label for='latitude'>Latitude</label>"+
+          "<input type='number' step='0.01' class='form-control' placeholder='Latitude' id='latitude' name='latitude' tabindex='2'>"+
+        "</div>"+
+        "<div class='col'>"+
+          "<label for='longitude'>Latitude</label>"+
+          "<input type='number' step='0.01' class='form-control' placeholder='Longitude' id='longitude' name='longitude' tabindex='3'>"+
+        "</div>"+
+        "<div class='col' style='padding-top:35px;'>"+
+          "<button class='btn btn-danger btn-sm remove_field' name='remove-location' id='remove-location'>Remove Location</button>"+
+        "</div>"+
+      "</div>"); //add input box
+		}
+	});
+
+	$(wrapper).on("click",".remove_field", function(e){ //user click on remove text
+		e.preventDefault(); $(this).parent('div').parent('div').remove(); x--;
+	})
+});
 
 </script>
 {%endblock%}
