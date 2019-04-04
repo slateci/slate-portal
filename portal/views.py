@@ -8,6 +8,7 @@ import sqlite3
 import requests
 import traceback
 import time
+import base64
 from flask import (abort, flash, redirect, render_template,
                    request, session, url_for, jsonify)
 # Use these four lines on container
@@ -269,6 +270,11 @@ def create_group():
         r = requests.post(
             slate_api_endpoint + '/v1alpha3/groups', params=token_query, json=add_group)
         # print(r.content)
+        if r.status_code == requests.codes.ok:
+            flash("Successfully created group", 'success')
+        else:
+            err_message = r.json()['message']
+            flash('Failed to delete group: {}'.format(err_message), 'warning')
 
         return redirect(url_for('view_group', name=name))
 
@@ -276,6 +282,76 @@ def create_group():
 @app.route('/groups/<name>', methods=['GET', 'POST'])
 @authenticated
 def view_group(name):
+    slate_user_id = session['slate_id']
+    token_query = {'token': session['slate_token']}
+
+    if request.method == 'GET':
+        group_name = name
+        # Get Group Info
+        group_info = requests.get(
+            slate_api_endpoint + '/v1alpha3/groups/' + group_name, params=token_query)
+        group_info = group_info.json()
+
+        # Get User
+        user = requests.get(
+            slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=token_query)
+        user = user.json()['metadata']['name']
+        # Get Group Members
+        group_members = requests.get(
+            slate_api_endpoint + '/v1alpha3/groups/' + group_name + '/members', params=token_query)
+        group_members = group_members.json()['items']
+        member_access = False
+        for member in group_members:
+            if member['metadata']['name'] == user:
+                member_access = True
+
+        # Get clusters owned by group
+        administering_clusters = requests.get(
+            slate_api_endpoint + '/v1alpha3/groups/' + group_name + '/clusters', params=token_query)
+        administering_clusters = administering_clusters.json()['items']
+        administering_clusters_names = [administering_cluster['metadata']['name'] for administering_cluster in administering_clusters]
+        # print(administering_clusters_names)
+        # Grab/list all Clusters in DB for now
+        list_clusters = requests.get(
+            slate_api_endpoint + '/v1alpha3/clusters', params=token_query)
+        list_clusters = list_clusters.json()['items']
+        # Create list of group's accesible clusters
+        accessible_clusters = []
+        for clusters in list_clusters:
+            cluster_name = clusters['metadata']['name']
+            cluster_allowed_groups = requests.get(
+                slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=token_query)
+            cluster_allowed_groups = cluster_allowed_groups.json()['items']
+
+            for group in cluster_allowed_groups:
+                if group['metadata']['name'] == group_name:
+                    accessible_clusters.append(clusters)
+        # Create accessible clusters list without duplicate names of administering clusters
+        accessible_clusters_names = [accessible_cluster['metadata']['name'] for accessible_cluster in accessible_clusters]
+        accessible_clusters_diff = list(set(accessible_clusters_names) - set(administering_clusters_names))
+        # print(accessible_clusters_diff)
+
+        return render_template('groups_profile.html', administering_clusters=administering_clusters,
+                                accessible_clusters=accessible_clusters_diff,
+                                name=name, group_info=group_info, member_access=member_access)
+    elif request.method == 'POST':
+        cluster_name = request.form['delete_cluster']
+        r = requests.delete(
+                    slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name,
+                    params=token_query)
+
+        if r.status_code == requests.codes.ok:
+            flash("Successfully deleted cluster", 'success')
+        else:
+            err_message = r.json()['message']
+            flash('Failed to destroy cluster: {}'.format(err_message), 'warning')
+
+        return redirect(url_for('view_group', name=name))
+
+
+@app.route('/groups/<name>/members', methods=['GET', 'POST'])
+@authenticated
+def view_group_members(name):
     slate_user_id = session['slate_id']
     token_query = {'token': session['slate_token']}
 
@@ -318,32 +394,33 @@ def view_group(name):
             if non_member['name'] in account_names:
                 non_members.remove(non_member)
 
-        # Grab/list all Clusters in DB for now
-        listclusters = requests.get(
-            slate_api_endpoint + '/v1alpha3/clusters', params=token_query)
-        list_clusters = listclusters.json()['items']
-
         # Get Group Info
         group_info = requests.get(
             slate_api_endpoint + '/v1alpha3/groups/' + group_id, params=token_query)
         group_info = group_info.json()
 
+        return render_template('groups_profile_members.html',
+                                group_list=group_list, users=users, name=name,
+                                group_members=group_members, group_info=group_info,
+                                non_members=non_members, admin=admin)
 
-        # Get clusters owned by group
-        group_clusters = requests.get(
-            slate_api_endpoint + '/v1alpha3/groups/' + group_id + '/clusters', params=token_query)
-        group_clusters = group_clusters.json()['items']
 
-        # Get clusters this group has access to
-        group_access = []
-        for clusters in list_clusters:
-            cluster_name = clusters['metadata']['name']
-            cluster_allowed_groups = requests.get(
-                slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=token_query)
-            allowed_groups = cluster_allowed_groups.json()['items']
-            for group in allowed_groups:
-                if group['metadata']['name'] == name:
-                    group_access.append(clusters)
+@app.route('/groups/<name>/secrets', methods=['GET', 'POST'])
+@authenticated
+def view_group_secrets(name):
+    slate_user_id = session['slate_id']
+    token_query = {'token': session['slate_token']}
+
+    if request.method == 'GET':
+        s = requests.get(
+            slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=token_query)
+        s_info = s.json()
+        group_list = s_info['items']
+        group_id = None
+        for group in group_list:
+            if group['metadata']['name'] == name:
+                group_id = group['metadata']['id']
+                group_name = group['metadata']['name']
 
         # Get Group Secrets
         secrets_content = []
@@ -359,19 +436,32 @@ def view_group(name):
                 slate_api_endpoint + '/v1alpha3/secrets/' + secret_id, params=token_query)
             secret_details = secret_details.json()
             secrets_content.append(secret_details)
+        # Base64 decode secret contents
+        for secret in secrets_content:
+            for key, value in secret['contents'].iteritems():
+                secret['contents'][key] = base64.b64decode(value)
 
-        return render_template('groups_profile.html', group_list=group_list,
-                               users=users, name=name, group_members=group_members,
-                               non_members=non_members, clusters=list_clusters,
-                               group_clusters=group_clusters, admin=admin,
-                               group_access=group_access, secrets=secrets,
-                               secrets_content=secrets_content, group_info=group_info)
+        # Get Group Info
+        group_info = requests.get(
+            slate_api_endpoint + '/v1alpha3/groups/' + group_id, params=token_query)
+        group_info = group_info.json()
+
+        return render_template('groups_profile_secrets.html', name=name,
+                                group_info=group_info,secrets=secrets,
+                                secrets_content=secrets_content)
     elif request.method == 'POST':
+        """ Method to delete secret from group """
         secret_id = request.form['secret_id']
         secrets_query = {'token': session['slate_token'], 'group': name}
-        requests.delete(slate_api_endpoint + '/v1alpha3/secrets/' + secret_id, params=secrets_query)
+        r = requests.delete(slate_api_endpoint + '/v1alpha3/secrets/' + secret_id, params=secrets_query)
+        # print(name, secret_id)
+        if r.status_code == requests.codes.ok:
+            flash("Successfully deleted secret", 'success')
+        else:
+            err_message = r.json()['message']
+            flash('Failed to delete secret info: {}'.format(err_message), 'warning')
 
-        return redirect(url_for('view_group', name=name))
+        return redirect(url_for('view_group_secrets', name=name))
 
 
 @app.route('/groups/<name>/new_secret', methods=['GET', 'POST'])
@@ -395,19 +485,25 @@ def create_secret(name):
         secret_name = request.form['secret_name']
         key_name = request.form['key_name']
         key_contents = request.form['key_contents']
-
+        print(key_contents)
         # Add secret contents key-value to dict
-        contents[key_name] = key_contents
+        contents[key_name] = base64.b64encode(key_contents)
+        print(contents[key_name])
 
         add_secret = {"apiVersion": 'v1alpha3',
                     'metadata': {'name': secret_name, 'group': name, 'cluster': cluster},
                     'contents': contents}
 
         # Add secret to Group
-        requests.post(
+        r = requests.post(
             slate_api_endpoint + '/v1alpha3/secrets', params=token_query, json=add_secret)
+        if r.status_code == requests.codes.ok:
+            flash("Successfully added secret", 'success')
+        else:
+            err_message = r.json()['message']
+            flash('Failed to add secret: {}'.format(err_message), 'warning')
 
-        return redirect(url_for('view_group', name=name))
+        return redirect(url_for('view_group_secrets', name=name))
 
 
 @app.route('/groups/<name>/add_member', methods=['POST'])
@@ -419,10 +515,15 @@ def group_add_member(name):
         group_id = name
 
         # Add member to Group
-        requests.put(
+        r = requests.put(
             slate_api_endpoint + '/v1alpha3/users/' + new_user_id + '/groups/' + group_id, params=token_query)
+        if r.status_code == requests.codes.ok:
+            flash("Successfully added member", 'success')
+        else:
+            err_message = r.json()['message']
+            flash('Failed to add {}: {}'.format(new_user_id, err_message), 'warning')
 
-        return redirect(url_for('view_group', name=name))
+        return redirect(url_for('view_group_members', name=name))
 
 
 @app.route('/groups/<name>/remove_member', methods=['POST'])
@@ -433,10 +534,15 @@ def group_remove_member(name):
         token_query = {'token': session['slate_token']}
         group_id = name
 
-        s = requests.delete(
+        r = requests.delete(
             slate_api_endpoint + '/v1alpha3/users/' + remove_user_id + '/groups/' + group_id, params=token_query)
+        if r.status_code == requests.codes.ok:
+            flash("Successfully removed member from group", 'success')
+        else:
+            err_message = r.json()['message']
+            flash('Failed to remove member: {}'.format(err_message), 'warning')
 
-        return redirect(url_for('view_group', name=name))
+        return redirect(url_for('view_group_members', name=name))
 
 
 @app.route('/groups/<project_name>/clusters/<name>', methods=['GET', 'POST', 'DELETE'])
@@ -484,7 +590,8 @@ def view_cluster(project_name, name):
         return render_template('cluster_profile.html', cluster_groups=cluster_groups,
                                project_name=project_name, name=name,
                                applications=applications, non_access_groups=list_groups,
-                               cluster=cluster, administering=administering, group_clusters=group_clusters)
+                               cluster=cluster, administering=administering,
+                               group_clusters=group_clusters)
 
     elif request.method == 'POST':
         """Members of group may give other groups access to this cluster"""
@@ -525,6 +632,7 @@ def edit_cluster(project_name, name):
     cluster_id = name
     cluster = requests.get(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_id, params=token_query)
     cluster = cluster.json()
+
     if request.method == 'GET':
         """Members of group may edit information about cluster"""
         # Setting lat/lon coordinates for edit fields to autofill
@@ -534,7 +642,11 @@ def edit_cluster(project_name, name):
         except:
             latitude = cluster['metadata']['location']
             longitude = cluster['metadata']['location']
-        return render_template('cluster_edit.html', cluster=cluster, project_name=project_name, name=name, latitude=latitude, longitude=longitude)
+
+        return render_template('cluster_edit.html', cluster=cluster,
+                                project_name=project_name, name=name,
+                                latitude=latitude, longitude=longitude)
+
     elif request.method == 'POST':
         # locations param is a list of coordinates, initialized as empty list
         locations = []
@@ -562,8 +674,14 @@ def delete_group(name):
         token_query = {'token': session['slate_token']}
         group_id = name
 
-        requests.delete(
+        r = requests.delete(
             slate_api_endpoint + '/v1alpha3/groups/' + group_id, params=token_query)
+            
+        if r.status_code == requests.codes.ok:
+            flash("Successfully deleted group", 'success')
+        else:
+            err_message = r.json()['message']
+            flash('Failed to delete group: {}'.format(err_message), 'warning')
 
         return redirect(url_for('list_groups'))
 

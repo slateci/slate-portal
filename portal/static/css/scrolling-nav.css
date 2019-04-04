@@ -231,3 +231,15 @@ a[data-toggle="collapse"] {
 a:hover {
   color: #317dd4;
 }
+
+.nav-tabs a:hover {
+  border-top: 3px solid #007bff;
+  border-top-color: #007bff!important;
+  border-bottom: transparent;
+}
+
+.nav-tabs a.active {
+  border-top: 3px solid #007bff;
+  border-top-color: #007bff!important;
+  border-bottom: transparent;
+}
