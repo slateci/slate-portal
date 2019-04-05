@@ -439,7 +439,14 @@ def view_group_secrets(name):
         # Base64 decode secret contents
         for secret in secrets_content:
             for key, value in secret['contents'].iteritems():
-                secret['contents'][key] = base64.b64decode(value)
+                try:
+                    value_decoded = base64.b64decode(value).decode('utf-8')
+                    secret['contents'][key] = value_decoded
+                    # print(value_decoded)
+                    # print("string is UTF-8, length {} bytes".format(len(value)))
+                except UnicodeError:
+                    secret['contents'][key] = "Cannot display non UTF-8 content"
+        print(secrets_content)
 
         # Get Group Info
         group_info = requests.get(
@@ -485,10 +492,8 @@ def create_secret(name):
         secret_name = request.form['secret_name']
         key_name = request.form['key_name']
         key_contents = request.form['key_contents']
-        print(key_contents)
         # Add secret contents key-value to dict
         contents[key_name] = base64.b64encode(key_contents)
-        print(contents[key_name])
 
         add_secret = {"apiVersion": 'v1alpha3',
                     'metadata': {'name': secret_name, 'group': name, 'cluster': cluster},
@@ -676,7 +681,7 @@ def delete_group(name):
 
         r = requests.delete(
             slate_api_endpoint + '/v1alpha3/groups/' + group_id, params=token_query)
-            
+
         if r.status_code == requests.codes.ok:
             flash("Successfully deleted group", 'success')
         else:
