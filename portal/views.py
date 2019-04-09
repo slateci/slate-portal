@@ -40,7 +40,7 @@ def home():
         session['primary_identity']
         return redirect(url_for('dashboard'))
     except:
-        return render_template('home.html')
+        return redirect(url_for('dashboard'))
 
 @app.route('/', methods=['GET'])
 def slateci():
@@ -130,29 +130,45 @@ def errorpage():
 def dashboard():
     """Send the user to dashboard"""
     if request.method == 'GET':
-        slate_user_id = session['slate_id']
-        token_query = {'token': session['slate_token']}
-
-        instances = requests.get(
-            slate_api_endpoint + '/v1alpha3/instances', params=token_query)
-        instances = instances.json()['items']
-        # Get groups to which the user belongs
-        s = requests.get(
-            slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=token_query)
-
-        s_info = s.json()
-        group_list = s_info['items']
         user_groups = []
         user_instances = []
+        try:
+            slate_user_id = session['slate_id']
+            token_query = {'token': session['slate_token']}
 
-        for groups in group_list:
-            user_groups.append(groups['metadata']['name'].encode('utf-8'))
+            instances = requests.get(
+                slate_api_endpoint + '/v1alpha3/instances', params=token_query)
+            instances = instances.json()['items']
+            # Get groups to which the user belongs
+            s = requests.get(
+                slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=token_query)
+            s_info = s.json()
+            group_list = s_info['items']
 
-        for instance in instances:
-            if instance['metadata']['group'] in user_groups:
-                user_instances.append(instance)
+            for groups in group_list:
+                user_groups.append(groups['metadata']['name'].encode('utf-8'))
 
-        return render_template('dashboard.html', user_instances=user_instances)
+            for instance in instances:
+                if instance['metadata']['group'] in user_groups:
+                    user_instances.append(instance)
+        except:
+            token_query = {'token': slate_api_token}
+
+        applications = requests.get(
+            slate_api_endpoint + '/v1alpha3/apps')
+        applications = applications.json()['items']
+
+        clusters = requests.get(
+            slate_api_endpoint + '/v1alpha3/clusters', params=token_query)
+        clusters = clusters.json()['items']
+
+        pub_groups = requests.get(
+            slate_api_endpoint + '/v1alpha3/groups', params=token_query)
+        pub_groups = pub_groups.json()['items']
+
+        return render_template('dashboard.html', user_instances=user_instances,
+                                applications=applications, clusters=clusters,
+                                pub_groups=pub_groups)
 
 
 @app.route('/cli', methods=['GET', 'POST'])
