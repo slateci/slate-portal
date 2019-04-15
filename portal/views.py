@@ -2,13 +2,8 @@ from portal.utils import (
     load_portal_client, get_portal_tokens, get_safe_redirect)
 from portal.decorators import authenticated
 from portal import app, database
-import textwrap
-import uuid
-import sqlite3
-import requests
-import traceback
-import time
-import base64
+import json
+import textwrap, uuid, sqlite3, requests, traceback, time, base64, ast
 from flask import (abort, flash, redirect, render_template,
                    request, session, url_for, jsonify)
 # Use these four lines on container
@@ -154,21 +149,49 @@ def dashboard():
         except:
             token_query = {'token': slate_api_token}
 
-        applications = requests.get(
-            slate_api_endpoint + '/v1alpha3/apps')
-        applications = applications.json()['items']
+        # Initialize separate list queries for multiplex request
+        applications_query = "/v1alpha3/apps?token="+token_query['token']
+        clusters_query = "/v1alpha3/clusters?token="+token_query['token']
+        groups_query = "/v1alpha3/groups?token="+token_query['token']
+        # Set up multiplex JSON
+        multiplexJson = {applications_query: {"method":"GET"},
+                            clusters_query: {"method":"GET"},
+                            groups_query: {"method":"GET"}}
+        # POST request for multiplex return
+        multiplex = requests.post(
+            slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=multiplexJson)
+        multiplex = multiplex.json()
 
-        clusters = requests.get(
-            slate_api_endpoint + '/v1alpha3/clusters', params=token_query)
-        clusters = clusters.json()['items']
+        # Parse post return for apps, clusters, and pub groups
+        applications_json = ast.literal_eval(multiplex[applications_query]['body'])
+        applications = [item for item in applications_json['items']]
 
-        pub_groups = requests.get(
-            slate_api_endpoint + '/v1alpha3/groups', params=token_query)
-        pub_groups = pub_groups.json()['items']
+        clusters_json = ast.literal_eval(multiplex[clusters_query]['body'])
+        clusters = [item for item in clusters_json['items']]
+
+        pub_groups_json = ast.literal_eval(multiplex[groups_query]['body'])
+        pub_groups = [item for item in pub_groups_json['items']]
+
+        # Set up multiplex JSON
+        cluster_multiplex_Json = {}
+        for cluster in clusters:
+            cluster_name = cluster['metadata']['name']
+            cluster_status_query = "/v1alpha3/clusters/"+cluster_name+"/ping?token="+token_query['token']+"&cache"
+            cluster_multiplex_Json[cluster_status_query] = {"method":"GET"}
+        # POST request for multiplex return
+        cluster_multiplex = requests.post(
+            slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=cluster_multiplex_Json)
+        cluster_multiplex = cluster_multiplex.json()
+
+        cluster_status_dict = {}
+        for cluster in cluster_multiplex:
+            cluster_name = cluster.split('/')[3]
+            cluster_status_dict[cluster_name] = json.loads(cluster_multiplex[cluster]['body'])['reachable']
 
         return render_template('dashboard.html', user_instances=user_instances,
                                 applications=applications, clusters=clusters,
-                                pub_groups=pub_groups)
+                                pub_groups=pub_groups, multiplex=multiplex,
+                                cluster_status_dict=cluster_status_dict)
 
 
 @app.route('/cli', methods=['GET', 'POST'])
@@ -574,32 +597,34 @@ def view_cluster(project_name, name):
         token_query = {'token': session['slate_token']}
         cluster_name = name
         group_name = project_name
-
+        # Get list of groups
         list_groups = requests.get(
             slate_api_endpoint + '/v1alpha3/groups', params=token_query)
         list_groups = list_groups.json()['items']
         list_groups = [group['metadata']['name'] for group in list_groups]
 
+        # Get list of groups allowed to access this cluster
+        allowed_groups = requests.get(
+            slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=token_query)
+        allowed_groups = allowed_groups.json()['items']
+        for group in allowed_groups:
+            if group['metadata']['name'] in list_groups:
+                list_groups.remove(group['metadata']['name'])
+
+        # Getting Cluster information
+        cluster = requests.get(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name, params=token_query)
+        cluster = cluster.json()
+
         # Get clusters owned by group
         group_clusters = requests.get(
             slate_api_endpoint + '/v1alpha3/groups/' + group_name + '/clusters', params=token_query)
         group_clusters = group_clusters.json()['items']
-
-        cluster_groups = requests.get(
-            slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=token_query)
-        cluster_groups = cluster_groups.json()['items']
-
-        cluster = requests.get(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name, params=token_query)
-        cluster = cluster.json()
-
         administering = False
-        for group in cluster_groups:
-            if group['metadata']['name'] in list_groups:
-                list_groups.remove(group['metadata']['name'])
         for group in group_clusters:
             if group['metadata']['name'] == cluster_name:
                 administering = True
 
+        # Groups that do not have access to this cluster, populated in drop-down form to 'add group'
         non_access_groups = requests.get(
             slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=token_query)
         non_access_groups = non_access_groups.json()['items']
@@ -608,7 +633,7 @@ def view_cluster(project_name, name):
             slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups/' + group_name + '/applications', params=token_query)
         applications = applications.json()['items']
 
-        return render_template('cluster_profile.html', cluster_groups=cluster_groups,
+        return render_template('cluster_profile.html', allowed_groups=allowed_groups,
                                project_name=project_name, name=name,
                                applications=applications, non_access_groups=list_groups,
                                cluster=cluster, administering=administering,
@@ -626,6 +651,26 @@ def view_cluster(project_name, name):
             slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups/' + new_group, params=token_query)
 
         return redirect(url_for('view_cluster', name=name, project_name=project_name))
+
+
+@app.route('/groups/<project_name>/clusters/<name>/<group_name>', methods=['GET', 'POST'])
+@authenticated
+def group_cluster_apps(project_name, name, group_name):
+    if request.method == 'GET':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+        cluster_name = name
+
+        # List Applications this group is allowed to use on this cluster
+        # applications = requests.get(
+        #     slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups/' + group_name + '/applications', params=token_query)
+        # applications = applications.json()['items']
+        applications = requests.get(
+            slate_api_endpoint + '/v1alpha3/apps', params=token_query)
+        applications = applications.json()['items']
+
+        return render_template('group_cluster_apps.html', project_name=project_name,
+                                name=name, group_name=group_name, applications=applications)
 
 
 @app.route('/groups/<project_name>/clusters/<name>/remove_group_from_cluster', methods=['POST'])
@@ -1039,7 +1084,23 @@ def list_clusters():
             slate_api_endpoint + '/v1alpha3/clusters', params=token_query)
         slate_clusters = slate_clusters.json()['items']
 
-        return render_template('clusters.html', slate_clusters=slate_clusters)
+        # Set up multiplex JSON
+        multiplexJson = {}
+        for cluster in slate_clusters:
+            cluster_name = cluster['metadata']['name']
+            cluster_status_query = "/v1alpha3/clusters/"+cluster_name+"/ping?token="+token_query['token']+"&cache"
+            multiplexJson[cluster_status_query] = {"method":"GET"}
+        # POST request for multiplex return
+        multiplex = requests.post(
+            slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=multiplexJson)
+        multiplex = multiplex.json()
+
+        cluster_status_dict = {}
+        for cluster in multiplex:
+            cluster_name = cluster.split('/')[3]
+            cluster_status_dict[cluster_name] = json.loads(multiplex[cluster]['body'])['reachable']
+
+        return render_template('clusters.html', slate_clusters=slate_clusters, cluster_status_dict=cluster_status_dict)
 
 
 @app.route('/clusters/<name>', methods=['GET'])
@@ -1051,22 +1112,36 @@ def view_public_cluster(name):
     if request.method == 'GET':
         slate_user_id = session['slate_id']
         token_query = {'token': session['slate_token']}
-        # Get cluster information
-        cluster = requests.get(
-            slate_api_endpoint + '/v1alpha3/clusters/' + name, params=token_query)
-        cluster = cluster.json()
+
+        cluster_query = "/v1alpha3/clusters/"+name+"?token="+token_query['token']
+        allowed_groups_query = "/v1alpha3/clusters/"+name+"/allowed_groups?token="+token_query['token']
+        cluster_status_query = "/v1alpha3/clusters/"+name+"/ping?token="+token_query['token']+"&cache"
+        # Set up multiplex JSON
+        multiplexJson = {cluster_query: {"method":"GET"},
+                            allowed_groups_query: {"method":"GET"},
+                            cluster_status_query: {"method":"GET"}}
+        # POST request for multiplex return
+        multiplex = requests.post(
+            slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=multiplexJson)
+        multiplex = multiplex.json()
+        # Parse post return for apps, clusters, and pub groups
+        allowed_groups_json = ast.literal_eval(multiplex[allowed_groups_query]['body'])
+        allowed_groups = [item for item in allowed_groups_json['items']]
+
+        cluster = ast.literal_eval(multiplex[cluster_query]['body'])
         # Get owning group information for contact info
         owningGroupName = cluster['metadata']['owningGroup']
         owningGroup = requests.get(
             slate_api_endpoint + '/v1alpha3/groups/' + owningGroupName, params=token_query)
         owningGroup = owningGroup.json()
         owningGroupEmail = owningGroup['metadata']['email']
-        # Get list of groups allowed to use this cluster
-        allowed_groups = requests.get(
-            slate_api_endpoint + '/v1alpha3/clusters/' + name + '/allowed_groups', params=token_query)
-        allowed_groups = allowed_groups.json()['items']
+        # Get Cluster status from multiplex
+        cluster_status = json.loads(multiplex[cluster_status_query]['body'])
 
-        return render_template('cluster_public_profile.html', cluster=cluster, owningGroupEmail=owningGroupEmail, allowed_groups=allowed_groups)
+        return render_template('cluster_public_profile.html', cluster=cluster,
+                                owningGroupEmail=owningGroupEmail,
+                                allowed_groups=allowed_groups,
+                                cluster_status=cluster_status)
 
 
 @app.route('/clusters/new', methods=['GET'])
@@ -1272,9 +1347,6 @@ def list_provisionings():
         slate_user_id = session['slate_id']
         token_query = {'token': session['slate_token']}
 
-        # instances = requests.get(
-        #     slate_api_endpoint + '/v1alpha3/instances', params=token_query)
-        # instances = instances.json()['items']
         return render_template('provisionings.html')
 
 

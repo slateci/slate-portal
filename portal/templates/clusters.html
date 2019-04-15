@@ -31,6 +31,7 @@
                 <th data-field="name" data-sortable="true">Cluster Name</th>
                 <th data-field="group_id" data-sortable="true">Group</th>
                 <th data-field="location" data-sortable="true">Location</th>
+                <th data-field="status" data-sortable="true">Status</th>
               </tr>
             </thead>
             <tbody data-link="row" class="rowlink" style="font-size:14px;">
@@ -39,6 +40,13 @@
                 <td><a href="{{url_for('view_public_cluster', name=cluster['metadata']['name'])}}">{{cluster['metadata']['name']}}</a></td>
                 <td>{{cluster['metadata']['owningGroup']}}</td>
                 <td>{% for location in cluster['metadata']['location'] %}{{location['lat']}}, {{location['lon']}}{%endfor%}</td>
+                <td>
+                  {% if cluster_status_dict[cluster['metadata']['name']] %}
+                  <i class="fas fa-check-circle" style="color: green"></i> Reachable
+                  {% else %}
+                  <i class="fas fa-times-circle" style="color: red"></i> Unreachable
+                  {% endif %}
+                </td>
               </tr>
               {% endfor %}
             </tbody>
