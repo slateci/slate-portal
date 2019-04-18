@@ -311,11 +311,11 @@ def create_group():
         # print(r.content)
         if r.status_code == requests.codes.ok:
             flash("Successfully created group", 'success')
+            return redirect(url_for('view_group', name=name))
         else:
             err_message = r.json()['message']
             flash('Failed to delete group: {}'.format(err_message), 'warning')
-
-        return redirect(url_for('view_group', name=name))
+            return redirect(url_for('list_groups', name=name))
 
 
 @app.route('/groups/<name>', methods=['GET', 'POST'])
