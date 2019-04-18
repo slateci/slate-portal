@@ -14,7 +14,11 @@
         </ol>
         <h2>Dashboard</h2>
         <p class="lead">
+          {% if session.get('is_authenticated') %}
           Account Summary
+          {% else %}
+          Public Summary
+          {% endif %}
         </p>
 
         <div class="row">
