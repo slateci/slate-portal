@@ -40,7 +40,7 @@
                   <strong>Location:</strong>{% for loc in cluster['metadata']['location'] %} {{loc['lat'], loc['lon']}} {% endfor %}
                 </p>
                 <p class="lead">
-                  <strong>Status:</strong> {% if cluster_status %} Reachable <i class="fas fa-check-circle" style="color: green"></i> {% else %} Currently unreachable <i class="fas fa-times-circle" style="color: red"></i> {% endif %}
+                  <strong>Status:</strong> {% if cluster_status == 'True'%} Reachable <i class="fas fa-check-circle" style="color: green"></i> {% else %} Currently unreachable <i class="fas fa-times-circle" style="color: red"></i> {% endif %}
                 </p>
               </div>
             </div>

@@ -1,0 +1,83 @@
+{%extends "base.html"%}
+
+{%block title%}
+  Cluster Profile
+{%endblock%}
+
+{%block body%}
+<section id="cluster-profile" class="bg-light">
+  <div class="container">
+
+    <div class="row">
+      <div class="col-lg-8 mx-auto">
+        {%include 'messages.html' %}
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="#">Home</a></li>
+          <li class="breadcrumb-item"><a href="{{url_for('list_groups')}}">Group</a></li>
+          <li class="breadcrumb-item"><a href="{{url_for('view_group', name=project_name)}}">{{project_name}}</a></li>
+          <li class="breadcrumb-item"><a href="{{url_for('view_cluster', project_name=project_name, name=name)}}">{{name}}</a></li>
+          <li class="breadcrumb-item active">{{group_name}}</li>
+        </ol>
+        <h1>Group: {{group_name}}</h1>
+        <hr/>
+        <div class="row">
+          <div class="col-sm-12">
+            <h4>Manage applications this group is allowed to use</h4>
+            <form class="form-inline" role="form" action="{{url_for('group_cluster_apps', project_name=project_name, name=name, group_name=group_name)}}" method="POST">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">Application</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Access</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for app in applications %}
+                  <tr>
+                    <td>
+                      {{app['metadata']['name']}}
+                    </td>
+                    <td>
+                      {{app['metadata']['description']}}
+                    </td>
+                    <td>
+                      <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input"
+                                name="new_app" id="{{app['metadata']['name']}}"
+                                value="{{app['metadata']['name']}}">
+                        <label class="custom-control-label" for="{{app['metadata']['name']}}"></label>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+              <button type="submit" class="btn btn-primary my-1">Update Allowed Apps</button>
+            </form>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-12">
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+var allowed_apps = {{group_allowed_apps|tojson}};
+
+window.onload = setToggleSwitchFields(allowed_apps);
+
+function setToggleSwitchFields(allowed_apps){
+  for (i=0; i < allowed_apps.length; i++) {
+    document.getElementById(allowed_apps[i]).checked = true;
+  }
+}
+
+</script>
+{%endblock%}

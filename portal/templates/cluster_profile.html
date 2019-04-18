@@ -19,14 +19,18 @@
         </ol>
         <h1>Cluster Info: {{name}}</h1>
         <p class="lead">
+          <ul class="list-unstyled">
           <strong>Organization:</strong>
           {{cluster['metadata']['owningOrganization']}}
-          </p>
+          </ul>
+        </p>
         <p class="lead">
-          <strong>Location:</strong>
+          <ul class="list-unstyled">
+          <strong>Location Coordinates: </strong>
           {% for loc in cluster['metadata']['location']%}
-          {{loc['lat']}}, {{loc['lon']}}
+          <li>({{loc['lat']}}, {{loc['lon']}})</li>
           {%endfor%}
+          </ul>
         </p>
         {% if administering %}
         <a href="{{url_for('edit_cluster', project_name=project_name, name=name)}}" class="btn btn-secondary btn-sm">Edit Info</a>
@@ -55,36 +59,23 @@
               <thead>
                 <tr>
                   <th scope="col">Groups with access to cluster</th>
-                  <th scope="col"></th>
+                  <th scope="col">Cluster Access</th>
                 </tr>
               </thead>
               <tbody>
-                {% for group in cluster_groups %}
+                {% for group in allowed_groups %}
                   {% if group['metadata']['name'] != project_name %}
                 <tr>
-                  <td>{{group['metadata']['name']}}</td>
+                  <td>
+                    <a href="{{url_for('group_cluster_apps', project_name=project_name, name=name, group_name=group['metadata']['name'])}}">{{group['metadata']['name']}}</a>
+                  </td>
                   <td>
                     <form role="form" action="{{url_for('remove_group_from_cluster', project_name=project_name, name=name)}}" method="POST">
-                      <button type="submit" name="remove_group" value="{{group['metadata']['name']}}" class='btn btn-danger btn-sm'>Revoke Access</button>
+                      <button type="submit" name="remove_group" value="{{group['metadata']['name']}}" class='btn btn-danger btn-sm'>Revoke</button>
                     </form>
                   </td>
                 </tr>
                   {% endif %}
-                {% endfor %}
-              </tbody>
-            </table>
-
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th scope="col">Applications that may run on {{name}} cluster</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for app in applications %}
-                <tr>
-                  <td>{{app}}</td>
-                </tr>
                 {% endfor %}
               </tbody>
             </table>
