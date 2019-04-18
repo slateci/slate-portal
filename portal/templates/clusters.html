@@ -32,6 +32,7 @@
                 <th data-field="group_id" data-sortable="true">Group</th>
                 <th data-field="location" data-sortable="true">Location</th>
                 <th data-field="status" data-sortable="true">Status</th>
+                <th data-field="organization" data-sortable="true">Organization</th>
               </tr>
             </thead>
             <tbody data-link="row" class="rowlink" style="font-size:14px;">
@@ -47,6 +48,7 @@
                   <i class="fas fa-times-circle" style="color: red"></i> Unreachable
                   {% endif %}
                 </td>
+                <td>{{cluster['metadata']['owningOrganization']}}</td>
               </tr>
               {% endfor %}
             </tbody>
