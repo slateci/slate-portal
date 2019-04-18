@@ -21,13 +21,14 @@
 
             <form role="form" action="{{url_for('create_group')}}" method="POST">
               <div class="form-group">
-                <label for="name">Group Name *</label>
+                <label for="name">Group Name * (alpha-numeric and -)</label>
                 <input
                   type="text"
                   class="form-control"
                   id="name"
                   name="name"
                   placeholder="Group name"
+                  pattern="[a-zA-Z0-9-]+"
                   required="required"
                   tabindex="1"
                 >
