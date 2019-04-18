@@ -79,3 +79,6 @@ target/
 
 # UPC temp app/data files
 rebates/uploads
+
+# portal.conf file and keys
+portal.conf
