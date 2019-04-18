@@ -29,6 +29,7 @@
             <thead>
               <tr>
                 <th data-field="name" data-sortable="true">Group Name</th>
+                <th data-field="scienceField" data-sortable="true">Field of Science</th>
                 <th data-field="group_id" data-sortable="true">Group ID</th>
               </tr>
             </thead>
@@ -36,6 +37,7 @@
               {% for group in group_list %}
               <tr>
                 <td><a href="{{url_for('view_public_group', name=group['metadata']['name'])}}" title="View Group Profile" style="font-weight:bold">{{ group['metadata']['name'] }}</a></td>
+                <td>{{ group['metadata']['scienceField']}}</td>
                 <td>{{ group['metadata']['id'] }}</td>
               </tr>
               {% endfor %}
