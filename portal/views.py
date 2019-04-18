@@ -629,13 +629,9 @@ def view_cluster(project_name, name):
             slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=token_query)
         non_access_groups = non_access_groups.json()['items']
 
-        applications = requests.get(
-            slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups/' + group_name + '/applications', params=token_query)
-        applications = applications.json()['items']
-
         return render_template('cluster_profile.html', allowed_groups=allowed_groups,
                                project_name=project_name, name=name,
-                               applications=applications, non_access_groups=list_groups,
+                               non_access_groups=list_groups,
                                cluster=cluster, administering=administering,
                                group_clusters=group_clusters)
 
@@ -656,21 +652,55 @@ def view_cluster(project_name, name):
 @app.route('/groups/<project_name>/clusters/<name>/<group_name>', methods=['GET', 'POST'])
 @authenticated
 def group_cluster_apps(project_name, name, group_name):
+    slate_user_id = session['slate_id']
+    token_query = {'token': session['slate_token']}
     if request.method == 'GET':
-        slate_user_id = session['slate_id']
-        token_query = {'token': session['slate_token']}
         cluster_name = name
-
-        # List Applications this group is allowed to use on this cluster
-        # applications = requests.get(
-        #     slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups/' + group_name + '/applications', params=token_query)
-        # applications = applications.json()['items']
-        applications = requests.get(
-            slate_api_endpoint + '/v1alpha3/apps', params=token_query)
-        applications = applications.json()['items']
+        # set up multiplex JSON
+        group_apps_query =  '/v1alpha3/clusters/' + cluster_name + '/allowed_groups/' + group_name + '/applications' + '?token='+token_query['token']
+        applications_query = '/v1alpha3/apps'
+        multiplex_JSON = {group_apps_query: {"method": "GET"}, applications_query: {"method": "GET"}}
+        # POST request for multiplex return
+        multiplex = requests.post(
+            slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=multiplex_JSON)
+        multiplex = multiplex.json()
+        # Parse multiplex json into applications and group allowed apps
+        group_allowed_apps = json.loads(multiplex[group_apps_query]['body'])['items']
+        applications = json.loads(multiplex[applications_query]['body'])['items']
 
         return render_template('group_cluster_apps.html', project_name=project_name,
-                                name=name, group_name=group_name, applications=applications)
+                                name=name, group_name=group_name, applications=applications,
+                                group_allowed_apps=group_allowed_apps)
+
+    elif request.method == 'POST':
+        cluster_id = name
+        group_id = group_name
+        # Get list of apps on SLATE to cross reference
+        slate_apps = requests.get(slate_api_endpoint + '/v1alpha3/apps', params=token_query)
+        slate_apps = slate_apps.json()['items']
+        slate_app_names = [app['metadata']['name'] for app in slate_apps]
+        # print(slate_app_names)
+        # Grab list of app names selected from form checkbox
+        allowed_apps = request.form.getlist('new_app')
+
+        remove_apps = list(set(slate_app_names) - set(allowed_apps))
+        # print(remove_apps)
+        # Individually add each app to group's accessible apps
+        r = None
+        for app_name in allowed_apps:
+            add_app_query = '/v1alpha3/clusters/' + cluster_id + '/allowed_groups/' + group_id + '/applications/' + app_name
+            r = requests.put(slate_api_endpoint + add_app_query, params=token_query)
+
+        for app_name in remove_apps:
+            remove_app_query = '/v1alpha3/clusters/' + cluster_id + '/allowed_groups/' + group_id + '/applications/' + app_name
+            r = requests.delete(slate_api_endpoint + remove_app_query, params=token_query)
+
+        if r.status_code == requests.codes.ok:
+            flash("Successfully updated {}'s allowed apps".format(group_id), 'success')
+        else:
+            err_message = r.json()['message']
+            flash('Failed to add applications to group: {}'.format(err_message), 'warning')
+        return redirect(url_for('view_cluster', project_name=project_name, name=name))
 
 
 @app.route('/groups/<project_name>/clusters/<name>/remove_group_from_cluster', methods=['POST'])
@@ -678,11 +708,9 @@ def group_cluster_apps(project_name, name, group_name):
 def remove_group_from_cluster(project_name, name):
     if request.method == 'POST':
         """Members of group may revoke other groups access to this cluster"""
-
         group_id = request.form['remove_group']
         cluster_id = name
         token_query = {'token': session['slate_token']}
-
         # print(cluster_id, group_id)
         # delete group from cluster whitelist
         r=requests.delete(
@@ -1083,6 +1111,9 @@ def list_clusters():
         slate_clusters = requests.get(
             slate_api_endpoint + '/v1alpha3/clusters', params=token_query)
         slate_clusters = slate_clusters.json()['items']
+        slate_clusters.sort(key=lambda e: e['metadata']['name'])
+        # slate_clusters_sorted = sorted(slate_clusters, key=lambda x: (slate_clusters[x]['metadata']))
+        print(slate_clusters)
 
         # Set up multiplex JSON
         multiplexJson = {}
@@ -1137,6 +1168,7 @@ def view_public_cluster(name):
         owningGroupEmail = owningGroup['metadata']['email']
         # Get Cluster status from multiplex
         cluster_status = json.loads(multiplex[cluster_status_query]['body'])
+        cluster_status = str(cluster_status['reachable'])
 
         return render_template('cluster_public_profile.html', cluster=cluster,
                                 owningGroupEmail=owningGroupEmail,
