@@ -1117,8 +1117,6 @@ def list_clusters():
             slate_api_endpoint + '/v1alpha3/clusters', params=token_query)
         slate_clusters = slate_clusters.json()['items']
         slate_clusters.sort(key=lambda e: e['metadata']['name'])
-        # slate_clusters_sorted = sorted(slate_clusters, key=lambda x: (slate_clusters[x]['metadata']))
-        print(slate_clusters)
 
         # Set up multiplex JSON
         multiplexJson = {}
