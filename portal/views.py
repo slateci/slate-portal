@@ -833,8 +833,13 @@ def edit_group(name):
         r = requests.put(
             slate_api_endpoint + '/v1alpha3/groups/' + name, params=token_query, json=add_group)
         # print(r)
-
-        return redirect(url_for('view_group', name=name))
+        if r.status_code == requests.codes.ok:
+            flash("Successfully deleted group", 'success')
+            return redirect(url_for('view_group', name=name))
+        else:
+            err_message = r.json()['message']
+            flash('Failed to delete group: {}'.format(err_message), 'warning')
+            return redirect(url_for('list_groups'))
 
 
 @app.route('/profile/new', methods=['GET', 'POST'])
