@@ -21,7 +21,8 @@
         {% if instance_status == 'Not Error' %}
           {% if instance_detail['services'] %}
         <h1>Instance: {{instance_detail['services'][0]['name']}}</h1>
-        <!-- <hr/> -->
+        <h4>Cluster: <span class='text-muted'>{{instance_detail['metadata']['cluster']}}</span></h4>
+        <hr/>
         <div class="table-responsive">
           <h4>Instance Detailed Services</h4>
           <table class="table table-hover">
