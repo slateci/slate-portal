@@ -485,7 +485,6 @@ def view_group_secrets(name):
                     # print("string is UTF-8, length {} bytes".format(len(value)))
                 except UnicodeError:
                     secret['contents'][key] = "Cannot display non UTF-8 content"
-        print(secrets_content)
 
         # Get Group Info
         group_info = requests.get(
@@ -1402,3 +1401,62 @@ def create_provisionings():
             slate_api_endpoint + '/v1alpha3/clusters', params=token_query)
         clusters = clusters.json()['items']
         return render_template('provisionings_create.html', clusters=clusters)
+
+
+@app.route('/secrets', methods=['GET'])
+@authenticated
+def list_secrets():
+    """
+    - List User Related Secrets Registered on SLATE
+    """
+    if request.method == 'GET':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+
+        # List groups to which the user belongs
+        user_groups = requests.get(
+            slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=token_query)
+        user_groups = user_groups.json()['items']
+        user_groups = [group['metadata']['name'] for group in user_groups]
+
+        # Get User's Group's Secrets
+        user_secrets = []
+        for group_name in user_groups:
+            secrets_query = {'token': session['slate_token'], 'group': group_name}
+            secrets = requests.get(
+                slate_api_endpoint + '/v1alpha3/secrets', params=secrets_query)
+            secrets = secrets.json()
+            user_secrets.append(secrets['items'])
+
+        groups_secrets = {}
+        for group in user_secrets:
+            if group:
+                for secret in group:
+                    secret_id = secret['metadata']['id']
+                    secret_group = secret['metadata']['group']
+                    if secret_group in groups_secrets:
+                        groups_secrets[secret_group].append(secret_id)
+                    else:
+                        groups_secrets[secret_group] = [secret_id]
+            else:
+                print("No group secrets here")
+
+        secrets_content = []
+        for group, secret_ids in groups_secrets.iteritems():
+            for secret_id in secret_ids:
+                secret_details = requests.get(
+                    slate_api_endpoint + '/v1alpha3/secrets/' + secret_id, params=token_query)
+                secret_details = secret_details.json()
+                secrets_content.append(secret_details)
+        # Base64 decode secret contents
+        for secret in secrets_content:
+            for key, value in secret['contents'].iteritems():
+                try:
+                    value_decoded = base64.b64decode(value).decode('utf-8')
+                    secret['contents'][key] = value_decoded
+                    # print(value_decoded)
+                    # print("string is UTF-8, length {} bytes".format(len(value)))
+                except UnicodeError:
+                    secret['contents'][key] = "Cannot display non UTF-8 content"
+
+        return render_template('secrets.html', secrets=secrets_content)
