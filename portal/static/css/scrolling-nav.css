@@ -243,3 +243,13 @@ a:hover {
   border-top-color: #007bff!important;
   border-bottom: transparent;
 }
+
+/* Hamburger Menu icon */
+.form-inline #sidebarCollapse {
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.form-inline .btn-primary:focus {
+  box-shadow: 0 0 0 0.2rem rgba(38,143,255,0)!important;
+}
