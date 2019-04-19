@@ -38,7 +38,7 @@
         <div class="tab-content">
           <div id="home" class="tab-pane fade in show active">
             <br/>
-            {% filter markdown %}{{app_readme['spec']['body']}}{% endfilter %}
+            {% filter markdown %}{{app_readme['spec']['body']|safe}}{% endfilter %}
           </div>
 
           <div id="menu1" class="tab-pane fade">
