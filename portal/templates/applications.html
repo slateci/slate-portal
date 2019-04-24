@@ -24,6 +24,8 @@
               <tr>
                 <th data-field="name" data-sortable="true">Name</th>
                 <th data-field="group_id" data-sortable="true">Description</th>
+                <th data-field="chart_version" data-sortable="true">Chart version</th>
+                <th data-field="app_version" data-sortable="true">App Version</th>
               </tr>
             </thead>
             <tbody data-link="row" class="rowlink" style="font-size:14px;">
@@ -31,6 +33,8 @@
               <tr>
                 <td><a href="{{url_for('view_application', name=application['metadata']['name'])}}">{{application['metadata']['name']}}</a></td>
                 <td>{{application['metadata']['description']}}</td>
+                <td>{{application['metadata']['chart_version']}}</td>
+                <td>{{application['metadata']['app_version']}}</td>
               </tr>
               {% endfor %}
             </tbody>
