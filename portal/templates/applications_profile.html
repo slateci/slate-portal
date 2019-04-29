@@ -22,6 +22,8 @@
         <p class="lead">
           See <a href="https://github.com/slateci/slate-catalog/tree/master/stable/{{name}}/{{name}}" target="_blank">chart source</a> for any further details
         </p>
+        <p>Chart Version: {{chart_version}}</p>
+        <p>App Version: {{app_version}}</p>
         {% if session.get('is_authenticated') %}
         <div class="install-app" style="padding: 10px 0;">
           <form action="{{url_for('create_application', name=name)}}" method="GET">

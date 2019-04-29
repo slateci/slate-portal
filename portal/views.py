@@ -596,6 +596,7 @@ def view_cluster(project_name, name):
         token_query = {'token': session['slate_token']}
         cluster_name = name
         group_name = project_name
+
         # Get list of groups
         list_groups = requests.get(
             slate_api_endpoint + '/v1alpha3/groups', params=token_query)
@@ -606,8 +607,11 @@ def view_cluster(project_name, name):
         allowed_groups = requests.get(
             slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=token_query)
         allowed_groups = allowed_groups.json()['items']
+
         for group in allowed_groups:
-            if group['metadata']['name'] in list_groups:
+            if group['metadata']['name'] == '<all>':
+                allowed_groups = list_groups
+            elif group['metadata']['name'] in list_groups:
                 list_groups.remove(group['metadata']['name'])
 
         # Getting Cluster information
@@ -624,13 +628,12 @@ def view_cluster(project_name, name):
                 administering = True
 
         # Groups that do not have access to this cluster, populated in drop-down form to 'add group'
-        non_access_groups = requests.get(
-            slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=token_query)
-        non_access_groups = non_access_groups.json()['items']
+        non_access_groups = list(set(list_groups) - set(allowed_groups))
+        print(non_access_groups)
 
         return render_template('cluster_profile.html', allowed_groups=allowed_groups,
                                project_name=project_name, name=name,
-                               non_access_groups=list_groups,
+                               non_access_groups=non_access_groups,
                                cluster=cluster, administering=administering,
                                group_clusters=group_clusters)
 
@@ -708,13 +711,14 @@ def remove_group_from_cluster(project_name, name):
     if request.method == 'POST':
         """Members of group may revoke other groups access to this cluster"""
         group_id = request.form['remove_group']
+        print(group_id)
         cluster_id = name
         token_query = {'token': session['slate_token']}
         # print(cluster_id, group_id)
         # delete group from cluster whitelist
         r=requests.delete(
             slate_api_endpoint + '/v1alpha3/clusters/' + cluster_id + '/allowed_groups/' + group_id, params=token_query)
-        # print("Remove from Whitelist: ", r)
+        print("Remove from Whitelist: ", r)
         return redirect(url_for('view_cluster', project_name=project_name, name=name))
 
 
@@ -1227,7 +1231,21 @@ def view_application(name):
         app_readme = requests.get(
             slate_api_endpoint + '/v1alpha3/apps/' + name + '/info')
         app_readme = app_readme.json()
-        return render_template('applications_profile.html', name=name, app_config=app_config, app_readme=app_readme)
+
+        applications = requests.get(
+            slate_api_endpoint + '/v1alpha3/apps')
+        applications = applications.json()['items']
+
+        app_version = None
+        chart_version = None
+        for app in applications:
+            if app['metadata']['name'] == name:
+                app_version = app['metadata']['app_version']
+                chart_version = app['metadata']['chart_version']
+
+        return render_template('applications_profile.html', name=name,
+                                app_config=app_config, app_readme=app_readme,
+                                app_version=app_version, chart_version=chart_version)
 
 
 @app.route('/applications/<name>/new', methods=['GET', 'POST'])
@@ -1419,6 +1437,7 @@ def list_secrets():
         user_groups = user_groups.json()['items']
         user_groups = [group['metadata']['name'] for group in user_groups]
 
+        multiplexJson = {}
         # Get User's Group's Secrets
         user_secrets = []
         for group_name in user_groups:
@@ -1427,6 +1446,14 @@ def list_secrets():
                 slate_api_endpoint + '/v1alpha3/secrets', params=secrets_query)
             secrets = secrets.json()
             user_secrets.append(secrets['items'])
+
+            secrets_query = "/v1alpha3/secrets?token="+token_query['token']+"&group="+group_name
+            multiplexJson[secrets_query] = {"method":"GET"}
+
+        multiplex = requests.post(
+            slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=multiplexJson)
+        multiplex = multiplex.json()
+        print(multiplex)
 
         groups_secrets = {}
         for group in user_secrets:
