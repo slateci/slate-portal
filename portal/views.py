@@ -1358,6 +1358,10 @@ def view_instance(name):
     token_query = {'token': session['slate_token']}
     if request.method == 'GET':
 
+        instance = requests.get(
+            slate_api_endpoint + '/v1alpha3/instances/' + name, params=token_query)
+        instance = instance.json()
+
         instance_detail = requests.get(
             slate_api_endpoint + '/v1alpha3/instances/' + name + '?token=' + session['slate_token'] + '&detailed')
         instance_detail = instance_detail.json()
@@ -1373,7 +1377,7 @@ def view_instance(name):
         return render_template('instance_profile.html', name=name,
                                 instance_detail=instance_detail,
                                 instance_status=instance_status,
-                                instance_log=instance_log)
+                                instance_log=instance_log, instance=instance)
 
 
 @app.route('/instances/<name>/delete_instance', methods=['GET'])
