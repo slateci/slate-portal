@@ -36,7 +36,7 @@ section {
   background: rgba(0,123,255, 0.5);
   color: #fff;
   padding: 6px 12px 9px 12px;
-  font-size: 16px;
+  font-size: 14px;
   border-radius: 2px;
   right: 15px;
   bottom: 15px;
@@ -135,7 +135,7 @@ nav a {
 #sidebar ul li a {
     color: #212529;
     padding: 10px;
-    font-size: 1.1em;
+    font-size: 0.9em;
     display: block;
 }
 #sidebar ul li a:hover {
