@@ -849,11 +849,11 @@ def edit_group(name):
             slate_api_endpoint + '/v1alpha3/groups/' + name, params=token_query, json=add_group)
         # print(r)
         if r.status_code == requests.codes.ok:
-            flash("Successfully deleted group", 'success')
+            flash("Successfully updated group", 'success')
             return redirect(url_for('view_group', name=name))
         else:
             err_message = r.json()['message']
-            flash('Failed to delete group: {}'.format(err_message), 'warning')
+            flash('Failed to update group information: {}'.format(err_message), 'warning')
             return redirect(url_for('list_groups'))
 
 
