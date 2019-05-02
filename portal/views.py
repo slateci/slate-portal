@@ -188,10 +188,14 @@ def dashboard():
             cluster_name = cluster.split('/')[3]
             cluster_status_dict[cluster_name] = json.loads(cluster_multiplex[cluster]['body'])['reachable']
 
+        users = requests.get(
+            slate_api_endpoint + '/v1alpha3/users', params=token_query)
+        users = users.json()['items']
+
         return render_template('dashboard.html', user_instances=user_instances,
                                 applications=applications, clusters=clusters,
                                 pub_groups=pub_groups, multiplex=multiplex,
-                                cluster_status_dict=cluster_status_dict)
+                                cluster_status_dict=cluster_status_dict, users=users)
 
 
 @app.route('/cli', methods=['GET', 'POST'])
@@ -263,6 +267,8 @@ def list_groups():
 @app.route('/groups/new', methods=['GET', 'POST'])
 @authenticated
 def create_group():
+    slate_user_id = session['slate_id']
+    token_query = {'token': session['slate_token']}
     if request.method == 'GET':
         sciences = ["Resource Provider", "Astronomy", "Astrophysics",
                             "Biology", "Biochemistry", "Bioinformatics",
@@ -286,7 +292,11 @@ def create_group():
                             "Psychology", "Child Psychology", "Educational Psychology",
                             "Materials Science", "Multidisciplinary",
                             "Network Science", "Technology"]
-        return render_template('groups_create.html', sciences=sciences)
+        user = requests.get(
+            slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=token_query)
+        user = user.json()
+
+        return render_template('groups_create.html', sciences=sciences, user=user)
 
     elif request.method == 'POST':
         """Route method to handle query to create a new Group"""
@@ -294,6 +304,8 @@ def create_group():
         name = request.form['name']
         # Sanitize white space in name
         name = name.replace(" ", "-")
+        # Lower case group name
+        name = name.lower()
         phone = request.form['phone-number']
         email = request.form['email']
         scienceField = request.form['field-of-science']

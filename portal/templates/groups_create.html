@@ -75,7 +75,7 @@
 
               <div class="form-group">
                 <label for="name">Description</label>
-                <textarea name="name" rows="8" cols="80" class="form-control" id="description" placeholder="Brief Description" tabindex="5"></textarea>
+                <textarea name="description" rows="8" cols="80" class="form-control" id="description" placeholder="Brief Description" tabindex="5"></textarea>
               </div>
 
               <div class="form-group">
@@ -90,38 +90,14 @@
 </section>
 
 <script>
+var email = {{user['metadata']['email']|tojson}};
+var phone = {{user['metadata']['phone']|tojson}};
 
-window.onload = get_states();
+window.onload = setGroupFields(email, phone);
 
-function get_states(){
-  $.ajax({
-    url: "http://128.135.158.222:18080/v1alpha1/users?token=3acc9bdc-1243-40ea-96df-373c8a616a16",
-    type: "get",
-    dataType: 'json',
-    success: function(data){
-      if(data.items){
-         $('#test').html(data.items);
-      }
-
-    },
-    error: function(xhr){
-      //Do Something to handle error
-    }
-  });
-}
-
-function myFunction() {
-  /* Get the text field */
-  var copyText = document.getElementById("cli_access");
-
-  /* Select the text field */
-  copyText.select();
-
-  /* Copy the text inside the text field */
-  document.execCommand("copy");
-
-  /* Alert the copied text */
-  alert("Copied the text: " + copyText.value);
+function setGroupFields(email, phone){
+  document.getElementById('email').value = email;
+  document.getElementById('phone-number').value = phone;
 }
 
 </script>
