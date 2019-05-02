@@ -1305,9 +1305,12 @@ def create_application(name):
         # Post query to install application config
         app_install = requests.post(
             slate_api_endpoint + '/v1alpha3/apps/' + name, params=token_query, json=install_app)
-        app_id = app_install.json()['metadata']['id']
+
+        print("APP INSTALL STATUS: {}".format(app_install))
+        print("APP NAME: {}".format(name))
 
         if app_install.status_code == 200:
+            app_id = app_install.json()['metadata']['id']
             flash('You have successfully installed an application instance', 'success')
             return redirect(url_for('view_instance', name=app_id))
         else:
