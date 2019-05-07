@@ -30,6 +30,7 @@
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"></style>
+    <link rel="stylesheet" href="{{url_for('static', filename='css/intlTelInput.css')}}"></style>
 
     {# Custom Fonts #}
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
@@ -51,6 +52,7 @@
 
     <!-- Custom JavaScript for this theme -->
     <script type="text/javascript" src="{{url_for('static', filename='js/scrolling-nav.js')}}"></script>
+    <script type="text/javascript" src="{{url_for('static', filename='js/intlTelInput.js')}}"></script>
     <script>
 
   	$(document).ready(function() {
@@ -70,6 +72,8 @@
     $(document).ready(function(){
       $('#myTable').dataTable();
     });
+
+    $("#demo").intlTelInput();
 
     // Dynamically update Install App dropdown menus
     // $(document).ready(function () {

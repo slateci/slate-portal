@@ -320,14 +320,15 @@ def create_group():
 
         r = requests.post(
             slate_api_endpoint + '/v1alpha3/groups', params=token_query, json=add_group)
-        # print(r.content)
         if r.status_code == requests.codes.ok:
             flash("Successfully created group", 'success')
             return redirect(url_for('view_group', name=name))
         else:
+            # print(name, phone, email, scienceField, description)
             err_message = r.json()['message']
-            flash('Failed to delete group: {}'.format(err_message), 'warning')
-            return redirect(url_for('list_groups', name=name))
+            flash('Failed to create group: {}'.format(err_message), 'warning')
+            # return redirect(url_for('list_groups', name=name))
+            return redirect(url_for('create_group'))
 
 
 @app.route('/groups/<name>', methods=['GET', 'POST'])

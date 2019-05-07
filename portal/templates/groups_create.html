@@ -12,6 +12,7 @@
 
     <div class="row">
       <div class="col-lg-12 mx-auto">
+        {%include 'messages.html' %}
         <h2>Create New Group</h2>
         <p class="lead">
           Enter Group information below
@@ -21,7 +22,7 @@
 
             <form role="form" action="{{url_for('create_group')}}" method="POST">
               <div class="form-group">
-                <label for="name">Group Name * (alpha-numeric and -)</label>
+                <label for="name">Group Name * (lowercase, alpha-numeric and -)</label>
                 <input
                   type="text"
                   class="form-control"
@@ -31,10 +32,11 @@
                   pattern="[a-zA-Z0-9-]+"
                   required="required"
                   tabindex="1"
+                  style="text-transform:lowercase"
                 >
               </div>
 
-              <div class="form-group">
+              <!-- <div class="form-group">
                 <label for="phone-number">Phone Number *</label>
                 <p class="muted">(10 digit phone number)</p>
                 <input
@@ -48,6 +50,11 @@
                   required="required"
                   tabindex="2"
                 >
+              </div> -->
+
+              <div class="form-group">
+                <label for="phone-number">Phone Number *</label>
+                <input type="tel" class="form-control" id="phone-number" name="phone-number" required>
               </div>
 
               <div class="form-group">
@@ -90,8 +97,11 @@
 </section>
 
 <script>
-var email = {{user['metadata']['email']|tojson}};
-var phone = {{user['metadata']['phone']|tojson}};
+
+$("#phone-number").intlTelInput();
+
+var email = {{user['metadata']['email']|tojson}} || None;
+var phone = {{user['metadata']['phone']|tojson}} || None;
 
 window.onload = setGroupFields(email, phone);
 
