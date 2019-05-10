@@ -25,7 +25,7 @@
 
         <div class="table-responsive">
           <h4>Slate Clusters</h4>
-          <table class="table" id="#" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+          <table class="table" id="cluster-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
             <thead>
               <tr>
                 <th data-field="name" data-sortable="true">Cluster Name</th>
@@ -61,4 +61,10 @@
 
   </div> <!-- container -->
 </section>
+
+<script>
+$(document).ready(function() {
+    $('#cluster-table').DataTable();
+});
+</script>
 {%endblock%}

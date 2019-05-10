@@ -18,78 +18,45 @@
         <p class="lead">
           List of deployed application instances
         </p>
-        <div class="card">
-          <div class="card-header">
-            Your Running Instances
-          </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table" id="myTable" data-toggle="table" data-sort-name="name" data-sort-order="desc">
-                <thead>
-                  <tr>
-                    <th data-field="name" data-sortable="true">Name</th>
-                    <th data-field="app" data-sortable="true">Application</th>
-                    <th data-field="group" data-sortable="true">Group</th>
-                    <th data-field="cluster" data-sortable="true">Cluster</th>
-                    <th data-field="instance_id" data-sortable="true">ID</th>
-                  </tr>
-                </thead>
-                <tbody data-link="row" class="rowlink" style="font-size:14px;">
-                  {% for instance in instances %}
-                  <tr>
-                    {% if instance['metadata']['group'] in user_groups %}
-                    <td><a href="{{url_for('view_instance', name=instance['metadata']['id'])}}">{{instance['metadata']['name']}}</a></td>
-                    <td>{{instance['metadata']['application']}}</td>
-                    <td>{{instance['metadata']['group']}}</td>
-                    <td>{{instance['metadata']['cluster']}}</td>
-                    <td>{{instance['metadata']['id']}}</td>
-                    {% endif %}
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          </div>
+
+        <div class="table-responsive">
+          <h4>Your Running Instances</h4>
+          <table class="table" id="instance-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+            <thead>
+              <tr>
+                <th data-field="name" data-sortable="true">Name</th>
+                <th data-field="app" data-sortable="true">Application</th>
+                <th data-field="group" data-sortable="true">Group</th>
+                <th data-field="cluster" data-sortable="true">Cluster</th>
+                <th data-field="instance_id" data-sortable="true">ID</th>
+              </tr>
+            </thead>
+            <tbody data-link="row" class="rowlink" style="font-size:14px;">
+              {% for instance in instances %}
+              <tr>
+                {% if instance['metadata']['group'] in user_groups %}
+                <td><a href="{{url_for('view_instance', name=instance['metadata']['id'])}}">{{instance['metadata']['name']}}</a></td>
+                <td>{{instance['metadata']['application']}}</td>
+                <td>{{instance['metadata']['group']}}</td>
+                <td>{{instance['metadata']['cluster']}}</td>
+                <td>{{instance['metadata']['id']}}</td>
+                {% endif %}
+              </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
         </div>
-        <!-- <br>
-        <div class="card">
-          <div class="card-header">
-            Public Running Instances
-          </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table class="table" id="myTable" data-toggle="table" data-sort-name="name" data-sort-order="desc">
-                <thead>
-                  <tr>
-                    <th data-field="name" data-sortable="true">Name</th>
-                    <th data-field="app" data-sortable="true">Application</th>
-                    <th data-field="group" data-sortable="true">Group</th>
-                    <th data-field="cluster" data-sortable="true">Cluster</th>
-                    <th data-field="instance_id" data-sortable="true">ID</th>
-                  </tr>
-                </thead>
-                <tbody data-link="row" class="rowlink" style="font-size:14px;">
-                  {% for instance in instances %}
-                  <tr>
-                    {% if instance['metadata']['group'] not in user_groups %}
-                    <td>{{instance['metadata']['name']}}</td>
-                    <td>{{instance['metadata']['application']}}</td>
-                    <td>{{instance['metadata']['group']}}</td>
-                    <td>{{instance['metadata']['cluster']}}</td>
-                    <td>{{instance['metadata']['id']}}</td>
-                    {% endif %}
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-            <a href="{{url_for('list_applications')}}" class="btn btn-primary">Install an app</a>
-          </div>
-        </div> -->
 
       </div>
     </div>
 
   </div> <!-- container -->
 </section>
+
+<script>
+$(document).ready(function() {
+    $('#instance-table').DataTable();
+});
+</script>
 {%endblock%}
