@@ -7,10 +7,6 @@
 {%block body%}
 <section id="cli-access" class="bg-light">
   <div class="container col-lg-11 mx-auto">
-    <div class="page-header">
-      <!-- <h1>CLI Access</h1> -->
-      <!-- <p>{{session['tokens']['auth.globus.org']['access_token']}}</p> -->
-    </div>
 
     <div class="row">
       <div class="col-lg-12 mx-auto">
@@ -18,17 +14,17 @@
           <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
           <li class="breadcrumb-item active">Public Groups</li>
         </ol>
-        <h2>Groups</h2>
-        <p class="lead">
+        <h2>All Public Groups</h2>
+        <!-- <p class="lead">
           A list of public groups on SLATE
-        </p>
+        </p> -->
         <!-- <a href="{{url_for('create_group')}}" class="btn btn-primary btn-sm">Register New Group</a> -->
         <!-- <hr/> -->
         <div class="table-responsive">
           <table class="table" id="#" data-toggle="table" data-sort-name="name" data-sort-order="desc">
             <thead>
               <tr>
-                <th data-field="name" data-sortable="true">Group Name</th>
+                <th data-field="name" data-sortable="true">Name</th>
                 <th data-field="scienceField" data-sortable="true">Field of Science</th>
                 <th data-field="group_id" data-sortable="true">Group ID</th>
               </tr>

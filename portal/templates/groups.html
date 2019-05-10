@@ -7,10 +7,6 @@
 {%block body%}
 <section id="cli-access" class="bg-light">
   <div class="container col-lg-11 mx-auto">
-    <div class="page-header">
-      <!-- <h1>CLI Access</h1> -->
-      <!-- <p>{{session['tokens']['auth.globus.org']['access_token']}}</p> -->
-    </div>
 
     <div class="row">
       <div class="col-lg-12 mx-auto">
@@ -19,21 +15,24 @@
           <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
           <li class="breadcrumb-item active">Group</li>
         </ol>
-        <h2>Groups</h2>
+        <!-- <h2>Groups</h2>
         <p class="lead">
           A list of your Groups
-        </p>
-        <a href="{{url_for('create_group')}}" class="btn btn-primary btn-sm">Register New Group</a>
-        <hr/>
+        </p> -->
+        <div class="page-header">
+          <a href="{{url_for('create_group')}}" class="btn btn-primary btn-sm">Register New Group</a>
+        </div>
+        <hr>
         <div class="table-responsive">
-          <table class="table" id="#" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+          <h4>My Groups</h4>
+          <table class="table" id="groups-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
             <thead>
               <tr>
-                <th data-field="name" data-sortable="true">Group Name</th>
+                <th data-field="name" data-sortable="true">Name</th>
                 <th data-field="group_id" data-sortable="true">Group ID</th>
               </tr>
             </thead>
-            <tbody data-link="row" class="rowlink" style="font-size:15px;">
+            <tbody data-link="row" class="rowlink" style="font-size:14px;">
               {% for group in group_list %}
               <tr>
                 <td><a href="{{url_for('view_group', name=group['metadata']['name'])}}" title="View Group Profile" style="font-weight:bold">{{ group['metadata']['name'] }}</a></td>
@@ -44,6 +43,7 @@
 
           </table>
         </div>
+
       </div>
 
     </div>

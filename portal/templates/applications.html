@@ -13,12 +13,13 @@
           <li class="breadcrumb-item"><a href="{% if session.get('is_authenticated') %}{{url_for('dashboard')}}{%else%}{{url_for('home')}}{% endif %}">Home</a></li>
           <li class="breadcrumb-item active">Applications</li>
         </ol>
-        <h2>Applications</h2>
+        <!-- <h2>Applications</h2>
         <p class="lead">
           List of curated applications
-        </p>
+        </p> -->
 
         <div class="table-responsive">
+          <h4>Curated Applications</h4>
           <table class="table" id="#" data-toggle="table" data-sort-name="name" data-sort-order="desc">
             <thead>
               <tr>
