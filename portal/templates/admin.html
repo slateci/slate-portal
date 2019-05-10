@@ -1,0 +1,55 @@
+{%extends "base.html"%}
+
+{%block title%}Admin View{%endblock%}
+
+{%block body%}
+
+<section id="admin" class="bg-light">
+  <div class="container col-lg-11 mx-auto">
+
+    <div class='row'>
+      <div class="col-lg-12 mx-auto">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
+          <li class="breadcrumb-item active">Admin</li>
+        </ol>
+        <h2>Admin View</h2>
+        <p class="lead">
+          List of admin relative information
+        </p>
+
+        <div class="table-responsive">
+          <h4>Users on Slate</h4>
+          <table class="table" id="user-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+            <thead>
+              <tr>
+                <th data-field="name" data-sortable="true">User Name</th>
+                <th data-field="email" data-sortable="true">Email</th>
+                <th data-field="institution" data-sortable="true">Institution</th>
+              </tr>
+            </thead>
+            <tbody data-link="row" class="rowlink" style="font-size:14px;">
+              {% for user in users %}
+              <tr>
+                <td>{{user['metadata']['name']}}</td>
+                <td>{{user['metadata']['email']}}</td>
+                <td>{{user['metadata']['institution']}}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+  </div> <!-- container -->
+</section>
+
+<script>
+$(document).ready(function() {
+    $('#user-table').DataTable();
+});
+</script>
+{%endblock%}
