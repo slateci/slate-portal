@@ -121,6 +121,11 @@ def errorpage():
         return render_template('error.html')
 
 
+@app.errorhandler(404)
+def not_found(e):
+  return render_template("404.html")
+
+
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
     """Send the user to dashboard"""
@@ -196,6 +201,20 @@ def dashboard():
                                 applications=applications, clusters=clusters,
                                 pub_groups=pub_groups, multiplex=multiplex,
                                 cluster_status_dict=cluster_status_dict, users=users)
+
+
+@app.route('/admin', methods=['GET', 'POST'])
+@authenticated
+def view_admin():
+    if request.method == 'GET':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+
+        users = requests.get(
+            slate_api_endpoint + '/v1alpha3/users', params=token_query)
+        users = users.json()['items']
+
+        return render_template('admin.html', users=users)
 
 
 @app.route('/cli', methods=['GET', 'POST'])
@@ -1066,13 +1085,8 @@ def authcallback():
         users = requests.get(
             slate_api_endpoint + '/v1alpha3/users', params=query)
         users = users.json()['items']
-        if profile:
-            # name, email, institution = profile
 
-            # session['name'] = name
-            # session['email'] = email
-            # session['institution'] = institution
-            # print("Institution:", session['institution'])
+        if profile:
             globus_id = session['primary_identity']
             query = {'token': slate_api_token,
                      'globus_id': globus_id}
@@ -1082,6 +1096,12 @@ def authcallback():
             slate_user_info = profile.json()
             session['slate_token'] = slate_user_info['metadata']['access_token']
             session['slate_id'] = slate_user_info['metadata']['id']
+
+            # Check for admin status
+            user_info = requests.get(slate_api_endpoint + '/v1alpha3/users/' + session['slate_id'], params=query)
+            user_info = user_info.json()['metadata']
+            if user_info['admin']:
+                session['admin'] = True
 
         else:
             return redirect(url_for('create_profile',
