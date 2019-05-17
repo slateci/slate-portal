@@ -168,9 +168,6 @@ def dashboard():
         multiplex = multiplex.json()
 
         # Parse post return for apps, clusters, and pub groups
-        applications_json = ast.literal_eval(multiplex[applications_query]['body'])
-        applications = [item for item in applications_json['items']]
-
         clusters_json = ast.literal_eval(multiplex[clusters_query]['body'])
         clusters = [item for item in clusters_json['items']]
 
@@ -196,6 +193,9 @@ def dashboard():
         users = requests.get(
             slate_api_endpoint + '/v1alpha3/users', params=token_query)
         users = users.json()['items']
+
+        applications_json = ast.literal_eval(multiplex[applications_query]['body'])
+        applications = [item for item in applications_json['items']]
 
         return render_template('dashboard.html', user_instances=user_instances,
                                 applications=applications, clusters=clusters,
