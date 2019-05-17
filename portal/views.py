@@ -166,13 +166,20 @@ def dashboard():
         multiplex = requests.post(
             slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=multiplexJson)
         multiplex = multiplex.json()
+        # multiplex = json.loads(multiplex)
 
         # Parse post return for apps, clusters, and pub groups
-        clusters_json = ast.literal_eval(multiplex[clusters_query]['body'])
+        # clusters_json = ast.literal_eval(multiplex[clusters_query]['body'])
+        clusters_json = json.loads(multiplex[clusters_query]['body'])
         clusters = [item for item in clusters_json['items']]
 
-        pub_groups_json = ast.literal_eval(multiplex[groups_query]['body'])
+        # pub_groups_json = ast.literal_eval(multiplex[groups_query]['body'])
+        pub_groups_json = json.loads(multiplex[groups_query]['body'])
         pub_groups = [item for item in pub_groups_json['items']]
+        # applications_json = ast.literal_eval(multiplex[applications_query]['body'])
+        applications_json = json.loads(multiplex[applications_query]['body'])
+        applications = [item for item in applications_json['items']]
+
 
         # Set up multiplex JSON
         cluster_multiplex_Json = {}
@@ -193,9 +200,6 @@ def dashboard():
         users = requests.get(
             slate_api_endpoint + '/v1alpha3/users', params=token_query)
         users = users.json()['items']
-
-        applications_json = ast.literal_eval(multiplex[applications_query]['body'])
-        applications = [item for item in applications_json['items']]
 
         return render_template('dashboard.html', user_instances=user_instances,
                                 applications=applications, clusters=clusters,
@@ -1195,10 +1199,12 @@ def view_public_cluster(name):
             slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=multiplexJson)
         multiplex = multiplex.json()
         # Parse post return for apps, clusters, and pub groups
-        allowed_groups_json = ast.literal_eval(multiplex[allowed_groups_query]['body'])
+        # allowed_groups_json = ast.literal_eval(multiplex[allowed_groups_query]['body'])
+        allowed_groups_json = json.loads(multiplex[allowed_groups_query]['body'])
         allowed_groups = [item for item in allowed_groups_json['items']]
 
-        cluster = ast.literal_eval(multiplex[cluster_query]['body'])
+        # cluster = ast.literal_eval(multiplex[cluster_query]['body'])
+        cluster = json.loads(multiplex[cluster_query]['body'])
         # Get owning group information for contact info
         owningGroupName = cluster['metadata']['owningGroup']
         owningGroup = requests.get(
@@ -1256,6 +1262,23 @@ def view_application(name):
     - View Known Applications Detail Page on SLATE
     """
     if request.method == 'GET':
+        # try:
+        #     slate_user_id = session['slate_id']
+        #     token_query = {'token': session['slate_token']}
+        # except:
+        #     token_query = {'token': slate_api_token}
+        #
+        # app_config_query = "/v1alpha3/apps/"+name
+        # app_read_query = "/v1alpha3/apps/"+name+"/info"
+        # applications_query = "/v1alpha3/apps"
+        #
+        # multiplexJson = {app_config_query: {"method":"GET"},
+        #                     app_read_query: {"method":"GET"},
+        #                     applications_query: {"method": "GET"}}
+        #
+        # multiplex = requests.post(
+        #     slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=multiplexJson)
+        # multiplex = multiplex.json()
 
         app_config = requests.get(
             slate_api_endpoint + '/v1alpha3/apps/' + name)
