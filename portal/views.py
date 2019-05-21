@@ -177,8 +177,12 @@ def dashboard():
         pub_groups_json = json.loads(multiplex[groups_query]['body'])
         pub_groups = [item for item in pub_groups_json['items']]
         # applications_json = ast.literal_eval(multiplex[applications_query]['body'])
-        applications_json = json.loads(multiplex[applications_query]['body'])
-        applications = [item for item in applications_json['items']]
+        try:
+            applications_json = json.loads(multiplex[applications_query]['body'])
+            applications = [item for item in applications_json['items']]
+        except:
+            applications = []
+            # print("NO APPLICATIONS???")
 
 
         # Set up multiplex JSON
