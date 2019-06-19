@@ -4,7 +4,7 @@
 
 {%block body%}
 
-<section id="clusters" class="bg-light">
+<section id="instances" class="bg-light">
   <div class="container col-lg-11 mx-auto">
 
     <div class='row'>
@@ -55,8 +55,13 @@
 </section>
 
 <script>
+
 $(document).ready(function() {
     $('#instance-table').DataTable();
 });
+
+$(window).on('load',function(){
+      $('#myModal').modal('show');
+  });
 </script>
 {%endblock%}

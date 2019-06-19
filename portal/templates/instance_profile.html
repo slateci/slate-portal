@@ -35,6 +35,7 @@
 
         <!-- Tab panes -->
         <div class="tab-content">
+
           <div role="tabpanel" class="tab-pane active" id="details">
             {% if instance_status == 'Not Error' %}
               {% if instance_detail['services'] %}
@@ -46,15 +47,20 @@
                   <tr>
                     <th scope="col">Name</th>
                     <th scope="col">External IP</th>
+                    <th scope="col">Cluster IP</th>
                     <th scope="col">Ports</th>
                   </tr>
                 </thead>
                 <tbody>
+                  {% for service in instance_detail['services'] %}
                   <tr>
-                    <td>{{instance_detail['services'][0]['name']}}</td>
-                    <td>{{instance_detail['services'][0]['externalIP']}}</td>
-                    <td>{{instance_detail['services'][0]['ports']}}</td>
+                    {% set addr = 'http://' +service['externalIP'] + ':' + service['ports'].split(':')[1].split('/')[0] %}
+                    <td>{{service['name']}}</td>
+                    <td><a href="{{addr}}" target="_blank">{{service['externalIP']}}</a></td>
+                    <td>{{service['clusterIP']}}</td>
+                    <td>{{service['ports']}}</td>
                   </tr>
+                  {% endfor %}
                 </tbody>
               </table>
             </div>
@@ -69,82 +75,65 @@
                     <th scope="col">Host IP</th>
                     <th scope="col">Status</th>
                     <th scope="col">Created</th>
+                    <th scope="col">Containers</th>
+                    <th scope="col">Conditions</th>
+                    <th scope="col">Events</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    {% if instance_detail['details']['pods']%}
-                    <td>{{instance_detail['details']['pods'][0]['hostName']}}</td>
-                    <td>{{instance_detail['details']['pods'][0]['hostIP']}}</td>
-                    <td>{{instance_detail['details']['pods'][0]['status']}}</td>
-                    <td>{{instance_detail['details']['pods'][0]['created']}}</td>
-                    {% else %}
-                    <td>No pods available</td>
-                    {% endif %}
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="table-responsive">
-              <h4>Condition</h4>
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th scope="col">Type</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Last Transition Time</th>
-                    <th scope="col">Last Probe Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% if instance_detail['details']['pods']%}
-                    {% for condition in instance_detail['details']['pods'][0]['conditions']%}
-                  <tr>
-                    <td>{{condition['type']}}</td>
-                    <td>{{condition['status']}}</td>
-                    <td>{{condition['lastTransitionTime']}}</td>
-                    <td>{{condition['lastProbeTime']}}</td>
-                  </tr>
-                    {% endfor %}
-                  {% else %}
-                  <tr>
-                    <td>N/A</td>
-                  </tr>
-                  {% endif%}
-                </tbody>
-              </table>
-            </div>
-            <div class="table-responsive">
-              <h4>Pod Containers</h4>
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Image</th>
-                    <th scope="col">Restart Count</th>
-                    <th scope="col">Started Running</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    {% if instance_detail['details']['pods']%}
-                      {% if instance_detail['details']['pods'][0]['containers'] %}
-                    <td>{{instance_detail['details']['pods'][0]['containers'][0]['name']}}</td>
-                    <td>{{instance_detail['details']['pods'][0]['containers'][0]['image']}}</td>
-                    <td>{{instance_detail['details']['pods'][0]['containers'][0]['restartCount']}}</td>
-                        {% if instance_detail['details']['pods'][0]['containers'][0]['state']['running'] %}
-                    <td>{{instance_detail['details']['pods'][0]['containers'][0]['state']['running']['startedAt']}}</td>
-                        {% else %}
-                    <td>Currently Not Running</td>
-                        {% endif %}
+              {% if instance_detail['details']['pods']%}
+                {% for pod in instance_detail['details']['pods'] %}
+                  <tr data-toggle="collapse" data-target="#accordion" class="clickable">
+                    <td>{{pod['hostName']}}</td>
+                    <td>{{pod['hostIP']}}</td>
+                    <td>{{pod['status']}}</td>
+                    <td>{{ pod['created']|datetimeformat }}</td>
+                    <td>
+                  {% for container in pod['containers'] %}
+                      <li style="list-style: none"><strong>Name:</strong> {{container['name']}}</li>
+                      <li style="list-style: none"><strong>Image:</strong> {{container['image']}}</li>
+                      <li style="list-style: none"><strong>Restart Count:</strong> {{container['restartCount']}}</li>
+                      <li style="list-style: none"><strong>State:</strong> {% for key, value in container['state'].items() %} {{key}} - {% for k, v in value.items() %} {{k}}: {{v}} {% endfor %} {% endfor %}</li>
+                  {% endfor %}
+                    </td>
+                    <td>
+                      <a href='' data-toggle="modal" data-target="#{{ pod['hostName']|podnameformat }}">View</a>
+                      <div id="{{ pod['hostName']|podnameformat }}" class="modal fade" role="dialog">
+                        <div class="modal-dialog">
+                          <!-- Modal content-->
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h4 class="modal-title">Conditions</h4>
+                            </div>
+                            <div class="modal-body">
+                  {% for condition in pod['conditions']%}
+                              <li style="list-style: none"><strong>Type:</strong> {{condition['type']}}</li>
+                              <li style="list-style: none"><strong>Status:</strong> {{condition['status']}}</li>
+                              <li style="list-style: none"><strong>Last Transition Time:</strong> {{condition['lastTransitionTime']|datetimeformat}}</li>
+                              <li style="list-style: none"><strong>Last Probe Time:</strong> {{condition['lastProbeTime']}}</li>
+                              <hr>
+                  {% endfor %}
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                          </div>
 
-                      {% else %}
-                    <td>No Containers Currently Running</td>
-                      {% endif %}
-                    {% else %}
-                    <td>N/A</td>
-                    {% endif %}
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                  {% for event in instance_detail['details']['pods'][0]['events']%}
+                      <li style="list-style: none"><strong>Count:</strong> {{event['count']}}</li>
+                      <li style="list-style: none"><strong>Reason:</strong> {{event['reason']}}</li>
+                      <li style="list-style: none"><strong>Message:</strong> {{event['message']}}</li>
+                  {% endfor %}
+                    </td>
                   </tr>
+                {% endfor %}
+              {% else %}
+                  <td>No pods available</td>
+              {% endif %}
                 </tbody>
               </table>
             </div>
@@ -152,6 +141,7 @@
             <h1>Detailed services information currently not available</h1>
             {% endif %}
           </div>
+
           <!-- CONFIGURATION TAB PANEL -->
           <div role="tabpanel" class="tab-pane fade" id="configuration">
             <br>
@@ -164,6 +154,7 @@
             <!-- <h3>Logs</h3> -->
             <pre class="app-logs">{% if instance_log['logs'] %}{{instance_log['logs']}}{% else %}Logs currently unavailable{% endif %}</pre>
           </div>
+
         </div>
       </div>
 

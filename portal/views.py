@@ -2,6 +2,7 @@ from portal.utils import (
     load_portal_client, get_portal_tokens, get_safe_redirect)
 from portal.decorators import authenticated
 from portal import app, database
+from datetime import datetime
 import json
 import textwrap, uuid, sqlite3, requests, traceback, time, base64, ast
 from flask import (abort, flash, redirect, render_template,
@@ -26,6 +27,19 @@ try:
     from urllib.parse import urlencode
 except ImportError:
     from urllib import urlencode
+
+@app.template_filter('datetimeformat')
+def datetimeformat(value, format='%m/%d/%Y, %H:%M:%S'):
+    d = datetime.strptime(value, '%Y-%m-%dT%H:%M:%SZ')
+    return d.strftime(format)
+
+@app.template_filter('podnameformat')
+def podnameformat(value):
+    try:
+        hostName = value.decode('utf-8').split('.')[0]
+    except:
+        hostName = "None"
+    return hostName
 
 
 @app.route('/', methods=['GET'])
