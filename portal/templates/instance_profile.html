@@ -66,78 +66,67 @@
             </div>
               {% endif %}
             <br>
-            <div class="table-responsive">
-              <h4>Pods</h4>
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th scope="col">Host Name</th>
-                    <th scope="col">Host IP</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Created</th>
-                    <th scope="col">Containers</th>
-                    <th scope="col">Conditions</th>
-                    <th scope="col">Events</th>
-                  </tr>
-                </thead>
-                <tbody>
-              {% if instance_detail['details']['pods']%}
-                {% for pod in instance_detail['details']['pods'] %}
-                  <tr data-toggle="collapse" data-target="#accordion" class="clickable">
-                    <td>{{pod['hostName']}}</td>
-                    <td>{{pod['hostIP']}}</td>
-                    <td>{{pod['status']}}</td>
-                    <td>{{ pod['created'] }}</td>
-                    <td>
-                  {% for container in pod['containers'] %}
-                      <li style="list-style: none"><strong>Name:</strong> {{container['name']}}</li>
-                      <li style="list-style: none"><strong>Image:</strong> {{container['image']}}</li>
-                      <li style="list-style: none"><strong>Restart Count:</strong> {{container['restartCount']}}</li>
-                      <li style="list-style: none"><strong>State:</strong> {% for key, value in container['state'].items() %} {{key}} - {% for k, v in value.items() %} {{k}}: {{v}} {% endfor %} {% endfor %}</li>
-                  {% endfor %}
-                    </td>
-                    <td>
-                      <a href='' data-toggle="modal" data-target="#{{ pod['hostName']|podnameformat }}">View</a>
-                      <div id="{{ pod['hostName']|podnameformat }}" class="modal fade" role="dialog">
-                        <div class="modal-dialog">
-                          <!-- Modal content-->
-                          <div class="modal-content">
-                            <div class="modal-header">
-                              <h4 class="modal-title">Conditions</h4>
-                            </div>
-                            <div class="modal-body">
-                  {% for condition in pod['conditions']%}
-                              <li style="list-style: none"><strong>Type:</strong> {{condition['type']}}</li>
-                              <li style="list-style: none"><strong>Status:</strong> {{condition['status']}}</li>
-                              <li style="list-style: none"><strong>Last Transition Time:</strong> {{condition['lastTransitionTime']}}</li>
-                              <li style="list-style: none"><strong>Last Probe Time:</strong> {{condition['lastProbeTime']}}</li>
-                              <hr>
-                  {% endfor %}
-                            </div>
-                            <div class="modal-footer">
-                              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            </div>
-                          </div>
-
+            <h4>Pods</h4>
+            <hr/>
+            {% if instance_detail['details']['pods']%}
+              {% for pod in instance_detail['details']['pods'] %}
+            <div id="accordion">
+              <div class="card" style="width: 100%;">
+                <div class="card-header">
+                  <a class="card-link" data-toggle="collapse" href="#{{pod['hostName']|podnameformat}}">
+                    {{pod['hostName']}}
+                  </a>
+                  <span class='pull-right'>Status: {{pod['status']}}</span>
+                </div>
+                <div id="{{pod['hostName']|podnameformat}}" class="collapse" data-parent="#accordion">
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <div class="card-body">
+                          <h5 class="card-title">Host IP: {{pod['hostIP']}}</h5>
+                          <h6 class="card-subtitle mb-2 text-muted">Created: {{pod['created']}}</h6>
+                          <div>
+                            <h6 class="card-subtitle mb-2 text-muted">Conditions</h6>
+                      {% for condition in pod['conditions']%}
+                              <p class="card-text">{{condition['lastTransitionTime']}} - {{condition['type']}}</p>
+                      {% endfor %}
                         </div>
                       </div>
-                    </td>
-                    <td>
-                  {% for event in instance_detail['details']['pods'][0]['events']%}
-                      <li style="list-style: none"><strong>Count:</strong> {{event['count']}}</li>
-                      <li style="list-style: none"><strong>Reason:</strong> {{event['reason']}}</li>
-                      <li style="list-style: none"><strong>Message:</strong> {{event['message']}}</li>
-                  {% endfor %}
-                    </td>
-                  </tr>
+                    </div>
+                    <div class="col-sm-6">
+                      <div class="card-body">
+                          <h5 class="card-title">Events</h5>
+                          <p class="card-text">
+                            {% for event in instance_detail['details']['pods'][0]['events']%}
+                                <li style="list-style: none"><strong>Count:</strong> {{event['count']}}</li>
+                                <li style="list-style: none"><strong>Reason:</strong> {{event['reason']}}</li>
+                                <li style="list-style: none"><strong>Message:</strong> {{event['message']}}</li>
+                            {% endfor %}
+                          </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card-body">
+                    <div>
+                      Containers
+                {% for container in pod['containers'] %}
+                          <li style="list-style: none"><strong>Name:</strong> {{container['name']}}</li>
+                          <li style="list-style: none"><strong>Restarts:</strong> {{container['restartCount']}}</li>
+                          <li style="list-style: none"><strong>State:</strong> {% for key, value in container['state'].items() %} {{key}} - {% for k, v in value.items() %} {{k}}: {{v}} {% endfor %} {% endfor %}</li>
+                          <li style="list-style: none"><strong>Image:</strong> {{container['image']}}</li>
+                          <hr/>
                 {% endfor %}
-              {% else %}
-                  <td>No pods available</td>
-              {% endif %}
-                </tbody>
-              </table>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
             </div>
-            {% else%}
+            <br>
+              {% endfor %}
+            {% endif %}
+
+            {% else %}
             <h1>Detailed services information currently not available</h1>
             {% endif %}
           </div>
