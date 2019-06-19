@@ -87,7 +87,7 @@
                     <td>{{pod['hostName']}}</td>
                     <td>{{pod['hostIP']}}</td>
                     <td>{{pod['status']}}</td>
-                    <td>{{ pod['created']|datetimeformat }}</td>
+                    <td>{{ pod['created'] }}</td>
                     <td>
                   {% for container in pod['containers'] %}
                       <li style="list-style: none"><strong>Name:</strong> {{container['name']}}</li>
@@ -109,7 +109,7 @@
                   {% for condition in pod['conditions']%}
                               <li style="list-style: none"><strong>Type:</strong> {{condition['type']}}</li>
                               <li style="list-style: none"><strong>Status:</strong> {{condition['status']}}</li>
-                              <li style="list-style: none"><strong>Last Transition Time:</strong> {{condition['lastTransitionTime']|datetimeformat}}</li>
+                              <li style="list-style: none"><strong>Last Transition Time:</strong> {{condition['lastTransitionTime']}}</li>
                               <li style="list-style: none"><strong>Last Probe Time:</strong> {{condition['lastProbeTime']}}</li>
                               <hr>
                   {% endfor %}
