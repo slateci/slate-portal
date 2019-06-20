@@ -14,10 +14,6 @@
           <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
           <li class="breadcrumb-item active">Instances</li>
         </ol>
-        <!-- <h2>Application Instances</h2>
-        <p class="lead">
-          List of deployed application instances
-        </p> -->
 
         <div class="table-responsive">
           <h4>Running Instances</h4>
@@ -55,13 +51,8 @@
 </section>
 
 <script>
-
 $(document).ready(function() {
     $('#instance-table').DataTable();
 });
-
-$(window).on('load',function(){
-      $('#myModal').modal('show');
-  });
 </script>
 {%endblock%}

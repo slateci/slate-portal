@@ -36,6 +36,9 @@
                 <p class="lead">
                   <strong>Description:</strong> {{group_info['metadata']['description']}}
                 </p>
+                {% if session.get('is_authenticated') %}
+                <a href="mailto:{{group_info['metadata']['email']}}?subject=Request to Join Group!" class="btn btn-sm btn-primary">Request to Join <i class="fas fa-envelope"></i></a>
+                {% endif %}
               </div>
             </div>
           </div>
