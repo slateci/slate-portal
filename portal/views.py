@@ -1435,18 +1435,24 @@ def view_instance(name):
     token_query = {'token': session['slate_token']}
     if request.method == 'GET':
 
-        instance = requests.get(
-            slate_api_endpoint + '/v1alpha3/instances/' + name, params=token_query)
-        instance = instance.json()
+        # Initialize separate list queries for multiplex request
+        instance_query = '/v1alpha3/instances/' + name + '?token=' + token_query['token']
+        instance_detail_query = '/v1alpha3/instances/' + name + '?token=' + token_query['token'] + '&detailed'
+        instance_log_query = '/v1alpha3/instances/' + name + '/logs' + '?token=' + token_query['token']
+        # Set up multiplex JSON
+        multiplexJson = {instance_query: {"method":"GET"},
+                            instance_detail_query: {"method":"GET"},
+                            instance_log_query: {"method":"GET"}}
+        # POST request for multiplex return
+        multiplex = requests.post(
+            slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=multiplexJson)
+        multiplex = multiplex.json()
+        # Parse post return for instance, instance details, and instance logs
+        instance = json.loads(multiplex[instance_query]['body'])
+        instance_detail = json.loads(multiplex[instance_detail_query]['body'])
+        instance_log = json.loads(multiplex[instance_log_query]['body'])
 
-        instance_detail = requests.get(
-            slate_api_endpoint + '/v1alpha3/instances/' + name + '?token=' + session['slate_token'] + '&detailed')
-        instance_detail = instance_detail.json()
         instance_status = "Not Error"
-
-        instance_log = requests.get(
-            slate_api_endpoint + '/v1alpha3/instances/' + name + '/logs', params=token_query)
-        instance_log = instance_log.json()
 
         if instance_detail['kind'] == 'Error':
             instance_status = "BIG ERROR"
