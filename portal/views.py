@@ -1321,10 +1321,33 @@ def view_application(name):
                                 app_config=app_config, app_readme=app_readme,
                                 app_version=app_version, chart_version=chart_version)
 
-
 @app.route('/applications/<name>/new', methods=['GET', 'POST'])
 @authenticated
-def create_application(name):
+def create_application_group(name):
+    """ View form to install new application """
+    if request.method == 'GET':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+
+        # Get groups that user belongs to
+        groups = requests.get(
+            slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=token_query)
+        groups = groups.json()
+        groups = groups['items']
+
+        return render_template('applications_create.html', name=name, groups=groups)
+
+    elif request.method == 'POST':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+
+        group = request.form["group"]
+        return redirect(url_for('create_application', name=name, group_name=group))
+
+
+@app.route('/applications/<name>/new/<group_name>', methods=['GET', 'POST'])
+@authenticated
+def create_application(name, group_name):
     """ View form to install new application """
     if request.method == 'GET':
         slate_user_id = session['slate_id']
@@ -1335,42 +1358,32 @@ def create_application(name):
             slate_api_endpoint + '/v1alpha3/apps/' + name, params=token_query)
         app_config = app_config.json()
 
-        # Get groups that user belongs to
-        groups = requests.get(
-            slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=token_query)
-        groups = groups.json()
-        groups = groups['items']
+        # Grab/list all Clusters in DB for now
+        list_clusters = requests.get(
+            slate_api_endpoint + '/v1alpha3/clusters', params=token_query)
+        list_clusters = list_clusters.json()['items']
 
-        group_clusters_dict = {}
-        cluster_list = []
+        # Create list of group's accesible clusters
+        accessible_clusters = []
+        for clusters in list_clusters:
+            cluster_name = clusters['metadata']['name']
+            cluster_allowed_groups = requests.get(
+                slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=token_query)
+            cluster_allowed_groups = cluster_allowed_groups.json()['items']
 
-        for group in groups:
-            group_clusters = requests.get(
-                slate_api_endpoint + '/v1alpha3/groups/' + group['metadata']['id'] + '/clusters', params=token_query)
-            group_clusters = group_clusters.json()['items']
-
-            # cluster_list = []
-            for cluster in group_clusters:
-                if cluster['metadata']['name']:
-                    cluster_list.append(cluster['metadata']['name'])
-
-            # group_name = group['metadata']['name']
-            # group_clusters_dict[group_name] = cluster_list
-
-        # testData = requests.get("https://api-dev.slateci.io:18080/v1alpha3/groups/slate-dev/clusters", params=token_query)
-        # testData = testData.json()['items']
-
-
-        return render_template('applications_create.html', name=name,
-                                app_config=app_config, groups=groups,
-                                group_clusters_dict=group_clusters_dict,
-                                cluster_list=cluster_list)
+            for group in cluster_allowed_groups:
+                if group['metadata']['name'] == group_name:
+                    accessible_clusters.append(clusters['metadata']['name'])
+        cluster_list = sorted(accessible_clusters)
+        return render_template('applications_create_final.html', name=name,
+                                app_config=app_config,
+                                cluster_list=cluster_list, group_name=group_name)
 
     elif request.method == 'POST':
         slate_user_id = session['slate_id']
         token_query = {'token': session['slate_token']}
 
-        group = request.form["group"]
+        group = group_name
         cluster = request.form["cluster"]
         configuration = request.form["config"]
 
@@ -1452,10 +1465,10 @@ def view_instance(name):
         instance_detail = json.loads(multiplex[instance_detail_query]['body'])
         instance_log = json.loads(multiplex[instance_log_query]['body'])
 
-        instance_status = "Not Error"
+        instance_status = True
 
         if instance_detail['kind'] == 'Error':
-            instance_status = "BIG ERROR"
+            instance_status = False
 
         return render_template('instance_profile.html', name=name,
                                 instance_detail=instance_detail,

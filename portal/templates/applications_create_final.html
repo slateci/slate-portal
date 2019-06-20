@@ -19,19 +19,24 @@
         <h1>Install Application: </h1>
         <hr/>
 
-        <form role="form" action="{{url_for('create_application_group', name=name)}}" method="POST">
+        <form role="form" action="{{url_for('create_application', name=name, group_name=group_name)}}" method="POST">
           <div class="form-group">
-            <label for="group">Group</label>
-            <select class="form-control" id="group" name="group" required="required" tabindex="1">
-              <option value="" selected disabled>Select Group</option>
-              {% for group in groups %}
-              <option value="{{group['metadata']['name']}}">{{group['metadata']['name']}}</option>
+            <label for="cluster">Cluster</label>
+            <select class="form-control" id="cluster" name="cluster" required="required" tabindex="2">
+              <option value="" selected disabled>--- Select One ---</option>
+              {% for cluster in cluster_list %}
+              <option value="{{cluster}}">{{cluster}}</option>
               {% endfor %}
             </select>
           </div>
 
           <div class="form-group">
-            <button type="submit" class="btn btn-primary">Next</button>
+            <label for="config">Configuration:</label>
+            <textarea class="form-control" rows="5" id="config" name="config">{{app_config['spec']['body']}}</textarea>
+          </div>
+
+          <div class="form-group">
+            <button type="submit" class="btn btn-primary">Install</button>
           </div>
         </form>
       </div>
