@@ -66,89 +66,114 @@
             </div>
               {% endif %}
             <br>
-            <h4>Pods</h4>
-            <hr/>
-            {% if instance_detail['details']['pods']%}
-              {% for pod in instance_detail['details']['pods'] %}
-            <div id="accordion">
-              <div class="card" style="width: 100%;">
-                <div class="card-header">
-                  <a class="card-link" data-toggle="collapse" href="#{{pod['hostName']|podnameformat}}">
-                    {{pod['name']}}
-                  </a>
-                  {% if pod['status'] == 'Running' %}
-                  <span class='pull-right'>Status: <span style='color: green;'>{{pod['status']}}</span></span>
-                  {% else %}
-                  <span class='pull-right'>Status: <span style='color: orange;'>{{pod['status']}}</span></span>
-                  {% endif %}
-                </div>
-                <div id="{{pod['hostName']|podnameformat}}" class="collapse" data-parent="#accordion">
-                  <br>
-                  <ul class="nav nav-tabs" role="tablist">
-                    <li class="nav-item">
-                      <a class="nav-link active" href="#conditions-{{pod['name']}}" role="tab" data-toggle="tab">Conditions</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="#containers-{{pod['name']}}" role="tab" data-toggle="tab">Containers</a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="#events-{{pod['name']}}" role="tab" data-toggle="tab">Events</a>
-                    </li>
-                  </ul>
 
-                  <!-- Tab panes -->
-                  <div class="tab-content">
+            <div class="table-responsive">
+              <h4>Pods</h4>
+              <table class="table" id="pods-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+                <thead>
+                  <tr>
+                    <th data-field="name" data-sortable="true">Name</th>
+                    <th data-field="status" data-sortable="true">Status</th>
+                    <th data-field="created" data-sortable="true">Created</th>
+                  </tr>
+                </thead>
+                <tbody data-link="row" class="rowlink" style="font-size:14px;">
 
-                    <div role="tabpanel" class="tab-pane active" id="conditions-{{pod['name']}}">
-                      <div class="card-body">
-                          <h5 class="card-title">Conditions</h5>
-                          <h6 class="card-subtitle mb-2 text-muted">Created: {{pod['created']}}</h6>
-                          <div>
-                      {% for condition in pod['conditions']%}
-                              <p class="card-text">{{condition['lastTransitionTime']}} - {{condition['type']}}</p>
-                      {% endfor %}
-                        </div>
-                      </div>
-                    </div>
+              {% if instance_detail['details']['pods']%}
+                {% for pod in instance_detail['details']['pods'] %}
+                  <tr>
+                    <td><a href="#" data-toggle="modal" data-target="#myModal-{{pod['name']}}">{{pod['name']}}</a></td>
+                    {% if pod['status'] == 'Running'%}
+                    <td><span style='color:green;'>{{pod['status']}}</span></td>
+                    {% else %}
+                    <td><span style='color:orange;'>{{pod['status']}}</span></td>
+                    {% endif %}
+                    <td>{{pod['created']}}</td>
+                  </tr>
 
-                    <div role="tabpanel" class="tab-pane" id="containers-{{pod['name']}}">
-                      <div class="card-body">
-                        <h5 class="card-title">Containers</h5>
-                        <div>
-                    {% for container in pod['containers'] %}
-                              <li style="list-style: none"><strong>Name:</strong> {{container['name']}}</li>
-                              <li style="list-style: none"><strong>Restarts:</strong> {{container['restartCount']}}</li>
-                              <li style="list-style: none"><strong>State:</strong> {% for key, value in container['state'].items() %} {{key}} - {% for k, v in value.items() %} {{k}}: {{v}} {% endfor %} {% endfor %}</li>
-                              <li style="list-style: none"><strong>Image:</strong> {{container['image']}}</li>
-                              <hr/>
-                    {% endfor %}
-                        </div>
-                      </div>
-                    </div>
+                  <div id="myModal-{{pod['name']}}" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+                      <!-- Modal content-->
+                      <div class="modal-content">
+                        <!-- <div class="modal-header">
+                          <h4 class="modal-title">Details</h4>
+                        </div> -->
+                        <div class="modal-body">
+                          <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item">
+                              <a class="nav-link active" href="#conditions-{{pod['name']}}" role="tab" data-toggle="tab">Conditions</a>
+                            </li>
+                            <li class="nav-item">
+                              <a class="nav-link" href="#containers-{{pod['name']}}" role="tab" data-toggle="tab">Containers</a>
+                            </li>
+                            <li class="nav-item">
+                              <a class="nav-link" href="#events-{{pod['name']}}" role="tab" data-toggle="tab">Events</a>
+                            </li>
+                          </ul>
 
-                    <div role="tabpanel" class="tab-pane" id="events-{{pod['name']}}">
-                      <div class="card-body">
-                          <h5 class="card-title">Events</h5>
-                          <p class="card-text">
-                            {% for event in instance_detail['details']['pods'][0]['events']%}
-                                <li style="list-style: none"><strong>Count:</strong> {{event['count']}}</li>
-                                <li style="list-style: none"><strong>Reason:</strong> {{event['reason']}}</li>
-                                <li style="list-style: none"><strong>Message:</strong> {{event['message']}}</li>
+                          <!-- Tab panes -->
+                          <div class="tab-content">
+
+                            <div role="tabpanel" class="tab-pane active" id="conditions-{{pod['name']}}">
+                              <div class="card-body">
+                                  <!-- <h5 class="card-title">Conditions</h5> -->
+                                  <h6 class="card-subtitle mb-2 text-muted">Created: {{pod['created']}}</h6>
+                                  <div>
+                              {% for condition in pod['conditions']%}
+                                      <p class="card-text">{{condition['lastTransitionTime']}} - {{condition['type']}}</p>
+                              {% endfor %}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div role="tabpanel" class="tab-pane" id="containers-{{pod['name']}}">
+                              <div class="card-body">
+                                <h5 class="card-title">Containers</h5>
+                                <div>
+                            {% for container in pod['containers'] %}
+                                      <li style="list-style: none"><strong>Name:</strong> {{container['name']}}</li>
+                                      <li style="list-style: none"><strong>Restarts:</strong> {{container['restartCount']}}</li>
+                                      <li style="list-style: none"><strong>State:</strong> {% for key, value in container['state'].items() %} {{key}} - {% for k, v in value.items() %} {{k}}: {{v}} {% endfor %} {% endfor %}</li>
+                                      <li style="list-style: none"><strong>Image:</strong> {{container['image']}}</li>
+                                      <hr/>
                             {% endfor %}
-                          </p>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div role="tabpanel" class="tab-pane" id="events-{{pod['name']}}">
+                              <div class="card-body">
+                                  <!-- <h5 class="card-title">Events</h5> -->
+                                  <p class="card-text">
+                                    {% for event in instance_detail['details']['pods'][0]['events']%}
+                                        <li style="list-style: none"><strong>Count:</strong> {{event['count']}}</li>
+                                        <li style="list-style: none"><strong>Reason:</strong> {{event['reason']}}</li>
+                                        <li style="list-style: none"><strong>Message:</strong> {{event['message']}}</li>
+                                    {% endfor %}
+                                  </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
                       </div>
+
                     </div>
                   </div>
 
+                {% endfor %}
+              {% endif %}
 
+                </tbody>
 
-                </div>
-              </div>
+              </table>
             </div>
-            <br>
-              {% endfor %}
-            {% endif %}
 
+
+
+            <br>
             {% else %}
             <h1>Detailed services information currently not available</h1>
             {% endif %}
@@ -175,6 +200,9 @@
 </section>
 
 <script>
+$(document).ready(function() {
+    $('#pods-table').DataTable();
+});
 
 function btnConfirm() {
     var r = confirm("Are you sure you want to delete this instance?");
