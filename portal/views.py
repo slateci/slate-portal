@@ -168,6 +168,8 @@ def dashboard():
         except:
             token_query = {'token': slate_api_token}
 
+        user_instances.sort(key=lambda e: e['metadata']['name'])
+
         # Initialize separate list queries for multiplex request
         applications_query = "/v1alpha3/apps?token="+token_query['token']
         clusters_query = "/v1alpha3/clusters?token="+token_query['token']

@@ -32,11 +32,11 @@
                 <!-- <h5 class="card-title" style="text-align: center"><i class="fas fa-server fa-2x"></i></h5> -->
                 <!-- <p class="card-text">You can view your apps here after you install them</p> -->
                 <ul class="list-unstyled">
-                {% for instance in user_instances %}
+                {% for instance in user_instances[:5] %}
                   <li><a href="{{url_for('view_instance', name=instance['metadata']['id'])}}">{{instance['metadata']['name']}}</a></li>
                 {% endfor %}
                 </ul>
-                <a href="{{url_for('list_applications')}}" class="btn btn-sm btn-primary">Install an app</a>
+                <a href="{{url_for('list_instances')}}" class="btn btn-sm btn-primary">View all Instances</a>
               </div>
               {% else %}
               <div class="card-header">
