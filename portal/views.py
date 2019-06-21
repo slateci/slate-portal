@@ -1280,35 +1280,39 @@ def view_application(name):
     - View Known Applications Detail Page on SLATE
     """
     if request.method == 'GET':
-        # try:
-        #     slate_user_id = session['slate_id']
-        #     token_query = {'token': session['slate_token']}
-        # except:
-        #     token_query = {'token': slate_api_token}
-        #
-        # app_config_query = "/v1alpha3/apps/"+name
-        # app_read_query = "/v1alpha3/apps/"+name+"/info"
-        # applications_query = "/v1alpha3/apps"
-        #
-        # multiplexJson = {app_config_query: {"method":"GET"},
-        #                     app_read_query: {"method":"GET"},
-        #                     applications_query: {"method": "GET"}}
-        #
-        # multiplex = requests.post(
-        #     slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=multiplexJson)
-        # multiplex = multiplex.json()
+        try:
+            slate_user_id = session['slate_id']
+            token_query = {'token': session['slate_token']}
+        except:
+            token_query = {'token': slate_api_token}
 
-        app_config = requests.get(
-            slate_api_endpoint + '/v1alpha3/apps/' + name)
-        app_config = app_config.json()
+        app_config_query = '/v1alpha3/apps/' + name + '?token=' + token_query['token']
+        app_read_query = '/v1alpha3/apps/' + name + '/info?token=' + token_query['token']
+        applications_query = '/v1alpha3/apps?token=' + token_query['token']
 
-        app_readme = requests.get(
-            slate_api_endpoint + '/v1alpha3/apps/' + name + '/info')
-        app_readme = app_readme.json()
+        multiplexJson = {app_config_query: {"method":"GET"},
+                            app_read_query: {"method":"GET"},
+                            applications_query: {"method": "GET"}}
 
-        applications = requests.get(
-            slate_api_endpoint + '/v1alpha3/apps')
-        applications = applications.json()['items']
+        multiplex = requests.post(
+            slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=multiplexJson)
+        multiplex = multiplex.json()
+        app_config = json.loads(multiplex[app_config_query]['body'])
+        app_readme = json.loads(multiplex[app_read_query]['body'])
+        applications = json.loads(multiplex[applications_query]['body'])
+        applications = applications['items']
+
+        # app_config = requests.get(
+        #     slate_api_endpoint + '/v1alpha3/apps/' + name)
+        # app_config = app_config.json()
+        #
+        # app_readme = requests.get(
+        #     slate_api_endpoint + '/v1alpha3/apps/' + name + '/info')
+        # app_readme = app_readme.json()
+
+        # applications = requests.get(
+        #     slate_api_endpoint + '/v1alpha3/apps')
+        # applications = applications.json()['items']
 
         app_version = None
         chart_version = None
