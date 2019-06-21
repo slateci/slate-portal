@@ -1354,26 +1354,44 @@ def create_application(name, group_name):
         token_query = {'token': session['slate_token']}
 
         # Get configuration of app <name> selected
-        app_config = requests.get(
-            slate_api_endpoint + '/v1alpha3/apps/' + name, params=token_query)
-        app_config = app_config.json()
-
+        app_config_query = '/v1alpha3/apps/' + name + '?token=' + token_query['token']
         # Grab/list all Clusters in DB for now
-        list_clusters = requests.get(
-            slate_api_endpoint + '/v1alpha3/clusters', params=token_query)
-        list_clusters = list_clusters.json()['items']
+        clusters_query = '/v1alpha3/clusters?token=' + token_query['token']
+        # Set up multiplex JSON
+        multiplexJson = {app_config_query: {"method":"GET"},
+                            clusters_query: {"method":"GET"}}
+        # POST request for multiplex return
+        multiplex = requests.post(
+            slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=multiplexJson)
+        multiplex = multiplex.json()
+        # Parse post return for instance, instance details, and instance logs
+        app_config = json.loads(multiplex[app_config_query]['body'])
+        clusters_json = json.loads(multiplex[clusters_query]['body'])
+        list_clusters = clusters_json['items']
 
         # Create list of group's accesible clusters
         accessible_clusters = []
+        cluster_allowed_groups_multiplexJson = {}
+
         for clusters in list_clusters:
             cluster_name = clusters['metadata']['name']
-            cluster_allowed_groups = requests.get(
-                slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=token_query)
-            cluster_allowed_groups = cluster_allowed_groups.json()['items']
 
-            for group in cluster_allowed_groups:
-                if group['metadata']['name'] == group_name:
-                    accessible_clusters.append(clusters['metadata']['name'])
+            cluster_allowed_groups_query = '/v1alpha3/clusters/' + cluster_name + '/allowed_groups' + '?token=' + token_query['token']
+            cluster_allowed_groups_multiplexJson[cluster_allowed_groups_query] = {"method":"GET"}
+
+        cluster_multiplex = requests.post(
+            slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=cluster_allowed_groups_multiplexJson)
+        cluster_multiplex = cluster_multiplex.json()
+
+        for query, value in cluster_multiplex.iteritems():
+            a = json.loads(value['body'])
+            items = a['items']
+            for item in items:
+                if item['metadata']['name'] == group_name:
+                    cluster_name = query.split('/')[3]
+                    accessible_clusters.append(cluster_name)
+
+
         cluster_list = sorted(accessible_clusters)
         return render_template('applications_create_final.html', name=name,
                                 app_config=app_config,
