@@ -10,7 +10,7 @@ import logging
 
 __author__ = 'Jeremy Van'
 # set up Flask App
-app = Flask(__name__)
+app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile('portal.conf')
 app.url_map.strict_slashes = False
 
