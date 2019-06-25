@@ -727,12 +727,10 @@ def group_cluster_apps(project_name, name, group_name):
         slate_apps = requests.get(slate_api_endpoint + '/v1alpha3/apps', params=token_query)
         slate_apps = slate_apps.json()['items']
         slate_app_names = [app['metadata']['name'] for app in slate_apps]
-        # print(slate_app_names)
         # Grab list of app names selected from form checkbox
         allowed_apps = request.form.getlist('new_app')
 
         remove_apps = list(set(slate_app_names) - set(allowed_apps))
-        # print(remove_apps)
         # Individually add each app to group's accessible apps
         r = None
         for app_name in allowed_apps:
@@ -873,7 +871,6 @@ def edit_group(name):
             description = request.form['description']
         except:
             description = "Currently no description"
-        # print("Info: ", phone, email, scienceField)
 
         token_query = {'token': session['slate_token']}
         add_group = {"apiVersion": 'v1alpha3',
@@ -881,7 +878,7 @@ def edit_group(name):
 
         r = requests.put(
             slate_api_endpoint + '/v1alpha3/groups/' + name, params=token_query, json=add_group)
-        # print(r)
+
         if r.status_code == requests.codes.ok:
             flash("Successfully updated group", 'success')
             return redirect(url_for('view_group', name=name))
@@ -944,7 +941,6 @@ def profile():
 
         profile = requests.get(
             slate_api_endpoint + '/v1alpha3/find_user', params=query)
-        # print(profile.json()['metadata']['id'])
 
         if profile:
             session['slate_id'] = profile.json()['metadata']['id']
@@ -980,7 +976,6 @@ def profile():
         query = {'token': slate_api_token}
 
         requests.post(slate_api_endpoint + '/v1alpha3/users', params=query, json=post_user)
-        # print(r)
         flash('Your profile has successfully been updated!')
 
         if 'next' in session:
@@ -1136,7 +1131,6 @@ def register():
             slate_api_endpoint + '/v1alpha3/find_user', params=query)
         user_info = r.json()
         slate_user_id = user_info['metadata']['id']
-        # group_url = 'https://api-dev.slateci.io:18080/v1alpha3/users/' + slate_user_id + '/groups'
 
         token_query = {'token': slate_api_token}
         s = requests.get(
@@ -1253,7 +1247,6 @@ def create_cluster():
 
 
 @app.route('/applications', methods=['GET'])
-# @authenticated
 def list_applications():
     """
     - List Known Applications on SLATE
@@ -1293,18 +1286,6 @@ def view_application(name):
         app_readme = json.loads(multiplex[app_read_query]['body'])
         applications = json.loads(multiplex[applications_query]['body'])
         applications = applications['items']
-
-        # app_config = requests.get(
-        #     slate_api_endpoint + '/v1alpha3/apps/' + name)
-        # app_config = app_config.json()
-        #
-        # app_readme = requests.get(
-        #     slate_api_endpoint + '/v1alpha3/apps/' + name + '/info')
-        # app_readme = app_readme.json()
-
-        # applications = requests.get(
-        #     slate_api_endpoint + '/v1alpha3/apps')
-        # applications = applications.json()['items']
 
         app_version = None
         chart_version = None
@@ -1523,8 +1504,6 @@ def create_provisionings():
     if request.method == 'GET':
         slate_user_id = session['slate_id']
         token_query = {'token': session['slate_token']}
-
-        # https://api-dev.slateci.io:18080/v1alpha3/clusters?token=9b3bff41-dc76-405b-9a84-5cbea43afaf2
 
         clusters = requests.get(
             slate_api_endpoint + '/v1alpha3/clusters', params=token_query)
