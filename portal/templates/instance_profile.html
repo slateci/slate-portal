@@ -14,11 +14,11 @@
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
           <li class="breadcrumb-item"><a href="{{url_for('list_instances')}}">Instances</a></li>
-          <li class="breadcrumb-item active">{{instance['metadata']['name']}}</li>
+          <li class="breadcrumb-item active">{{instance_detail['metadata']['name']}}</li>
         </ol>
 
-        <h1>Instance: {{instance['metadata']['name']}}</h1>
-        <h4>Cluster: <span class='text-muted'>{{instance['metadata']['cluster']}}</span></h4>
+        <h1>Instance: {{instance_detail['metadata']['name']}}</h1>
+        <h4>Cluster: <span class='text-muted'>{{instance_detail['metadata']['cluster']}}</span></h4>
         <a href="#" class="btn btn-danger btn-sm" onclick="btnConfirm()">Delete Instance</a>
         <hr/>
 

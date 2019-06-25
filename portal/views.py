@@ -1463,19 +1463,16 @@ def view_instance(name):
     if request.method == 'GET':
 
         # Initialize separate list queries for multiplex request
-        instance_query = '/v1alpha3/instances/' + name + '?token=' + token_query['token']
         instance_detail_query = '/v1alpha3/instances/' + name + '?token=' + token_query['token'] + '&detailed'
         instance_log_query = '/v1alpha3/instances/' + name + '/logs' + '?token=' + token_query['token']
         # Set up multiplex JSON
-        multiplexJson = {instance_query: {"method":"GET"},
-                            instance_detail_query: {"method":"GET"},
+        multiplexJson = {instance_detail_query: {"method":"GET"},
                             instance_log_query: {"method":"GET"}}
         # POST request for multiplex return
         multiplex = requests.post(
             slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=multiplexJson)
         multiplex = multiplex.json()
         # Parse post return for instance, instance details, and instance logs
-        instance = json.loads(multiplex[instance_query]['body'])
         instance_detail = json.loads(multiplex[instance_detail_query]['body'])
         instance_log = json.loads(multiplex[instance_log_query]['body'])
 
@@ -1487,7 +1484,7 @@ def view_instance(name):
         return render_template('instance_profile.html', name=name,
                                 instance_detail=instance_detail,
                                 instance_status=instance_status,
-                                instance_log=instance_log, instance=instance)
+                                instance_log=instance_log)
 
 
 @app.route('/instances/<name>/delete_instance', methods=['GET'])
