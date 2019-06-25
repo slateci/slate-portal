@@ -146,29 +146,12 @@ def dashboard():
     if request.method == 'GET':
         user_groups = []
         user_instances = []
-        try:
-            slate_user_id = session['slate_id']
+        logged_in = 'slate_id' in session
+        if logged_in:
             token_query = {'token': session['slate_token']}
-
-            instances = requests.get(
-                slate_api_endpoint + '/v1alpha3/instances', params=token_query)
-            instances = instances.json()['items']
-            # Get groups to which the user belongs
-            s = requests.get(
-                slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=token_query)
-            s_info = s.json()
-            group_list = s_info['items']
-
-            for groups in group_list:
-                user_groups.append(groups['metadata']['name'].encode('utf-8'))
-
-            for instance in instances:
-                if instance['metadata']['group'] in user_groups:
-                    user_instances.append(instance)
-        except:
+        else:
             token_query = {'token': slate_api_token}
 
-        user_instances.sort(key=lambda e: e['metadata']['name'])
 
         # Initialize separate list queries for multiplex request
         applications_query = "/v1alpha3/apps?token="+token_query['token']
@@ -178,27 +161,38 @@ def dashboard():
         multiplexJson = {applications_query: {"method":"GET"},
                             clusters_query: {"method":"GET"},
                             groups_query: {"method":"GET"}}
+        if logged_in:
+            slate_user_id = session['slate_id']
+            instances_query = "/v1alpha3/instances?token="+token_query['token']
+            user_groups_query = "/v1alpha3/users/"+slate_user_id+"/groups?token="+token_query['token']
+            multiplexJson[instances_query]={"method":"GET"}
+            multiplexJson[user_groups_query]={"method":"GET"}
+
         # POST request for multiplex return
         multiplex = requests.post(
             slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=multiplexJson)
         multiplex = multiplex.json()
-        # multiplex = json.loads(multiplex)
 
         # Parse post return for apps, clusters, and pub groups
-        # clusters_json = ast.literal_eval(multiplex[clusters_query]['body'])
         clusters_json = json.loads(multiplex[clusters_query]['body'])
         clusters = [item for item in clusters_json['items']]
 
-        # pub_groups_json = ast.literal_eval(multiplex[groups_query]['body'])
         pub_groups_json = json.loads(multiplex[groups_query]['body'])
         pub_groups = [item for item in pub_groups_json['items']]
-        # applications_json = ast.literal_eval(multiplex[applications_query]['body'])
         try:
             applications_json = json.loads(multiplex[applications_query]['body'])
             applications = [item for item in applications_json['items']]
         except:
             applications = []
-            # print("NO APPLICATIONS???")
+
+        if logged_in:
+            user_groups_json = json.loads(multiplex[user_groups_query]['body'])
+            user_groups = [item['metadata']['name'].encode('utf-8') for item in user_groups_json['items']]
+            instances_json = json.loads(multiplex[instances_query]['body'])
+            for instance in instances_json['items']:
+                if instance['metadata']['group'] in user_groups:
+                    user_instances.append(instance)
+            user_instances.sort(key=lambda e: e['metadata']['name'])
 
 
         # Set up multiplex JSON
@@ -217,14 +211,10 @@ def dashboard():
             cluster_name = cluster.split('/')[3]
             cluster_status_dict[cluster_name] = json.loads(cluster_multiplex[cluster]['body'])['reachable']
 
-        users = requests.get(
-            slate_api_endpoint + '/v1alpha3/users', params=token_query)
-        users = users.json()['items']
-
         return render_template('dashboard.html', user_instances=user_instances,
                                 applications=applications, clusters=clusters,
                                 pub_groups=pub_groups, multiplex=multiplex,
-                                cluster_status_dict=cluster_status_dict, users=users)
+                                cluster_status_dict=cluster_status_dict, users=None)
 
 
 @app.route('/admin', methods=['GET', 'POST'])
