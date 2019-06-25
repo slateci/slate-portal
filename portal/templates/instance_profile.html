@@ -115,7 +115,7 @@
                         </div>
                         <div class="col-sm-4">
                           <h5 class="card-title">Events</h5>
-                    {% for event in instance_detail['details']['pods'][0]['events']%}
+                    {% for event in pod['events']%}
                               <li style="list-style: none"><strong>Count:</strong> {{event['count']}}</li>
                               <li style="list-style: none"><strong>Reason:</strong> {{event['reason']}}</li>
                               <li style="list-style: none"><strong>Message:</strong> {{event['message']}}</li>
