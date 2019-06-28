@@ -50,6 +50,7 @@
                     <th scope="col">External IP</th>
                     <th scope="col">Cluster IP</th>
                     <th scope="col">Ports</th>
+                    <th scope="col">URL</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -60,6 +61,7 @@
                     <td><a href="{{addr}}" target="_blank">{{service['externalIP']}}</a></td>
                     <td>{{service['clusterIP']}}</td>
                     <td>{{service['ports']}}</td>
+                    <td><a href="http://{{service['url']}}" target="_blank">{{service['url']}}</a></td>
                   </tr>
                   {% endfor %}
                 </tbody>

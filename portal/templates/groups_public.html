@@ -21,7 +21,7 @@
         <!-- <a href="{{url_for('create_group')}}" class="btn btn-primary btn-sm">Register New Group</a> -->
         <!-- <hr/> -->
         <div class="table-responsive">
-          <table class="table" id="#" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+          <table class="table" id="groups-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
             <thead>
               <tr>
                 <th data-field="name" data-sortable="true">Name</th>
@@ -29,10 +29,10 @@
                 <th data-field="group_id" data-sortable="true">Group ID</th>
               </tr>
             </thead>
-            <tbody data-link="row" class="rowlink" style="font-size:15px;">
+            <tbody data-link="row" class="rowlink" style="font-size:14px;">
               {% for group in group_list %}
               <tr>
-                <td><a href="{{url_for('view_public_group', name=group['metadata']['name'])}}" title="View Group Profile" style="font-weight:bold">{{ group['metadata']['name'] }}</a></td>
+                <td><a href="{{url_for('view_public_group', name=group['metadata']['name'])}}" title="View Group Profile">{{ group['metadata']['name'] }}</a></td>
                 <td>{{ group['metadata']['scienceField']}}</td>
                 <td>{{ group['metadata']['id'] }}</td>
               </tr>
@@ -46,4 +46,10 @@
     </div>
   </div>
 </section>
+
+<script>
+$(document).ready(function() {
+    $('#groups-table').DataTable();
+});
+</script>
 {%endblock%}
