@@ -121,6 +121,7 @@ def logout():
 # Create a custom error handler for Exceptions
 @app.errorhandler(Exception)
 def exception_occurred(e):
+    print("ERROR HIT: {}".format(e))
     trace = traceback.format_tb(sys.exc_info()[2])
     app.logger.error("{0} Traceback occurred:\n".format(time.ctime()) +
                      "{0}\nTraceback completed".format("n".join(trace)))
@@ -137,7 +138,15 @@ def errorpage():
 
 @app.errorhandler(404)
 def not_found(e):
-  return render_template("404.html")
+    return render_template("404.html")
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    # app.logger.error("Server error: {}".format(request.url))
+    # return render_template('500.html'), 500
+    print("500 ERROR HIT")
+    abort(500)
 
 
 @app.route('/dashboard', methods=['GET'])
@@ -1528,52 +1537,21 @@ def list_secrets():
         user_groups = [group['metadata']['name'] for group in user_groups]
 
         multiplexJson = {}
-        # Get User's Group's Secrets
-        user_secrets = []
+        # Set up secrets query multiplex for every group relating to the user
         for group_name in user_groups:
-            secrets_query = {'token': session['slate_token'], 'group': group_name}
-            secrets = requests.get(
-                slate_api_endpoint + '/v1alpha3/secrets', params=secrets_query)
-            secrets = secrets.json()
-            user_secrets.append(secrets['items'])
-
             secrets_query = "/v1alpha3/secrets?token="+token_query['token']+"&group="+group_name
             multiplexJson[secrets_query] = {"method":"GET"}
 
         multiplex = requests.post(
             slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=multiplexJson)
         multiplex = multiplex.json()
-        print(multiplex)
 
-        groups_secrets = {}
-        for group in user_secrets:
-            if group:
-                for secret in group:
-                    secret_id = secret['metadata']['id']
-                    secret_group = secret['metadata']['group']
-                    if secret_group in groups_secrets:
-                        groups_secrets[secret_group].append(secret_id)
-                    else:
-                        groups_secrets[secret_group] = [secret_id]
-            else:
-                print("No group secrets here")
-
+        # Parsing the multiplex result, returning a list of secret's contents/info
         secrets_content = []
-        for group, secret_ids in groups_secrets.iteritems():
-            for secret_id in secret_ids:
-                secret_details = requests.get(
-                    slate_api_endpoint + '/v1alpha3/secrets/' + secret_id, params=token_query)
-                secret_details = secret_details.json()
-                secrets_content.append(secret_details)
-        # Base64 decode secret contents
-        for secret in secrets_content:
-            for key, value in secret['contents'].iteritems():
-                try:
-                    value_decoded = base64.b64decode(value).decode('utf-8')
-                    secret['contents'][key] = value_decoded
-                    # print(value_decoded)
-                    # print("string is UTF-8, length {} bytes".format(len(value)))
-                except UnicodeError:
-                    secret['contents'][key] = "Cannot display non UTF-8 content"
+        for query in multiplex:
+            list_of_items = json.loads(multiplex[query]['body'])['items']
+            for item in list_of_items:
+                metadata = item['metadata']
+                secrets_content.append(metadata)
 
         return render_template('secrets.html', secrets=secrets_content)

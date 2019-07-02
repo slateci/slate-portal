@@ -13,6 +13,7 @@ __author__ = 'Jeremy Van'
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_pyfile('portal.conf')
 app.url_map.strict_slashes = False
+app.config['DEBUG'] = True
 
 # set up Markdown Rendering
 md = Misaka()
