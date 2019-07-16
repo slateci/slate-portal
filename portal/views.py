@@ -1070,62 +1070,61 @@ def authcallback():
     # Check if single user instance on minislate
     try:
         # Change to location of slate_portal_user file
-        f = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/prototype-portal/instance/slate_portal_user", "r")
+        f = open("/slate_portal_user", "r")
         slate_portal_user = f.read().split()
-        print("Single User Instance bb: {}".format(slate_portal_user))
 
-        slate_id = slate_portal_user[0]
-        name = slate_portal_user[1]
-        email = slate_portal_user[2]
-        phone = slate_portal_user[3]
-        institution = slate_portal_user[4]
-        globus_id = slate_portal_user[5]
+        session['slate_id'] = slate_portal_user[0]
+        session['name'] = slate_portal_user[1]
+        session['email'] = slate_portal_user[2]
+        session['phone'] = slate_portal_user[3]
+        session['institution'] = slate_portal_user[4]
+        session['access_token'] = slate_portal_user[5]
+        session['is_authenticated'] = True
+        session['slate_portal_user'] = True
 
-        query = {'token': slate_api_token,
-                 'globus_id': globus_id}
+        query = {'token': slate_api_token}
 
-        # This should fail, as user should not exist at this point initially
-        profile = requests.get(
-            slate_api_endpoint + '/v1alpha3/find_user', params=query)
-
-        if profile:
-            profile = requests.get(
-                slate_api_endpoint + '/v1alpha3/find_user', params=query)
-            slate_user_info = profile.json()
-            session['slate_token'] = slate_user_info['metadata']['access_token']
-            session['slate_id'] = slate_user_info['metadata']['id']
-
-            # Check for admin status
-            user_info = requests.get(slate_api_endpoint + '/v1alpha3/users/' + session['slate_id'], params=query)
-            user_info = user_info.json()['metadata']
-
-            session['is_authenticated'] = True
-            session['name'] = user_info['name']
-            session['email'] = user_info['email']
-            session['primary_identity'] = globus_id
-            session['slate_portal_user'] = True
-
-            print("AUTHENTICATED SESSION")
-            print(slate_user_info)
-            if user_info['admin']:
-                session['admin'] = True
-
-        else:
-            # Create default user from minislate
-            admin = False
-            # Schema and query for adding users to Slate DB
-            post_user = {"apiVersion": 'v1alpha3',
-                        'metadata': {'globusID': globus_id, 'name': name, 'email': email,
-                                     'phone': phone, 'institution': institution, 'admin': admin}}
-
-            query = {'token': slate_api_token}
-
-            r = requests.post(slate_api_endpoint + '/v1alpha3/users', params=query, json=post_user)
-            print("Added User: ", r.json())
-            session['is_authenticated'] = True
-
-            return redirect(url_for('dashboard',
-                                    next=url_for('dashboard')))
+        # profile = requests.get(
+        #     slate_api_endpoint + '/v1alpha3/find_user', params=query)
+        #
+        # if profile:
+        #     profile = requests.get(
+        #         slate_api_endpoint + '/v1alpha3/find_user', params=query)
+        #     slate_user_info = profile.json()
+        #     session['slate_token'] = slate_user_info['metadata']['access_token']
+        #     session['slate_id'] = slate_user_info['metadata']['id']
+        #
+        #     # Check for admin status
+        #     user_info = requests.get(slate_api_endpoint + '/v1alpha3/users/' + session['slate_id'], params=query)
+        #     user_info = user_info.json()['metadata']
+        #
+        #     session['is_authenticated'] = True
+        #     session['name'] = user_info['name']
+        #     session['email'] = user_info['email']
+        #     session['slate_token'] = access_token
+        #     session['slate_portal_user'] = True
+        #
+        #     print("AUTHENTICATED SESSION")
+        #     print(slate_user_info)
+        #     if user_info['admin']:
+        #         session['admin'] = True
+        #
+        # else:
+        #     # Create default user from minislate
+        #     admin = False
+        #     # Schema and query for adding users to Slate DB
+        #     post_user = {"apiVersion": 'v1alpha3',
+        #                 'metadata': {'globusID': globus_id, 'name': name, 'email': email,
+        #                              'phone': phone, 'institution': institution, 'admin': admin}}
+        #
+        #     query = {'token': slate_api_token}
+        #
+        #     r = requests.post(slate_api_endpoint + '/v1alpha3/users', params=query, json=post_user)
+        #     print("Added User: ", r.json())
+        #     session['is_authenticated'] = True
+        #
+        #     return redirect(url_for('dashboard',
+        #                             next=url_for('dashboard')))
 
         print("SINGLE USER MODE")
         return redirect(url_for('dashboard'))
