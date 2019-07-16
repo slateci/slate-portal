@@ -18,29 +18,72 @@
           List of curated applications
         </p> -->
 
-        <div class="table-responsive">
-          <h4>Curated Applications</h4>
-          <table class="table" id="apps-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
-            <thead>
-              <tr>
-                <th data-field="name" data-sortable="true">Name</th>
-                <th data-field="group_id" data-sortable="true">Description</th>
-                <th data-field="chart_version" data-sortable="true">Chart version</th>
-                <th data-field="app_version" data-sortable="true">App Version</th>
-              </tr>
-            </thead>
-            <tbody data-link="row" class="rowlink" style="font-size:14px;">
-              {% for application in applications %}
-              <tr>
-                <td><a href="{{url_for('view_application', name=application['metadata']['name'])}}">{{application['metadata']['name']}}</a></td>
-                <td>{{application['metadata']['description']}}</td>
-                <td>{{application['metadata']['chart_version']}}</td>
-                <td>{{application['metadata']['app_version']}}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
+        <ul class="nav nav-tabs">
+          <li class="active"><a class="nav-item nav-link active" data-toggle="tab" href="#home">Curated Applications</a></li>
+          <li><a class="nav-item nav-link" data-toggle="tab" href="#menu1">Incubator Applications</a></li>
+        </ul>
 
-          </table>
+        <div class="tab-content">
+          <div id="home" class="tab-pane fade in show active">
+            <div class="table-responsive">
+              <br/>
+              <p class="lead">
+                List of curated applications
+              </p>
+              <table class="table" id="apps-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+                <thead>
+                  <tr>
+                    <th data-field="name" data-sortable="true">Name</th>
+                    <th data-field="group_id" data-sortable="true">Description</th>
+                    <th data-field="chart_version" data-sortable="true">Chart version</th>
+                    <th data-field="app_version" data-sortable="true">App Version</th>
+                  </tr>
+                </thead>
+                <tbody data-link="row" class="rowlink" style="font-size:14px;">
+                  {% for application in applications %}
+                  <tr>
+                    <td><a href="{{url_for('view_application', name=application['metadata']['name'])}}">{{application['metadata']['name']}}</a></td>
+                    <td>{{application['metadata']['description']}}</td>
+                    <td>{{application['metadata']['chart_version']}}</td>
+                    <td>{{application['metadata']['app_version']}}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+
+              </table>
+            </div>
+          </div>
+
+          <div id="menu1" class="tab-pane fade">
+            <div class="table-responsive">
+              <br/>
+              <p class="lead">
+                List of incubator applications that are still under development
+              </p>
+              <table class="table" id="incubator-apps-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+                <thead>
+                  <tr>
+                    <th data-field="name" data-sortable="true">Name</th>
+                    <th data-field="group_id" data-sortable="true">Description</th>
+                    <th data-field="chart_version" data-sortable="true">Chart version</th>
+                    <th data-field="app_version" data-sortable="true">App Version</th>
+                  </tr>
+                </thead>
+                <tbody data-link="row" class="rowlink" style="font-size:14px;">
+                  {% for application in incubator_apps %}
+                  <tr>
+                    <td style="max-width:25px">{{application['metadata']['name']}}</td>
+                    <td style="max-width:250px">{{application['metadata']['description']}}</td>
+                    <td>{{application['metadata']['chart_version']}}</td>
+                    <td>{{application['metadata']['app_version']}}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+
+              </table>
+            </div>
+          </div>
+
         </div>
 
       </div>
@@ -52,6 +95,7 @@
 <script>
 $(document).ready(function() {
     $('#apps-table').DataTable();
+    $('#incubator-apps-table').DataTable();
 });
 </script>
 {%endblock%}

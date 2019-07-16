@@ -163,8 +163,12 @@
               <a class="nav-link js-scroll-trigger" href="{{url_for('list_applications')}}">Apps</a>
               <a class="nav-link js-scroll-trigger" href="http://slateci.io/docs/" target="_blank">Docs</a>
               <!-- <a class="nav-link js-scroll-trigger" href="{{url_for('profile')}}"><i class="fas fa-user-astronaut fa-2x"></i></a> -->
-              <a class="nav-link js-scroll-trigger" href='{{url_for('profile')}}'>{{session['name']}}</a>
+                {% if session.get('slate_portal_user') %}
+                <a class="nav-link js-scroll-trigger" href="#">{{session['name']}}</a>
+                {% else %}
+              <a class="nav-link js-scroll-trigger" href="{{url_for('profile')}}">{{session['name']}}</a>
               <a class="nav-link js-scroll-trigger" href="{{url_for('logout')}}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                {% endif %}
               {% else %}
               <a class="nav-link js-scroll-trigger" href="{{url_for('list_applications')}}">Apps</a>
               <a class="nav-link js-scroll-trigger" href="http://slateci.io/docs/" target="_blank">Docs</a>

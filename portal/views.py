@@ -244,8 +244,8 @@ def view_admin():
 @authenticated
 def cli_access():
     if request.method == 'GET':
-        access_token = session['tokens']['auth.globus.org']['access_token']
-        access_token = textwrap.fill(access_token, 60)
+        # access_token = session['tokens']['auth.globus.org']['access_token']
+        # access_token = textwrap.fill(access_token, 60)
 
         # Schema and query for getting user info and access token from Slate DB
         globus_id = session['primary_identity']
@@ -281,13 +281,30 @@ def view_public_group(name):
     slate_user_id = session['slate_id']
     token_query = {'token': session['slate_token']}
     if request.method == 'GET':
-        group_info = requests.get(slate_api_endpoint + '/v1alpha3/groups/' + name, params=token_query)
-        group_info = group_info.json()
 
-        group_clusters = requests.get(slate_api_endpoint + '/v1alpha3/groups/' + name + '/clusters', params=token_query)
-        group_clusters = group_clusters.json()['items']
+        group_info_query = '/v1alpha3/groups/' + name + '?token=' +token_query['token']
+        group_clusters_query = '/v1alpha3/groups/' + name + '/clusters?token=' +token_query['token']
+        # Set up multiplex JSON
+        multiplexJson = {group_info_query: {"method":"GET"},
+                            group_clusters_query: {"method":"GET"}}
+        # POST request for multiplex return
+        multiplex = requests.post(
+            slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=multiplexJson)
+        multiplex = multiplex.json()
 
-        return render_template('groups_public_profile.html', group_info=group_info, group_clusters=group_clusters, name=name)
+        # Parse post return for apps, clusters, and pub groups
+        group_info_json = json.loads(multiplex[group_info_query]['body'])
+        group_clusters_json = json.loads(multiplex[group_clusters_query]['body'])
+        group_clusters_json = group_clusters_json['items']
+
+        # Old pre-optimized multiplex
+        # group_info = requests.get(slate_api_endpoint + '/v1alpha3/groups/' + name, params=token_query)
+        # group_info = group_info.json()
+        #
+        # group_clusters = requests.get(slate_api_endpoint + '/v1alpha3/groups/' + name + '/clusters', params=token_query)
+        # group_clusters = group_clusters.json()['items']
+
+        return render_template('groups_public_profile.html', group_info=group_info_json, group_clusters=group_clusters_json, name=name)
 
 
 @app.route('/groups', methods=['GET', 'POST'])
@@ -1050,65 +1067,28 @@ def edit_profile():
 @app.route('/authcallback', methods=['GET'])
 def authcallback():
     """Handles the interaction with Globus Auth."""
-    # If we're coming back from Globus Auth in an error state, the error
-    # will be in the "error" query string parameter.
-    if 'error' in request.args:
-        flash("You could not be logged into the portal: "
-              + request.args.get('error_description', request.args['error']))
-        return redirect(url_for('home'))
+    # Check if single user instance on minislate
+    try:
+        # Change to location of slate_portal_user file
+        f = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/prototype-portal/instance/slate_portal_user", "r")
+        slate_portal_user = f.read().split()
+        print("Single User Instance bb: {}".format(slate_portal_user))
 
-    # Set up our Globus Auth/OAuth2 state
-    redirect_uri = url_for('authcallback', _external=True)
+        slate_id = slate_portal_user[0]
+        name = slate_portal_user[1]
+        email = slate_portal_user[2]
+        phone = slate_portal_user[3]
+        institution = slate_portal_user[4]
+        globus_id = slate_portal_user[5]
 
-    client = load_portal_client()
-    client.oauth2_start_flow(redirect_uri, refresh_tokens=True)
-
-    # If there's no "code" query string parameter, we're in this route
-    # starting a Globus Auth login flow.
-    if 'code' not in request.args:
-        additional_authorize_params = (
-            {'signup': 1} if request.args.get('signup') else {})
-
-        auth_uri = client.oauth2_get_authorize_url(
-            additional_params=additional_authorize_params)
-
-        return redirect(auth_uri)
-    else:
-        # If we do have a "code" param, we're coming back from Globus Auth
-        # and can start the process of exchanging an auth code for a token.
-        code = request.args.get('code')
-        tokens = client.oauth2_exchange_code_for_tokens(code)
-
-        id_token = tokens.decode_id_token(client)
-
-        session.update(
-            tokens=tokens.by_resource_server,
-            is_authenticated=True,
-            name=id_token.get('name', ''),
-            email=id_token.get('email', ''),
-            institution=id_token.get('institution', ''),
-            primary_username=id_token.get('preferred_username'),
-            primary_identity=id_token.get('sub'),
-            identity_provider=id_token.get('identity_provider')
-        )
-        # Need to query a request to view all users in Slate DB, then iterate
-        # to see if profile exists by matching globus_id ideally.
-        globus_id = session['primary_identity']
         query = {'token': slate_api_token,
                  'globus_id': globus_id}
 
+        # This should fail, as user should not exist at this point initially
         profile = requests.get(
             slate_api_endpoint + '/v1alpha3/find_user', params=query)
 
-        users = requests.get(
-            slate_api_endpoint + '/v1alpha3/users', params=query)
-        users = users.json()['items']
-
         if profile:
-            globus_id = session['primary_identity']
-            query = {'token': slate_api_token,
-                     'globus_id': globus_id}
-
             profile = requests.get(
                 slate_api_endpoint + '/v1alpha3/find_user', params=query)
             slate_user_info = profile.json()
@@ -1118,14 +1098,117 @@ def authcallback():
             # Check for admin status
             user_info = requests.get(slate_api_endpoint + '/v1alpha3/users/' + session['slate_id'], params=query)
             user_info = user_info.json()['metadata']
+
+            session['is_authenticated'] = True
+            session['name'] = user_info['name']
+            session['email'] = user_info['email']
+            session['primary_identity'] = globus_id
+            session['slate_portal_user'] = True
+
+            print("AUTHENTICATED SESSION")
+            print(slate_user_info)
             if user_info['admin']:
                 session['admin'] = True
 
         else:
-            return redirect(url_for('create_profile',
+            # Create default user from minislate
+            admin = False
+            # Schema and query for adding users to Slate DB
+            post_user = {"apiVersion": 'v1alpha3',
+                        'metadata': {'globusID': globus_id, 'name': name, 'email': email,
+                                     'phone': phone, 'institution': institution, 'admin': admin}}
+
+            query = {'token': slate_api_token}
+
+            r = requests.post(slate_api_endpoint + '/v1alpha3/users', params=query, json=post_user)
+            print("Added User: ", r.json())
+            session['is_authenticated'] = True
+
+            return redirect(url_for('dashboard',
                                     next=url_for('dashboard')))
 
+        print("SINGLE USER MODE")
         return redirect(url_for('dashboard'))
+    except:
+        # If we're coming back from Globus Auth in an error state, the error
+        # will be in the "error" query string parameter.
+        if 'error' in request.args:
+            flash("You could not be logged into the portal: "
+                  + request.args.get('error_description', request.args['error']))
+            return redirect(url_for('home'))
+
+        # Set up our Globus Auth/OAuth2 state
+        redirect_uri = url_for('authcallback', _external=True)
+
+        client = load_portal_client()
+        client.oauth2_start_flow(redirect_uri, refresh_tokens=True)
+
+        # If there's no "code" query string parameter, we're in this route
+        # starting a Globus Auth login flow.
+        if 'code' not in request.args:
+            additional_authorize_params = (
+                {'signup': 1} if request.args.get('signup') else {})
+
+            auth_uri = client.oauth2_get_authorize_url(
+                additional_params=additional_authorize_params)
+            print("AUTH URI: {}".format(auth_uri))
+
+            return redirect(auth_uri)
+        else:
+            # If we do have a "code" param, we're coming back from Globus Auth
+            # and can start the process of exchanging an auth code for a token.
+            code = request.args.get('code')
+            tokens = client.oauth2_exchange_code_for_tokens(code)
+
+            id_token = tokens.decode_id_token(client)
+
+            session.update(
+                tokens=tokens.by_resource_server,
+                is_authenticated=True,
+                name=id_token.get('name', ''),
+                email=id_token.get('email', ''),
+                institution=id_token.get('institution', ''),
+                primary_username=id_token.get('preferred_username'),
+                primary_identity=id_token.get('sub'),
+                identity_provider=id_token.get('identity_provider')
+            )
+            # Need to query a request to view all users in Slate DB, then iterate
+            # to see if profile exists by matching globus_id ideally.
+            globus_id = session['primary_identity']
+            query = {'token': slate_api_token,
+                     'globus_id': globus_id}
+
+            profile = requests.get(
+                slate_api_endpoint + '/v1alpha3/find_user', params=query)
+
+            users = requests.get(
+                slate_api_endpoint + '/v1alpha3/users', params=query)
+            users = users.json()['items']
+
+            print("SECOND BASE")
+
+            if profile:
+                globus_id = session['primary_identity']
+                query = {'token': slate_api_token,
+                         'globus_id': globus_id}
+
+                profile = requests.get(
+                    slate_api_endpoint + '/v1alpha3/find_user', params=query)
+                slate_user_info = profile.json()
+                session['slate_token'] = slate_user_info['metadata']['access_token']
+                session['slate_id'] = slate_user_info['metadata']['id']
+
+                # Check for admin status
+                user_info = requests.get(slate_api_endpoint + '/v1alpha3/users/' + session['slate_id'], params=query)
+                user_info = user_info.json()['metadata']
+                if user_info['admin']:
+                    session['admin'] = True
+
+            else:
+                return redirect(url_for('create_profile',
+                                        next=url_for('dashboard')))
+
+            return redirect(url_for('dashboard'))
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -1265,7 +1348,12 @@ def list_applications():
         applications = requests.get(
             slate_api_endpoint + '/v1alpha3/apps')
         applications = applications.json()['items']
-        return render_template('applications.html', applications=applications)
+
+        incubator_apps = requests.get(
+            slate_api_endpoint + '/v1alpha3/apps?dev=true')
+        incubator_apps = incubator_apps.json()['items']
+
+        return render_template('applications.html', applications=applications, incubator_apps=incubator_apps)
 
 
 @app.route('/applications/<name>', methods=['GET'])
@@ -1527,6 +1615,8 @@ def list_secrets():
     - List User Related Secrets Registered on SLATE
     """
     if request.method == 'GET':
+        # start_time = time.time()
+
         slate_user_id = session['slate_id']
         token_query = {'token': session['slate_token']}
 
@@ -1554,4 +1644,6 @@ def list_secrets():
                 metadata = item['metadata']
                 secrets_content.append(metadata)
 
+        # end_time = time.time()
+        # print(end_time-start_time)
         return render_template('secrets.html', secrets=secrets_content)
