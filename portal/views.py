@@ -184,7 +184,11 @@ def dashboard():
 
         # Parse post return for apps, clusters, and pub groups
         clusters_json = json.loads(multiplex[clusters_query]['body'])
-        clusters = [item for item in clusters_json['items']]
+        if session["slate_portal_user"]: # single-user mode
+                selected_clusters = ["ms-c"]
+        else:
+                selected_clusters = ["uutah-prod", "uchicago-prod", "umich-prod"]
+        clusters = [item for item in clusters_json['items'] if item['metadata']['name'] in selected_clusters]
 
         pub_groups_json = json.loads(multiplex[groups_query]['body'])
         pub_groups = [item for item in pub_groups_json['items']]
