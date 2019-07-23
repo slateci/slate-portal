@@ -22,6 +22,22 @@ except:
 slate_api_token = f.read().split()[0]
 slate_api_endpoint = g.read().split()[0]
 
+try:
+    # Check location of slate_portal_user file on minislate
+    f = open("/slate_portal_user", "r")
+    slate_portal_user = f.read().split()
+
+    session['slate_id'] = slate_portal_user[0]
+    session['name'] = slate_portal_user[1]
+    session['email'] = slate_portal_user[2]
+    session['phone'] = slate_portal_user[3]
+    session['institution'] = slate_portal_user[4]
+    session['slate_token'] = slate_portal_user[5]
+    session['is_authenticated'] = True
+    session['slate_portal_user'] = True
+
+except:
+    session['slate_portal_user'] = False
 
 try:
     from urllib.parse import urlencode
