@@ -266,17 +266,20 @@ def cli_access():
     if request.method == 'GET':
         # access_token = session['tokens']['auth.globus.org']['access_token']
         # access_token = textwrap.fill(access_token, 60)
+        try:
+            # Schema and query for getting user info and access token from Slate DB
+            globus_id = session['primary_identity']
+            query = {'token': slate_api_token,
+                     'globus_id': globus_id}
 
-        # Schema and query for getting user info and access token from Slate DB
-        globus_id = session['primary_identity']
-        query = {'token': slate_api_token,
-                 'globus_id': globus_id}
+            r = requests.get(
+                slate_api_endpoint + '/v1alpha3/find_user', params=query)
+            user_info = r.json()
+            access_token = user_info['metadata']['access_token']
+        except:
+            access_token = session['slate_token']
 
-        r = requests.get(
-            slate_api_endpoint + '/v1alpha3/find_user', params=query)
-        user_info = r.json()
-
-        return render_template('cli_access.html', user_info=user_info, slate_api_endpoint=slate_api_endpoint)
+        return render_template('cli_access.html', access_token=access_token, slate_api_endpoint=slate_api_endpoint)
 
 
 @app.route('/public_groups', methods=['GET', 'POST'])
