@@ -43,13 +43,20 @@
               <!-- <div class="input-group"> -->
               <label class="my-1 mr-2" for="new_group">Select Group</label>
               <select class="custom-select my-1 mr-sm-2" name="new_group" id="new_group" required>
-                <!-- <option disabled selected>Choose User...</option> -->
-                {% for group in non_access_groups %}
+                {% if non_access_groups %}
+                <option value="*">Allow All Groups Access</option>
+                  {% for group in non_access_groups %}
                 <option value="{{group}}" required>{{group}}</option>
-                {% endfor %}
+                  {% endfor %}
+                {% else %}
+                <option disabled selected required>Currently no groups</option>
+                {% endif %}
               </select>
-
+              {% if non_access_groups %}
               <button type="submit" class="btn btn-primary my-1">Add Group</button>
+              {% else %}
+              <button type="submit" class="btn btn-primary my-1" disabled>Add Group</button>
+              {% endif %}
             </form>
           </div>
         </div>
@@ -64,14 +71,14 @@
               </thead>
               <tbody>
                 {% for group in allowed_groups %}
-                  {% if group['metadata']['name'] != project_name %}
+                  {% if group != project_name %}
                 <tr>
                   <td>
-                    <a href="{{url_for('group_cluster_apps', project_name=project_name, name=name, group_name=group['metadata']['name'])}}">{{group['metadata']['name']}}</a>
+                    <a href="{{url_for('group_cluster_apps', project_name=project_name, name=name, group_name=group)}}">{{group}}</a>
                   </td>
                   <td>
                     <form role="form" action="{{url_for('remove_group_from_cluster', project_name=project_name, name=name)}}" method="POST">
-                      <button type="submit" name="remove_group" value="{{group['metadata']['name']}}" class='btn btn-danger btn-sm'>Revoke</button>
+                      <button type="submit" name="remove_group" value="{{group}}" class='btn btn-danger btn-sm'>Revoke</button>
                     </form>
                   </td>
                 </tr>
