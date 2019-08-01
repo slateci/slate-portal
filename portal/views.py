@@ -167,11 +167,12 @@ def dashboard():
 
     except:
         session['slate_portal_user'] = False
-        
+
     if request.method == 'GET':
         user_groups = []
         user_instances = []
         logged_in = 'slate_id' in session
+        # print("LOGGED IN: {}".format(logged_in))
         if logged_in:
             token_query = {'token': session['slate_token']}
         else:
@@ -226,6 +227,7 @@ def dashboard():
 
         # Set up multiplex JSON
         cluster_multiplex_Json = {}
+        # print(clusters)
         for cluster in clusters:
             cluster_name = cluster['metadata']['name']
             cluster_status_query = "/v1alpha3/clusters/"+cluster_name+"/ping?token="+token_query['token']+"&cache"
@@ -236,10 +238,12 @@ def dashboard():
         cluster_multiplex = cluster_multiplex.json()
 
         cluster_status_dict = {}
+        # print("Cluster Multiplex: {}".format(cluster_multiplex))
         for cluster in cluster_multiplex:
             cluster_name = cluster.split('/')[3]
             cluster_status_dict[cluster_name] = json.loads(cluster_multiplex[cluster]['body'])['reachable']
 
+        # print("Cluster STATUS: {}".format(cluster_status_dict))
         return render_template('dashboard.html', user_instances=user_instances,
                                 applications=applications, clusters=clusters,
                                 pub_groups=pub_groups, multiplex=multiplex,
@@ -696,18 +700,19 @@ def view_cluster(project_name, name):
         list_groups = requests.get(
             slate_api_endpoint + '/v1alpha3/groups', params=token_query)
         list_groups = list_groups.json()['items']
-        list_groups = [group['metadata']['name'] for group in list_groups]
+        list_groups_names = [group['metadata']['name'] for group in list_groups]
 
         # Get list of groups allowed to access this cluster
         allowed_groups = requests.get(
             slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=token_query)
         allowed_groups = allowed_groups.json()['items']
+        allowed_groups_names = [group['metadata']['name'] for group in allowed_groups]
 
         for group in allowed_groups:
             if group['metadata']['name'] == '<all>':
-                allowed_groups = list_groups
-            elif group['metadata']['name'] in list_groups:
-                list_groups.remove(group['metadata']['name'])
+                allowed_groups_names = list_groups_names
+            elif group['metadata']['name'] in list_groups_names:
+                list_groups_names.remove(group['metadata']['name'])
 
         # Getting Cluster information
         cluster = requests.get(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name, params=token_query)
@@ -718,13 +723,16 @@ def view_cluster(project_name, name):
             slate_api_endpoint + '/v1alpha3/groups/' + group_name + '/clusters', params=token_query)
         group_clusters = group_clusters.json()['items']
         administering = False
+
         for group in group_clusters:
             if group['metadata']['name'] == cluster_name:
                 administering = True
 
         # Groups that do not have access to this cluster, populated in drop-down form to 'add group'
-        non_access_groups = list(set(list_groups) - set(allowed_groups))
-        print(non_access_groups)
+        print("LIST GROUPS: {}".format(list_groups))
+        print("ALLOWED GROUPS: {}".format(allowed_groups))
+        non_access_groups = list(set(list_groups_names) - set(allowed_groups_names))
+        print("NON ACCESS GROUPS: {}".format(non_access_groups))
 
         return render_template('cluster_profile.html', allowed_groups=allowed_groups,
                                project_name=project_name, name=name,
@@ -1416,6 +1424,49 @@ def view_application(name):
         return render_template('applications_profile.html', name=name,
                                 app_config=app_config, app_readme=app_readme,
                                 app_version=app_version, chart_version=chart_version)
+
+
+@app.route('/applications/incubator/<name>', methods=['GET'])
+def view_incubator_application(name):
+    """
+    - View Incubator Applications Detail Page on SLATE
+    """
+    if request.method == 'GET':
+        try:
+            slate_user_id = session['slate_id']
+            token_query = {'token': session['slate_token']}
+        except:
+            token_query = {'token': slate_api_token}
+
+        app_config_query = '/v1alpha3/apps/' + name + '?dev=true?token=' + token_query['token']
+        app_read_query = '/v1alpha3/apps/' + name + '/info?dev=true?token=' + token_query['token']
+        applications_query = '/v1alpha3/apps?dev=true?token=' + token_query['token']
+
+        multiplexJson = {app_config_query: {"method":"GET"},
+                            app_read_query: {"method":"GET"},
+                            applications_query: {"method": "GET"}}
+
+        multiplex = requests.post(
+            slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=multiplexJson)
+        multiplex = multiplex.json()
+        app_config = json.loads(multiplex[app_config_query]['body'])
+        app_readme = json.loads(multiplex[app_read_query]['body'])
+        applications = json.loads(multiplex[applications_query]['body'])
+        applications = applications['items']
+
+        app_version = None
+        chart_version = None
+
+        for app in applications:
+            if app['metadata']['name'] == name:
+                print(app)
+                app_version = app['metadata']['app_version']
+                chart_version = app['metadata']['chart_version']
+
+        return render_template('applications_incubator_profile.html', name=name,
+                                app_config=app_config, app_readme=app_readme,
+                                app_version=app_version, chart_version=chart_version)
+
 
 @app.route('/applications/<name>/new', methods=['GET', 'POST'])
 @authenticated
