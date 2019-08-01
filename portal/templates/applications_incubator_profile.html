@@ -33,7 +33,7 @@
         <div class="tab-content">
           <div id="home" class="tab-pane fade in show active">
             <br/>
-            {% filter markdown %}{% if app_readme['spec']['body'] %}{{app_readme['spec']['body']|safe}}{% else %}Application README currently under development{% endif %}{% endfilter %}
+            {% filter markdown %}{% if app_readme %}{{app_readme|safe}}{% else %}Application README currently under development{% endif %}{% endfilter %}
           </div>
 
           <div id="menu1" class="tab-pane fade">
@@ -41,7 +41,7 @@
             <table class="table table-hover">
               <tbody>
                 <tr>
-                  <td><pre id="json">{{app_config['spec']['body']}}</pre></td>
+                  <td><pre id="json">{% if app_config %}{{app_config}}{% else %}Application Configuration currently unavailable{% endif %}</pre></td>
                 </tr>
               </tbody>
             </table>

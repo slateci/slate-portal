@@ -1454,12 +1454,18 @@ def view_incubator_application(name):
         applications = json.loads(multiplex[applications_query]['body'])
         applications = applications['items']
 
+        try:
+            app_config = app_config['spec']['body']
+            app_readme = app_readme['spec']['body']
+        except:
+            app_config = None
+            app_readme = None
+
         app_version = None
         chart_version = None
 
         for app in applications:
             if app['metadata']['name'] == name:
-                print(app)
                 app_version = app['metadata']['app_version']
                 chart_version = app['metadata']['chart_version']
 
