@@ -46,6 +46,13 @@ def add_cors(response):
    response.headers.add('Access-Control-Allow-Origin', '*')
    return response
 
+@app.route('/testing', methods=['GET'])
+def testing_route():
+    success = "JSON: SUCCESS"
+    response = make_response(success)
+    response.headers['Content-Type'] == 'application/json'
+    return response
+
 
 @app.route('/', methods=['GET'])
 def home():
@@ -181,8 +188,10 @@ def dashboard():
         # print("LOGGED IN: {}".format(logged_in))
         if logged_in:
             token_query = {'token': session['slate_token']}
+            user_token = token_query['token']
         else:
             token_query = {'token': slate_api_token}
+            user_token = token_query['token']
 
 
         # Initialize separate list queries for multiplex request
@@ -248,7 +257,6 @@ def dashboard():
         for cluster in cluster_multiplex:
             cluster_name = cluster.split('/')[3]
             cluster_status_dict[cluster_name] = json.loads(cluster_multiplex[cluster]['body'])['reachable']
-        user_token = session['slate_token']
         # print(user_token)
 
         # print("Cluster STATUS: {}".format(cluster_status_dict))
