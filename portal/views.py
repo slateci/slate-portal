@@ -41,6 +41,12 @@ def podnameformat(value):
     return hostName
 
 
+@app.after_request
+def add_cors(response):
+   response.headers.add('Access-Control-Allow-Origin', '*')
+   return response
+
+
 @app.route('/', methods=['GET'])
 def home():
     """Home page - play with it if you must!"""
@@ -242,12 +248,15 @@ def dashboard():
         for cluster in cluster_multiplex:
             cluster_name = cluster.split('/')[3]
             cluster_status_dict[cluster_name] = json.loads(cluster_multiplex[cluster]['body'])['reachable']
+        user_token = session['slate_token']
+        # print(user_token)
 
         # print("Cluster STATUS: {}".format(cluster_status_dict))
         return render_template('dashboard.html', user_instances=user_instances,
                                 applications=applications, clusters=clusters,
                                 pub_groups=pub_groups, multiplex=multiplex,
-                                cluster_status_dict=cluster_status_dict, users=None)
+                                cluster_status_dict=cluster_status_dict,
+                                users=None, user_token=user_token)
 
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -1453,6 +1462,9 @@ def view_incubator_application(name):
         app_readme = json.loads(multiplex[app_read_query]['body'])
         applications = json.loads(multiplex[applications_query]['body'])
         applications = applications['items']
+        print("MULTIPLEX: {}".format(multiplex))
+        print("CONFIG: {}".format(app_config))
+        print("README: {}".format(app_readme))
 
         try:
             app_config = app_config['spec']['body']
