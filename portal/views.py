@@ -41,17 +41,15 @@ def podnameformat(value):
     return hostName
 
 
-@app.after_request
-def add_cors(response):
-   response.headers.add('Access-Control-Allow-Origin', '*')
-   return response
-
 @app.route('/testing', methods=['GET'])
 def testing_route():
-    success = "JSON: SUCCESS"
-    response = make_response(success)
-    response.headers['Content-Type'] == 'application/json'
-    return response
+
+    applications = requests.get(
+        slate_api_endpoint + '/v1alpha3/apps')
+    applications = applications.json()['items']
+
+    # response = app.response_class(response=applications, status=200, mimetype='application/json')
+    return jsonify(applications)
 
 
 @app.route('/', methods=['GET'])

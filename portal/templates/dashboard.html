@@ -195,27 +195,27 @@
   </div> <!-- container -->
 </section>
 
-<!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script type="text/javascript">
-
+$.noConflict();
 // var user_token = {{user_token|safe}};
 
 window.onload = get_cluster_status();
 
   function get_cluster_status(){
     $.ajax({
-      url: "https://api-dev.slateci.io:18080/v1alpha3/apps",
+      url: "/testing",
       type: "get",
       dataType: 'json',
       success: function(data){
-        console.log("DAT WHEY")
+        console.log("SUCCESS");
         console.log(data);
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log(jqXHR.status);
         console.log(textStatus);
         console.log(errorThrown);
-        console.log("BIG MISTAKE")
+        console.log("BIG MISTAKE");
       }
     });
   }
