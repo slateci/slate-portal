@@ -60,11 +60,23 @@ def instances_ajax():
 
 def instances_request():
     token_query = {'token': session['slate_token']}
-
     instances = requests.get(
         slate_api_endpoint + '/v1alpha3/instances', params=token_query)
     instances = instances.json()['items'][:5]
     return instances
+
+
+@app.route('/public_groups_ajax', methods=['GET'])
+def public_groups_ajax():
+    public_groups = public_groups_request()
+    return jsonify(public_groups)
+
+def public_groups_request():
+    token_query = {'token': session['slate_token']}
+    public_groups = requests.get(
+        slate_api_endpoint + '/v1alpha3/groups', params=token_query)
+    public_groups = public_groups.json()['items'][:5]
+    return public_groups
 
 
 @app.route('/', methods=['GET'])
