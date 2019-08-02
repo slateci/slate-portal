@@ -49,8 +49,22 @@ def applications_ajax():
 def applications_request():
     applications = requests.get(
         slate_api_endpoint + '/v1alpha3/apps')
-    applications = applications.json()['items']
+    applications = applications.json()['items'][:5]
     return applications
+
+
+@app.route('/instances_ajax', methods=['GET'])
+def instances_ajax():
+    instances = instances_request()
+    return jsonify(instances)
+
+def instances_request():
+    token_query = {'token': session['slate_token']}
+
+    instances = requests.get(
+        slate_api_endpoint + '/v1alpha3/instances', params=token_query)
+    instances = instances.json()['items'][:5]
+    return instances
 
 
 @app.route('/', methods=['GET'])
