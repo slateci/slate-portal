@@ -83,3 +83,4 @@ rebates/uploads
 # portal.conf file and keys
 portal.conf
 instance
+secrets

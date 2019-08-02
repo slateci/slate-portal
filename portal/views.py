@@ -16,8 +16,8 @@ try:
     g = open("slate_api_endpoint.txt", "r")
 except:
     # Use these two lines below on local
-    f = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_token.txt", "r")
-    g = open("/Users/JeremyVan/Documents/Programming/UChicago/Slate/secrets/slate_api_endpoint.txt", "r")
+    f = open("secrets/slate_api_token.txt", "r")
+    g = open("secrets/slate_api_endpoint.txt", "r")
 
 slate_api_token = f.read().split()[0]
 slate_api_endpoint = g.read().split()[0]
@@ -41,15 +41,16 @@ def podnameformat(value):
     return hostName
 
 
-@app.route('/testing', methods=['GET'])
-def testing_route():
+@app.route('/applications_ajax', methods=['GET'])
+def applications_ajax():
+    applications = applications_request()
+    return jsonify(applications)
 
+def applications_request():
     applications = requests.get(
         slate_api_endpoint + '/v1alpha3/apps')
     applications = applications.json()['items']
-
-    # response = app.response_class(response=applications, status=200, mimetype='application/json')
-    return jsonify(applications)
+    return applications
 
 
 @app.route('/', methods=['GET'])

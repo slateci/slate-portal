@@ -13,6 +13,7 @@
           <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
         </ol>
         <h2>Dashboard</h2>
+        <p id="ajax-testing"></p>
         <p class="lead">
           {% if session.get('is_authenticated') %}
           Account Summary
@@ -90,10 +91,8 @@
               </div>
               <div class="card-body">
                 <!-- <h5 class="card-title" style="text-align: center"><i class="fas fa-coins fa-2x"></i></h5> -->
-                <ul class="list-unstyled">
-                  {% for app in applications %}
-                    <li><a href="{{url_for('view_application', name=app['metadata']['name'])}}">{{app['metadata']['name']}}</a></li>
-                  {% endfor %}
+                <ul class="list-unstyled" id="apps-ajax">
+
                 </ul>
                 <a href="{{url_for('list_applications')}}" class="btn btn-sm btn-primary">View all apps</a>
               </div>
@@ -198,18 +197,21 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script type="text/javascript">
 $.noConflict();
-// var user_token = {{user_token|safe}};
 
-window.onload = get_cluster_status();
+window.onload = get_applications();
 
-  function get_cluster_status(){
+  function get_applications(){
     $.ajax({
-      url: "/testing",
+      url: "/applications_ajax",
       type: "get",
       dataType: 'json',
       success: function(data){
         console.log("SUCCESS");
         console.log(data);
+        var applications = data;
+        for (i = 0; i < applications.length; i++) {
+          $('#apps-ajax').append("<li><a href='{{url_for('view_application', name="+applications[i]['metadata']['name']+")}}'>"+applications[i]['metadata']['name']+"</a></li>");
+        }
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log(jqXHR.status);
