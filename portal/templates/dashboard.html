@@ -222,7 +222,8 @@ window.onload = start();
         var instances = data;
         for (i = 0; i < instances.length; i++) {
           var instance_id = String(instances[i]['metadata']['id']);
-          $('#instances-ajax').append("<li><a href='/instances/"+instance_id+"'>"+instance_id+"</a></li>");
+          var instance_name = String(instances[i]['metadata']['name']);
+          $('#instances-ajax').append("<li><a href='/instances/"+instance_id+"'>"+instance_name+"</a></li>");
         }
       },
       error: function(jqXHR, textStatus, errorThrown) {
