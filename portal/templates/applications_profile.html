@@ -38,9 +38,9 @@
         </ul>
 
         <div class="tab-content">
-          <div id="home" class="tab-pane fade in show active">
+          <div id="home" class="tab-pane fade in show active" data-name="{{name}}">
             <br/>
-            {% filter markdown %}{{app_readme['spec']['body']|safe}}{% endfilter %}
+            {% filter markdown %}<span id='app_readme'></span>{% endfilter %}
           </div>
 
           <div id="menu1" class="tab-pane fade">
@@ -60,4 +60,38 @@
     </div>
   </div>
 </section>
+
+<script src="https://cdn.jsdelivr.net/remarkable/1.7.1/remarkable.min.js"></script>
+<script type="text/javascript">
+
+var md = new Remarkable();
+
+window.onload = start();
+
+  function get_app_readme(){
+    $.ajax({
+      url: "/apps_readme_ajax/{{name}}",
+      type: "get",
+      dataType: 'json',
+      success: function(data){
+        console.log("SUCCESS");
+        console.log(data);
+        var app_readme = data['spec']['body'];
+        $('#app_readme').html(md.render(app_readme));
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR.status);
+        console.log(textStatus);
+        console.log(errorThrown);
+        console.log("BIG MISTAKE");
+      }
+    });
+  }
+
+  function start() {
+    get_app_readme();
+  }
+
+</script>
+
 {%endblock%}
