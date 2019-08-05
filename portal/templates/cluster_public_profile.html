@@ -54,7 +54,11 @@
               <div class="card-body">
                 <ul class="list-unstyled">
                 {% for group in allowed_groups %}
+                  {% if group['metadata']['name'] == '<all>' %}
+                  <li><a href="{{url_for('list_public_groups')}}">{{group['metadata']['name']}}</a></li>
+                  {% else %}
                   <li><a href="{{url_for('view_public_group', name=group['metadata']['name'])}}">{{group['metadata']['name']}}</a></li>
+                  {% endif %}
                 {% endfor %}
                 </ul>
               </div>
