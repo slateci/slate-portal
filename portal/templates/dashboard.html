@@ -148,6 +148,7 @@
         </div>
         <br/>
         <div class="row">
+          {% if session.get('is_authenticated') %}
           <div class="col-sm-12 col-md-4">
             <div class="card h-100">
               <div class="card-header">
@@ -161,6 +162,7 @@
               </div>
             </div>
           </div>
+          {% endif %}
           {% if not session.get('slate_portal_user') %}
           <div class="col-sm-12 col-md-8">
             <div class="card h-100">
