@@ -37,7 +37,7 @@
                   <strong>Description:</strong> {{group_info['metadata']['description']}}
                 </p>
                 {% if session.get('is_authenticated') %}
-                <a href="mailto:{{group_info['metadata']['email']}}?subject=Request to Join Group!" class="btn btn-sm btn-primary">Request to Join <i class="fas fa-envelope"></i></a>
+                <a href="mailto:{{group_info['metadata']['email']}}?subject=Request to Join {{group_info['metadata']['name']}} Group!&body=Hello, I am requesting to join the {{group_info['metadata']['name']}} group." class="btn btn-sm btn-primary">Request to Join <i class="fas fa-envelope"></i></a>
                 {% endif %}
               </div>
             </div>
