@@ -245,7 +245,7 @@ window.onload = start();
         var public_groups = data;
         for (i = 0; i < public_groups.length; i++) {
           var public_groups_name = String(public_groups[i]['metadata']['name']);
-          $('#public-groups-ajax').append("<li><a href='/instances/"+public_groups_name+"'>"+public_groups_name+"</a></li>");
+          $('#public-groups-ajax').append("<li><a href='/public_groups/"+public_groups_name+"'>"+public_groups_name+"</a></li>");
         }
       },
       error: function(jqXHR, textStatus, errorThrown) {
