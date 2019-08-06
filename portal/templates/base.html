@@ -95,6 +95,18 @@
     // });
   	</script>
 
+    <style>
+	[v-cloak] {display: none}
+    </style>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>	
+    <!-- Devlopment library <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> -->
+    <!-- production version, optimized for size and speed -->
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script> 
+    <script> 
+	//Change delimiters to avoid collision with Flask templates
+	Vue.options.delimiters = ['{[{','}]}'];
+    </script>
+
   </head>
   <body id="page-top">
     <div class="wrapper">
