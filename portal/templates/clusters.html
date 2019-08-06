@@ -35,22 +35,37 @@
                 <th data-field="organization" data-sortable="true">Organization</th>
               </tr>
             </thead>
-            <tbody data-link="row" class="rowlink" style="font-size:14px;">
-              {% for cluster in slate_clusters %}
-              <tr>
-                <td><a href="{{url_for('view_public_cluster', name=cluster['metadata']['name'])}}">{{cluster['metadata']['name']}}</a></td>
-                <td>{{cluster['metadata']['owningGroup']}}</td>
-                <td>{% for location in cluster['metadata']['location'] %}{{location['lat']}}, {{location['lon']}}{%endfor%}</td>
-                <td>
-                  {% if cluster_status_dict[cluster['metadata']['name']] %}
-                  <i class="fas fa-check-circle" style="color: green"></i> Reachable
-                  {% else %}
-                  <i class="fas fa-times-circle" style="color: red"></i> Unreachable
-                  {% endif %}
-                </td>
-                <td>{{cluster['metadata']['owningOrganization']}}</td>
-              </tr>
-              {% endfor %}
+            <tbody id="table-data" data-link="row" class="rowlink" style="font-size:14px;">
+		<tr v-if="loading">
+			<td>Loading Data <i class="fas fa-sync fa-spin"></i></td>
+			<td><i class="fas fa-sync fa-spin"></i></td>
+			<td><i class="fas fa-sync fa-spin"></i></td>
+			<td><i class="fas fa-sync fa-spin"></i></td>
+			<td><i class="fas fa-sync fa-spin"></i></td>
+		</tr>
+		<tr v-if="failed">
+			<td>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></td>
+			<td><i class="far fa-times-circle"></i></td>
+			<td><i class="far fa-times-circle"></i></td>
+			<td><i class="far fa-times-circle"></i></td>
+			<td><i class="far fa-times-circle"></i></td>
+		</tr>
+
+		<tr v-for="(cluster, index) in clusters" v-cloak >
+		  <td><a :href="'/clusters/' + cluster.metadata.name">{[{cluster.metadata.name}]}</a></td>
+		  <td>{[{cluster.metadata.owningGroup}]}</td>
+		  <td><span v-for="location in cluster.metadata.location">{[{location.lat}]},{[{location.lon}]}</span></td>
+		  <td>
+		    <span v-if="clusterStatus[cluster.metadata.name]">
+			    <i class="fas fa-check-circle" style="color: green"></i>	Reachable
+				</span>
+				<span v-else>
+				  <i class="fas fa-times-circle" style="color: red"></i> Unreachable
+			  </span>
+		  </td>
+		  <td>{[{cluster.metadata.owningOrganization}]}</td>
+		</tr>
+
             </tbody>
 
           </table>
@@ -64,7 +79,32 @@
 
 <script>
 $(document).ready(function() {
-    $('#cluster-table').DataTable();
+    new Vue({
+	el: '#table-data',
+	data () {
+	    return {
+	      clusters: {},
+		clusterStatus: {},
+		loading: true,
+		failed: false
+	    }
+	},
+	updated: function() {
+	    //call DataTable after view is updated
+	    $('#cluster-table').DataTable();
+	},
+	mounted() {
+            axios.get('/clusters-xhr')
+	        .then(function (response) {
+		    this.clusters = response.data[0];
+		    this.clusterStatus = response.data[1];
+				this.loading = false;
+		}.bind(this)) //must use bind(this) unless using arrow function
+		.catch(error => { this.failed = true; this.loading = false; })
+		}
+    });
+
+
 });
 </script>
 {%endblock%}

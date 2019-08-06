@@ -1394,32 +1394,47 @@ def list_clusters():
     - List Clusters Registered on SLATE
     """
     if request.method == 'GET':
-        slate_user_id = session['slate_id']
-        token_query = {'token': session['slate_token']}
+        return render_template('clusters.html')
 
-        slate_clusters = requests.get(
-            slate_api_endpoint + '/v1alpha3/clusters', params=token_query)
-        slate_clusters = slate_clusters.json()['items']
-        slate_clusters.sort(key=lambda e: e['metadata']['name'])
+@app.route('/clusters-xhr', methods=['GET'])
+@authenticated
+def list_clusters_xhr():
+    """
+    - List Clusters Registered on SLATE (json response)
+    """
+    if request.method == 'GET':
+        slate_clusters, cluster_status_dict = list_clusters_request(session)
+        return jsonify(slate_clusters, cluster_status_dict)
 
-        # Set up multiplex JSON
-        multiplexJson = {}
-        for cluster in slate_clusters:
-            cluster_name = cluster['metadata']['name']
-            cluster_status_query = "/v1alpha3/clusters/"+cluster_name+"/ping?token="+token_query['token']+"&cache"
-            multiplexJson[cluster_status_query] = {"method":"GET"}
-        # POST request for multiplex return
-        multiplex = requests.post(
-            slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=multiplexJson)
-        multiplex = multiplex.json()
+def list_clusters_request(session):
+    """
+    - Get Clusters and Status on SLATE
+    """
 
-        cluster_status_dict = {}
-        for cluster in multiplex:
-            cluster_name = cluster.split('/')[3]
-            cluster_status_dict[cluster_name] = json.loads(multiplex[cluster]['body'])['reachable']
+    slate_user_id = session['slate_id']
+    token_query = {'token': session['slate_token']}
 
-        return render_template('clusters.html', slate_clusters=slate_clusters, cluster_status_dict=cluster_status_dict)
+    slate_clusters = requests.get(
+        slate_api_endpoint + '/v1alpha3/clusters', params=token_query)
+    slate_clusters = slate_clusters.json()['items']
+    slate_clusters.sort(key=lambda e: e['metadata']['name'])
 
+    multiplexJson = {}
+    for cluster in slate_clusters:
+        cluster_name = cluster['metadata']['name']
+        cluster_status_query = "/v1alpha3/clusters/"+cluster_name+"/ping?token="+token_query['token']+"&cache"
+        multiplexJson[cluster_status_query] = {"method":"GET"}
+    # POST request for multiplex return
+    multiplex = requests.post(
+        slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=multiplexJson)
+    multiplex = multiplex.json()
+
+    cluster_status_dict = {}
+    for cluster in multiplex:
+        cluster_name = cluster.split('/')[3]
+        cluster_status_dict[cluster_name] = json.loads(multiplex[cluster]['body'])['reachable']
+    #return multiple values through Tuple
+    return slate_clusters, cluster_status_dict
 
 @app.route('/clusters/<name>', methods=['GET'])
 @authenticated
