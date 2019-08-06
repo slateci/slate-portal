@@ -36,36 +36,35 @@
               </tr>
             </thead>
             <tbody id="table-data" data-link="row" class="rowlink" style="font-size:14px;">
-		<tr v-if="loading">
-			<td>Loading Data <i class="fas fa-sync fa-spin"></i></td>
-			<td><i class="fas fa-sync fa-spin"></i></td>
-			<td><i class="fas fa-sync fa-spin"></i></td>
-			<td><i class="fas fa-sync fa-spin"></i></td>
-			<td><i class="fas fa-sync fa-spin"></i></td>
-		</tr>
-		<tr v-if="failed">
-			<td>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></td>
-			<td><i class="far fa-times-circle"></i></td>
-			<td><i class="far fa-times-circle"></i></td>
-			<td><i class="far fa-times-circle"></i></td>
-			<td><i class="far fa-times-circle"></i></td>
-		</tr>
+          		<tr v-if="loading">
+          			<td>Loading Data <i class="fas fa-sync fa-spin"></i></td>
+          			<td><i class="fas fa-sync fa-spin"></i></td>
+          			<td><i class="fas fa-sync fa-spin"></i></td>
+          			<td><i class="fas fa-sync fa-spin"></i></td>
+          			<td><i class="fas fa-sync fa-spin"></i></td>
+          		</tr>
+          		<tr v-if="failed">
+          			<td>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></td>
+          			<td><i class="far fa-times-circle"></i></td>
+          			<td><i class="far fa-times-circle"></i></td>
+          			<td><i class="far fa-times-circle"></i></td>
+          			<td><i class="far fa-times-circle"></i></td>
+          		</tr>
 
-		<tr v-for="(cluster, index) in clusters" v-cloak >
-		  <td><a :href="'/clusters/' + cluster.metadata.name">{[{cluster.metadata.name}]}</a></td>
-		  <td>{[{cluster.metadata.owningGroup}]}</td>
-		  <td><span v-for="location in cluster.metadata.location">{[{location.lat}]},{[{location.lon}]}</span></td>
-		  <td>
-		    <span v-if="clusterStatus[cluster.metadata.name]">
-			    <i class="fas fa-check-circle" style="color: green"></i>	Reachable
-				</span>
-				<span v-else>
-				  <i class="fas fa-times-circle" style="color: red"></i> Unreachable
-			  </span>
-		  </td>
-		  <td>{[{cluster.metadata.owningOrganization}]}</td>
-		</tr>
-
+          		<tr v-for="(cluster, index) in clusters" v-cloak >
+          		  <td><a :href="'/clusters/' + cluster.metadata.name">{[{cluster.metadata.name}]}</a></td>
+          		  <td>{[{cluster.metadata.owningGroup}]}</td>
+          		  <td><span v-for="location in cluster.metadata.location">{[{location.lat}]},{[{location.lon}]}</span></td>
+          		  <td>
+          		    <span v-if="clusterStatus[cluster.metadata.name]">
+          			    <i class="fas fa-check-circle" style="color: green"></i>	Reachable
+          				</span>
+          				<span v-else>
+          				  <i class="fas fa-times-circle" style="color: red"></i> Unreachable
+          			  </span>
+          		  </td>
+          		  <td>{[{cluster.metadata.owningOrganization}]}</td>
+          		</tr>
             </tbody>
 
           </table>
