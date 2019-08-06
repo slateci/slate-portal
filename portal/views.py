@@ -1551,7 +1551,6 @@ def view_application(name):
             error = True
         else:
             error = False
-        print(error)
 
         return render_template('applications_profile.html', name=name,
                                 app_config=app_config, app_readme=app_readme,
@@ -1586,9 +1585,14 @@ def view_incubator_application(name):
         app_readme = json.loads(multiplex[app_read_query]['body'])
         applications = json.loads(multiplex[applications_query]['body'])
         applications = applications['items']
-        print("MULTIPLEX: {}".format(multiplex))
-        print("CONFIG: {}".format(app_config))
-        print("README: {}".format(app_readme))
+        # print("MULTIPLEX: {}".format(multiplex))
+        # print("CONFIG: {}".format(app_config))
+        # print("README: {}".format(app_readme))
+
+        if app_config['kind'] == 'Error':
+            error = True
+        else:
+            error = False
 
         try:
             app_config = app_config['spec']['body']
@@ -1607,7 +1611,8 @@ def view_incubator_application(name):
 
         return render_template('applications_incubator_profile.html', name=name,
                                 app_config=app_config, app_readme=app_readme,
-                                app_version=app_version, chart_version=chart_version)
+                                app_version=app_version,
+                                chart_version=chart_version, error=error)
 
 
 @app.route('/applications/<name>/new', methods=['GET', 'POST'])

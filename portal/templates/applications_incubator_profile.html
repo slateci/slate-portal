@@ -17,13 +17,16 @@
           <li class="breadcrumb-item"><a href="{{url_for('list_applications')}}">App</a></li>
           <li class="breadcrumb-item active">{{name}}</li>
         </ol>
-
+        {% if not error %}
         <h1>App: {{name}}</h1>
         <p class="lead">
           See <a href="https://github.com/slateci/slate-catalog/tree/master/incubator/{{name}}/{{name}}" target="_blank">chart source</a> for any further details
         </p>
         <p>Chart Version: {{chart_version}}</p>
         <p>App Version: {{app_version}}</p>
+        {% else %}
+        <h1>Could not find the application you are looking for...</h1>
+        {% endif %}
 
         <ul class="nav nav-tabs">
           <li class="active"><a class="nav-item nav-link active" data-toggle="tab" href="#home">Read Me</a></li>
