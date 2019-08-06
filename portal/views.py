@@ -138,23 +138,6 @@ def instances_request():
     return instances
 
 
-@app.route('/public_groups_ajax', methods=['GET'])
-def public_groups_ajax():
-    public_groups = public_groups_request()
-    return jsonify(public_groups)
-
-def public_groups_request():
-    try:
-        token_query = {'token': session['slate_token']}
-    except:
-        token_query = {'token': slate_api_token}
-
-    public_groups = requests.get(
-        slate_api_endpoint + '/v1alpha3/groups', params=token_query)
-    public_groups = public_groups.json()['items'][:5]
-    return public_groups
-
-
 @app.route('/', methods=['GET'])
 def home():
     """Home page - play with it if you must!"""
@@ -418,6 +401,23 @@ def list_public_groups():
         group_list = s_info['items']
 
         return render_template('groups_public.html', group_list=group_list)
+
+
+@app.route('/public_groups_ajax', methods=['GET'])
+def public_groups_ajax():
+    public_groups = public_groups_request()
+    return jsonify(public_groups)
+
+def public_groups_request():
+    try:
+        token_query = {'token': session['slate_token']}
+    except:
+        token_query = {'token': slate_api_token}
+
+    public_groups = requests.get(
+        slate_api_endpoint + '/v1alpha3/groups', params=token_query)
+    public_groups = public_groups.json()['items'][:5]
+    return public_groups
 
 
 @app.route('/public_groups/<name>', methods=['GET', 'POST'])
@@ -1547,9 +1547,16 @@ def view_application(name):
                 app_version = app['metadata']['app_version']
                 chart_version = app['metadata']['chart_version']
 
+        if app_config['kind'] == 'Error':
+            error = True
+        else:
+            error = False
+        print(error)
+
         return render_template('applications_profile.html', name=name,
                                 app_config=app_config, app_readme=app_readme,
-                                app_version=app_version, chart_version=chart_version)
+                                app_version=app_version,
+                                chart_version=chart_version, error=error)
 
 
 @app.route('/applications/incubator/<name>', methods=['GET'])

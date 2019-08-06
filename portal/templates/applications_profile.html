@@ -17,14 +17,17 @@
           <li class="breadcrumb-item"><a href="{{url_for('list_applications')}}">App</a></li>
           <li class="breadcrumb-item active">{{name}}</li>
         </ol>
-
+        {% if not error %}
         <h1>App: {{name}}</h1>
         <p class="lead">
           See <a href="https://github.com/slateci/slate-catalog/tree/master/stable/{{name}}/{{name}}" target="_blank">chart source</a> for any further details
         </p>
         <p>Chart Version: {{chart_version}}</p>
         <p>App Version: {{app_version}}</p>
-        {% if session.get('is_authenticated') %}
+        {% else %}
+        <h1>Could not find the application you are looking for...</h1>
+        {% endif %}
+        {% if session.get('is_authenticated') and not error %}
         <div class="install-app" style="padding: 10px 0;">
           <form action="{{url_for('create_application_group', name=name)}}" method="GET">
             <button class="btn btn-primary btn-sm" type="submit">Install App</button>
