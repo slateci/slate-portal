@@ -53,6 +53,42 @@ def applications_request():
     return applications
 
 
+@app.route('/apps_readme_ajax/<name>', methods=['GET'])
+def apps_readme_ajax(name):
+    apps_readme = apps_readme_request(name)
+    return jsonify(apps_readme)
+
+def apps_readme_request(name):
+    try:
+        token_query = {'token': session['slate_token']}
+    except:
+        token_query = {'token': slate_api_token}
+
+    apps_readme = requests.get(
+        slate_api_endpoint + '/v1alpha3/apps/' + name + '/info', params=token_query)
+    apps_readme = apps_readme.json()
+    # app_config_query = '/v1alpha3/apps/' + name + '?token=' + token_query['token']
+    return apps_readme
+
+
+@app.route('/apps_config_ajax/<name>', methods=['GET'])
+def apps_config_ajax(name):
+    apps_config = apps_config_request(name)
+    return jsonify(apps_config)
+
+def apps_config_request(name):
+    try:
+        token_query = {'token': session['slate_token']}
+    except:
+        token_query = {'token': slate_api_token}
+
+    apps_config = requests.get(
+        slate_api_endpoint + '/v1alpha3/apps/' + name, params=token_query)
+    apps_config = apps_config.json()
+
+    return apps_config
+
+
 @app.route('/instances_ajax', methods=['GET'])
 def instances_ajax():
     instances = instances_request()
@@ -72,7 +108,11 @@ def public_groups_ajax():
     return jsonify(public_groups)
 
 def public_groups_request():
-    token_query = {'token': session['slate_token']}
+    try:
+        token_query = {'token': session['slate_token']}
+    except:
+        token_query = {'token': slate_api_token}
+
     public_groups = requests.get(
         slate_api_endpoint + '/v1alpha3/groups', params=token_query)
     public_groups = public_groups.json()['items'][:5]

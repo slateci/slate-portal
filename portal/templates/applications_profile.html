@@ -48,7 +48,7 @@
             <table class="table table-hover">
               <tbody>
                 <tr>
-                  <td><pre id="json">{{app_config['spec']['body']}}</pre></td>
+                  <td><pre id="json"></pre></td>
                 </tr>
               </tbody>
             </table>
@@ -88,8 +88,29 @@ window.onload = start();
     });
   }
 
+  function get_app_config(){
+    $.ajax({
+      url: "/apps_config_ajax/{{name}}",
+      type: "get",
+      dataType: 'json',
+      success: function(data){
+        console.log("SUCCESS");
+        console.log(data);
+        var app_config = data['spec']['body'];
+        $('#json').html(app_config);
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR.status);
+        console.log(textStatus);
+        console.log(errorThrown);
+        console.log("BIG MISTAKE");
+      }
+    });
+  }
+
   function start() {
     get_app_readme();
+    get_app_config();
   }
 
 </script>
