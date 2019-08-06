@@ -74,11 +74,11 @@
                   {% if group != project_name %}
                 <tr>
                   <td>
-                    <a href="{{url_for('group_cluster_apps', project_name=project_name, name=name, group_name=group)}}">{{group}}</a>
+                    <a href="{{url_for('group_cluster_apps', project_name=project_name, name=name, group_name=group)}}">{{group['metadata']['name']}}</a>
                   </td>
                   <td>
                     <form role="form" action="{{url_for('remove_group_from_cluster', project_name=project_name, name=name)}}" method="POST">
-                      <button type="submit" name="remove_group" value="{{group}}" class='btn btn-danger btn-sm'>Revoke</button>
+                      <button type="submit" name="remove_group" value="{{group['metadata']['name']}}" class='btn btn-danger btn-sm'>Revoke</button>
                     </form>
                   </td>
                 </tr>
