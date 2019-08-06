@@ -27,18 +27,29 @@
                 <th data-field="instance_id" data-sortable="true">ID</th>
               </tr>
             </thead>
-            <tbody data-link="row" class="rowlink" style="font-size:14px;">
-            {% for instance in instances%}
-              {% if instance['metadata']['group'] in user_groups %}
-              <tr>
-                <td><a href="{{url_for('view_instance', name=instance['metadata']['id'])}}">{{instance['metadata']['name']}}</a></td>
-                <td>{{instance['metadata']['application']}}</td>
-                <td>{{instance['metadata']['group']}}</td>
-                <td>{{instance['metadata']['cluster']}}</td>
-                <td>{{instance['metadata']['id']}}</td>
+            <tbody data-link="row" class="rowlink" style="font-size:14px;" id="table-data">
+              <tr v-if="loading">
+                <td>Loading Data <i class="fas fa-sync fa-spin"></i></td>
+                <td><i class="fas fa-sync fa-spin"></i></td>
+                <td><i class="fas fa-sync fa-spin"></i></td>
+                <td><i class="fas fa-sync fa-spin"></i></td>
+                <td><i class="fas fa-sync fa-spin"></i></td>
               </tr>
-              {% endif %}
-            {% endfor %}
+              <tr v-if="failed">
+                <td>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></td>
+                <td><i class="far fa-times-circle"></i></td>
+                <td><i class="far fa-times-circle"></i></td>
+                <td><i class="far fa-times-circle"></i></td>
+                <td><i class="far fa-times-circle"></i></td>
+              </tr>
+
+              <tr v-for="(instance, index) in instances" v-if="userGroups.includes(instance.metadata.group)" v-cloak >
+                <td><a :href="'/instances/' + instance.metadata.id">{[{instance.metadata.name}]}</a></td>
+                <td>{[{instance.metadata.application}]}</td>
+                <td>{[{instance.metadata.group}]}</td>
+                <td>{[{instance.metadata.cluster}]}</td>
+                <td>{[{instance.metadata.id}]}</td>
+              </tr>
             </tbody>
 
           </table>
@@ -52,7 +63,30 @@
 
 <script>
 $(document).ready(function() {
-    $('#instance-table').DataTable();
+    new Vue({
+	el: '#table-data',
+	data () {
+	    return {
+	      instances: {},
+        userGroups: {},
+		loading: true,
+		failed: false
+	    }
+	},
+	updated: function() {
+	    //call DataTable after view is updated
+	    $('#instance-table').DataTable();
+	},
+	mounted() {
+            axios.get('/instances-xhr')
+	        .then(function (response) {
+		    this.instances = response.data[0];
+        this.userGroups = response.data[1];
+				this.loading = false;
+		}.bind(this)) //must use bind(this) unless using arrow function
+		.catch(error => { this.failed = true; this.loading = false; })
+		}
+    });
 });
 </script>
 {%endblock%}

@@ -442,13 +442,6 @@ def view_public_group(name):
         group_clusters_json = json.loads(multiplex[group_clusters_query]['body'])
         group_clusters_json = group_clusters_json['items']
 
-        # Old pre-optimized multiplex
-        # group_info = requests.get(slate_api_endpoint + '/v1alpha3/groups/' + name, params=token_query)
-        # group_info = group_info.json()
-        #
-        # group_clusters = requests.get(slate_api_endpoint + '/v1alpha3/groups/' + name + '/clusters', params=token_query)
-        # group_clusters = group_clusters.json()['items']
-
         return render_template('groups_public_profile.html', group_info=group_info_json, group_clusters=group_clusters_json, name=name)
 
 
@@ -1725,24 +1718,40 @@ def list_instances():
     - List deployed application instances on SLATE
     """
     if request.method == 'GET':
-        slate_user_id = session['slate_id']
-        token_query = {'token': session['slate_token']}
+        return render_template('instances.html')
 
-        instances = requests.get(
-            slate_api_endpoint + '/v1alpha3/instances', params=token_query)
-        instances = instances.json()['items']
-        # Get groups to which the user belongs
-        s = requests.get(
-            slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=token_query)
+@app.route('/instances-xhr', methods=['GET'])
+@authenticated
+def list_instances_xhr():
+    """
+    - List User's Instances Registered on SLATE (json response)
+    """
+    if request.method == 'GET':
+        instances, user_groups = list_instances_request(session)
+        return jsonify(instances, user_groups)
 
-        s_info = s.json()
-        group_list = s_info['items']
-        user_groups = []
+def list_instances_request(session):
+    """
+    Request query to get user's instances
+    """
+    slate_user_id = session['slate_id']
+    token_query = {'token': session['slate_token']}
 
-        for groups in group_list:
-            user_groups.append(groups['metadata']['name'].encode('utf-8'))
+    instances = requests.get(
+        slate_api_endpoint + '/v1alpha3/instances', params=token_query)
+    instances = instances.json()['items']
+    # Get groups to which the user belongs
+    s = requests.get(
+        slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=token_query)
 
-        return render_template('instances.html', instances=instances, user_groups=user_groups)
+    s_info = s.json()
+    group_list = s_info['items']
+    user_groups = []
+
+    for groups in group_list:
+        user_groups.append(groups['metadata']['name'].encode('utf-8'))
+
+    return instances, user_groups
 
 
 @app.route('/instances/<name>', methods=['GET'])
