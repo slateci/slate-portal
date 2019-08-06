@@ -89,6 +89,42 @@ def apps_config_request(name):
     return apps_config
 
 
+@app.route('/apps_incubator_readme_ajax/<name>', methods=['GET'])
+def apps_incubator_readme_ajax(name):
+    apps_readme = apps_incubator_readme_request(name)
+    return jsonify(apps_readme)
+
+def apps_incubator_readme_request(name):
+    try:
+        token_query = {'token': session['slate_token'], 'dev': 'true'}
+    except:
+        token_query = {'token': slate_api_token, 'dev': 'true'}
+
+    apps_readme = requests.get(
+        slate_api_endpoint + '/v1alpha3/apps/' + name + '/info', params=token_query)
+    apps_readme = apps_readme.json()
+
+    return apps_readme
+
+
+@app.route('/apps_incubator_config_ajax/<name>', methods=['GET'])
+def apps_incubator_config_ajax(name):
+    apps_config = apps_incubator_config_request(name)
+    return jsonify(apps_config)
+
+def apps_incubator_config_request(name):
+    try:
+        token_query = {'token': session['slate_token'], 'dev': 'true'}
+    except:
+        token_query = {'token': slate_api_token, 'dev': 'true'}
+
+    apps_config = requests.get(
+        slate_api_endpoint + '/v1alpha3/apps/' + name, params=token_query)
+    apps_config = apps_config.json()
+
+    return apps_config
+
+
 @app.route('/instances_ajax', methods=['GET'])
 def instances_ajax():
     instances = instances_request()
