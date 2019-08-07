@@ -253,3 +253,28 @@ a:hover {
 .form-inline .btn-primary:focus {
   box-shadow: 0 0 0 0.2rem rgba(38,143,255,0)!important;
 }
+
+blockquote {
+  border-left: .25em solid #dfe2e5;
+  color: #6a737d;
+  padding: 0 1em;
+}
+
+pre {
+  background-color: #eaecee;
+  border-radius: 3px;
+  font-size: 85%;
+  line-height: 1.45;
+  overflow: auto;
+  padding: 16px;
+}
+code {
+  background-color: transparent;
+  border: 0;
+  display: inline;
+  margin: 0;
+  overflow: visible;
+  padding 0;
+  word-wrap: normal;
+
+}
