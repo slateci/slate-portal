@@ -41,12 +41,12 @@
         </ul>
 
         <div class="tab-content">
-          <div id="home" class="tab-pane fade in show active" data-name="{{name}}">
+          <div id="home" class="tab-pane fade in show active" data-name="{{name}}" style="width:75%;">
             <br/>
-            {% filter markdown %}<span id='app_readme'></span>{% endfilter %}
+            <span id='app_readme' style=""></span>
           </div>
 
-          <div id="menu1" class="tab-pane fade">
+          <div id="menu1" class="tab-pane fade" style="width:75%;">
             <!-- <hr/> -->
             <table class="table table-hover">
               <tbody>
@@ -64,10 +64,10 @@
   </div>
 </section>
 
-<script src="https://cdn.jsdelivr.net/remarkable/1.7.1/remarkable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.4/remarkable.js"></script>
 <script type="text/javascript">
 
-var md = new Remarkable();
+  var md = new Remarkable('full');
 
 window.onload = start();
 
@@ -80,7 +80,8 @@ window.onload = start();
         console.log("SUCCESS");
         console.log(data);
         var app_readme = data['spec']['body'];
-        $('#app_readme').html(md.render(app_readme));
+        var readme = md.render(app_readme);
+        $('#app_readme').html(readme);
       },
       error: function(jqXHR, textStatus, errorThrown) {
         console.log(jqXHR.status);
