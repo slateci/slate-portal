@@ -576,12 +576,9 @@ def view_group(name):
         user = requests.get(
             slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=token_query)
         user = user.json()['metadata']['name']
-        # Get Group Members
-        group_members = requests.get(
-            slate_api_endpoint + '/v1alpha3/groups/' + group_name + '/members', params=token_query)
-        group_members = group_members.json()['items']
 
         return render_template('groups_profile.html', name=name, group_info=group_info)
+
     elif request.method == 'POST':
         cluster_name = request.form['delete_cluster']
         r = requests.delete(
@@ -600,7 +597,6 @@ def view_group(name):
 @app.route('/group-admin-clusters-xhr/<group_name>', methods=['GET'])
 def group_admin_clusters_ajax(group_name):
     administering_clusters, accessible_clusters_diff, member_access = group_admin_clusters_request(group_name)
-    print(administering_clusters)
     return jsonify(administering_clusters, accessible_clusters_diff, member_access)
 
 def group_admin_clusters_request(group_name):
@@ -718,6 +714,7 @@ def view_group_secrets(name):
     token_query = {'token': session['slate_token']}
 
     if request.method == 'GET':
+        # Get group's information for display
         s = requests.get(
             slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=token_query)
         s_info = s.json()
@@ -728,39 +725,13 @@ def view_group_secrets(name):
                 group_id = group['metadata']['id']
                 group_name = group['metadata']['name']
 
-        # Get Group Secrets
-        secrets_content = []
-
-        secrets_query = {'token': session['slate_token'], 'group': name}
-        secrets = requests.get(
-            slate_api_endpoint + '/v1alpha3/secrets', params=secrets_query)
-        secrets = secrets.json()['items']
-
-        for secret in secrets:
-            secret_id = secret['metadata']['id']
-            secret_details = requests.get(
-                slate_api_endpoint + '/v1alpha3/secrets/' + secret_id, params=token_query)
-            secret_details = secret_details.json()
-            secrets_content.append(secret_details)
-        # Base64 decode secret contents
-        for secret in secrets_content:
-            for key, value in secret['contents'].iteritems():
-                try:
-                    value_decoded = base64.b64decode(value).decode('utf-8')
-                    secret['contents'][key] = value_decoded
-                    # print(value_decoded)
-                    # print("string is UTF-8, length {} bytes".format(len(value)))
-                except UnicodeError:
-                    secret['contents'][key] = "Cannot display non UTF-8 content"
-
         # Get Group Info
         group_info = requests.get(
             slate_api_endpoint + '/v1alpha3/groups/' + group_id, params=token_query)
         group_info = group_info.json()
 
         return render_template('groups_profile_secrets.html', name=name,
-                                group_info=group_info,secrets=secrets,
-                                secrets_content=secrets_content)
+                                group_info=group_info)
     elif request.method == 'POST':
         """ Method to delete secret from group """
         secret_id = request.form['secret_id']
@@ -775,6 +746,42 @@ def view_group_secrets(name):
 
         return redirect(url_for('view_group_secrets', name=name))
 
+
+@app.route('/group-secrets-xhr/<name>', methods=['GET'])
+def group_secrets_ajax(name):
+    secrets_content = group_secrets_ajax_request(name)
+    return jsonify(secrets_content)
+
+def group_secrets_ajax_request(name):
+    slate_user_id = session['slate_id']
+    token_query = {'token': session['slate_token']}
+
+    # Get Group Secrets
+    secrets_content = []
+
+    secrets_query = {'token': session['slate_token'], 'group': name}
+    secrets = requests.get(
+        slate_api_endpoint + '/v1alpha3/secrets', params=secrets_query)
+    secrets = secrets.json()['items']
+
+    for secret in secrets:
+        secret_id = secret['metadata']['id']
+        secret_details = requests.get(
+            slate_api_endpoint + '/v1alpha3/secrets/' + secret_id, params=token_query)
+        secret_details = secret_details.json()
+        secrets_content.append(secret_details)
+    # Base64 decode secret contents
+    for secret in secrets_content:
+        for key, value in secret['contents'].iteritems():
+            try:
+                value_decoded = base64.b64decode(value).decode('utf-8')
+                secret['contents'][key] = value_decoded
+                # print(value_decoded)
+                # print("string is UTF-8, length {} bytes".format(len(value)))
+            except UnicodeError:
+                secret['contents'][key] = "Cannot display non UTF-8 content"
+
+    return secrets_content
 
 @app.route('/groups/<name>/new_secret', methods=['GET', 'POST'])
 @authenticated
