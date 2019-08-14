@@ -40,7 +40,7 @@
                   <strong>Location:</strong>{% for loc in cluster['metadata']['location'] %} {{loc['lat'], loc['lon']}} {% endfor %}
                 </p>
                 <p class="lead">
-                  <strong>Status:</strong> {% if cluster_status == 'True'%} Reachable <i class="fas fa-check-circle" style="color: green"></i> {% else %} Currently unreachable <i class="fas fa-times-circle" style="color: red"></i> {% endif %}
+                  <strong>Status:</strong> <span id='cluster_status'></span>
                 </p>
               </div>
             </div>
@@ -52,15 +52,20 @@
                 Groups with access
               </div>
               <div class="card-body">
-                <ul class="list-unstyled">
-                {% for group in allowed_groups %}
-                  {% if group['metadata']['name'] == '<all>' %}
-                  <li><a href="{{url_for('list_public_groups')}}">{{group['metadata']['name']}}</a></li>
-                  {% else %}
-                  <li><a href="{{url_for('view_public_group', name=group['metadata']['name'])}}">{{group['metadata']['name']}}</a></li>
-                  {% endif %}
-                {% endfor %}
+
+                <!-- <ul class="list-unstyled" v-if="loading">
+                  <li>Loading Data <i class="fas fa-sync fa-spin"></i></li>
                 </ul>
+
+                <ul class="list-unstyled" v-if="failed">
+                  <li>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></li>
+                </ul> -->
+
+                <ul class="list-unstyled" id="allowed_groups">
+                  <!-- <li v-for="(group, index) in allowed_groups"><a href="{{url_for('list_public_groups')}}">{[{group}]}</a></li> -->
+                  <!-- <li v-else><a href="'/public_groups/' + group.metadata.name">{[{group.metadata.name}]}</a></li> -->
+                </ul>
+
               </div>
             </div>
           </div>
@@ -109,4 +114,49 @@
 
   </div>
 </section>
+
+<script>
+window.onload = start();
+
+  function get_app_readme(){
+    $.ajax({
+      url: "/public-clusters-xhr/{{cluster['metadata']['name']}}",
+      type: "get",
+      dataType: 'json',
+      success: function(data){
+        console.log("SUCCESS");
+        console.log(data);
+        var cluster = data[0];
+        var owningGroupEmail = data[1];
+        var allowed_groups = data[2];
+        var cluster_status = data[3];
+        console.log(allowed_groups[0]['metadata']['name']);
+        for (i=0; i < allowed_groups.length; i++){
+          var group_name = allowed_groups[i]['metadata']['name'];
+          if(group_name === "<all>"){
+            $('#allowed_groups').append("<li><a href='{{url_for('list_public_groups')}}'>All Groups</a><li>");
+          } else {
+            $('#allowed_groups').append("<li><a href='{{url_for('list_public_groups')}}'>"+group_name+"</a><li>");
+          }
+          // console.log(group_name)
+        }
+        if(cluster_status === "True"){
+          $('#cluster_status').html("Reachable <i class='fas fa-check-circle' style='color: green'></i>");
+        } else {
+          $('#cluster_status').html("Currently unreachable <i class='fas fa-times-circle' style='color: red'></i>")
+        }
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR.status);
+        console.log(textStatus);
+        console.log(errorThrown);
+        console.log("BIG MISTAKE");
+      }
+    });
+  }
+
+  function start() {
+    get_app_readme();
+  }
+</script>
 {%endblock%}

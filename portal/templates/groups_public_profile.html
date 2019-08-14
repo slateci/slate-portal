@@ -10,6 +10,7 @@
 
     <div class="row">
       <div class="col-lg-12 mx-auto">
+        {%include 'messages.html' %}
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
           <li class="breadcrumb-item"><a href="{{url_for('list_public_groups')}}">Public Groups</a></li>
@@ -37,7 +38,11 @@
                   <strong>Description:</strong> {{group_info['metadata']['description']}}
                 </p>
                 {% if session.get('is_authenticated') %}
-                <a href="mailto:{{group_info['metadata']['email']}}?subject=SLATE: Request to Join {{group_info['metadata']['name']}} Group!&body=Hello, I am requesting to join the {{group_info['metadata']['name']}} group on SLATE." class="btn btn-sm btn-primary">Request to Join <i class="fas fa-envelope"></i></a>
+                <form role="form" action="{{url_for('mailgun', group_name=name, user_name=session['name'], user_email=session['email'])}}" method="POST">
+                  <div class="form-group">
+                    <button type="submit" name="admin_email" class="btn btn-sm btn-primary" value="{{group_info['metadata']['email']}}">Request to Join <i class="fas fa-envelope"></i></button>
+                  </div>
+                </form>
                 {% endif %}
               </div>
             </div>
@@ -51,9 +56,9 @@
               <div class="card-body">
                 <ul class="list-unstyled">
                   {% if group_clusters %}
-                  {% for cluster in group_clusters %}
+                    {% for cluster in group_clusters %}
                   <li><a href="{{url_for('view_public_cluster', name=cluster['metadata']['name'])}}">{{cluster['metadata']['name']}}</a></li>
-                  {% endfor %}
+                    {% endfor %}
                   {% else %}
                   <li>Currently not administering any clusters</li>
                   {% endif %}

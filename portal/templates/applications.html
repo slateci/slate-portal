@@ -39,7 +39,7 @@
                     <th data-field="app_version" data-sortable="true">App Version</th>
                   </tr>
                 </thead>
-                <tbody data-link="row" class="rowlink" style="font-size:14px;">
+                <tbody data-link="row" class="rowlink" style="font-size:14px;" id="apps-ajax">
                   {% for application in applications %}
                   <tr>
                     <td><a href="{{url_for('view_application', name=application['metadata']['name'])}}">{{application['metadata']['name']}}</a></td>
@@ -48,6 +48,7 @@
                     <td>{{application['metadata']['app_version']}}</td>
                   </tr>
                   {% endfor %}
+
                 </tbody>
 
               </table>

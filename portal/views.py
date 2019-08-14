@@ -14,13 +14,16 @@ sys.path.insert(0, '/etc/slate/secrets')
 try:
     f = open("/etc/slate/secrets/slate_api_token.txt", "r")
     g = open("slate_api_endpoint.txt", "r")
+    j = open("/etc/slate/secrets/mailgun_api_token.txt", "r")
 except:
     # Use these two lines below on local
     f = open("secrets/slate_api_token.txt", "r")
     g = open("secrets/slate_api_endpoint.txt", "r")
+    j = open("secrets/mailgun_api_token.txt", "r")
 
 slate_api_token = f.read().split()[0]
 slate_api_endpoint = g.read().split()[0]
+mailgun_api_token = j.read().split()[0]
 
 try:
     from urllib.parse import urlencode
@@ -438,11 +441,36 @@ def view_public_group(name):
         multiplex = multiplex.json()
 
         # Parse post return for apps, clusters, and pub groups
-        group_info_json = json.loads(multiplex[group_info_query]['body'])
-        group_clusters_json = json.loads(multiplex[group_clusters_query]['body'])
-        group_clusters_json = group_clusters_json['items']
+        try:
+            group_info_json = json.loads(multiplex[group_info_query]['body'])
+            group_clusters_json = json.loads(multiplex[group_clusters_query]['body'])
+            group_clusters_json = group_clusters_json['items']
+        except:
+            return render_template('404.html')
 
         return render_template('groups_public_profile.html', group_info=group_info_json, group_clusters=group_clusters_json, name=name)
+
+
+@app.route('/mailgun/<group_name>/<user_name>/<user_email>', methods=['GET', 'POST'])
+@authenticated
+def mailgun(group_name, user_name, user_email):
+    admin_email = request.form['admin_email']
+
+    r = requests.post("https://api.mailgun.net/v3/slateci.io/messages",
+                auth=('api', mailgun_api_token),
+                data={
+                    "from": "SLATE <donotreply@slateci.io>",
+                    "to": [admin_email],
+                    "cc": "{} <{}>".format(user_name, user_email),
+                    "subject": "Request to Join Group: {}".format(group_name),
+                    "text": "Hello! User, {}, is CC'd on this email {}, and has requested to join your group, {} on SLATE. You may choose to add them from your groups detailed page through the SLATE portal.".format(user_name, user_email,group_name)
+                })
+    if r.status_code == requests.codes.ok:
+        flash("Successfully requested group membership", 'success')
+        return redirect(url_for('view_public_group', name=group_name))
+    else:
+        flash("Unable to send request", 'warning')
+        return redirect('view_public_group', name=group_name)
 
 
 @app.route('/groups', methods=['GET', 'POST'])
@@ -541,6 +569,9 @@ def view_group(name):
             slate_api_endpoint + '/v1alpha3/groups/' + group_name, params=token_query)
         group_info = group_info.json()
 
+        if group_info['kind'] == 'Error':
+            return render_template('404.html')
+
         # Get User
         user = requests.get(
             slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=token_query)
@@ -549,40 +580,8 @@ def view_group(name):
         group_members = requests.get(
             slate_api_endpoint + '/v1alpha3/groups/' + group_name + '/members', params=token_query)
         group_members = group_members.json()['items']
-        member_access = False
-        for member in group_members:
-            if member['metadata']['name'] == user:
-                member_access = True
 
-        # Get clusters owned by group
-        administering_clusters = requests.get(
-            slate_api_endpoint + '/v1alpha3/groups/' + group_name + '/clusters', params=token_query)
-        administering_clusters = administering_clusters.json()['items']
-        administering_clusters_names = [administering_cluster['metadata']['name'] for administering_cluster in administering_clusters]
-        # print(administering_clusters_names)
-        # Grab/list all Clusters in DB for now
-        list_clusters = requests.get(
-            slate_api_endpoint + '/v1alpha3/clusters', params=token_query)
-        list_clusters = list_clusters.json()['items']
-        # Create list of group's accesible clusters
-        accessible_clusters = []
-        for clusters in list_clusters:
-            cluster_name = clusters['metadata']['name']
-            cluster_allowed_groups = requests.get(
-                slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=token_query)
-            cluster_allowed_groups = cluster_allowed_groups.json()['items']
-
-            for group in cluster_allowed_groups:
-                if group['metadata']['name'] == group_name:
-                    accessible_clusters.append(clusters)
-        # Create accessible clusters list without duplicate names of administering clusters
-        accessible_clusters_names = [accessible_cluster['metadata']['name'] for accessible_cluster in accessible_clusters]
-        accessible_clusters_diff = list(set(accessible_clusters_names) - set(administering_clusters_names))
-        # print(accessible_clusters_diff)
-
-        return render_template('groups_profile.html', administering_clusters=administering_clusters,
-                                accessible_clusters=accessible_clusters_diff,
-                                name=name, group_info=group_info, member_access=member_access)
+        return render_template('groups_profile.html', name=name, group_info=group_info)
     elif request.method == 'POST':
         cluster_name = request.form['delete_cluster']
         r = requests.delete(
@@ -596,6 +595,64 @@ def view_group(name):
             flash('Failed to destroy cluster: {}'.format(err_message), 'warning')
 
         return redirect(url_for('view_group', name=name))
+
+
+@app.route('/group-admin-clusters-xhr/<group_name>', methods=['GET'])
+def group_admin_clusters_ajax(group_name):
+    administering_clusters, accessible_clusters_diff, member_access = group_admin_clusters_request(group_name)
+    print(administering_clusters)
+    return jsonify(administering_clusters, accessible_clusters_diff, member_access)
+
+def group_admin_clusters_request(group_name):
+    slate_user_id = session['slate_id']
+    token_query = {'token': session['slate_token']}
+    # Get Group Info
+    group_info = requests.get(
+        slate_api_endpoint + '/v1alpha3/groups/' + group_name, params=token_query)
+    group_info = group_info.json()
+
+    if group_info['kind'] == 'Error':
+        return render_template('404.html')
+
+    # Get User
+    user = requests.get(
+        slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=token_query)
+    user = user.json()['metadata']['name']
+    # Get Group Members
+    group_members = requests.get(
+        slate_api_endpoint + '/v1alpha3/groups/' + group_name + '/members', params=token_query)
+    group_members = group_members.json()['items']
+    member_access = False
+    for member in group_members:
+        if member['metadata']['name'] == user:
+            member_access = True
+    # Get clusters owned by group
+    administering_clusters = requests.get(
+        slate_api_endpoint + '/v1alpha3/groups/' + group_name + '/clusters', params=token_query)
+    administering_clusters = administering_clusters.json()['items']
+    administering_clusters_names = [administering_cluster['metadata']['name'] for administering_cluster in administering_clusters]
+    # print(administering_clusters_names)
+    # Grab/list all Clusters in DB for now
+    list_clusters = requests.get(
+        slate_api_endpoint + '/v1alpha3/clusters', params=token_query)
+    list_clusters = list_clusters.json()['items']
+    # Create list of group's accesible clusters
+    accessible_clusters = []
+    for clusters in list_clusters:
+        cluster_name = clusters['metadata']['name']
+        cluster_allowed_groups = requests.get(
+            slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=token_query)
+        cluster_allowed_groups = cluster_allowed_groups.json()['items']
+
+        for group in cluster_allowed_groups:
+            if group['metadata']['name'] == group_name:
+                accessible_clusters.append(clusters)
+    # Create accessible clusters list without duplicate names of administering clusters
+    accessible_clusters_names = [accessible_cluster['metadata']['name'] for accessible_cluster in accessible_clusters]
+    accessible_clusters_diff = list(set(accessible_clusters_names) - set(administering_clusters_names))
+    # print(accessible_clusters_diff)
+    return administering_clusters, accessible_clusters_diff, member_access
+
 
 
 @app.route('/groups/<name>/members', methods=['GET', 'POST'])
@@ -1472,6 +1529,54 @@ def view_public_cluster(name):
                                 allowed_groups=allowed_groups,
                                 cluster_status=cluster_status)
 
+@app.route('/public-clusters-xhr/<name>', methods=['GET'])
+@authenticated
+def list_public_clusters_xhr(name):
+    """
+    - List User's Instances Registered on SLATE (json response)
+    """
+    if request.method == 'GET':
+        cluster, owningGroupEmail, allowed_groups, cluster_status = list_public_clusters_request(session, name)
+        return jsonify(cluster, owningGroupEmail, allowed_groups, cluster_status)
+
+def list_public_clusters_request(session, name):
+    """
+    Request query to get public cluster's information
+    """
+    slate_user_id = session['slate_id']
+    token_query = {'token': session['slate_token']}
+
+    cluster_query = "/v1alpha3/clusters/"+name+"?token="+token_query['token']
+    allowed_groups_query = "/v1alpha3/clusters/"+name+"/allowed_groups?token="+token_query['token']
+    cluster_status_query = "/v1alpha3/clusters/"+name+"/ping?token="+token_query['token']+"&cache"
+    # Set up multiplex JSON
+    multiplexJson = {cluster_query: {"method":"GET"},
+                        allowed_groups_query: {"method":"GET"},
+                        cluster_status_query: {"method":"GET"}}
+    # POST request for multiplex return
+    multiplex = requests.post(
+        slate_api_endpoint + '/v1alpha3/multiplex', params=token_query, json=multiplexJson)
+    multiplex = multiplex.json()
+    # Parse post return for apps, clusters, and pub groups
+    # allowed_groups_json = ast.literal_eval(multiplex[allowed_groups_query]['body'])
+    allowed_groups_json = json.loads(multiplex[allowed_groups_query]['body'])
+    allowed_groups = [item for item in allowed_groups_json['items']]
+
+    # cluster = ast.literal_eval(multiplex[cluster_query]['body'])
+    cluster = json.loads(multiplex[cluster_query]['body'])
+    # Get owning group information for contact info
+    owningGroupName = cluster['metadata']['owningGroup']
+    owningGroup = requests.get(
+        slate_api_endpoint + '/v1alpha3/groups/' + owningGroupName, params=token_query)
+    owningGroup = owningGroup.json()
+    owningGroupEmail = owningGroup['metadata']['email']
+    # Get Cluster status from multiplex
+    cluster_status = json.loads(multiplex[cluster_status_query]['body'])
+    cluster_status = str(cluster_status['reachable'])
+
+    return cluster, owningGroupEmail, allowed_groups, cluster_status
+
+
 
 @app.route('/clusters/new', methods=['GET'])
 @authenticated
@@ -1549,6 +1654,7 @@ def view_application(name):
 
         if app_config['kind'] == 'Error':
             error = True
+            return redirect(url_for('not_found', e=error))
         else:
             error = False
 
@@ -1794,6 +1900,7 @@ def view_instance(name):
 
         if instance_detail['kind'] == 'Error':
             instance_status = False
+            return render_template('404.html')
 
         return render_template('instance_profile.html', name=name,
                                 instance_detail=instance_detail,
