@@ -73,13 +73,18 @@
         <br/>
         {% if cluster['metadata']['name'] in ['uutah-prod', 'umich-prod', 'uchicago-prod', 'uchicago-test', 'uchicago-river']%}
         <div class="row">
-          <div class="col-sm-6">
+          <div class="col-sm-3">
             <div class="card h-100">
-              <!-- <div class="card-header">
-                Average Memory Utilization
-              </div> -->
               <div class="card-body">
-                <iframe src="https://grafana.mwt2.org/d-solo/TJJNJgCiz/k8s-monitoring-test?orgId=1&var-clustername={{cluster['metadata']['name']}}&panelId=12&from=-6h&to=now&theme=light" width="100%" height="200" frameborder="0"></iframe>
+		<iframe src="https://monitoring.uchicago-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&from=1565921059748&to=1565942659748&var-cluster={{cluster['metadata']['name']}}&theme=light&panelId=10" width="100%" height="200" frameborder="0"></iframe>
+              </div>
+            </div>
+          </div>
+        <div class="row">
+          <div class="col-sm-3">
+            <div class="card h-100">
+              <div class="card-body">
+		<iframe src="https://monitoring.uchicago-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&from=1565921179106&to=1565942779106&var-cluster={{cluster['metadata']['name']}}&theme=light&panelId=11" width="450" height="100%" frameborder="0"></iframe>
               </div>
             </div>
           </div>
@@ -99,22 +104,21 @@
         <div class="row">
           <div class="col-sm-12">
             <div class="card h-100">
-              <div class="card-header">
+              <!--<div class="card-header">
                 Load Monitoring
-              </div>
+              </div>-->
               <div class="card-body">
                 <iframe src="https://monitoring.uchicago-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&var-cluster={{cluster['metadata']['name']}}&theme=light&panelId=5" width="100%" height="200" frameborder="0"></iframe>
               </div>
             </div>
           </div>
         </div>
-
         <div class="row">
           <div class="col-sm-12">
             <div class="card h-100">
-              <div class="card-header">
+              <!--<div class="card-header">
                 Node details
-              </div>
+              </div>-->
               <div class="card-body">
                 <iframe src="https://monitoring.uchicago-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&var-cluster={{cluster['metadata']['name']}}&theme=light&panelId=3" width="100%" height="200" frameborder="0"></iframe>
               </div>
