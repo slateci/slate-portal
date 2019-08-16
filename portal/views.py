@@ -749,39 +749,43 @@ def view_group_secrets(name):
 
 @app.route('/group-secrets-xhr/<name>', methods=['GET'])
 def group_secrets_ajax(name):
-    secrets_content = group_secrets_ajax_request(name)
-    return jsonify(secrets_content)
+    secrets = group_secrets_ajax_request(name)
+    return jsonify(secrets)
 
 def group_secrets_ajax_request(name):
     slate_user_id = session['slate_id']
     token_query = {'token': session['slate_token']}
-
-    # Get Group Secrets
-    secrets_content = []
 
     secrets_query = {'token': session['slate_token'], 'group': name}
     secrets = requests.get(
         slate_api_endpoint + '/v1alpha3/secrets', params=secrets_query)
     secrets = secrets.json()['items']
 
-    for secret in secrets:
-        secret_id = secret['metadata']['id']
-        secret_details = requests.get(
-            slate_api_endpoint + '/v1alpha3/secrets/' + secret_id, params=token_query)
-        secret_details = secret_details.json()
-        secrets_content.append(secret_details)
-    # Base64 decode secret contents
-    for secret in secrets_content:
-        for key, value in secret['contents'].iteritems():
-            try:
-                value_decoded = base64.b64decode(value).decode('utf-8')
-                secret['contents'][key] = value_decoded
-                # print(value_decoded)
-                # print("string is UTF-8, length {} bytes".format(len(value)))
-            except UnicodeError:
-                secret['contents'][key] = "Cannot display non UTF-8 content"
+    return secrets
 
-    return secrets_content
+
+@app.route('/group-secrets-key-xhr/<secret_id>', methods=['GET'])
+def group_secrets_key_ajax(secret_id):
+    secret_details = group_secrets_key_ajax_request(secret_id)
+    return jsonify(secret_details)
+
+def group_secrets_key_ajax_request(secret_id):
+    slate_user_id = session['slate_id']
+    token_query = {'token': session['slate_token']}
+
+    secret_details = requests.get(
+        slate_api_endpoint + '/v1alpha3/secrets/' + secret_id, params=token_query)
+    secret_details = secret_details.json()
+    # Base64 decode secret contents
+    for key, value in secret_details['contents'].iteritems():
+        try:
+            value_decoded = base64.b64decode(value).decode('utf-8')
+            secret_details['contents'][key] = value_decoded
+        except UnicodeError:
+            secret_details['contents'][key] = "Cannot display non UTF-8 content"
+
+    return secret_details
+
 
 @app.route('/groups/<name>/new_secret', methods=['GET', 'POST'])
 @authenticated
@@ -1356,7 +1360,7 @@ def authcallback():
 
             auth_uri = client.oauth2_get_authorize_url(
                 additional_params=additional_authorize_params)
-            print("AUTH URI: {}".format(auth_uri))
+            # print("AUTH URI: {}".format(auth_uri))
 
             return redirect(auth_uri)
         else:
@@ -1390,7 +1394,7 @@ def authcallback():
                 slate_api_endpoint + '/v1alpha3/users', params=query)
             users = users.json()['items']
 
-            print("SECOND BASE")
+            # print("SECOND BASE")
 
             if profile:
                 globus_id = session['primary_identity']
