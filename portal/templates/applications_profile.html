@@ -28,11 +28,18 @@
         <h1>Could not find the application you are looking for...</h1>
         {% endif %}
         {% if session.get('is_authenticated') and not error %}
-        <div class="install-app" style="padding: 10px 0;">
-          <form action="{{url_for('create_application_group', name=name)}}" method="GET">
-            <button class="btn btn-primary btn-sm" type="submit">Install App</button>
-          </form>
-        </div>
+	<div style="display: flex; justify-contet: flex-start; padding: 10px 0;">
+          <div class="install-app">
+            <form action="{{url_for('create_application_group', name=name)}}" method="GET">
+              <button class="btn btn-primary btn-sm" type="submit">Install App</button>
+            </form>
+          </div>
+          <div style="padding-left: 10px;">
+            <form role="form" action="{{url_for('secret_select_group')}}" method="GET">
+              <button type="submit" class="btn btn-primary btn-sm">Add New Secret</button>
+            </form>
+	  </div>
+	</div>
         {% endif %}
 
         <ul class="nav nav-tabs" style="width:75%;">
