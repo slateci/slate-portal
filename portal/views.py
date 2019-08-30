@@ -488,6 +488,20 @@ def list_groups():
 
         return render_template('groups.html', group_list=group_list)
 
+@app.route('/secret-select-group', methods=['GET', 'POST'])
+@authenticated
+def secret_select_group():
+    if request.method == 'GET':
+        slate_user_id = session['slate_id']
+        token_query = {'token': session['slate_token']}
+
+        s = requests.get(
+            slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=token_query)
+
+        s_info = s.json()
+        group_list = s_info['items']
+
+        return render_template('secret-select-group.html', group_list=group_list)
 
 @app.route('/groups/new', methods=['GET', 'POST'])
 @authenticated

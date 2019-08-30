@@ -173,7 +173,7 @@
             <form class="form-inline">
               {% if session.get('is_authenticated') %}
               <a class="nav-link js-scroll-trigger" href="{{url_for('list_applications')}}">Apps</a>
-              <a class="nav-link js-scroll-trigger" href="http://slateci.io/docs/" target="_blank">Docs</a>
+              <a class="nav-link js-scroll-trigger" href="http://slateci.io/docs/quickstart" target="_blank">Docs</a>
               <!-- <a class="nav-link js-scroll-trigger" href="{{url_for('profile')}}"><i class="fas fa-user-astronaut fa-2x"></i></a> -->
                 {% if session.get('slate_portal_user') %}
                 <a class="nav-link js-scroll-trigger" href="#">{{session['name']}}</a>
