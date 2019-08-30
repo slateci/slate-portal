@@ -37,7 +37,7 @@
 
         <ul class="nav nav-tabs" style="width:75%;">
           <li class="active"><a class="nav-item nav-link active" data-toggle="tab" href="#home">Read Me</a></li>
-          <li><a class="nav-item nav-link" data-toggle="tab" href="#menu1">App Configuration</a></li>
+          <li><a class="nav-item nav-link" data-toggle="tab" href="#app_configuration">App Configuration</a></li>
         </ul>
 
         <div class="tab-content" style="width:75%;">
@@ -46,7 +46,7 @@
             <span id='app_readme' style=""></span>
           </div>
 
-          <div id="menu1" class="tab-pane fade">
+          <div id="app_configuration" class="tab-pane fade">
             <!-- <hr/> -->
             <table class="table table-hover">
               <tbody>
@@ -116,6 +116,17 @@ window.onload = start();
     get_app_readme();
     get_app_config();
   }
+
+  // Javascript to enable link to tab
+  var url = document.location.toString();
+  if (url.match('#')) {
+      $('.nav-tabs a[href="#' + url.split('#')[1] + '"]').tab('show');
+  }
+
+  // Change hash for page-reload
+  $('.nav-tabs a').on('shown.bs.tab', function (e) {
+      window.location.hash = e.target.hash;
+  })
 
 </script>
 
