@@ -30,7 +30,7 @@
 
         <ul class="nav nav-tabs">
           <li class="active"><a class="nav-item nav-link active" data-toggle="tab" href="#home">Read Me</a></li>
-          <li><a class="nav-item nav-link" data-toggle="tab" href="#menu1">App Configuration</a></li>
+          <li><a class="nav-item nav-link" data-toggle="tab" href="#app-configuration">App Configuration</a></li>
         </ul>
 
         <div class="tab-content">
@@ -39,7 +39,7 @@
             {% filter markdown %}<span id='app_readme'></span>{% endfilter %}
           </div>
 
-          <div id="menu1" class="tab-pane fade">
+          <div id="app-configuration" class="tab-pane fade">
             <!-- <hr/> -->
             <table class="table table-hover">
               <tbody>
@@ -109,5 +109,15 @@ window.onload = start();
     get_app_incubator_config();
   }
 
+  // Javascript to enable link to tab
+  var url = document.location.toString();
+  if (url.match('#')) {
+      $('.nav-tabs a[href="#' + url.split('#')[1] + '"]').tab('show');
+  }
+
+  // Change hash for page-reload
+  $('.nav-tabs a').on('shown.bs.tab', function (e) {
+      window.location.hash = e.target.hash;
+  })
 </script>
 {%endblock%}
