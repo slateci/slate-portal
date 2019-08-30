@@ -1294,49 +1294,7 @@ def authcallback():
 
         query = {'token': slate_api_token}
 
-        # profile = requests.get(
-        #     slate_api_endpoint + '/v1alpha3/find_user', params=query)
-        #
-        # if profile:
-        #     profile = requests.get(
-        #         slate_api_endpoint + '/v1alpha3/find_user', params=query)
-        #     slate_user_info = profile.json()
-        #     session['slate_token'] = slate_user_info['metadata']['access_token']
-        #     session['slate_id'] = slate_user_info['metadata']['id']
-        #
-        #     # Check for admin status
-        #     user_info = requests.get(slate_api_endpoint + '/v1alpha3/users/' + session['slate_id'], params=query)
-        #     user_info = user_info.json()['metadata']
-        #
-        #     session['is_authenticated'] = True
-        #     session['name'] = user_info['name']
-        #     session['email'] = user_info['email']
-        #     session['slate_token'] = access_token
-        #     session['slate_portal_user'] = True
-        #
-        #     print("AUTHENTICATED SESSION")
-        #     print(slate_user_info)
-        #     if user_info['admin']:
-        #         session['admin'] = True
-        #
-        # else:
-        #     # Create default user from minislate
-        #     admin = False
-        #     # Schema and query for adding users to Slate DB
-        #     post_user = {"apiVersion": 'v1alpha3',
-        #                 'metadata': {'globusID': globus_id, 'name': name, 'email': email,
-        #                              'phone': phone, 'institution': institution, 'admin': admin}}
-        #
-        #     query = {'token': slate_api_token}
-        #
-        #     r = requests.post(slate_api_endpoint + '/v1alpha3/users', params=query, json=post_user)
-        #     print("Added User: ", r.json())
-        #     session['is_authenticated'] = True
-        #
-        #     return redirect(url_for('dashboard',
-        #                             next=url_for('dashboard')))
-
-        print("SINGLE USER MODE")
+        # print("SINGLE USER MODE")
         return redirect(url_for('dashboard'))
     except:
         # If we're coming back from Globus Auth in an error state, the error
@@ -1617,15 +1575,51 @@ def list_applications():
     """
     if request.method == 'GET':
 
-        applications = requests.get(
-            slate_api_endpoint + '/v1alpha3/apps')
-        applications = applications.json()['items']
-
         incubator_apps = requests.get(
             slate_api_endpoint + '/v1alpha3/apps?dev=true')
         incubator_apps = incubator_apps.json()['items']
 
-        return render_template('applications.html', applications=applications, incubator_apps=incubator_apps)
+        return render_template('applications.html', incubator_apps=incubator_apps)
+
+
+@app.route('/applications-xhr', methods=['GET'])
+@authenticated
+def list_applications_xhr():
+    """
+    - List Applications Registered on SLATE (json response)
+    """
+    if request.method == 'GET':
+        applications = list_applications_request()
+        return jsonify(applications)
+
+def list_applications_request():
+    """
+    Request query to list applications information
+    """
+    applications = requests.get(
+        slate_api_endpoint + '/v1alpha3/apps')
+    applications = applications.json()['items']
+    return applications
+
+
+@app.route('/incubator-applications-xhr', methods=['GET'])
+@authenticated
+def list_incubator_applications_xhr():
+    """
+    - List Incubator Applications Registered on SLATE (json response)
+    """
+    if request.method == 'GET':
+        incubator_apps = list_incubator_applications_request()
+        return jsonify(incubator_apps)
+
+def list_incubator_applications_request():
+    """
+    Request query to list incubator applications information
+    """
+    incubator_apps = requests.get(
+        slate_api_endpoint + '/v1alpha3/apps?dev=true')
+    incubator_apps = incubator_apps.json()['items']
+    return incubator_apps
 
 
 @app.route('/applications/<name>', methods=['GET'])
