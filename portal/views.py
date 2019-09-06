@@ -1597,7 +1597,6 @@ def list_applications():
 
 
 @app.route('/applications-xhr', methods=['GET'])
-@authenticated
 def list_applications_xhr():
     """
     - List Applications Registered on SLATE (json response)
@@ -1617,7 +1616,6 @@ def list_applications_request():
 
 
 @app.route('/incubator-applications-xhr', methods=['GET'])
-@authenticated
 def list_incubator_applications_xhr():
     """
     - List Incubator Applications Registered on SLATE (json response)
