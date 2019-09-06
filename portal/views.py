@@ -2,6 +2,7 @@ from portal.utils import (
     load_portal_client, get_portal_tokens, get_safe_redirect)
 from portal.decorators import authenticated
 from portal import app, database
+from werkzeug.exceptions import HTTPException
 from datetime import datetime
 import json
 import textwrap, uuid, sqlite3, requests, traceback, time, base64, ast
@@ -240,12 +241,14 @@ def not_found(e):
     return render_template("404.html")
 
 
-@app.errorhandler(500)
-def internal_error(error):
-    # app.logger.error("Server error: {}".format(request.url))
-    # return render_template('500.html'), 500
-    print("500 ERROR HIT")
-    abort(500)
+@app.errorhandler(Exception)
+def handle_exception(e):
+    # pass through HTTP errors
+    if isinstance(e, HTTPException):
+        return e
+    print("ERROR CAUGHT: Issue with {}".format(e))
+    # now you're handling non-HTTP exceptions only
+    return render_template("500.html", e=e), 500
 
 
 @app.route('/dashboard', methods=['GET'])
