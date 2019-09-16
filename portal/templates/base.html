@@ -98,11 +98,11 @@
     <style>
 	[v-cloak] {display: none}
     </style>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>	
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <!-- Devlopment library <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> -->
     <!-- production version, optimized for size and speed -->
-    <script src="https://cdn.jsdelivr.net/npm/vue"></script> 
-    <script> 
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script>
 	//Change delimiters to avoid collision with Flask templates
 	Vue.options.delimiters = ['{[{','}]}'];
     </script>
@@ -183,7 +183,7 @@
                 {% endif %}
               {% else %}
               <a class="nav-link js-scroll-trigger" href="{{url_for('list_applications')}}">Apps</a>
-              <a class="nav-link js-scroll-trigger" href="http://slateci.io/docs/" target="_blank">Docs</a>
+              <a class="nav-link js-scroll-trigger" href="https://slateci.io/docs/quickstart/" target="_blank">Docs</a>
               <a class="nav-link js-scroll-trigger" href="{{url_for('login')}}">Login</a>
               <a class="nav-link js-scroll-trigger" href="{{url_for('signup')}}">Sign Up</a>
               {% endif %}
