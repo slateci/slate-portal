@@ -13,13 +13,9 @@
           <li class="breadcrumb-item"><a href="{% if session.get('is_authenticated') %}{{url_for('dashboard')}}{%else%}{{url_for('home')}}{% endif %}">Home</a></li>
           <li class="breadcrumb-item active">Applications</li>
         </ol>
-        <!-- <h2>Applications</h2>
-        <p class="lead">
-          List of curated applications
-        </p> -->
 
         <ul class="nav nav-tabs">
-          <li class="active"><a class="nav-item nav-link active" data-toggle="tab" href="#home">Curated Applications</a></li>
+          <li class="active"><a class="nav-item nav-link active" data-toggle="tab" href="#home">Stable Applications</a></li>
           <li><a class="nav-item nav-link" data-toggle="tab" href="#menu1">Incubator Applications</a></li>
         </ul>
 
@@ -28,7 +24,7 @@
             <div class="table-responsive">
               <br/>
               <p class="lead">
-                List of curated applications
+                List of stable applications
               </p>
               <table class="table" id="apps-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
                 <thead>
