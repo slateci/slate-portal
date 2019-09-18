@@ -13,18 +13,24 @@ import sys
 sys.path.insert(0, '/etc/slate/secrets')
 
 try:
+    # Read endpoint and token from VM
     f = open("/etc/slate/secrets/slate_api_token.txt", "r")
     g = open("slate_api_endpoint.txt", "r")
-    j = open("/etc/slate/secrets/mailgun_api_token.txt", "r")
 except:
-    # Use these two lines below on local
+    # Read endpoint and token local
     f = open("secrets/slate_api_token.txt", "r")
     g = open("secrets/slate_api_endpoint.txt", "r")
-    j = open("secrets/mailgun_api_token.txt", "r")
 
 slate_api_token = f.read().split()[0]
 slate_api_endpoint = g.read().split()[0]
-mailgun_api_token = j.read().split()[0]
+
+try:
+    # Read endpoint and token from VM
+    j = open("/etc/slate/secrets/mailgun_api_token.txt", "r")
+    mailgun_api_token = j.read().split()[0]
+except:
+    # Do not want mailgun spam on local/mini-slate
+    mailgun_api_token = None
 
 try:
     from urllib.parse import urlencode

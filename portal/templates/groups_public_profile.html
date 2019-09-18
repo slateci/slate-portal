@@ -37,12 +37,14 @@
                 <p class="lead">
                   <strong>Description:</strong> {{group_info['metadata']['description']}}
                 </p>
-                {% if session.get('is_authenticated') %}
+                {% if not session.get('slate_portal_user') %}
+                  {% if session.get('is_authenticated') %}
                 <form role="form" action="{{url_for('mailgun', group_name=name, user_name=session['name'], user_email=session['email'])}}" method="POST">
                   <div class="form-group">
                     <button type="submit" name="admin_email" class="btn btn-sm btn-primary" value="{{group_info['metadata']['email']}}">Request to Join <i class="fas fa-envelope"></i></button>
                   </div>
                 </form>
+                  {% endif %}
                 {% endif %}
               </div>
             </div>
