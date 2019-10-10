@@ -61,7 +61,7 @@
                     <td><a href="{{addr}}" target="_blank">{{service['externalIP']}}</a></td>
                     <td>{{service['clusterIP']}}</td>
                     <td>{{service['ports']}}</td>
-                    <td><a href="http://{{service['url']}}" target="_blank">{{service['url']}}</a></td>
+                    <td><a href="{{service['url']}}" target="_blank">{{service['url']}}</a></td>
                   </tr>
                   {% endfor %}
                 </tbody>
