@@ -730,6 +730,61 @@ def view_group_members(name):
                                 non_members=non_members, admin=admin)
 
 
+@app.route('/groups/<name>/add_members', methods=['GET', 'POST'])
+@authenticated
+def view_group_add_members(name):
+    slate_user_id = session['slate_id']
+    token_query = {'token': session['slate_token']}
+
+    if request.method == 'GET':
+        s = requests.get(
+            slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=token_query)
+        s_info = s.json()
+        group_list = s_info['items']
+        group_id = None
+        for group in group_list:
+            if group['metadata']['name'] == name:
+                group_id = group['metadata']['id']
+                group_name = group['metadata']['name']
+
+        # List all members
+        users = requests.get(
+            slate_api_endpoint + '/v1alpha3/users', params=token_query)
+        users = users.json()['items']
+
+        # Check if user is Admin of Group
+        user = requests.get(
+            slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=token_query)
+        user_admin = user.json()['metadata']['admin']
+        admin = False
+        if user_admin:
+            admin = True
+
+        group_members = requests.get(
+            slate_api_endpoint + '/v1alpha3/groups/' + group_id + '/members', params=token_query)
+        group_members = group_members.json()['items']
+
+        # List of group members by their unique user ID
+        group_member_ids = [members['metadata']['id'] for members in group_members]
+        non_members = [user['metadata']
+                       for user in users if user['metadata']['id'] not in group_member_ids]
+
+        # Remove slate client accounts from user lists
+        account_names = ['WebPortal', 'GitHub Webhook Account']
+        for non_member in non_members:
+            if non_member['name'] in account_names:
+                non_members.remove(non_member)
+
+        # Get Group Info
+        group_info = requests.get(
+            slate_api_endpoint + '/v1alpha3/groups/' + group_id, params=token_query)
+        group_info = group_info.json()
+
+        return render_template('groups_profile_add_members.html', users=users,
+                                name=name, group_info=group_info,
+                                non_members=non_members)
+
+
 @app.route('/groups/<name>/secrets', methods=['GET', 'POST'])
 @authenticated
 def view_group_secrets(name):
@@ -854,7 +909,7 @@ def create_secret(name):
 @authenticated
 def group_add_member(name):
     if request.method == 'POST':
-        new_user_id = request.form['newuser']
+        new_user_id = request.form['add_member']
         token_query = {'token': session['slate_token']}
         group_id = name
 

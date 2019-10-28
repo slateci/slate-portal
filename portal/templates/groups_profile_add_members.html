@@ -15,7 +15,7 @@
           <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
           <li class="breadcrumb-item"><a href="{{url_for('list_groups')}}">Group</a></li>
           <li class="breadcrumb-item"><a href="{{url_for('view_group', name=name)}}">{{name}}</a></li>
-          <li class="breadcrumb-item active">Members</li>
+          <li class="breadcrumb-item active">Add Members</li>
         </ol>
         <h2>Group {{name}}</h2>
         <!-- <p class="lead">
@@ -56,34 +56,36 @@
             <a class="nav-link" href="{{url_for('view_group', name=name)}}"><i class="fas fa-cubes"></i> Clusters</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" href="{{url_for('view_group_members', name=name)}}"><i class="fas fa-user-friends"></i> Members</a>
+            <a class="nav-link" href="{{url_for('view_group_members', name=name)}}"><i class="fas fa-user-friends"></i> Members</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{{url_for('view_group_add_members', name=name)}}"><i class="fas fa-user-plus"></i> Add Members</a>
+            <a class="nav-link active" href="{{url_for('view_group_members', name=name)}}"><i class="fas fa-user-plus"></i> Add Members</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{{url_for('view_group_secrets', name=name)}}"><i class="fas fa-key"></i> Secrets</a>
           </li>
         </ul>
         <br>
+
         <div class="table-responsive">
           <table class="table" id="members-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
             <thead>
               <tr>
                 <th data-field="name" data-sortable="true">Name</th>
                 <th data-field="email" data-sortable="true">Email</th>
-                <th data-field="remove" data-sortable="true">Remove</th>
+                <th data-field="institution" data-sortable="true">Institution</th>
+                <th data-field="remove" data-sortable="true">Add Member</th>
               </tr>
             </thead>
             <tbody data-link="row" class="rowlink" style="font-size:14px;">
-              {% for member in group_members %}
-              {% set member_name = member['metadata']['name'] %}
+              {% for member in non_members %}
               <tr>
-                <td>{{member_name}}</td>
-                <td><a href="mailto:{{member['metadata']['email']}}">{{member['metadata']['email']}}</a></td>
+                <td>{{member['name']}}</td>
+                <td>{{member['email']}}</td>
+                <td>{{member['institution']}}</td>
                 <td>
-                  <form role="form" action="{{url_for('group_remove_member', name=name)}}" method="POST" onsubmit="return confirm('Are you sure you remove {{member_name}} from group?');">
-                    <button type="submit" name="remove_member" value="{{member['metadata']['id']}}" class="btn btn-danger btn-sm" data-submit="Removing User...">Remove User</button>
+                  <form role="form" action="{{url_for('group_add_member', name=name)}}" method="POST" onsubmit="return confirm('Are you sure you add {{member_name}} from group?');">
+                    <button type="submit" name="add_member" value="{{member['id']}}" class="btn btn-primary btn-sm" data-submit="Adding User...">Add User</button>
                   </form>
                 </td>
               </tr>
