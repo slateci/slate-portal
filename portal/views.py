@@ -147,6 +147,42 @@ def instances_request():
     instances = instances.json()['items'][:5]
     return instances
 
+@app.route('/users_instances_ajax', methods=['GET'])
+def users_instances_ajax():
+    instances = list_users_instances_request(session)
+    # print(instances)
+    return jsonify(instances)
+
+def list_users_instances_request(session):
+    """
+    Request query to get user's instances
+    """
+    slate_user_id = session['slate_id']
+    token_query = {'token': session['slate_token']}
+
+    instances = requests.get(
+        slate_api_endpoint + '/v1alpha3/instances', params=token_query)
+    instances = instances.json()['items']
+    # Get groups to which the user belongs
+    s = requests.get(
+        slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=token_query)
+
+    s_info = s.json()
+    group_list = s_info['items']
+    user_groups = []
+
+    for groups in group_list:
+        user_groups.append(groups['metadata']['name'].encode('utf-8'))
+
+    user_instances = []
+
+    for instance in instances:
+        if instance['metadata']['group'] in user_groups:
+            user_instances.append(instance)
+
+    sorted_instances = sorted(user_instances, key = lambda i: i['metadata']['name'])
+    return sorted_instances
+
 
 @app.route('/', methods=['GET'])
 def home():

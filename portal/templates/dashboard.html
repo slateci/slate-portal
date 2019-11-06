@@ -215,14 +215,14 @@ window.onload = start();
 
   function get_instances(){
     $.ajax({
-      url: "/instances_ajax",
+      url: "/users_instances_ajax",
       type: "get",
       dataType: 'json',
       success: function(data){
         console.log("SUCCESS");
         console.log(data);
         var instances = data;
-        for (i = 0; i < instances.length; i++) {
+        for (i = 0; i < 6; i++) {
           var instance_id = String(instances[i]['metadata']['id']);
           var instance_name = String(instances[i]['metadata']['name']);
           $('#instances-ajax').append("<li><a href='/instances/"+instance_id+"'>"+instance_name+"</a></li>");
