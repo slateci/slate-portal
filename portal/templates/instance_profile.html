@@ -76,6 +76,7 @@
                 <thead>
                   <tr>
                     <th data-field="name" data-sortable="true">Name</th>
+                    <!-- <th data-field="host-name" data-sortable="true">Host Name</th> -->
                     <th data-field="status" data-sortable="true">Status</th>
                     <th data-field="created" data-sortable="true">Created</th>
                   </tr>
@@ -86,6 +87,7 @@
                 {% for pod in instance_detail['details']['pods'] %}
                   <tr data-toggle="collapse" data-target="#accordion-{{pod['name']}}" class="clickable">
                     <td><a href="#" data-toggle="collapse" data-target="#accordion-{{pod['name']}}">{{pod['name']}}</a></td>
+                    <!-- <td>{{pod['hostName']}}</td> -->
                     {% if pod['status'] == 'Running'%}
                     <td><span style='color:green;'>{{pod['status']}}</span></td>
                     {% else %}
@@ -111,6 +113,9 @@
                             <li style="list-style: none"><strong>Name:</strong> {{container['name']}}</li>
                             <li style="list-style: none"><strong>Restarts:</strong> {{container['restartCount']}}</li>
                             <li style="list-style: none"><strong>State:</strong> {% for key, value in container['state'].items() %} {{key}} - {% for k, v in value.items() %} {{k}}: {{v}} {% endfor %} {% endfor %}</li>
+                      {% if container['lastState'] %}
+                            <li style="list-style: none"><strong>Last State:</strong> {% for state, info in container['lastState'].items() %}{{state}} at {{info['startedAt']}}{% endfor %}</li>
+                      {% endif %}
                             <li style="list-style: none"><strong>Image:</strong> {{container['image']}}</li>
                             <hr/>
                     {% endfor %}
