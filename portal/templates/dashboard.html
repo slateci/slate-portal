@@ -1,6 +1,6 @@
 {%extends "base.html"%}
 
-{%block title%}Dashboard{%endblock%}
+{%block title%}Console{%endblock%}
 
 {%block body%}
 
@@ -12,7 +12,7 @@
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
         </ol>
-        <h2>Dashboard</h2>
+        <h2>Console</h2>
         <p id="ajax-testing"></p>
         <p class="lead">
           {% if session.get('is_authenticated') %}

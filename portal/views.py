@@ -1,7 +1,7 @@
 from portal.utils import (
     load_portal_client, get_portal_tokens, get_safe_redirect)
 from portal.decorators import authenticated
-from portal import app, database
+from portal import app
 from werkzeug.exceptions import HTTPException
 from datetime import datetime
 import json
@@ -293,7 +293,7 @@ def handle_exception(e):
     return render_template("500.html", e=e), 500
 
 
-@app.route('/dashboard', methods=['GET'])
+@app.route('/slate_console', methods=['GET'])
 def dashboard():
     """Send the user to dashboard"""
     try:
