@@ -54,7 +54,7 @@
               <div class="card-body">
                 <!-- <h5 class="card-title" style="text-align: center"><i class="fas fa-wrench fa-2x"></i></h5> -->
                 <p class="card-text">
-                  <p class=""><i class="far fa-calendar-alt"></i> No upcoming events</p>
+                  <p id='news'><i class="far fa-calendar-alt"></i></p>
                   <!-- <p class="text-muted" style="margin-left:10%; margin-right:10%">Planned Downtime: Maintenance of core SLATE infrastructure</p> -->
                 </p>
               </div>
@@ -265,5 +265,12 @@ window.onload = start();
     get_public_groups();
   }
 
+var md = new Remarkable('full');
+var news_md = {{news|tojson}};
+
+$(window).on('load',function(){
+  var news = md.render(news_md);
+  $('#news').html(news);
+});
 </script>
 {%endblock%}

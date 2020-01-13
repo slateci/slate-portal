@@ -1,12 +1,15 @@
 from portal.utils import (
-    load_portal_client, get_portal_tokens, get_safe_redirect)
+    load_portal_client, get_safe_redirect)
 from portal.decorators import authenticated
 from portal import app
 from werkzeug.exceptions import HTTPException
 from datetime import datetime
 import json
-import textwrap, uuid, sqlite3, requests, traceback, time, base64, ast
-from flask import (abort, flash, redirect, render_template,
+import requests
+import traceback
+import time
+import base64
+from flask import (flash, redirect, render_template,
                    request, session, url_for, jsonify)
 # Use these four lines on container
 import sys
@@ -389,14 +392,16 @@ def dashboard():
         for cluster in cluster_multiplex:
             cluster_name = cluster.split('/')[3]
             cluster_status_dict[cluster_name] = json.loads(cluster_multiplex[cluster]['body'])['reachable']
-        # print(user_token)
+
+        with open('portal/static/news.md', "r") as file:
+            news = file.read()
 
         # print("Cluster STATUS: {}".format(cluster_status_dict))
         return render_template('dashboard.html', user_instances=user_instances,
                                 applications=applications, clusters=clusters,
                                 pub_groups=pub_groups, multiplex=multiplex,
                                 cluster_status_dict=cluster_status_dict,
-                                users=None, user_token=user_token)
+                                users=None, user_token=user_token, news=news)
 
 
 @app.route('/admin', methods=['GET', 'POST'])
