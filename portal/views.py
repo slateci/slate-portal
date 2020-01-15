@@ -11,8 +11,10 @@ import time
 import base64
 from flask import (flash, redirect, render_template,
                    request, session, url_for, jsonify)
-# Use these four lines on container
 import sys
+import subprocess
+import os
+import signal
 sys.path.insert(0, '/etc/slate/secrets')
 
 try:
@@ -52,6 +54,26 @@ def podnameformat(value):
     except:
         hostName = "None"
     return hostName
+
+
+@app.route('/webhooks/github', methods=['GET', 'POST'])
+def webhooks():
+    """Endpoint that acepts post requests from Github Webhooks"""
+
+    cmd = """
+    git pull origin master
+    """
+    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+    out, err = p.communicate()
+    print("Return code: {}".format(p.returncode))
+    print("Error message: {}".format(err))
+
+    parent_pid = os.getppid()
+    print("Parent PID: {}".format(parent_pid))
+    os.kill(parent_pid, signal.SIGHUP)
+
+    return out
 
 
 @app.route('/applications_ajax', methods=['GET'])
