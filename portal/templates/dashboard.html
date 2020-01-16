@@ -195,10 +195,10 @@ window.onload = start();
       type: "get",
       dataType: 'json',
       success: function(data){
-        console.log("SUCCESS");
-        console.log(data);
+        // console.log("SUCCESS");
+        // console.log(data);
         var applications = data;
-        for (i = 0; i < applications.length; i++) {
+        for (i = 0; i < 5; i++) {
           var app_name = String(applications[i]['metadata']['name']);
           $('#apps-ajax').append("<li><a href='/applications/"+app_name+"'>"+app_name+"</a></li>");
         }
@@ -218,8 +218,8 @@ window.onload = start();
       type: "get",
       dataType: 'json',
       success: function(data){
-        console.log("SUCCESS");
-        console.log(data);
+        // console.log("SUCCESS");
+        // console.log(data);
         var instances = data;
         for (i = 0; i < 6; i++) {
           var instance_id = String(instances[i]['metadata']['id']);
@@ -242,10 +242,10 @@ window.onload = start();
       type: "get",
       dataType: 'json',
       success: function(data){
-        console.log("SUCCESS");
-        console.log(data);
+        // console.log("SUCCESS");
+        // console.log(data);
         var public_groups = data;
-        for (i = 0; i < public_groups.length; i++) {
+        for (i = 0; i < 5; i++) {
           var public_groups_name = String(public_groups[i]['metadata']['name']);
           $('#public-groups-ajax').append("<li><a href='/public_groups/"+public_groups_name+"'>"+public_groups_name+"</a></li>");
         }
