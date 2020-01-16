@@ -97,7 +97,6 @@ def list_user_groups(session):
     slate_user_id = session['slate_id']
     user_groups = requests.get(
         slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=query)
-
     user_groups = user_groups.json()['items']
     return user_groups
 
