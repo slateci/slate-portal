@@ -27,7 +27,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
     <!-- Custom styles for this template -->
-    <link href="{{url_for('static', filename='css/scrolling-nav.css')}}" rel="stylesheet">
+    <link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet">
     <link href="{{url_for('static', filename='css/error.css')}}" rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
@@ -57,55 +57,53 @@
     <script type="text/javascript" src="{{url_for('static', filename='js/intlTelInput.js')}}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/remarkable/1.7.4/remarkable.js"></script>
     <script>
-
-  	$(document).ready(function() {
-  	// get current URL path and assign 'active' class
-  	var pathname = window.location.pathname;
-  	var pathsplit = pathname.split('/')
-  	// console.log(pathsplit[1])
-  	if(pathsplit.length > 1){
-  		var parentpath = pathsplit[1];
-  		$('nav > ul > li > a[href="/'+parentpath+'"]').parent().addClass('active');
-  	} else {
-  		// look to update the full a[href=''] uri below
-  		$('nav > ul > li > a[href="'+pathname+'"]').parent().addClass('active');
-  	}
-  	})
-
-    $(document).ready(function(){
-      $('#myTable').dataTable();
-    });
-
-    $("#demo").intlTelInput();
-
-    // Dynamically update Install App dropdown menus
-    // $(document).ready(function () {
-    //     $("#group").change(function () {
-    //         var val = $(this).val();
-    //
-    //         if (val = 10) {
-    //             $("#cluster").html("<option value='test'>item1: YO</option><option value='test2'>item1: test 2</option>");
-    //         } else if (val == "testing") {
-    //             $("#cluster").html("<option value='test'>item2: test 1</option><option value='test2'>item2: test 2</option>");
-    //         } else if (val == "item3") {
-    //             $("#cluster").html("<option value='test'>item3: test 1</option><option value='test2'>item3: test 2</option>");
-    //         } else if (val == "item0") {
-    //             $("#size").html("<option value=''>--select one--</option>");
-    //         }
-    //     });
-    // });
+      window.onresize = contentDisplay;
+      window.onload = contentDisplay;
+      // function to highlight selected nav menu
+    	$(document).ready(function() {
+      	// get current URL path and assign 'active' class
+      	var pathname = window.location.pathname;
+      	var pathsplit = pathname.split('/')
+      	// console.log(pathsplit[1])
+      	if(pathsplit.length > 1){
+      		var parentpath = pathsplit[1];
+      		$('nav > div > ul > li > a[href="/'+parentpath+'"]').parent().addClass('active');
+      	} else {
+      		// look to update the full a[href=''] uri below
+      		$('nav > div > ul > li > a[href="'+pathname+'"]').parent().addClass('active');
+      	}
+    	})
+      // function to change css width based on session authentication
+      $(document).ready(contentDisplay);
+      function contentDisplay(){
+        var sideNav = document.getElementById('sidenav');
+        // console.log(sideNav);
+        if (sideNav === null) {
+          document.getElementById('content').style.marginLeft = '0px';
+        } else {
+          if (window.innerWidth > 1000) {
+            var sideNavWidth = String(document.getElementById('sidenav').offsetWidth) + 'px';
+            document.getElementById('content').style.marginLeft = sideNavWidth;
+          } else {
+            document.getElementById('content').style.marginLeft = '0px';
+          }
+        };
+      };
+      $(document).ready(function(){
+        $('#myTable').dataTable();
+      });
+      $("#demo").intlTelInput();
   	</script>
 
     <style>
-	[v-cloak] {display: none}
+	   [v-cloak] {display: none}
     </style>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <!-- Devlopment library <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> -->
     <!-- production version, optimized for size and speed -->
     <script src="https://cdn.jsdelivr.net/npm/vue"></script>
     <script>
-	//Change delimiters to avoid collision with Flask templates
-	Vue.options.delimiters = ['{[{','}]}'];
+    	//Change delimiters to avoid collision with Flask templates
+    	Vue.options.delimiters = ['{[{','}]}'];
     </script>
 
   </head>
@@ -113,52 +111,57 @@
     <div class="wrapper">
     <!-- Navigation -->
     {% if session.get('is_authenticated') %}
-      <nav id="sidebar" class="active">
-        <ul class="list-unstyled components">
-          <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="{{url_for('dashboard')}}"><i class="fas fa-columns"></i> Console</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="{{url_for('list_clusters')}}"><i class="fas fa-cubes"></i> Clusters</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="{{url_for('list_applications')}}"><i class="fas fa-th"></i> Applications</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="{{url_for('list_secrets')}}"><i class="fas fa-key"></i> Secrets</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="{{url_for('list_instances')}}"><i class="fas fa-server"></i> Instances</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="{{url_for('list_groups')}}"><i class="fas fa-users"></i> My Groups</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="{{url_for('list_public_groups')}}"><i class="far fa-object-ungroup"></i> All Groups</a>
-          </li>
-          <!-- <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="{{url_for('list_provisionings')}}">Provisionings</a>
-          </li> -->
-          <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="{{url_for('cli_access')}}"><i class="fas fa-terminal"></i> CLI Access</a>
-          </li>
-          {% if session['admin'] %}
-          <li class="nav-item">
-            <a class="nav-link js-scroll-trigger" href="{{url_for('view_admin')}}"><i class="fas fa-user-shield"></i> Admin View</a>
-          </li>
-          {% endif %}
-        </ul>
-      </nav>
+      <!-- <nav id="sidebar" class="active nav-bar-shadow"> -->
+      <!-- <aside class="col-12 col-sm-2 bg-light"> -->
+        <nav class="sidenav navbar navbar-expand-custom navbar-light bg-light align-items-start flex-row" id="sidenav">
+          <a href class="navbar-toggler" data-toggle="collapse" data-target=".sidebar">
+            <span class="navbar-toggler-icon"></span>
+          </a>
+          <div class="collapse navbar-collapse sidebar">
+            <ul class="list-unstyled components flex-column navbar-nav w-100 justify-content-between">
+              <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="{{url_for('dashboard')}}"><span class="nav-link-span"><i class="fas fa-columns"></i> Console</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="{{url_for('list_clusters')}}"><span class="nav-link-span"><i class="fas fa-cubes"></i> Clusters</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="{{url_for('list_applications')}}"><span class="nav-link-span"><i class="fas fa-th"></i> Applications</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="{{url_for('list_secrets')}}"><span class="nav-link-span"><i class="fas fa-key"></i> Secrets</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="{{url_for('list_instances')}}"><span class="nav-link-span"><i class="fas fa-server"></i> Instances</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="{{url_for('list_groups')}}"><span class="nav-link-span"><i class="fas fa-users"></i> My Groups</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="{{url_for('list_public_groups')}}"><span class="nav-link-span"><i class="far fa-object-ungroup"></i> All Groups</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="{{url_for('cli_access')}}"><span class="nav-link-span"><i class="fas fa-terminal"></i> CLI Access</span></a>
+              </li>
+              {% if session['admin'] %}
+              <li class="nav-item">
+                <a class="nav-link js-scroll-trigger" href="{{url_for('view_admin')}}"><span class="nav-link-span"><i class="fas fa-user-shield"></i> Admin View</span></a>
+              </li>
+              {% endif %}
+            </ul>
+          </div>
+        </nav>
+      <!-- </aside> -->
       {% endif %}
 
-      <div id="content">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+      <div id="content" class="col py-3">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top nav-bar-shadow">
           <div class="container-fluid">
             <form class="form-inline">
               {% if session.get('is_authenticated') %}
-              <button type="button" id="sidebarCollapse" class="btn btn-primary btn-sm">
+              <!-- <button type="button" id="sidebarCollapse" class="btn btn-primary btn-sm">
                 <i id="sidebar-icon" class="fas fa-bars"></i>
-              </button>
+              </button> -->
               {% endif %}
               {% if session.get('is_authenticated') %}
               <a class="navbar-brand js-scroll-trigger" href="{{url_for('dashboard')}}" style="padding-left: 15px;">
@@ -173,13 +176,21 @@
             <!-- <i class="fas fa-align-left"></i> -->
             <form class="form-inline">
               {% if session.get('is_authenticated') %}
-              <a class="nav-link js-scroll-trigger" href="{{url_for('list_applications')}}">Apps</a>
-              <a class="nav-link js-scroll-trigger" href="http://slateci.io/docs/quickstart" target="_blank">Docs</a>
-              <!-- <a class="nav-link js-scroll-trigger" href="{{url_for('profile')}}"><i class="fas fa-user-astronaut fa-2x"></i></a> -->
                 {% if session.get('slate_portal_user') %}
-                <a class="nav-link js-scroll-trigger" href="#">{{session['name']}}</a>
+              <a class="nav-link js-scroll-trigger" href="#">{{session['name']}}</a>
                 {% else %}
-              <a class="nav-link js-scroll-trigger" href="{{url_for('profile')}}">{{session['name']}}</a>
+              <a class="nav-link js-scroll-trigger" href="{{url_for('profile')}}" id="nav-profile">{{session['name'].split()[0][0]}}</a>
+                {% endif %}
+              <div class="dropdown">
+                <button class="btn" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white;">
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                  <a class="nav-link js-scroll-trigger dropdown-item" href="{{url_for('list_applications')}}">Apps</a>
+                  <a class="nav-link js-scroll-trigger dropdown-item" href="http://slateci.io/docs/quickstart" target="_blank">Docs</a>
+                </div>
+              </div>
+                {% if not session.get('slate_portal_user') %}
               <a class="nav-link js-scroll-trigger" href="{{url_for('logout')}}"><i class="fas fa-sign-out-alt"></i> Logout</a>
                 {% endif %}
               {% else %}
@@ -196,8 +207,7 @@
         {%block body%}
         {%endblock%}
       </div>
-
-    </div>
+    </div><!-- Wrapper -->
 
     <!-- Page footer -->
 
