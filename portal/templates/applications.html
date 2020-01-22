@@ -18,8 +18,8 @@
           <li class="active"><a class="nav-item nav-link active" data-toggle="tab" href="#home">Stable Applications</a></li>
           <li><a class="nav-item nav-link" data-toggle="tab" href="#menu1">Incubator Applications</a></li>
         </ul>
-
         <div class="tab-content">
+
           <div id="home" class="tab-pane fade in show active">
             <div class="table-responsive">
               <br/>
@@ -80,8 +80,8 @@
                 <tbody data-link="row" class="rowlink" style="font-size:14px;">
                   {% for application in incubator_apps %}
                   <tr>
-                    <td style="max-width:25px"><a href="{{url_for('view_incubator_application', name=application['metadata']['name'])}}">{{application['metadata']['name']}}</a></td>
-                    <td style="max-width:250px">{{application['metadata']['description']}}</td>
+                    <td><a href="{{url_for('view_incubator_application', name=application['metadata']['name'])}}">{{application['metadata']['name']}}</a></td>
+                    <td>{{application['metadata']['description']}}</td>
                     <td>{{application['metadata']['chart_version']}}</td>
                     <td>{{application['metadata']['app_version']}}</td>
                   </tr>
@@ -92,8 +92,8 @@
             </div>
           </div>
 
-        </div>
 
+        </div>
       </div>
     </div>
 

@@ -29,10 +29,18 @@
               <div class="card-header">
                 My Instances <i class="fas fa-server float-right"></i>
               </div>
-              <div class="card-body">
-                <!-- <h5 class="card-title" style="text-align: center"><i class="fas fa-server fa-2x"></i></h5> -->
-                <!-- <p class="card-text">You can view your apps here after you install them</p> -->
-                <ul class="list-unstyled" id='instances-ajax'></ul>
+              <div class="card-body" id='instances-card'>
+                <ul class="list-unstyled" id='instances-ajax'>
+                  <li v-if="loading">
+                    Loading Data <i class="fas fa-sync fa-spin"></i>
+                  </li>
+                  <li v-if="failed">
+                    Failed to load the data, please refresh the page <i class="far fa-times-circle"></i>
+                  </li>
+                  <li v-for="instance in instances">
+                    <a :href='/instances/ + instance.metadata.id'>{[{instance.metadata.name}]}</a>
+                  </li>
+                </ul>
                 <a href="{{url_for('list_instances')}}" class="btn btn-sm btn-primary">View all Instances</a>
               </div>
               {% else %}
@@ -53,10 +61,10 @@
               </div>
               <div class="card-body">
                 <!-- <h5 class="card-title" style="text-align: center"><i class="fas fa-wrench fa-2x"></i></h5> -->
-                <p class="card-text">
+                <div class="card-text">
                   <p id='news'><i class="far fa-calendar-alt"></i></p>
                   <!-- <p class="text-muted" style="margin-left:10%; margin-right:10%">Planned Downtime: Maintenance of core SLATE infrastructure</p> -->
-                </p>
+                </div>
               </div>
             </div>
           </div>
@@ -66,7 +74,6 @@
                 Support <i class="fas fa-chalkboard-teacher float-right"></i>
               </div>
               <div class="card-body">
-                <!-- <h5 class="card-title" style="text-align: center"><i class="fas fa-hands-helping fa-2x"></i></h5> -->
                 <ul class="list-unstyled">
                   <li><i class="fab fa-slack"></i> Join the <a href="https://slack.slateci.io/" target="_blank">SLATE slack</a> channel</li>
                   <li><i class="far fa-newspaper"></i> Sign up to receive <a href='https://groups.google.com/forum/#!forum/slateci-news' target="_blank">slateci-news</a></li>
@@ -83,9 +90,18 @@
               <div class="card-header">
                 Applications <i class="fas fa-th float-right"></i>
               </div>
-              <div class="card-body">
-                <!-- <h5 class="card-title" style="text-align: center"><i class="fas fa-coins fa-2x"></i></h5> -->
-                <ul class="list-unstyled" id="apps-ajax"></ul>
+              <div class="card-body" id="applications-card">
+                <ul class="list-unstyled" id="apps-ajax">
+                  <li v-if="loading">
+                    Loading Data <i class="fas fa-sync fa-spin"></i>
+                  </li>
+                  <li v-if="failed">
+                    Failed to load the data, please refresh the page <i class="far fa-times-circle"></i>
+                  </li>
+                  <li v-for="app in applications">
+                    <a :href='/applications/ + app.metadata.name'>{[{app.metadata.name}]}</a>
+                  </li>
+                </ul>
                 <a href="{{url_for('list_applications')}}" class="btn btn-sm btn-primary">View all apps</a>
               </div>
             </div>
@@ -115,14 +131,7 @@
                 Clusters <i class="fas fa-cubes float-right"></i>
               </div>
               <div class="card-body">
-                <!-- <h5 class="card-title" style="text-align: center"><i class="fas fa-cubes fa-2x"></i></h5> -->
                 <table class="table" id="#" data-toggle="table" data-sort-name="name" data-sort-order="desc">
-                  <!-- <thead>
-                    <tr>
-                      <th data-field="name" data-sortable="true">Site</th>
-                      <th data-field="status" data-sortable="true">Status</th>
-                    </tr>
-                  </thead> -->
                   <tbody data-link="row" class="rowlink" style="font-size:12px;">
                     {% for cluster in clusters %}
                     <tr>
@@ -154,9 +163,19 @@
               <div class="card-header">
                 Public Groups <i class="fas fa-users float-right"></i>
               </div>
-              <div class="card-body">
+              <div class="card-body" id="public-groups-card">
                 <!-- <h5 class="card-title" style="text-align: center"><i class="fas fa-users fa-2x"></i></h5> -->
-                <ul class="list-unstyled" id="public-groups-ajax"></ul>
+                <ul class="list-unstyled" id="public-groups-ajax">
+                  <li v-if="loading">
+                    Loading Data <i class="fas fa-sync fa-spin"></i>
+                  </li>
+                  <li v-if="failed">
+                    Failed to load the data, please refresh the page <i class="far fa-times-circle"></i>
+                  </li>
+                  <li v-for="group in public_groups">
+                    <a :href='/public_groups/ + group.metadata.name'>{[{group.metadata.name}]}</a>
+                  </li>
+                </ul>
                 <!-- <p class="card-text">You can view your clusters here after you register them</p> -->
                 <a href="{{url_for('list_public_groups')}}" class="btn btn-sm btn-primary">View all groups</a>
               </div>
@@ -187,83 +206,64 @@
 <script type="text/javascript">
 $.noConflict();
 
-window.onload = start();
+$(document).ready(function() {
+  new Vue({
+	el: '#applications-card',
+	data () {
+	    return {
+	      applications: {},
+		loading: true,
+		failed: false
+	    }
+	},
+	mounted() {
+            axios.get('/applications_ajax')
+	        .then(function (response) {
+		    this.applications = response.data.slice(0,5);
+				this.loading = false;
+		}.bind(this)) //must use bind(this) unless using arrow function
+		.catch(error => { this.failed = true; this.loading = false; })
+		}
+  });
 
-  function get_applications(){
-    $.ajax({
-      url: "/applications_ajax",
-      type: "get",
-      dataType: 'json',
-      success: function(data){
-        // console.log("SUCCESS");
-        // console.log(data);
-        var applications = data;
-        for (i = 0; i < 5; i++) {
-          var app_name = String(applications[i]['metadata']['name']);
-          $('#apps-ajax').append("<li><a href='/applications/"+app_name+"'>"+app_name+"</a></li>");
-        }
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        console.log(jqXHR.status);
-        console.log(textStatus);
-        console.log(errorThrown);
-        console.log("BIG MISTAKE");
-      }
-    });
-  }
+  new Vue({
+	el: '#public-groups-card',
+	data () {
+    return {
+      public_groups: {},
+      loading: true,
+      failed: false
+    }
+	},
+	mounted() {
+            axios.get('/public_groups_ajax')
+	        .then(function (response) {
+		    this.public_groups = response.data.slice(0,5);
+				this.loading = false;
+		}.bind(this)) //must use bind(this) unless using arrow function
+		.catch(error => { this.failed = true; this.loading = false; })
+		}
+  });
 
-  function get_instances(){
-    $.ajax({
-      url: "/users_instances_ajax",
-      type: "get",
-      dataType: 'json',
-      success: function(data){
-        // console.log("SUCCESS");
-        // console.log(data);
-        var instances = data;
-        for (i = 0; i < 6; i++) {
-          var instance_id = String(instances[i]['metadata']['id']);
-          var instance_name = String(instances[i]['metadata']['name']);
-          $('#instances-ajax').append("<li><a href='/instances/"+instance_id+"'>"+instance_name+"</a></li>");
-        }
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        console.log(jqXHR.status);
-        console.log(textStatus);
-        console.log(errorThrown);
-        console.log("BIG MISTAKE");
-      }
-    });
-  }
-
-  function get_public_groups(){
-    $.ajax({
-      url: "/public_groups_ajax",
-      type: "get",
-      dataType: 'json',
-      success: function(data){
-        // console.log("SUCCESS");
-        // console.log(data);
-        var public_groups = data;
-        for (i = 0; i < 5; i++) {
-          var public_groups_name = String(public_groups[i]['metadata']['name']);
-          $('#public-groups-ajax').append("<li><a href='/public_groups/"+public_groups_name+"'>"+public_groups_name+"</a></li>");
-        }
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        console.log(jqXHR.status);
-        console.log(textStatus);
-        console.log(errorThrown);
-        console.log("BIG MISTAKE");
-      }
-    });
-  }
-
-  function start() {
-    get_applications();
-    get_instances();
-    get_public_groups();
-  }
+  new Vue({
+	el: '#instances-card',
+	data () {
+    return {
+      instances: {},
+      loading: true,
+      failed: false
+    }
+	},
+	mounted() {
+            axios.get('/users_instances_ajax')
+	        .then(function (response) {
+		    this.instances = response.data.slice(0,5);
+				this.loading = false;
+		}.bind(this)) //must use bind(this) unless using arrow function
+		.catch(error => { this.failed = true; this.loading = false; })
+		}
+  });
+});
 
 var md = new Remarkable('full');
 var news_md = {{news|tojson}};

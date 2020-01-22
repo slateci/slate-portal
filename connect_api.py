@@ -32,6 +32,14 @@ def connect_name(group_name):
     return connect_name
 
 
+def query_status_code(query_response):
+    if query_response.status_code == requests.codes.ok:
+        query_return = query_response.json()['items']
+    else:
+        query_return = []
+    return query_return
+
+
 def list_applications_request():
     """
     Returns list of all applications on slate
@@ -39,7 +47,7 @@ def list_applications_request():
     """
     applications = requests.get(
         slate_api_endpoint + '/v1alpha3/apps')
-    applications = applications.json()['items']
+    applications = query_status_code(applications)
     return applications
 
 
@@ -49,7 +57,8 @@ def list_incubator_applications_request():
     """
     incubator_apps = requests.get(
         slate_api_endpoint + '/v1alpha3/apps?dev=true')
-    incubator_apps = incubator_apps.json()['items']
+    # incubator_apps = incubator_apps.json()['items']
+    incubator_apps = query_status_code(incubator_apps)
     return incubator_apps
 
 
@@ -96,7 +105,8 @@ def list_user_groups(session):
     # Get groups to which the user belongs
     slate_user_id = session['slate_id']
     user_groups = requests.get(
-        slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=query)
+        slate_api_endpoint + '/v1alpha3/users/'
+        + slate_user_id + '/groups', params=query)
     user_groups = user_groups.json()['items']
     return user_groups
 
@@ -122,7 +132,8 @@ def list_users_instances_request(session):
         if instance['metadata']['group'] in user_groups:
             user_instances.append(instance)
     # Return list of instances in sorted order
-    sorted_instances = sorted(user_instances, key=lambda i: i['metadata']['name'])
+    sorted_instances = sorted(
+                        user_instances, key=lambda i: i['metadata']['name'])
     return sorted_instances
 
 
