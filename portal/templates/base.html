@@ -179,7 +179,7 @@
                 {% if session.get('slate_portal_user') %}
               <a class="nav-link js-scroll-trigger" href="#">{{session['name']}}</a>
                 {% else %}
-              <a class="nav-link js-scroll-trigger" href="{{url_for('profile')}}" id="nav-profile">{{session['name'].split()[0][0]}}</a>
+              <a class="nav-link js-scroll-trigger" href="{{url_for('profile')}}" id="nav-profile">Profile</a>
                 {% endif %}
               <div class="dropdown">
                 <button class="btn" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white;">
