@@ -41,7 +41,7 @@
                     <a :href='/instances/ + instance.metadata.id'>{[{instance.metadata.name}]}</a>
                   </li>
                 </ul>
-                <a href="{{url_for('list_instances')}}" class="btn btn-sm btn-primary">View all Instances</a>
+                <a href="{{url_for('list_instances')}}" class="btn btn-sm btn-primary btn-box-shadow">View all Instances</a>
               </div>
               {% else %}
               <div class="card-header">
@@ -102,7 +102,7 @@
                     <a :href='/applications/ + app.metadata.name'>{[{app.metadata.name}]}</a>
                   </li>
                 </ul>
-                <a href="{{url_for('list_applications')}}" class="btn btn-sm btn-primary">View all apps</a>
+                <a href="{{url_for('list_applications')}}" class="btn btn-sm btn-primary btn-box-shadow">View all apps</a>
               </div>
             </div>
           </div>
@@ -150,7 +150,7 @@
                   </tbody>
                 </table>
                 <!-- <p class="card-text">You can view your clusters here after you register them</p> -->
-                <a href="{{url_for('list_clusters')}}" class="btn btn-sm btn-primary">View all clusters</a>
+                <a href="{{url_for('list_clusters')}}" class="btn btn-sm btn-primary btn-box-shadow">View all clusters</a>
               </div>
             </div>
           </div>
@@ -177,7 +177,7 @@
                   </li>
                 </ul>
                 <!-- <p class="card-text">You can view your clusters here after you register them</p> -->
-                <a href="{{url_for('list_public_groups')}}" class="btn btn-sm btn-primary">View all groups</a>
+                <a href="{{url_for('list_public_groups')}}" class="btn btn-sm btn-primary btn-box-shadow">View all groups</a>
               </div>
             </div>
           </div>

@@ -26,7 +26,7 @@
                   <li><strong>Phone:</strong> {{profile['phone']}}</li>
                   <li><strong>Institution:</strong> {{profile['institution']}}</li>
                 </ul>
-                <a href="{{url_for('edit_profile', name=name)}}" class="btn btn-primary btn-sm">Edit Profile</a>
+                <a href="{{url_for('edit_profile', name=name)}}" class="btn btn-primary btn-sm btn-box-shadow">Edit Profile</a>
               </div>
             </div>
           </div>
@@ -43,7 +43,7 @@
                   <li><a href="{{url_for('view_group', name=group)}}">{{group}}</a></li>
                   {% endfor %}
                 </ul>
-                <a href="{{url_for('create_group')}}" class="btn btn-primary btn-sm">Create a group</a>
+                <a href="{{url_for('create_group')}}" class="btn btn-primary btn-sm btn-box-shadow ">Create a group</a>
               </div>
             </div>
           </div>
