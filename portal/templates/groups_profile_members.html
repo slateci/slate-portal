@@ -19,7 +19,7 @@
         <td><a href="mailto:{{member['metadata']['email']}}">{{member['metadata']['email']}}</a></td>
         <td>
           <form role="form" action="{{url_for('group_remove_member', name=name)}}" method="POST" onsubmit="return confirm('Are you sure you remove {{member_name}} from group?');">
-            <button type="submit" name="remove_member" value="{{member['metadata']['id']}}" class="btn btn-danger btn-sm" data-submit="Removing User...">Remove User</button>
+            <button type="submit" name="remove_member" value="{{member['metadata']['id']}}" class="btn btn-danger btn-sm btn-box-shadow" data-submit="Removing User...">Remove User</button>
           </form>
         </td>
       </tr>
