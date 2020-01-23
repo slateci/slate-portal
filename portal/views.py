@@ -584,7 +584,7 @@ def view_group(name):
             slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
         user = user.json()['metadata']['name']
 
-        return render_template('groups_profile.html', name=name, group_info=group_info)
+        return render_template('groups_profile_overview.html', name=name, group_info=group_info)
 
     elif request.method == 'POST':
         cluster_name = request.form['delete_cluster']
