@@ -1,10 +1,9 @@
 {%extends "base.html"%}
 
-{%block title%}
-  Groups
-{%endblock%}
+{%block title%}Groups{%endblock%}
 
 {%block body%}
+
 <section id="cli-access" class="bg-light">
   <div class="container col-lg-12 mx-auto">
 
@@ -15,10 +14,6 @@
           <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
           <li class="breadcrumb-item active">Group</li>
         </ol>
-        <!-- <h2>Groups</h2>
-        <p class="lead">
-          A list of your Groups
-        </p> -->
         <div class="page-header">
           <a href="{{url_for('create_group')}}" class="btn btn-primary btn-sm btn-box-shadow">Register New Group</a>
         </div>
@@ -49,4 +44,8 @@
     </div>
   </div>
 </section>
+
+<script>
+$('#groups-table').DataTable();
+</script>
 {%endblock%}
