@@ -120,10 +120,10 @@ nav a {
     left: 0;
     position: fixed;
     overflow-x: hidden;
-    overflow-y: scroll;
+    /* overflow-y: scroll; */
     transition: all 0.3s;
     z-index: 1;
-    padding-top: 40px;
+    padding-top: 60px;
     box-shadow: 0 8px 16px 0 rgba(0,0,0,0.1);
 }
 
@@ -186,7 +186,7 @@ a[data-toggle="collapse"] {
 
 @media screen and (max-width: 1000px) {
     .sidenav {
-      margin-top: 2em;
+      margin-top: 1em;
       min-height: 1vh;
       width: 100%;
     }
