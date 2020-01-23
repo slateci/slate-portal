@@ -1,68 +1,68 @@
 {%extends "groups_profile_template.html"%}
 
 {%block content%}
-        <div class="table-responsive">
-          <h4>Administering Clusters</h4>
-          <table class="table table-hover" id="admin-clusters-table">
-            <thead>
-              <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Action</th>
-              </tr>
-            </thead>
-            <tbody id='table-data'>
-              <tr v-if="loading">
-          			<td>Loading Data <i class="fas fa-sync fa-spin"></i></td>
-          			<td></td>
-          		</tr>
-          		<tr v-if="failed">
-          			<td>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></td>
-          			<td></td>
-          		</tr>
+<div class="table-responsive">
+  <h4>Administering Clusters</h4>
+  <table class="table table-hover" id="admin-clusters-table">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Action</th>
+      </tr>
+    </thead>
+    <tbody id='table-data'>
+      <tr v-if="loading">
+  			<td>Loading Data <i class="fas fa-sync fa-spin"></i></td>
+  			<td></td>
+  		</tr>
+  		<tr v-if="failed">
+  			<td>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></td>
+  			<td></td>
+  		</tr>
 
-          		<tr v-for="(cluster, index) in administering_clusters" v-cloak >
-          		  <td><a :href="'/groups/' + cluster.metadata.owningGroup + '/clusters/' + cluster.metadata.name">{[{cluster.metadata.name}]}</a></td>
-          		  <td>
-          		    <span v-if="member_access">
-                    <form role="form" action="{{url_for('view_group', name=name)}}" method="POST" onsubmit="return confirm('Are you sure you want to delete this cluster?');">
-                      <button type="submit" name="delete_cluster" value="{[{cluster.metadata.name}]}" class="btn btn-danger btn-sm" data-submit="Removing Cluster...">Delete Cluster</button>
-                    </form>
-          				</span>
-          				<span v-else>
-          				  None
-          			  </span>
-          		  </td>
-          		</tr>
+  		<tr v-for="(cluster, index) in administering_clusters" v-cloak >
+  		  <td><a :href="'/groups/' + cluster.metadata.owningGroup + '/clusters/' + cluster.metadata.name">{[{cluster.metadata.name}]}</a></td>
+  		  <td>
+  		    <span v-if="member_access">
+            <form role="form" action="{{url_for('view_group', name=name)}}" method="POST" onsubmit="return confirm('Are you sure you want to delete this cluster?');">
+              <button type="submit" name="delete_cluster" value="{[{cluster.metadata.name}]}" class="btn btn-danger btn-sm" data-submit="Removing Cluster...">Delete Cluster</button>
+            </form>
+  				</span>
+  				<span v-else>
+  				  None
+  			  </span>
+  		  </td>
+  		</tr>
 
-            </tbody>
-          </table>
-        </div>
-        <br>
-        <div class="table-responsive">
-          <h4>Accessible Clusters</h4>
-          <table class="table table-hover" id="accessible-clusters-table">
-            <thead>
-              <tr>
-                <th scope="col">Name</th>
-              </tr>
-            </thead>
-            <tbody id="second-table">
+    </tbody>
+  </table>
+</div>
+<br>
+<div class="table-responsive">
+  <h4>Accessible Clusters</h4>
+  <table class="table table-hover" id="accessible-clusters-table">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+      </tr>
+    </thead>
+    <tbody id="second-table">
 
 
-              <tr v-if="loading">
-          			<td>Loading Data <i class="fas fa-sync fa-spin"></i></td>
-          		</tr>
-          		<tr v-if="failed">
-          			<td>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></td>
-          		</tr>
+      <tr v-if="loading">
+  			<td>Loading Data <i class="fas fa-sync fa-spin"></i></td>
+  		</tr>
+  		<tr v-if="failed">
+  			<td>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></td>
+  		</tr>
 
-          		<tr v-for="cluster in accessible_clusters" v-cloak >
-          		  <td><a :href="'/clusters/' + cluster">{[{cluster}]}</a></td>
-          		</tr>
+  		<tr v-for="cluster in accessible_clusters" v-cloak >
+  		  <td><a :href="'/clusters/' + cluster">{[{cluster}]}</a></td>
+  		</tr>
 
-            </tbody>
-          </table>
-        </div>
+    </tbody>
+  </table>
+</div>
 
 <script>
 
