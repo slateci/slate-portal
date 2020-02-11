@@ -37,7 +37,7 @@
                   {{cluster['metadata']['owningOrganization']}}
                 </p>
                 <p class="lead">
-                  <strong>Location:</strong>{% for loc in cluster['metadata']['location'] %} {{loc['lat'], loc['lon']}} {% endfor %}
+                  <strong>Location:</strong> {{ address }}
                 </p>
                 <p class="lead">
                   <strong>Status:</strong> <span id='cluster_status'></span>

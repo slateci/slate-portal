@@ -17,7 +17,7 @@ from connect_api import (list_applications_request,
                         list_public_groups_request,
                         list_user_groups,
                         list_users_instances_request,
-                        list_clusters_request)
+                        list_clusters_request, coordsConversion)
 import sys
 import subprocess
 import os
@@ -1486,6 +1486,12 @@ def list_clusters_xhr():
     """
     if request.method == 'GET':
         slate_clusters, cluster_status_dict = list_clusters_dict_request(session)
+        # print(slate_clusters)
+        # for cluster in slate_clusters:
+        #     lat = cluster['metadata']['location'][0]['lat']
+        #     lon = cluster['metadata']['location'][0]['lon']
+        #     readable_address = coordsConversion(lat, lon)
+        #     cluster['metadata']['coordsConversion'] = readable_address
         return jsonify(slate_clusters, cluster_status_dict)
 
 
@@ -1543,6 +1549,9 @@ def view_public_cluster(name):
 
         # cluster = ast.literal_eval(multiplex[cluster_query]['body'])
         cluster = json.loads(multiplex[cluster_query]['body'])
+        lat = cluster['metadata']['location'][0]['lat']
+        lon = cluster['metadata']['location'][0]['lon']
+        address = coordsConversion(lat, lon)
         # Get owning group information for contact info
         owningGroupName = cluster['metadata']['owningGroup']
         owningGroup = requests.get(
@@ -1555,6 +1564,7 @@ def view_public_cluster(name):
 
         return render_template('cluster_public_profile.html', cluster=cluster,
                                 owningGroupEmail=owningGroupEmail,
+                                address=address,
                                 allowed_groups=allowed_groups,
                                 cluster_status=cluster_status)
 

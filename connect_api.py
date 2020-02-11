@@ -1,6 +1,7 @@
 from flask import session
 import requests
 import sys
+from geopy.geocoders import Nominatim
 
 sys.path.insert(0, '/etc/slate/secrets')
 
@@ -20,6 +21,34 @@ try:
     query = {'token': session['slate_token']}
 except:
     query = {'token': slate_api_token}
+
+
+def coordsConversion(lat, lon):
+    geolocator = Nominatim()
+    location = geolocator.reverse("{}, {}".format(lat, lon), timeout=None)
+    location_raw = location.raw
+
+    try:
+        city = location_raw['address']['city']
+    except:
+        city = None
+    try:
+        state = location_raw['address']['state']
+    except:
+        state = None
+    try:
+        country = location_raw['address']['country']
+    except:
+        country = None
+
+    address = [city, state, country]
+    readable_address = []
+    for i in address:
+        if i:
+            readable_address.append(i)
+    readable_address = ', '.join(readable_address)
+
+    return readable_address
 
 
 def connect_name(group_name):
