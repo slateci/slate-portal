@@ -76,7 +76,8 @@
           <div class="col-sm-4">
             <div class="card h-100">
               <div class="card-body">
-              <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&var-cluster={{cluster['metadata']['name']}}&theme=light&panelId=10" width="100%" height="200" frameborder="0"></iframe>
+              <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&from=1583336972691&to=1583358572692&var-cluster=umich-prod&panelId=10" width="100%" height="200" frameborder="0"></iframe>
+              <!-- <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&var-cluster={{cluster['metadata']['name']}}&theme=light&panelId=10" width="100%" height="200" frameborder="0"></iframe> -->
               </div>
             </div>
           </div>
@@ -141,13 +142,13 @@ window.onload = start();
       type: "get",
       dataType: 'json',
       success: function(data){
-        console.log("SUCCESS");
-        console.log(data);
+        // console.log("SUCCESS");
+        // console.log(data);
         var cluster = data[0];
         var owningGroupEmail = data[1];
         var allowed_groups = data[2];
         var cluster_status = data[3];
-        console.log(allowed_groups[0]['metadata']['name']);
+        // console.log(allowed_groups[0]['metadata']['name']);
         for (i=0; i < allowed_groups.length; i++){
           var group_name = allowed_groups[i]['metadata']['name'];
           if(group_name === "<all>"){
@@ -167,7 +168,7 @@ window.onload = start();
         console.log(jqXHR.status);
         console.log(textStatus);
         console.log(errorThrown);
-        console.log("BIG MISTAKE");
+        console.log("Error Caught");
       }
     });
   }
