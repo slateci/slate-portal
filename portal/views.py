@@ -1549,8 +1549,12 @@ def view_public_cluster(name):
 
         # cluster = ast.literal_eval(multiplex[cluster_query]['body'])
         cluster = json.loads(multiplex[cluster_query]['body'])
-        lat = cluster['metadata']['location'][0]['lat']
-        lon = cluster['metadata']['location'][0]['lon']
+        try:
+            lat = cluster['metadata']['location'][0]['lat']
+            lon = cluster['metadata']['location'][0]['lon']
+        except:
+            lat = 0
+            lon = 0
         address = coordsConversion(lat, lon)
         # Get owning group information for contact info
         owningGroupName = cluster['metadata']['owningGroup']
