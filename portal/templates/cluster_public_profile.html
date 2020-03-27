@@ -142,6 +142,8 @@ window.onload = start();
       type: "get",
       dataType: 'json',
       success: function(data){
+        // console.log("SUCCESS");
+        // console.log(data);
         var cluster = data[0];
         var owningGroupEmail = data[1];
         var allowed_groups = data[2];

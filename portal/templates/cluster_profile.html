@@ -40,7 +40,6 @@
           <div class="col-sm-12">
             <h4>Grant Group Access to Cluster Whitelist</h4>
             <form class="form-inline" role="form" action="{{url_for('view_cluster', project_name=project_name, name=name)}}" method="POST">
-              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               <!-- <div class="input-group"> -->
               <label class="my-1 mr-2" for="new_group">Select Group</label>
               <select class="custom-select my-1 mr-sm-2" name="new_group" id="new_group" required>
