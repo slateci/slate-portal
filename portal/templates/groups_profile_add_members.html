@@ -20,6 +20,7 @@
         <td>{{member['institution']}}</td>
         <td>
           <form role="form" action="{{url_for('group_add_member', name=name)}}" method="POST" onsubmit="return confirm('Are you sure you add {{member_name}} from group?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <button type="submit" name="add_member" value="{{member['id']}}" class="btn btn-primary btn-sm btn-box-shadow" data-submit="Adding User...">Add User</button>
           </form>
         </td>

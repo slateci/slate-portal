@@ -12,12 +12,12 @@ import base64
 from flask import (flash, redirect, render_template,
                    request, session, url_for, jsonify)
 from connect_api import (list_applications_request,
-                        list_incubator_applications_request,
-                        list_instances_request,
-                        list_public_groups_request,
-                        list_user_groups,
-                        list_users_instances_request,
-                        list_clusters_request, coordsConversion)
+                         list_incubator_applications_request,
+                         list_instances_request,
+                         list_public_groups_request,
+                         list_user_groups,
+                         list_users_instances_request,
+                         list_clusters_request, coordsConversion)
 import sys
 import subprocess
 import os
@@ -28,7 +28,7 @@ try:
     # Read endpoint and token from VM
     f = open("/etc/slate/secrets/slate_api_token.txt", "r")
     g = open("slate_api_endpoint.txt", "r")
-except:
+except Exception:
     # Read endpoint and token local
     f = open("secrets/slate_api_token.txt", "r")
     g = open("secrets/slate_api_endpoint.txt", "r")
@@ -40,7 +40,7 @@ try:
     # Read endpoint and token from VM
     j = open("/etc/slate/secrets/mailgun_api_token.txt", "r")
     mailgun_api_token = j.read().split()[0]
-except:
+except Exception:
     # Do not want mailgun spam on local/mini-slate
     mailgun_api_token = None
 
@@ -60,7 +60,7 @@ def datetimeformat(value, format='%m/%d/%Y, %H:%M:%S'):
 def podnameformat(value):
     try:
         hostName = value.decode('utf-8').split('.')[0]
-    except:
+    except Exception:
         hostName = "None"
     return hostName
 
@@ -100,7 +100,7 @@ def apps_readme_ajax(name):
 def apps_readme_request(name):
     try:
         query = {'token': session['slate_token']}
-    except:
+    except Exception:
         query = {'token': slate_api_token}
 
     apps_readme = requests.get(
@@ -119,7 +119,7 @@ def apps_config_ajax(name):
 def apps_config_request(name):
     try:
         query = {'token': session['slate_token']}
-    except:
+    except Exception:
         query = {'token': slate_api_token}
 
     apps_config = requests.get(
@@ -138,7 +138,7 @@ def apps_incubator_readme_ajax(name):
 def apps_incubator_readme_request(name):
     try:
         query = {'token': session['slate_token'], 'dev': 'true'}
-    except:
+    except Exception:
         query = {'token': slate_api_token, 'dev': 'true'}
 
     apps_readme = requests.get(
@@ -157,7 +157,7 @@ def apps_incubator_config_ajax(name):
 def apps_incubator_config_request(name):
     try:
         query = {'token': session['slate_token'], 'dev': 'true'}
-    except:
+    except Exception:
         query = {'token': slate_api_token, 'dev': 'true'}
 
     apps_config = requests.get(
@@ -311,7 +311,7 @@ def dashboard():
         session['is_authenticated'] = True
         session['slate_portal_user'] = True
 
-    except:
+    except Exception:
         session['slate_portal_user'] = False
 
     if request.method == 'GET':
@@ -386,7 +386,7 @@ def cli_access():
                 slate_api_endpoint + '/v1alpha3/find_user', params=query)
             user_info = r.json()
             access_token = user_info['metadata']['access_token']
-        except:
+        except Exception:
             access_token = session['slate_token']
 
         return render_template('cli_access.html', access_token=access_token, slate_api_endpoint=slate_api_endpoint)
@@ -436,7 +436,7 @@ def view_public_group(name):
             group_info_json = json.loads(multiplex[group_info_query]['body'])
             group_clusters_json = json.loads(multiplex[group_clusters_query]['body'])
             group_clusters_json = group_clusters_json['items']
-        except:
+        except Exception:
             return render_template('404.html')
 
         return render_template('groups_public_profile.html', group_info=group_info_json, group_clusters=group_clusters_json, name=name)
@@ -543,7 +543,7 @@ def create_group():
         scienceField = request.form['field-of-science']
         try:
             description = request.form['description']
-        except:
+        except Exception:
             description = "Currently no description"
 
         query = {'token': session['slate_token']}
@@ -694,8 +694,8 @@ def view_group_members(name):
 
         # List of group members by their unique user ID
         group_member_ids = [members['metadata']['id'] for members in group_members]
-        non_members = [user['metadata']
-                       for user in users if user['metadata']['id'] not in group_member_ids]
+        non_members = [u['metadata']
+                       for u in users if u['metadata']['id'] not in group_member_ids]
 
         # Remove slate client accounts from user lists
         account_names = ['WebPortal', 'GitHub Webhook Account']
@@ -917,7 +917,8 @@ def group_remove_member(name):
         group_id = name
 
         r = requests.delete(
-            slate_api_endpoint + '/v1alpha3/users/' + remove_user_id + '/groups/' + group_id, params=query)
+            slate_api_endpoint + '/v1alpha3/users/' +
+            remove_user_id + '/groups/' + group_id, params=query)
         if r.status_code == requests.codes.ok:
             flash("Successfully removed member from group", 'success')
         else:
@@ -1078,7 +1079,7 @@ def edit_cluster(project_name, name):
         try:
             latitude = cluster['metadata']['location'][0]['lat']
             longitude = cluster['metadata']['location'][0]['lon']
-        except:
+        except Exception:
             latitude = cluster['metadata']['location']
             longitude = cluster['metadata']['location']
 
@@ -1167,7 +1168,7 @@ def edit_group(name):
         scienceField = request.form['field-of-science']
         try:
             description = request.form['description']
-        except:
+        except Exception:
             description = "Currently no description"
 
         query = {'token': session['slate_token']}
@@ -1358,7 +1359,7 @@ def authcallback():
 
         # print("SINGLE USER MODE")
         return redirect(url_for('dashboard'))
-    except:
+    except Exception:
         # If we're coming back from Globus Auth in an error state, the error
         # will be in the "error" query string parameter.
         if 'error' in request.args:
@@ -1487,11 +1488,6 @@ def list_clusters_xhr():
     if request.method == 'GET':
         slate_clusters, cluster_status_dict = list_clusters_dict_request(session)
         # print(slate_clusters)
-        # for cluster in slate_clusters:
-        #     lat = cluster['metadata']['location'][0]['lat']
-        #     lon = cluster['metadata']['location'][0]['lon']
-        #     readable_address = coordsConversion(lat, lon)
-        #     cluster['metadata']['coordsConversion'] = readable_address
         return jsonify(slate_clusters, cluster_status_dict)
 
 
@@ -1552,7 +1548,7 @@ def view_public_cluster(name):
         try:
             lat = cluster['metadata']['location'][0]['lat']
             lon = cluster['metadata']['location'][0]['lon']
-        except:
+        except Exception:
             lat = 0
             lon = 0
         address = coordsConversion(lat, lon)
@@ -1673,7 +1669,7 @@ def view_application(name):
         try:
             slate_user_id = session['slate_id']
             query = {'token': session['slate_token']}
-        except:
+        except Exception:
             query = {'token': slate_api_token}
 
         app_config_query = '/v1alpha3/apps/' + name + '?token=' + query['token']
@@ -1719,7 +1715,7 @@ def view_incubator_application(name):
     if request.method == 'GET':
         try:
             query = {'token': session['slate_token']}
-        except:
+        except Exception:
             query = {'token': slate_api_token}
 
         app_config_query = '/v1alpha3/apps/' + name + '?dev=true?token=' + query['token']
@@ -1746,7 +1742,7 @@ def view_incubator_application(name):
         try:
             app_config = app_config['spec']['body']
             app_readme = app_readme['spec']['body']
-        except:
+        except Exception:
             app_config = None
             app_readme = None
 
