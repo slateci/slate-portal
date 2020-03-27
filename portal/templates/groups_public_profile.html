@@ -41,6 +41,9 @@
                   {% if session.get('is_authenticated') %}
                 <form role="form" action="{{url_for('mailgun', group_name=name, user_name=session['name'], user_email=session['email'])}}" method="POST">
                   <div class="form-group">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                  </div>
+                  <div class="form-group">
                     <button type="submit" name="admin_email" class="btn btn-sm btn-primary btn-box-shadow" value="{{group_info['metadata']['email']}}">Request to Join <i class="fas fa-envelope"></i></button>
                   </div>
                 </form>
