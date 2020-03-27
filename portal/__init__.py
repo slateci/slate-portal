@@ -1,4 +1,6 @@
 from flask import Flask
+from flask_wtf.csrf import CSRFProtect
+from datetime import timedelta
 import json
 
 # from flask import Markup
@@ -10,6 +12,9 @@ import logging
 __author__ = 'Jeremy Van'
 # set up Flask App
 app = Flask(__name__, instance_relative_config=True)
+# Enable CSRF protection globally for Flask app
+csrf = CSRFProtect(app)
+csrf.init_app(app)
 app.config.from_pyfile('portal.conf')
 app.url_map.strict_slashes = False
 app.config['DEBUG'] = True
