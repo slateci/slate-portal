@@ -23,6 +23,46 @@ except:
     query = {'token': slate_api_token}
 
 
+def get_user_info(session):
+
+    query = {'token': slate_api_token,
+             'globus_id': session['primary_identity']}
+
+    profile = requests.get(
+        slate_api_endpoint + '/v1alpha3/find_user', params=query)
+
+    profile = profile.json()
+    user_id = profile['metadata']['id']
+    access_token = profile['metadata']['access_token']
+    return access_token, user_id
+
+
+def get_user_id(session):
+
+    query = {'token': slate_api_token,
+             'globus_id': session['primary_identity']}
+
+    profile = requests.get(
+        slate_api_endpoint + '/v1alpha3/find_user', params=query)
+
+    profile = profile.json()
+    user_id = profile['metadata']['id']
+    return user_id
+
+
+def get_user_access_token(session):
+
+    query = {'token': slate_api_token,
+             'globus_id': session['primary_identity']}
+
+    profile = requests.get(
+        slate_api_endpoint + '/v1alpha3/find_user', params=query)
+
+    profile = profile.json()
+    access_token = profile['metadata']['access_token']
+    return access_token
+
+
 def coordsConversion(lat, lon):
     geolocator = Nominatim()
     location = geolocator.reverse("{}, {}".format(lat, lon), timeout=None)
@@ -132,7 +172,7 @@ def list_user_groups(session):
     :return: list of user's groups
     """
     # Get groups to which the user belongs
-    slate_user_id = session['slate_id']
+    slate_user_id = get_user_id(session)
     user_groups = requests.get(
         slate_api_endpoint + '/v1alpha3/users/'
         + slate_user_id + '/groups', params=query)

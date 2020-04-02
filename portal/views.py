@@ -17,7 +17,9 @@ from connect_api import (list_applications_request,
                         list_public_groups_request,
                         list_user_groups,
                         list_users_instances_request,
-                        list_clusters_request, coordsConversion)
+                        list_clusters_request, coordsConversion,
+                        get_user_access_token, get_user_id,
+                        get_user_info)
 import sys
 import subprocess
 import os
@@ -311,8 +313,7 @@ def dashboard():
         session['slate_portal_user'] = False
 
     if request.method == 'GET':
-        logged_in = 'slate_id' in session
-        # print("LOGGED IN: {}".format(logged_in))
+        logged_in = get_user_id(session)
         if logged_in:
             access_token = get_user_access_token(session)
             query = {'token': access_token}
@@ -1433,46 +1434,6 @@ def authcallback():
                                         next=url_for('dashboard')))
 
             return redirect(url_for('dashboard'))
-
-
-def get_user_info(session):
-
-    query = {'token': slate_api_token,
-             'globus_id': session['primary_identity']}
-
-    profile = requests.get(
-        slate_api_endpoint + '/v1alpha3/find_user', params=query)
-
-    profile = profile.json()
-    user_id = profile['metadata']['id']
-    access_token = profile['metadata']['access_token']
-    return access_token, user_id
-
-
-def get_user_id(session):
-
-    query = {'token': slate_api_token,
-             'globus_id': session['primary_identity']}
-
-    profile = requests.get(
-        slate_api_endpoint + '/v1alpha3/find_user', params=query)
-
-    profile = profile.json()
-    user_id = profile['metadata']['id']
-    return user_id
-
-
-def get_user_access_token(session):
-
-    query = {'token': slate_api_token,
-             'globus_id': session['primary_identity']}
-
-    profile = requests.get(
-        slate_api_endpoint + '/v1alpha3/find_user', params=query)
-
-    profile = profile.json()
-    access_token = profile['metadata']['access_token']
-    return access_token
 
 
 @app.route('/register', methods=['GET', 'POST'])
