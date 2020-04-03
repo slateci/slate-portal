@@ -1,7 +1,7 @@
 from portal.utils import (
     load_portal_client, get_safe_redirect)
 from portal.decorators import authenticated
-from portal import app
+from portal import app, csrf
 from werkzeug.exceptions import HTTPException
 from datetime import datetime
 import json
@@ -68,6 +68,7 @@ def podnameformat(value):
 
 
 @app.route('/webhooks/github', methods=['GET', 'POST'])
+@csrf.exempt
 def webhooks():
     """Endpoint that acepts post requests from Github Webhooks"""
 
