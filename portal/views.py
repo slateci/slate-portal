@@ -314,12 +314,11 @@ def dashboard():
         session['slate_portal_user'] = False
 
     if request.method == 'GET':
-        logged_in = get_user_id(session)
-        if logged_in:
+        try:
             access_token = get_user_access_token(session)
             query = {'token': access_token}
             user_token = query['token']
-        else:
+        except:
             query = {'token': slate_api_token}
             user_token = query['token']
 
