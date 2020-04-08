@@ -1204,8 +1204,10 @@ def create_profile():
              'globus_id': globus_id}
 
     if request.method == 'GET':
+        with open('portal/static/AUP.md', 'r') as f:
+            aup = f.read()
 
-        return render_template('profile_create.html')
+        return render_template('profile_create.html', aup=aup)
 
     elif request.method == 'POST':
         name = request.form['name']

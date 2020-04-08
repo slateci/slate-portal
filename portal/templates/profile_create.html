@@ -74,6 +74,13 @@
             >
           </div>
 
+          <div class='termsx' id='termsx'>{{aup}}</div>
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="aup-check" name='aup-check' required>
+            <label class="form-check-label" for="aup-check">I have read and agreed to the terms of service</label>
+          </div>
+          <br>
+
           <div class="form-group">
             <button type="submit" class="btn btn-primary">Create Profile</button>
           </div>
@@ -96,6 +103,14 @@ function setEditFields(name, email, institution){
   document.getElementById('email').value = email;
   document.getElementById('institution').value = institution;
 }
+
+var md = new Remarkable('full');
+  var aup = {{aup|tojson}};
+
+  $(window).on('load',function(){
+    var aup_rendered = md.render(aup);
+    $('#termsx').html(aup_rendered);
+  });
 
 </script>
 {%endblock%}
