@@ -870,7 +870,9 @@ def create_secret(name):
         key_name = request.form['key_name']
         key_contents = request.form['key_contents']
         # Add secret contents key-value to dict
-        contents[key_name] = base64.b64encode(key_contents)
+        for key_name, key_contents in zip (request.form.getlist('key_name'), request.form.getlist('key_contents')):
+            contents[key_name] = base64.b64encode(key_contents)
+        # contents[key_name] = base64.b64encode(key_contents)
 
         add_secret = {"apiVersion": 'v1alpha3',
                     'metadata': {'name': secret_name, 'group': name, 'cluster': cluster},
@@ -883,7 +885,7 @@ def create_secret(name):
             flash("Successfully added secret", 'success')
         else:
             err_message = r.json()['message']
-            flash('Failed to add secret: {}'.format(err_message), 'warning')
+            flash('Unable to add secret: {}'.format(err_message), 'warning')
 
         return redirect(url_for('view_group_secrets', name=name))
 
