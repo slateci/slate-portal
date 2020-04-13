@@ -192,12 +192,6 @@ def home():
     return redirect(url_for('dashboard'))
 
 
-@app.route('/', methods=['GET'])
-def slateci():
-    """Home page - play with it if you must!"""
-    return redirect('http://slateci.io/')
-
-
 @app.route('/community', methods=['GET'])
 def community():
     """Community page"""

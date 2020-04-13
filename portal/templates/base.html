@@ -9,8 +9,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Slate CI Portal, Services Layer at the Edge and the Mobility of Capability">
     <meta name="author" content="Jeremy Van">
-    <!-- <link rel="shortcut icon" type="image/x-icon" href="{{url_for('static', filename='img/favicon.ico')}}" /> -->
-    <!-- <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='img/favicon.ico')}}" /> -->
     {# Favicons for SLATE #}
     <link rel="apple-touch-icon" sizes="180x180" href="{{url_for('static', filename='img/favicons/apple-touch-icon.png')}}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{url_for('static', filename='img/favicons/favicon-32x32.png')}}">
@@ -23,15 +21,13 @@
     <title>SLATE - {%block title%}{%endblock%}</title>
 
     {# CSS files #}
-    <!-- <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.css" /> -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
     <!-- Custom styles for this template -->
     <link href="{{url_for('static', filename='css/style.css')}}" rel="stylesheet">
     <link href="{{url_for('static', filename='css/error.css')}}" rel="stylesheet">
-    <!-- Font Awesome Icons -->
+    <!-- Font Awesome Icons and International Telephone input -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
-    <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"></style> -->
     <link rel="stylesheet" href="{{url_for('static', filename='css/intlTelInput.css')}}"></style>
 
     {# Custom Fonts #}
@@ -159,11 +155,6 @@
           <div class="container-fluid">
             <form class="form-inline">
               {% if session.get('is_authenticated') %}
-              <!-- <button type="button" id="sidebarCollapse" class="btn btn-primary btn-sm">
-                <i id="sidebar-icon" class="fas fa-bars"></i>
-              </button> -->
-              {% endif %}
-              {% if session.get('is_authenticated') %}
               <a class="navbar-brand js-scroll-trigger" href="{{url_for('dashboard')}}" style="padding-left: 15px;">
                 <img src="{{url_for('static', filename='img/slate-logo-150.png')}}" width="30" height="30" class="d-inline-block align-top" alt=""> SLATE
               </a>
@@ -173,7 +164,6 @@
               </a>
               {% endif %}
             </form>
-            <!-- <i class="fas fa-align-left"></i> -->
             <form class="form-inline">
               {% if session.get('is_authenticated') %}
                 {% if session.get('slate_portal_user') %}

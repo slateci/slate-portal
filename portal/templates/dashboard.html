@@ -255,10 +255,10 @@ $(document).ready(function() {
     }
 	},
 	mounted() {
-            axios.get('/users_instances_ajax')
-	        .then(function (response) {
-		    this.instances = response.data.slice(0,5);
-				this.loading = false;
+    axios.get('/users_instances_ajax')
+    .then(function (response) {
+      this.instances = response.data.slice(0,5);
+			this.loading = false;
 		}.bind(this)) //must use bind(this) unless using arrow function
 		.catch(error => { this.failed = true; this.loading = false; })
 		}
