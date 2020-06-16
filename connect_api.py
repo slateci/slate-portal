@@ -18,11 +18,12 @@ slate_api_token = f.read().split()[0]
 slate_api_endpoint = g.read().split()[0]
 
 try:
-    query = {'token': session['slate_token']}
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
 except:
     query = {'token': slate_api_token}
 
-
+#  Users
 def get_user_info(session):
 
     query = {'token': slate_api_token,
@@ -62,6 +63,13 @@ def get_user_access_token(session):
     access_token = profile['metadata']['access_token']
     return access_token
 
+
+def delete_user(userID, query):
+    res = requests.delete(slate_api_endpoint + '/v1alpha3/' + userID, params=query)
+    print(res)
+    res = res.json()
+    print(res)
+    return res
 
 def coordsConversion(lat, lon):
     geolocator = Nominatim()

@@ -19,7 +19,7 @@ from connect_api import (list_applications_request,
                         list_users_instances_request,
                         list_clusters_request, coordsConversion,
                         get_user_access_token, get_user_id,
-                        get_user_info)
+                        get_user_info, delete_user)
 import sys
 import subprocess
 import os
@@ -682,7 +682,7 @@ def view_group_members(name):
             admin = True
 
         group_members = requests.get(
-            slate_api_endpoint + '/v1alpha3/groups/' + group_id + '/members', params=query)
+            slate_api_endpoint + '/v1alpha3/groups/' + name + '/members', params=query)
         group_members = group_members.json()['items']
 
         # List of group members by their unique user ID
@@ -698,7 +698,7 @@ def view_group_members(name):
 
         # Get Group Info
         group_info = requests.get(
-            slate_api_endpoint + '/v1alpha3/groups/' + group_id, params=query)
+            slate_api_endpoint + '/v1alpha3/groups/' + name, params=query)
         group_info = group_info.json()
 
         return render_template('groups_profile_members.html',
@@ -738,7 +738,7 @@ def view_group_add_members(name):
             admin = True
 
         group_members = requests.get(
-            slate_api_endpoint + '/v1alpha3/groups/' + group_id + '/members', params=query)
+            slate_api_endpoint + '/v1alpha3/groups/' + name + '/members', params=query)
         group_members = group_members.json()['items']
 
         # List of group members by their unique user ID
@@ -754,7 +754,7 @@ def view_group_add_members(name):
 
         # Get Group Info
         group_info = requests.get(
-            slate_api_endpoint + '/v1alpha3/groups/' + group_id, params=query)
+            slate_api_endpoint + '/v1alpha3/groups/' + name, params=query)
         group_info = group_info.json()
 
         return render_template('groups_profile_add_members.html', users=users,
@@ -782,7 +782,7 @@ def view_group_secrets(name):
 
         # Get Group Info
         group_info = requests.get(
-            slate_api_endpoint + '/v1alpha3/groups/' + group_id, params=query)
+            slate_api_endpoint + '/v1alpha3/groups/' + name, params=query)
         group_info = group_info.json()
 
         return render_template('groups_profile_secrets.html', name=name,
@@ -833,7 +833,7 @@ def group_secrets_key_ajax_request(secret_id):
         slate_api_endpoint + '/v1alpha3/secrets/' + secret_id, params=query)
     secret_details = secret_details.json()
     # Base64 decode secret contents
-    for key, value in secret_details['contents'].iteritems():
+    for key, value in list(secret_details['contents'].items()):
         try:
             value_decoded = base64.b64decode(value).decode('utf-8')
             secret_details['contents'][key] = value_decoded
@@ -1030,13 +1030,16 @@ def group_cluster_apps(project_name, name, group_name):
         remove_apps = list(set(slate_app_names) - set(allowed_apps))
         # Individually add each app to group's accessible apps
         r = None
-        for app_name in allowed_apps:
-            add_app_query = '/v1alpha3/clusters/' + cluster_id + '/allowed_groups/' + group_id + '/applications/' + app_name
-            r = requests.put(slate_api_endpoint + add_app_query, params=query)
 
-        for app_name in remove_apps:
-            remove_app_query = '/v1alpha3/clusters/' + cluster_id + '/allowed_groups/' + group_id + '/applications/' + app_name
-            r = requests.delete(slate_api_endpoint + remove_app_query, params=query)
+        if allowed_apps:
+            for app_name in allowed_apps:
+                add_app_query = '/v1alpha3/clusters/' + cluster_id + '/allowed_groups/' + group_id + '/applications/' + app_name
+                r = requests.put(slate_api_endpoint + add_app_query, params=query)
+        if remove_apps:
+            for app_name in remove_apps:
+                remove_app_query = '/v1alpha3/clusters/' + cluster_id + '/allowed_groups/' + group_id + '/applications/' + app_name
+                r = requests.delete(slate_api_endpoint + remove_app_query, params=query)
+        #         print(app_name, r)
 
         if r.status_code == requests.codes.ok:
             flash("Successfully updated {}'s allowed apps".format(group_id), 'success')
@@ -1295,10 +1298,9 @@ def profile():
 def edit_profile():
     if request.method == 'GET':
         identity_id = session.get('primary_identity')
-        institution = session.get('institution')
-        globus_id = identity_id
-        query = {'token': slate_api_token,
-                 'globus_id': globus_id}
+        access_token = get_user_access_token(session)
+        query = {'token': access_token,
+                 'globus_id': identity_id}
 
         profile = requests.get(
             slate_api_endpoint + '/v1alpha3/find_user', params=query)
@@ -1812,7 +1814,7 @@ def create_application(name, group_name):
             slate_api_endpoint + '/v1alpha3/multiplex', params=query, json=cluster_allowed_groups_multiplexJson)
         cluster_multiplex = cluster_multiplex.json()
 
-        for query, value in cluster_multiplex.iteritems():
+        for query, value in list(cluster_multiplex.items()):
             a = json.loads(value['body'])
             items = a['items']
             for item in items:
@@ -1881,7 +1883,7 @@ def list_instances_xhr():
         user_groups_list = list_user_groups(session)
         user_groups = []
         for groups in user_groups_list:
-            user_groups.append(groups['metadata']['name'].encode('utf-8'))
+            user_groups.append(groups['metadata']['name'])
         return jsonify(instances, user_groups)
 
 
