@@ -833,12 +833,13 @@ def group_secrets_key_ajax_request(secret_id):
         slate_api_endpoint + '/v1alpha3/secrets/' + secret_id, params=query)
     secret_details = secret_details.json()
     # Base64 decode secret contents
+    print(secret_details)
     for key, value in list(secret_details['contents'].items()):
         try:
             value_decoded = base64.b64decode(value).decode('utf-8')
             secret_details['contents'][key] = value_decoded
         except UnicodeError:
-            secret_details['contents'][key] = "Cannot display non UTF-8 content"
+            secret_details['contents'][key] = value
 
     return secret_details
 
@@ -1883,10 +1884,7 @@ def list_instances_xhr():
         user_groups_list = list_user_groups(session)
         user_groups = []
         for groups in user_groups_list:
-            try:
-                user_groups.append(groups['metadata']['name'].encode('utf-8'))
-            except:
-                user_groups.append(groups['metadata']['name'])
+            user_groups.append(groups['metadata']['name'].encode('utf-8'))
         return jsonify(instances, user_groups)
 
 
