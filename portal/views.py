@@ -833,7 +833,6 @@ def group_secrets_key_ajax_request(secret_id):
         slate_api_endpoint + '/v1alpha3/secrets/' + secret_id, params=query)
     secret_details = secret_details.json()
     # Base64 decode secret contents
-    print(secret_details)
     for key, value in list(secret_details['contents'].items()):
         try:
             value_decoded = base64.b64decode(value).decode('utf-8')
