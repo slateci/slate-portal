@@ -1883,7 +1883,10 @@ def list_instances_xhr():
         user_groups_list = list_user_groups(session)
         user_groups = []
         for groups in user_groups_list:
-            user_groups.append(groups['metadata']['name'])
+            try:
+                user_groups.append(groups['metadata']['name'].encode('utf-8'))
+            except:
+                user_groups.append(groups['metadata']['name'])
         return jsonify(instances, user_groups)
 
 
