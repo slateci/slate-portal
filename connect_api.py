@@ -202,7 +202,7 @@ def list_users_instances_request(session):
     user_groups = []
     # Set up nice list of user group's name
     for groups in user_groups_list:
-        user_groups.append(groups['metadata']['name'].encode('utf-8'))
+        user_groups.append(groups['metadata']['name'])
     # Logic to isolate instances belonging to specific user
     user_instances = []
     for instance in instances:

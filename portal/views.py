@@ -47,9 +47,14 @@ except:
     mailgun_api_token = None
 
 try:
-    from urllib.parse import urlencode
+    # Python 2
+    from urllib.parse import urlparse, urlencode, parse_qs
+    # print("Using Python 2")
 except ImportError:
+    # Python 3
+    from urlparse import urlparse, parse_qs
     from urllib import urlencode
+    # print("Using Python 3")
 
 
 @app.template_filter('datetimeformat')
@@ -213,7 +218,8 @@ def signup():
 @app.route('/login', methods=['GET'])
 def login():
     """Send the user to Globus Auth."""
-    return redirect(url_for('authcallback'))
+    next_url = get_safe_redirect()
+    return redirect(url_for('authcallback', next=next_url))
 
 
 @app.route('/logout', methods=['GET'])
@@ -287,7 +293,7 @@ def handle_exception(e):
     return render_template("500.html", e=e), 500
 
 
-@app.route('/slate_console', methods=['GET'])
+@app.route('/slate_portal', methods=['GET'])
 def dashboard():
     """Send the user to dashboard"""
     try:
@@ -1382,8 +1388,9 @@ def authcallback():
         # If there's no "code" query string parameter, we're in this route
         # starting a Globus Auth login flow.
         if 'code' not in request.args:
+            next_url = get_safe_redirect()
             additional_authorize_params = (
-                {'signup': 1} if request.args.get('signup') else {})
+                {'signup': 1} if request.args.get('signup') else {'next': next_url})
 
             auth_uri = client.oauth2_get_authorize_url(
                 additional_params=additional_authorize_params)
@@ -1393,6 +1400,7 @@ def authcallback():
         else:
             # If we do have a "code" param, we're coming back from Globus Auth
             # and can start the process of exchanging an auth code for a token.
+            next_url = get_safe_redirect()
             code = request.args.get('code')
             tokens = client.oauth2_exchange_code_for_tokens(code)
 
@@ -1408,22 +1416,38 @@ def authcallback():
                 primary_identity=id_token.get('sub'),
                 identity_provider=id_token.get('identity_provider')
             )
+            #  Grab user's access token in order to find their identity set
+            access_token = session['tokens']['auth.globus.org']['access_token']
+            token_introspect = client.oauth2_token_introspect(
+                token=access_token, include='identity_set')
+            identity_set = token_introspect.data['identity_set']
+            # Initialize profile variable to None
+            profile = None
             # Need to query a request to view all users in Slate DB, then iterate
             # to see if profile exists by matching globus_id ideally.
-            globus_id = session['primary_identity']
-            query = {'token': slate_api_token,
-                     'globus_id': globus_id}
+            for identity in identity_set:
+                query = {'token': slate_api_token,
+                        'globus_id': identity}
+                try:
+                    print("Trying this query: {}".format(query))
+                    # Query response to find user profile
+                    r = requests.get(
+                        slate_api_endpoint + '/v1alpha3/find_user', params=query)
+                    if r.status_code == requests.codes.ok:
+                        # Set profile and check for admin status
+                        profile = r.json()
+                        slate_user_id = profile['metadata']['id']
+                        user_info = requests.get(slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
+                        user_info = user_info.json()['metadata']
+                        if user_info['admin']:
+                            session['admin'] = True
+                except:
+                    print("User identity not found: {}".format(identity))
 
-            profile = requests.get(
-                slate_api_endpoint + '/v1alpha3/find_user', params=query)
-
-            users = requests.get(
-                slate_api_endpoint + '/v1alpha3/users', params=query)
-            users = users.json()['items']
 
             if profile:
                 # Check for admin status
-                slate_user_id = get_user_id(session)
+                slate_user_id = profile['metadata']['id']
                 user_info = requests.get(slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
                 user_info = user_info.json()['metadata']
                 if user_info['admin']:
@@ -1883,7 +1907,7 @@ def list_instances_xhr():
         user_groups_list = list_user_groups(session)
         user_groups = []
         for groups in user_groups_list:
-            user_groups.append(groups['metadata']['name'].encode('utf-8'))
+            user_groups.append(groups['metadata']['name'])
         return jsonify(instances, user_groups)
 
 
