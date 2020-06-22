@@ -92,6 +92,8 @@
 </section>
 
 <script>
+document.getElementById("sidenav").style.display = "none";
+var navbrand = document.getElementsByClassName("navbar-brand")[0].href = '#';
 var name = {{session['name']|tojson}};
 var email = {{session['email']|tojson}};
 var institution = {{session['institution']|tojson}};
