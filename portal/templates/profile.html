@@ -16,17 +16,18 @@
           <div class="col-sm-12 col-md-6">
             <div class="card h-100">
               <div class="card-header">
-                Information <i class="fas fa-user-edit float-right"></i>
+                Information<i class="fas fa-user-edit float-right"></i>
               </div>
               <div class="card-body">
                 <!-- <h5 class="card-title" style="text-align: center"><i class="fas fa-user-edit fa-2x"></i></h5> -->
                 <ul class="list-unstyled">
                   <li><strong>Name:</strong> {{profile['name']}}</li>
+                  <li><strong>User ID:</strong> {{profile['id']}}</li>
                   <li><strong>Email:</strong> {{profile['email']}}</li>
                   <li><strong>Phone:</strong> {{profile['phone']}}</li>
                   <li><strong>Institution:</strong> {{profile['institution']}}</li>
                 </ul>
-                <a href="{{url_for('edit_profile', name=name)}}" class="btn btn-primary btn-sm btn-box-shadow">Edit Profile</a>
+                <a href="{{url_for('edit_profile')}}" class="btn btn-primary btn-sm btn-box-shadow">Edit Profile</a>
               </div>
             </div>
           </div>
