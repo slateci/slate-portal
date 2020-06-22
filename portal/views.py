@@ -976,11 +976,12 @@ def view_cluster(project_name, name):
         # print("LIST GROUPS: {}".format(list_groups))
         # print("ALLOWED GROUPS: {}".format(allowed_groups))
         non_access_groups = list(set(list_groups_names) - set(allowed_groups_names))
+        sorted_non_access_groups = sorted(non_access_groups)
         # print("NON ACCESS GROUPS: {}".format(non_access_groups))
 
         return render_template('cluster_profile.html', allowed_groups=allowed_groups,
                                project_name=project_name, name=name,
-                               non_access_groups=non_access_groups,
+                               non_access_groups=sorted_non_access_groups,
                                cluster=cluster, administering=administering,
                                group_clusters=group_clusters)
 
