@@ -1430,7 +1430,7 @@ def authcallback():
                 query = {'token': slate_api_token,
                         'globus_id': identity}
                 try:
-                    print("Trying this query: {}".format(query))
+                    # print("Trying this query: {}".format(query))
                     # Query response to find user profile
                     r = requests.get(
                         slate_api_endpoint + '/v1alpha3/find_user', params=query)
@@ -1444,7 +1444,18 @@ def authcallback():
                             session['admin'] = True
                 except:
                     print("User identity not found: {}".format(identity))
-
+            
+            try:
+                referrer = urlparse(request.referrer)
+                # print("REFERRER: {}".format(referrer))
+                queries = parse_qs(referrer.query)
+                # print("QUERIES: {}".format(queries))
+                redirect_uri = queries['redirect_uri'][0]
+                # print("REDIRECT URI: {}".format(redirect_uri))
+                next_url = queries['next'][0]
+                # print("AFTER QUERIES NEXT URL: {}".format(next_url))
+            except:
+                next_url = '/'
 
             if profile:
                 # Check for admin status
@@ -1458,7 +1469,10 @@ def authcallback():
                 return redirect(url_for('create_profile',
                                         next=url_for('dashboard')))
 
-            return redirect(url_for('dashboard'))
+            if next_url == '/':
+                return redirect(url_for('dashboard'))
+            else:
+                return redirect(next_url)
 
 
 @app.route('/register', methods=['GET', 'POST'])
