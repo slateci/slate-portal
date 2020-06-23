@@ -1450,8 +1450,7 @@ def authcallback():
                 # print("REFERRER: {}".format(referrer))
                 queries = parse_qs(referrer.query)
                 # print("QUERIES: {}".format(queries))
-                redirect_uri = queries['redirect_uri'][0]
-                # print("REDIRECT URI: {}".format(redirect_uri))
+                redirect_uri = queries['redirect_uri']
                 next_url = queries['next'][0]
                 # print("AFTER QUERIES NEXT URL: {}".format(next_url))
             except:
@@ -1468,6 +1467,7 @@ def authcallback():
             else:
                 return redirect(url_for('create_profile',
                                         next=url_for('dashboard')))
+            # print("FINAL NEXT URL {}".format(next_url))
 
             if next_url == '/':
                 return redirect(url_for('dashboard'))
