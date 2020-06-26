@@ -7,7 +7,7 @@
     <meta http-equiv="Content-Language" content="en">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Slate CI Portal, Services Layer at the Edge and the Mobility of Capability">
+    <meta name="description" content="SLATE CI Portal, Services Layer at the Edge and the Mobility of Capability">
     <meta name="author" content="Jeremy Van">
     {# Favicons for SLATE #}
     <link rel="apple-touch-icon" sizes="180x180" href="{{url_for('static', filename='img/favicons/apple-touch-icon.png')}}">
@@ -156,11 +156,11 @@
             <form class="form-inline">
               {% if session.get('is_authenticated') %}
               <a class="navbar-brand js-scroll-trigger" href="{{url_for('dashboard')}}" style="padding-left: 15px;">
-                <img src="{{url_for('static', filename='img/slate-logo-150.png')}}" width="30" height="30" class="d-inline-block align-top" alt=""> SLATE
+                <img src="{{url_for('static', filename='img/slate-logo-150.png')}}" width="30" height="30" class="d-inline-block align-top" alt=""> SLATE Portal
               </a>
               {% else %}
               <a class="navbar-brand js-scroll-trigger" href="{{url_for('home')}}" style="padding-left: 15px;">
-                <img src="{{url_for('static', filename='img/slate-logo-150.png')}}" width="30" height="30" class="d-inline-block align-top" alt=""> SLATE
+                <img src="{{url_for('static', filename='img/slate-logo-150.png')}}" width="30" height="30" class="d-inline-block align-top" alt=""> SLATE Portal
               </a>
               {% endif %}
             </form>
