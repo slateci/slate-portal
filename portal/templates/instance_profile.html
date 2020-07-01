@@ -83,7 +83,7 @@
                 </thead>
                 <tbody data-link="row" class="rowlink" style="font-size:14px;">
 
-              {% if instance_detail['details'] and instance_detail['pods']%}
+              {% if instance_detail['details'] and instance_detail['details']['pods']%}
                 {% for pod in instance_detail['details']['pods'] %}
                   <tr data-toggle="collapse" data-target="#accordion-{{pod['name']}}" class="clickable">
                     <td><a href="#" data-toggle="collapse" data-target="#accordion-{{pod['name']}}">{{pod['name']}}</a></td>
