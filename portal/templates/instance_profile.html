@@ -83,7 +83,7 @@
                 </thead>
                 <tbody data-link="row" class="rowlink" style="font-size:14px;">
 
-              {% if instance_detail['details']['pods']%}
+              {% if instance_detail['details'] and instance_detail['pods']%}
                 {% for pod in instance_detail['details']['pods'] %}
                   <tr data-toggle="collapse" data-target="#accordion-{{pod['name']}}" class="clickable">
                     <td><a href="#" data-toggle="collapse" data-target="#accordion-{{pod['name']}}">{{pod['name']}}</a></td>
@@ -126,8 +126,8 @@
                       {% if event['count'] > 1 %}
                               <li style="list-style: none"><strong>Count:</strong> {{event['count']}}</li>
                       {% endif %}
-                              <li style="list-style: none"><strong>First Timestamp:</strong> {{event['firstTimestamp'].split('T')[0]}} {{event['firstTimestamp'].split('T')[1].split('Z')[0]}}</li>
-                              <li style="list-style: none"><strong>Last Timestamp:</strong> {{event['lastTimestamp'].split('T')[0]}} {{event['lastTimestamp'].split('T')[1].split('Z')[0]}}</li>
+                              <li style="list-style: none"><strong>First Timestamp:</strong> {{event['firstTimestamp'].split('T')[0] if event['firstTimestamp'] != None }} {{event['firstTimestamp'].split('T')[1].split('Z')[0] if event['firstTimestamp'] != None else 'None'}}</li>
+                              <li style="list-style: none"><strong>Last Timestamp:</strong> {{event['lastTimestamp'].split('T')[0] if event['lastTimestamp'] != None }} {{event['lastTimestamp'].split('T')[1].split('Z')[0] if event['lastTimestamp'] != None else 'None'}}</li>
                               <li style="list-style: none"><strong>Reason:</strong> {{event['reason']}}</li>
                               <li style="list-style: none"><strong>Message:</strong> {{event['message']}}</li>
                               <hr/>
