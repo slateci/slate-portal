@@ -14,11 +14,11 @@
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
           <li class="breadcrumb-item"><a href="{{url_for('list_instances')}}">Instances</a></li>
-          <li class="breadcrumb-item active">{{instance_details['metadata']['name']}}</li>
+          <li class="breadcrumb-item active">{{instance_detail['metadata']['name']}}</li>
         </ol>
 
-        <h1>Instance: {{instance_details['metadata']['name']}}</h1>
-        <h4>Cluster: <span class='text-muted'>{{instance_details['metadata']['cluster']}}</span></h4>
+        <h1>Instance: {{instance_detail['metadata']['name']}}</h1>
+        <h4>Cluster: <span class='text-muted'>{{instance_detail['metadata']['cluster']}}</span></h4>
         <a href="#" class="btn btn-danger btn-sm btn-box-shadow" onclick="btnConfirm()">Delete Instance</a>
         <hr/>
 
@@ -39,7 +39,7 @@
 
           <div role="tabpanel" class="tab-pane active" id="details">
             {% if instance_status %}
-              {% if instance_details['services'] %}
+              {% if instance_detail['services'] %}
             <div class="table-responsive">
               <br>
               <h4>Detailed Services</h4>
@@ -54,22 +54,14 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for service in instance_details['services'] %}
+                  {% for service in instance_detail['services'] %}
                   <tr>
                     {% set addr = 'http://' +service['externalIP'] + ':' + service['ports'].split(':')[1].split('/')[0] %}
-                    {% set kub_port = service['ports'].split(':')[0] %}
-                    {% set port = service['ports'].split(':')[1].split('/')[0] %}
                     <td>{{service['name']}}</td>
                     <td><a href="{{addr}}" target="_blank">{{service['externalIP']}}</a></td>
                     <td>{{service['clusterIP']}}</td>
-                    {% if kub_port == '8888' %}
-                    <td>{{port}} <span class='text-muted'>(HTTP server)</span></td>
-                    {% elif kub_port == '22' %}
-                    <td>{{port}} <span class='text-muted'>(SSH server)</span></td>
-                    {% else %}
                     <td>{{service['ports']}}</td>
-                    {% endif %}
-                    <td><a href="{{addr}}" target="_blank">{{service['url']}}</a></td>
+                    <td><a href="{{service['url']}}" target="_blank">{{service['url']}}</a></td>
                   </tr>
                   {% endfor %}
                 </tbody>
@@ -91,8 +83,8 @@
                 </thead>
                 <tbody data-link="row" class="rowlink" style="font-size:14px;">
 
-              {% if instance_details['details'] and instance_details['details']['pods'] %}
-                {% for pod in instance_details['details']['pods'] %}
+              {% if instance_detail['details'] and instance_detail['pods'] %}
+                {% for pod in instance_detail['details']['pods'] %}
                   <tr data-toggle="collapse" data-target="#accordion-{{pod['name']}}" class="clickable">
                     <td><a href="#" data-toggle="collapse" data-target="#accordion-{{pod['name']}}">{{pod['name']}}</a></td>
                     <!-- <td>{{pod['hostName']}}</td> -->
@@ -130,20 +122,16 @@
                         </div>
                         <div class="col-sm-4">
                           <h5 class="card-title">Events</h5>
-                    {% if pod['events'] %}
-                      {% for event in pod['events']%}
-                        {% if event['count'] > 1 %}
+                    {% for event in pod['events']%}
+                      {% if event['count'] > 1 %}
                               <li style="list-style: none"><strong>Count:</strong> {{event['count']}}</li>
-                        {% endif %}
+                      {% endif %}
                               <li style="list-style: none"><strong>First Timestamp:</strong> {{event['firstTimestamp'].split('T')[0] if event['firstTimestamp'] != None }} {{event['firstTimestamp'].split('T')[1].split('Z')[0] if event['firstTimestamp'] != None else 'None'}}</li>
                               <li style="list-style: none"><strong>Last Timestamp:</strong> {{event['lastTimestamp'].split('T')[0] if event['lastTimestamp'] != None }} {{event['lastTimestamp'].split('T')[1].split('Z')[0] if event['lastTimestamp'] != None else 'None'}}</li>
                               <li style="list-style: none"><strong>Reason:</strong> {{event['reason']}}</li>
                               <li style="list-style: none"><strong>Message:</strong> {{event['message']}}</li>
                               <hr/>
-                      {% endfor %}
-                    {% else %}
-                              <li style="list-style: none"><strong>No events currently</li>
-                    {% endif %}
+                    {% endfor %}
                         </div>
                       </div>
                     </td>
@@ -164,7 +152,7 @@
           <div role="tabpanel" class="tab-pane fade" id="configuration">
             <br>
             <!-- <h3>Configuration</h3> -->
-            <pre>{% if instance_details['metadata']['configuration'] %}{{instance_details['metadata']['configuration']}}{% else %}Configuration currently unavailable{% endif %}</pre>
+            <pre>{% if instance_detail['metadata']['configuration'] %}{{instance_detail['metadata']['configuration']}}{% else %}Configuration currently unavailable{% endif %}</pre>
           </div>
           <!-- INSTANE LOG TAB PANEL -->
           <div role="tabpanel" class="tab-pane fade" id="logs">
@@ -176,7 +164,7 @@
         </div>
 
 
-        {% if instance_details['metadata']['cluster'] in ['uutah-prod', 'utah-dev', 'umich-prod', 'uchicago-prod']%}
+        {% if instance_detail['metadata']['cluster'] in ['uutah-prod', 'utah-dev', 'umich-prod', 'uchicago-prod']%}
         <br>
         <div class="row">
           <div class="col-sm-12">
@@ -185,7 +173,7 @@
                 Load Monitoring
               </div>-->
               <div class="card-body">
-                <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/qZHpHV5Zk/slate-usage-by-application?orgId=1&var-datasource=SLATE&var-cluster={{instance_details['metadata']['cluster']}}&var-namespace=All&var-instance={{instance_details['metadata']['name']}}&panelId=6" width="100%" height="200" frameborder="0"></iframe>
+                <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/qZHpHV5Zk/slate-usage-by-application?orgId=1&var-datasource=SLATE&var-cluster={{instance_detail['metadata']['cluster']}}&var-namespace=All&var-instance={{instance_detail['metadata']['name']}}&panelId=6" width="100%" height="200" frameborder="0"></iframe>
               </div>
             </div>
           </div>
@@ -198,7 +186,7 @@
                 Node details
               </div>-->
               <div class="card-body">
-                <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/qZHpHV5Zk/slate-usage-by-application?orgId=1&var-datasource=SLATE&var-cluster={{instance_details['metadata']['cluster']}}&var-namespace=All&var-instance={{instance_details['metadata']['name']}}&panelId=3" width="100%" height="200" frameborder="0"></iframe>
+                <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/qZHpHV5Zk/slate-usage-by-application?orgId=1&var-datasource=SLATE&var-cluster={{instance_detail['metadata']['cluster']}}&var-namespace=All&var-instance={{instance_detail['metadata']['name']}}&panelId=3" width="100%" height="200" frameborder="0"></iframe>
               </div>
             </div>
           </div>
@@ -211,7 +199,7 @@
                 Node details
               </div>-->
               <div class="card-body">
-                <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/qZHpHV5Zk/slate-usage-by-application?orgId=1&var-datasource=SLATE&var-cluster={{instance_details['metadata']['cluster']}}&var-namespace=All&var-instance={{instance_details['metadata']['name']}}&panelId=4" width="100%" height="200" frameborder="0"></iframe>
+                <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/qZHpHV5Zk/slate-usage-by-application?orgId=1&var-datasource=SLATE&var-cluster={{instance_detail['metadata']['cluster']}}&var-namespace=All&var-instance={{instance_detail['metadata']['name']}}&panelId=4" width="100%" height="200" frameborder="0"></iframe>
               </div>
             </div>
           </div>
