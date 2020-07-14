@@ -621,6 +621,7 @@ def group_admin_clusters_request(group_name):
     user = requests.get(
         slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
     user = user.json()['metadata']['name']
+
     # Get Group Members
     group_members = requests.get(
         slate_api_endpoint + '/v1alpha3/groups/' + group_name + '/members', params=query)
@@ -629,16 +630,19 @@ def group_admin_clusters_request(group_name):
     for member in group_members:
         if member['metadata']['name'] == user:
             member_access = True
+
     # Get clusters owned by group
     administering_clusters = requests.get(
         slate_api_endpoint + '/v1alpha3/groups/' + group_name + '/clusters', params=query)
     administering_clusters = administering_clusters.json()['items']
     administering_clusters_names = [administering_cluster['metadata']['name'] for administering_cluster in administering_clusters]
     # print(administering_clusters_names)
+
     # Grab/list all Clusters in DB for now
     list_clusters = requests.get(
         slate_api_endpoint + '/v1alpha3/clusters', params=query)
     list_clusters = list_clusters.json()['items']
+
     # Create list of group's accesible clusters
     accessible_clusters = []
     for clusters in list_clusters:
@@ -650,6 +654,7 @@ def group_admin_clusters_request(group_name):
         for group in cluster_allowed_groups:
             if group['metadata']['name'] == group_name:
                 accessible_clusters.append(clusters)
+
     # Create accessible clusters list without duplicate names of administering clusters
     accessible_clusters_names = [accessible_cluster['metadata']['name'] for accessible_cluster in accessible_clusters]
     accessible_clusters_diff = list(set(accessible_clusters_names) - set(administering_clusters_names))
@@ -1741,7 +1746,7 @@ def view_application(name):
         else:
             error = False
 
-        return render_template('applications_profile.html', name=name,
+        return render_template('applications_stable_profile.html', name=name,
                                 app_config=app_config, app_readme=app_readme,
                                 app_version=app_version,
                                 chart_version=chart_version, error=error)
