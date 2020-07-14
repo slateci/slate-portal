@@ -13,9 +13,9 @@
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
           <li class="breadcrumb-item"><a href="{{url_for('list_clusters')}}">Clusters</a></li>
-          <li class="breadcrumb-item active">{{cluster['metadata']['name']}}</li>
+          <li class="breadcrumb-item active">{[{cluster.metadata.name}]}</li>
         </ol>
-        <h1>Cluster: {{cluster['metadata']['name']}}</h1>
+        <h1>Cluster: {[{cluster.metadata.name}]}</h1>
         <hr/>
         <div class="row">
           <div class="col-sm-6">
@@ -26,21 +26,27 @@
               <div class="card-body">
                 <p class="lead">
                   <strong>Administering Group:</strong>
-                  {{cluster['metadata']['owningGroup']}}
+                  {[{cluster.metadata.owningGroup}]}
                 </p>
                 <p class="lead">
                   <strong>Contact:</strong>
-                  <a href="mailto:{{owningGroupEmail}}">{{owningGroupEmail}}</a>
+                  <a :href="'mailto:'+owningGroupEmail">{[{owningGroupEmail}]}</a>
                 </p>
                 <p class="lead">
                   <strong>Organization:</strong>
-                  {{cluster['metadata']['owningOrganization']}}
+                  {[{cluster.metadata.owningOrganization}]}
                 </p>
                 <p class="lead">
-                  <strong>Location:</strong> {{ address }}
+                  <strong>Location: {{address}}</strong> 
                 </p>
                 <p class="lead">
-                  <strong>Status:</strong> <span id='cluster_status'></span>
+                  <strong>Status: </strong>
+                  <span v-if="cluster_status === 'True'">
+                    Reachable <i class='fas fa-check-circle' style='color: green'></i>
+                  </span>
+                  <span v-else>
+                    Currently unreachable <i class='fas fa-times-circle' style='color: red'></i>
+                  </span>
                 </p>
               </div>
             </div>
@@ -53,17 +59,19 @@
               </div>
               <div class="card-body">
 
-                <!-- <ul class="list-unstyled" v-if="loading">
+                <ul class="list-unstyled" v-if="loading">
                   <li>Loading Data <i class="fas fa-sync fa-spin"></i></li>
                 </ul>
 
                 <ul class="list-unstyled" v-if="failed">
                   <li>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></li>
-                </ul> -->
+                </ul>
 
                 <ul class="list-unstyled" id="allowed_groups">
-                  <!-- <li v-for="(group, index) in allowed_groups"><a href="{{url_for('list_public_groups')}}">{[{group}]}</a></li> -->
-                  <!-- <li v-else><a href="'/public_groups/' + group.metadata.name">{[{group.metadata.name}]}</a></li> -->
+                  <li v-for="(group, index) in allowed_groups">
+                    <a v-if="group.metadata.name == '<all>' " :href="'/public_groups'">All Groups</a>
+                    <a v-else :href="'/public_groups/' + group.metadata.name">{[{group.metadata.name}]}</a>
+                  </li>
                 </ul>
 
               </div>
@@ -71,61 +79,60 @@
           </div>
         </div>
         <br/>
-        {% if cluster['metadata']['name'] in ['uutah-prod', 'utah-dev', 'umich-prod', 'uchicago-prod']%}
-        <div class="row">
-          <div class="col-sm-4">
-            <div class="card h-100">
-              <div class="card-body">
-              <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&from=1583336972691&to=1583358572692&var-cluster=umich-prod&panelId=10" width="100%" height="200" frameborder="0"></iframe>
-              <!-- <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&var-cluster={{cluster['metadata']['name']}}&theme=light&panelId=10" width="100%" height="200" frameborder="0"></iframe> -->
+        <span v-if="['uutah-prod', 'utah-dev', 'umich-prod', 'uchicago-prod'].includes(cluster.metadata.name)">
+          <div class="row">
+            <div class="col-sm-4">
+              <div class="card h-100">
+                <div class="card-body">
+                <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&from=1583336972691&to=1583358572692&var-cluster='+cluster.metadata.name+'&panelId=10'" width="100%" height="200" frameborder="0"></iframe>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="card h-100">
+                <div class="card-body">
+                  <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&var-cluster='+cluster.metadata.name+'&theme=light&panelId=11'" width="100%" height="100%" frameborder="0"></iframe>
+                </div>
+              </div>
+            </div>
+            <div class="col-sm-4">
+              <div class="card h-100">
+                <!-- <div class="card-header">
+                  Average Uptime
+                </div> -->
+                <div class="card-body">
+                  <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&var-cluster='+cluster.metadata.name+'&panelId=7'" width="100%" height="200" frameborder="0"></iframe>
+                </div>
               </div>
             </div>
           </div>
-          <div class="col-sm-4">
-            <div class="card h-100">
-              <div class="card-body">
-              <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&var-cluster={{cluster['metadata']['name']}}&theme=light&panelId=11" width="100%" height="100%" frameborder="0"></iframe>
+          <br>
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="card h-100">
+                <!--<div class="card-header">
+                  Load Monitoring
+                </div>-->
+                <div class="card-body">
+                  <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&var-cluster='+cluster.metadata.name+'&theme=light&panelId=5'" width="100%" height="200" frameborder="0"></iframe>
+                </div>
               </div>
             </div>
           </div>
-          <div class="col-sm-4">
-            <div class="card h-100">
-              <!-- <div class="card-header">
-                Average Uptime
-              </div> -->
-              <div class="card-body">
-<iframe src="https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&var-cluster={{cluster['metadata']['name']}}&panelId=7" width="100%" height="200" frameborder="0"></iframe>
+          <br>
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="card h-100">
+                <!--<div class="card-header">
+                  Node details
+                </div>-->
+                <div class="card-body">
+                  <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&var-cluster='+cluster.metadata.name+'&theme=light&panelId=3'" width="100%" height="200" frameborder="0"></iframe>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <br>
-        <div class="row">
-          <div class="col-sm-12">
-            <div class="card h-100">
-              <!--<div class="card-header">
-                Load Monitoring
-              </div>-->
-              <div class="card-body">
-                <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&var-cluster={{cluster['metadata']['name']}}&theme=light&panelId=5" width="100%" height="200" frameborder="0"></iframe>
-              </div>
-            </div>
-          </div>
-        </div>
-        <br>
-        <div class="row">
-          <div class="col-sm-12">
-            <div class="card h-100">
-              <!--<div class="card-header">
-                Node details
-              </div>-->
-              <div class="card-body">
-                <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&var-cluster={{cluster['metadata']['name']}}&theme=light&panelId=3" width="100%" height="200" frameborder="0"></iframe>
-              </div>
-            </div>
-          </div>
-        </div>
-        {% endif %}
+        </span>
 
       </div>
     </div>
@@ -133,48 +140,36 @@
   </div>
 </section>
 
+<meta id="cluster-data" data-name="{{name}}">
 <script>
-window.onload = start();
+var cluster = $('#cluster-data').data();
+var cluster_name = cluster.name;
 
-  function get_app_readme(){
-    $.ajax({
-      url: "/public-clusters-xhr/{{cluster['metadata']['name']}}",
-      type: "get",
-      dataType: 'json',
-      success: function(data){
-        // console.log("SUCCESS");
-        // console.log(data);
-        var cluster = data[0];
-        var owningGroupEmail = data[1];
-        var allowed_groups = data[2];
-        var cluster_status = data[3];
-        // console.log(allowed_groups[0]['metadata']['name']);
-        for (i=0; i < allowed_groups.length; i++){
-          var group_name = allowed_groups[i]['metadata']['name'];
-          if(group_name === "<all>"){
-            $('#allowed_groups').append("<li><a href='{{url_for('list_public_groups')}}'>All Groups</a><li>");
-          } else {
-            $('#allowed_groups').append("<li><a href='/public_groups/"+String(group_name)+"'>"+group_name+"</a><li>");
-          }
-          // console.log(group_name)
-        }
-        if(cluster_status === "True"){
-          $('#cluster_status').html("Reachable <i class='fas fa-check-circle' style='color: green'></i>");
-        } else {
-          $('#cluster_status').html("Currently unreachable <i class='fas fa-times-circle' style='color: red'></i>")
-        }
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        console.log(jqXHR.status);
-        console.log(textStatus);
-        console.log(errorThrown);
-        console.log("Error Caught");
+$(document).ready(function() {
+  new Vue({
+    el: '#cluster-profile',
+    data () {
+      return {
+        cluster: {},
+        owningGroupEmail: {},
+        allowed_groups: {},
+        cluster_status: {},
+        loading: true,
+        failed: false
+      }
+    },
+    mounted() {
+      axios.get('/public-clusters-xhr/'+cluster_name)
+      .then(function (response) {
+        this.cluster = response.data[0];
+        this.owningGroupEmail = response.data[1];
+        this.allowed_groups = response.data[2];
+        this.cluster_status = response.data[3];
+        this.loading = false;
+        }.bind(this)) //must use bind(this) unless using arrow function
+        .catch(error => { this.failed = true; this.loading = false; })
       }
     });
-  }
-
-  function start() {
-    get_app_readme();
-  }
+  });
 </script>
 {%endblock%}
