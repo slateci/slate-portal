@@ -10,13 +10,12 @@ try:
     # Read endpoint and token from VM
     f = open("/etc/slate/secrets/slate_api_token.txt", "r")
     g = open("slate_api_endpoint.txt", "r")
+    slate_api_token = f.read().split()[0]
+    slate_api_endpoint = g.read().split()[0]
 except:
-    # Read endpoint and token local
-    f = open("secrets/slate_api_token.txt", "r")
-    g = open("secrets/slate_api_endpoint.txt", "r")
-
-slate_api_token = f.read().split()[0]
-slate_api_endpoint = g.read().split()[0]
+    # Read endpoint and token from config file
+    slate_api_token = app.config['SLATE_API_TOKEN']
+    slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
 
 
 @app.route('/clusters', methods=['GET'])
