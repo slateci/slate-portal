@@ -18,6 +18,7 @@
           </div>
           <div class="form-group">
             <label for="name">Name *</label>
+            <p class="text-muted">Please use POSIX unix convention <i class="fas fa-question-circle" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="Usernames must start with a lowercase letter. All other characters may be lowercase letters, numbers, or hyphens."></i></p>
             <input
               type="text"
               class="form-control"
@@ -26,7 +27,8 @@
               placeholder="{{session['name']}}"
               required="required"
               tabindex="1"
-              maxlength="64"
+              maxlength="32"
+              pattern="^[a-z][-a-z0-9]*$"
             >
           </div>
 
@@ -91,12 +93,20 @@
   </div>
 </section>
 
+<meta id="profile-data" 
+      data-name="{{session['name']}}"
+      data-email="{{session['email']}}"
+      data-institution="{{session['institution']}}"
+      data-aup="{{aup}}">
 <script>
+$('[data-toggle="popover"]').popover()
+var profile = $('#profile-data').data();
+
 document.getElementById("sidenav").style.display = "none";
 var navbrand = document.getElementsByClassName("navbar-brand")[0].href = '#';
-var name = {{session['name']|tojson}};
-var email = {{session['email']|tojson}};
-var institution = {{session['institution']|tojson}};
+var name = profile.name;
+var email = profile.email;
+var institution = profile.institution;
 
 window.onload = setEditFields(name, email, institution);
 
@@ -107,7 +117,7 @@ function setEditFields(name, email, institution){
 }
 
 var md = new Remarkable('full');
-  var aup = {{aup|tojson}};
+  var aup = profile.aup;
 
   $(window).on('load',function(){
     var aup_rendered = md.render(aup);
