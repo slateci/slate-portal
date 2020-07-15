@@ -30,6 +30,7 @@ sys.path.insert(1, 'portal/views')
 import portal.views
 import views_applications
 import views_clusters
+import views_instances
 
 try:
     # Read endpoint and token from VM
@@ -181,18 +182,6 @@ def apps_incubator_config_request(name):
     apps_config = apps_config.json()
 
     return apps_config
-
-
-@app.route('/instances_ajax', methods=['GET'])
-def instances_ajax():
-    instances = list_instances_request()
-    return jsonify(instances)
-
-
-@app.route('/users_instances_ajax', methods=['GET'])
-def users_instances_ajax():
-    instances = list_users_instances_request(session)
-    return jsonify(instances)
 
 
 @app.route('/', methods=['GET'])
@@ -1529,82 +1518,6 @@ def _get_data():
     myList = ['elements1', 'elements2', 'elements3']
 
     return jsonify({'data': render_template('response.html', mylist=myList)})
-
-
-@app.route('/instances', methods=['GET'])
-@authenticated
-def list_instances():
-    """
-    - List deployed application instances on SLATE
-    """
-    if request.method == 'GET':
-        return render_template('instances.html')
-
-
-@app.route('/instances-xhr', methods=['GET'])
-@authenticated
-def list_instances_xhr():
-    """
-    - List User's Instances Registered on SLATE (json response)
-    """
-    if request.method == 'GET':
-        instances = list_instances_request()
-        user_groups_list = list_user_groups(session)
-        user_groups = []
-        for groups in user_groups_list:
-            user_groups.append(groups['metadata']['name'])
-        return jsonify(instances, user_groups)
-
-
-@app.route('/instances/<name>', methods=['GET'])
-@authenticated
-def view_instance(name):
-    """
-    - View detailed instance information on SLATE
-    """
-    access_token = get_user_access_token(session)
-    query = {'token': access_token}
-    if request.method == 'GET':
-
-        # Initialize separate list queries for multiplex request
-        instance_detail_query = '/v1alpha3/instances/' + name + '?token=' + query['token'] + '&detailed'
-        instance_log_query = '/v1alpha3/instances/' + name + '/logs' + '?token=' + query['token']
-        # Set up multiplex JSON
-        multiplexJson = {instance_detail_query: {"method":"GET"},
-                            instance_log_query: {"method":"GET"}}
-        # POST request for multiplex return
-        multiplex = requests.post(
-            slate_api_endpoint + '/v1alpha3/multiplex', params=query, json=multiplexJson)
-        multiplex = multiplex.json()
-        # Parse post return for instance, instance details, and instance logs
-        instance_detail = json.loads(multiplex[instance_detail_query]['body'])
-        instance_log = json.loads(multiplex[instance_log_query]['body'])
-
-        instance_status = True
-
-        if instance_detail['kind'] == 'Error':
-            instance_status = False
-            return render_template('404.html')
-
-        return render_template('instance_profile.html', name=name,
-                                instance_detail=instance_detail,
-                                instance_status=instance_status,
-                                instance_log=instance_log)
-
-
-@app.route('/instances/<name>/delete_instance', methods=['GET'])
-@authenticated
-def delete_instance(name):
-    access_token = get_user_access_token(session)
-    query = {'token': access_token}
-
-    r = requests.delete(slate_api_endpoint + '/v1alpha3/instances/' + name, params=query)
-    if r.status_code == requests.codes.ok:
-        flash('Successfully deleted instance', 'success')
-    else:
-        flash('Failed to delete instance', 'warning')
-
-    return redirect(url_for('list_instances'))
 
 
 @app.route('/provisioning', methods=['GET'])
