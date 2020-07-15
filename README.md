@@ -1,14 +1,10 @@
 [![Build Status](https://travis-ci.org/globus/globus-sample-data-portal.svg?branch=master)](https://travis-ci.org/globus/globus-sample-data-portal)
 
-# Modern Research Data Portal
-Simple web app framework demonstrating how to build a data portal using
-the Globus [platform](https://www.globus.org/platform).
+# SLATE Portal
+Web portal to the SLATE [platform](https://www.portal.slateci.io/).
 
 ## Overview
-This repository contains two separate server applications. The first, the "Portal," is an example "research portal"
-that demonstrates how to authenticate users with Globus [Auth](https://docs.globus.org/api/auth/), how to make requests against the Globus [Transfer API](https://docs.globus.org/api/transfer/), and how to interact with an HTTPS-enabled Globus Endpoint. All of the Portal code can be found in the `portal/` directory.
-
-The second application, the "Service," is an example "resource server" that demonstrates how a research portal can offload tasks to a separate service that has the capability to perform tasks on behalf of users. All of the Service code can be found in the `service/` directory.
+This repository contains the SLATE portal applications. The "Portal," utilizes Globus in order to to authenticate users with [Auth](https://docs.globus.org/api/auth/). All of the Portal code can be found in the `portal/` directory.
 
 ## Getting Started
 #### Set up your environment.
@@ -33,8 +29,8 @@ The second application, the "Service," is an example "resource server" that demo
 
 * `sudo easy_install pip`
 * `sudo pip install virtualenv`
-* `git clone https://github.com/globus/globus-sample-data-portal`
-* `cd globus-sample-data-portal`
+* `git clone https://github.com/slateci/slate-portal.git`
+* `cd slate-portal`
 * `virtualenv venv`
 * `source venv/bin/activate`
 * `pip install -r requirements.txt`
@@ -43,11 +39,6 @@ The second application, the "Service," is an example "resource server" that demo
 
 * `./run_portal.py`
 * point your browser to `https://localhost:5000`
-
-##### Running the Service App
-
-* `./run_service.py`
-* API is located at `https://localhost:5100/api`
 
 ### Linux (Ubuntu)
 
@@ -57,8 +48,8 @@ The second application, the "Service," is an example "resource server" that demo
 * `sudo apt-get install python-pip python-dev gcc`
 * `sudo pip install virtualenv`
 * `sudo apt-get install git`
-* `git clone https://github.com/globus/globus-sample-data-portal`
-* `cd globus-sample-data-portal`
+* `git clone https://github.com/slateci/slate-portal.git`
+* `cd slate-portal`
 * `virtualenv venv`
 * `source venv/bin/activate`
 * `pip install -r requirements.txt`
@@ -67,11 +58,6 @@ The second application, the "Service," is an example "resource server" that demo
 
 * `./run_portal.py`
 * point your browser to `https://localhost:5000`
-
-##### Running the Service App
-
-* `./run_service.py`
-* API is located at `https://localhost:5100/api`
 
 ### Windows
 
@@ -100,8 +86,8 @@ The second application, the "Service," is an example "resource server" that demo
 
 ##### Environment Setup
 
-* `git clone https://github.com/globus/globus-sample-data-portal`
-* `cd globus-sample-data-portal`
+* `git clone https://github.com/slateci/slate-portal.git`
+* `cd slate-portal`
 * `virtualenv venv`
 * `source venv/bin/activate`
 * `pip install -r requirements.txt`
@@ -113,8 +99,3 @@ The second application, the "Service," is an example "resource server" that demo
 
 * `./run_portal.py`
 * point your web browser to `https://YOUR_IP:5000/`
-
-##### Running the Service App
-
-* `./run_service.py`
-* API is located at `https://localhost:5100/api`
