@@ -93,6 +93,30 @@
 
     <style>
 	   [v-cloak] {display: none}
+     #loader { 
+          border: 12px solid #f3f3f3; 
+          border-radius: 50%; 
+          border-top: 12px solid #444444; 
+          width: 70px; 
+          height: 70px; 
+          animation: spin 1s linear infinite; 
+          z-index: 5;
+      } 
+        
+      @keyframes spin { 
+          100% { 
+              transform: rotate(360deg); 
+          } 
+      } 
+        
+      .center { 
+          position: absolute; 
+          top: 0; 
+          bottom: 0; 
+          left: 0; 
+          right: 0; 
+          margin: auto; 
+      }
     </style>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <!-- production version, optimized for size and speed -->
@@ -101,9 +125,16 @@
     	//Change delimiters to avoid collision with Flask templates
     	Vue.options.delimiters = ['{[{','}]}'];
     </script>
+    <script>
+    function loader() {
+      var loader = document.getElementById("loader");
+      loader.style.display = 'inline';
+    }
+    </script>
 
   </head>
   <body id="page-top">
+    <div id="loader" class="center" style='display: none;'></div> 
     <div class="wrapper">
     <!-- Navigation -->
     {% if session.get('is_authenticated') and session.get('user_id') %}

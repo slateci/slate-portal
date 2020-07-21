@@ -44,7 +44,7 @@
               </tr>
 
               <tr v-for="(instance, index) in instances" v-if="userGroups.includes(instance.metadata.group)" v-cloak >
-                <td><a :href="'/instances/' + instance.metadata.id">{[{instance.metadata.name}]}</a></td>
+                <td><a :href="'/instances/' + instance.metadata.id" onclick="loader()">{[{instance.metadata.name}]}</a></td>
                 <td>{[{instance.metadata.application}]}</td>
                 <td>{[{instance.metadata.group}]}</td>
                 <td>{[{instance.metadata.cluster}]}</td>
