@@ -18,7 +18,6 @@
           </div>
           <div class="form-group">
             <label for="name">Name *</label>
-            <p class="text-muted">Please use POSIX unix convention <i class="fas fa-question-circle" data-container="body" data-toggle="popover" data-trigger="hover" data-placement="right" data-content="Usernames must start with a lowercase letter. All other characters may be lowercase letters, numbers, or hyphens."></i></p>
             <input
               type="text"
               class="form-control"
@@ -27,8 +26,7 @@
               placeholder="{{session['name']}}"
               required="required"
               tabindex="1"
-              maxlength="32"
-              pattern="^[a-z][-a-z0-9]*$"
+              maxlength="64"
             >
           </div>
 
@@ -78,7 +76,7 @@
 
           <div class='termsx' id='termsx'>{{aup}}</div>
           <div class="form-check">
-            <input type="checkbox" class="form-check-input" id="aup-check" name='aup-check' required>
+            <input type="checkbox" class="form-check-input" id="aup-check" name='aup-check'>
             <label class="form-check-label" for="aup-check">I have read and agreed to the terms of service</label>
           </div>
           <br>
@@ -99,10 +97,7 @@
       data-institution="{{session['institution']}}"
       data-aup="{{aup}}">
 <script>
-$('[data-toggle="popover"]').popover()
 var profile = $('#profile-data').data();
-
-document.getElementById("sidenav").style.display = "none";
 var navbrand = document.getElementsByClassName("navbar-brand")[0].href = '#';
 var name = profile.name;
 var email = profile.email;

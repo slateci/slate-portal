@@ -1214,30 +1214,40 @@ def create_profile():
         return render_template('profile_create.html', aup=aup)
 
     elif request.method == 'POST':
-        name = request.form['name']
-        email = request.form['email']
-        phone = request.form['phone-number']
-        # Chris should maybe add institution into user info within DB?
-        institution = request.form['institution']
-        globus_id = session['primary_identity']
-        admin = False
-        # Schema and query for adding users to Slate DB
-        post_user = {"apiVersion": 'v1alpha3',
-                    'metadata': {'globusID': globus_id, 'name': name, 'email': email,
-                                 'phone': phone, 'institution': institution, 'admin': admin}}
+        # Check for AUP agreement from form
+        try:
+            aup_check = request.form['aup-check']
+        except:
+            aup_check = None
 
-        query = {'token': slate_api_token}
+        # If checked, proceed to store user
+        if aup_check:
+            name = request.form['name']
+            email = request.form['email']
+            phone = request.form['phone-number']
+            institution = request.form['institution']
+            globus_id = session['primary_identity']
+            admin = False
+            # Schema and query for adding users to Slate DB
+            post_user = {"apiVersion": 'v1alpha3',
+                        'metadata': {'globusID': globus_id, 'name': name, 'email': email,
+                                    'phone': phone, 'institution': institution, 'admin': admin}}
 
-        r = requests.post(slate_api_endpoint + '/v1alpha3/users', params=query, json=post_user)
-        print("Added User: ", r)
+            query = {'token': slate_api_token}
 
-        if 'next' in session:
-            redirect_to = session['next']
-            session.pop('next')
+            r = requests.post(slate_api_endpoint + '/v1alpha3/users', params=query, json=post_user)
+            if r.status_code == requests.codes.ok:
+                user = r.json()
+                session['user_id'] = user['metadata']['id']
+                flash("Successfully created your profile", 'success')
+                return redirect(url_for('profile'))
+            else:
+                # err_message = r.json()['message']
+                flash('Please complete any missing profile fields and press Save.')
+                return redirect(url_for('create_profile'))
         else:
-            redirect_to = url_for('profile')
-
-        return redirect(url_for('profile'))
+            flash('Please complete any missing profile fields and press Save.')
+            return redirect(url_for('create_profile'))
 
 
 @app.route('/profile', methods=['GET', 'POST'])
@@ -1245,20 +1255,21 @@ def create_profile():
 def profile():
     """User profile information. Assocated with a Globus Auth identity."""
     if request.method == 'GET':
-        identity_id = session.get('primary_identity')
-        institution = session.get('institution')
-        globus_id = identity_id
+        globus_id = session.get('primary_identity')
         query = {'token': slate_api_token,
                  'globus_id': globus_id}
 
         user = requests.get(
             slate_api_endpoint + '/v1alpha3/find_user', params=query)
-        # print(profile.json()['metadata'])
 
         if user:
             slate_id = user.json()['metadata']['id']
             profile = requests.get(slate_api_endpoint + '/v1alpha3/users/' + slate_id, params=query)
             profile = profile.json()['metadata']
+            session['name'] = profile['name']
+            session['email'] = profile['email']
+            session['institution'] = profile['institution']
+            session['user_id'] = slate_id
         else:
             flash('Please complete any missing profile fields and press Save.')
             return redirect(url_for('create_profile', next=url_for('dashboard')))
@@ -1267,35 +1278,6 @@ def profile():
             session['next'] = get_safe_redirect()
 
         return render_template('profile.html', profile=profile)
-    elif request.method == 'POST':
-        name = session['name'] = request.form['name']
-        email = session['email'] = request.form['email']
-        phone = session['phone'] = request.form['phone-number']
-        # Chris should maybe add institution into user info within DB?
-        institution = session['institution'] = request.form['institution']
-        globus_id = session['primary_identity']
-        admin = False
-        # Schema and query for adding users to Slate DB
-        put_user = {"apiVersion": 'v1alpha3',
-                    'metadata': {'name': name, 'email': email,
-                                 'phone': phone, 'institution': institution}}
-
-        post_user = {"apiVersion": 'v1alpha3',
-                    'metadata': {'globusID': globus_id, 'name': name, 'email': email,
-                                 'phone': phone, 'institution': institution}}
-
-        query = {'token': slate_api_token}
-
-        requests.post(slate_api_endpoint + '/v1alpha3/users', params=query, json=post_user)
-        flash('Your profile has successfully been updated!')
-
-        if 'next' in session:
-            redirect_to = session['next']
-            session.pop('next')
-        else:
-            redirect_to = url_for('profile')
-
-        return redirect(redirect_to)
 
 
 @app.route('/profile/edit', methods=['GET', 'POST'])
@@ -1325,10 +1307,7 @@ def edit_profile():
         name = request.form['name']
         email = request.form['email']
         phone = request.form['phone-number']
-        # Chris should maybe add institution into user info within DB?
         institution = request.form['institution']
-        globus_id = session['primary_identity']
-        admin = False
         # Schema and query for adding users to Slate DB
         put_user = {"apiVersion": 'v1alpha3',
                     'metadata': {'name': name, 'email': email,
