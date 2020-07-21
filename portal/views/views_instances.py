@@ -8,19 +8,9 @@ from connect_api import (list_instances_request,
                         list_user_groups,
                         list_users_instances_request,
                         get_user_access_token)
-import sys
-sys.path.insert(0, '/etc/slate/secrets')
-
-try:
-    # Read endpoint and token from VM
-    f = open("/etc/slate/secrets/slate_api_token.txt", "r")
-    g = open("slate_api_endpoint.txt", "r")
-    slate_api_token = f.read().split()[0]
-    slate_api_endpoint = g.read().split()[0]
-except:
-    # Read endpoint and token from config file
-    slate_api_token = app.config['SLATE_API_TOKEN']
-    slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
+# Read endpoint and token from config file
+slate_api_token = app.config['SLATE_API_TOKEN']
+slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
 
 
 @app.route('/instances_ajax', methods=['GET'])
@@ -89,6 +79,9 @@ def view_instance(name):
         if instance_details['kind'] == 'Error':
             instance_status = False
             return render_template('404.html')
+  
+        # pretty_print = json.dumps(instance_details, sort_keys = True, indent = 2)
+        # print(pretty_print)
 
         return render_template('instance_profile.html', name=name,
                                 instance_details=instance_details,

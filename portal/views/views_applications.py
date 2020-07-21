@@ -8,21 +8,10 @@ from connect_api import (list_applications_request,
                         list_incubator_applications_request,
                         list_instances_request, list_user_groups, 
                         get_user_access_token)
-import sys
 import os
-sys.path.insert(0, '/etc/slate/secrets')
-
-try:
-    # Read endpoint and token from VM
-    f = open("/etc/slate/secrets/slate_api_token.txt", "r")
-    g = open("slate_api_endpoint.txt", "r")
-except:
-    # Read endpoint and token local
-    f = open("secrets/slate_api_token.txt", "r")
-    g = open("secrets/slate_api_endpoint.txt", "r")
-
-slate_api_token = f.read().split()[0]
-slate_api_endpoint = g.read().split()[0]
+# Read endpoint and token from config file
+slate_api_token = app.config['SLATE_API_TOKEN']
+slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
 
 
 @app.route('/applications', methods=['GET'])
