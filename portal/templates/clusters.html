@@ -81,7 +81,9 @@ $(document).ready(function() {
 	},
 	updated: function() {
 	    //call DataTable after view is updated
-	    $('#cluster-table').DataTable();
+	    $('#cluster-table').DataTable({
+			order: [[3, 'asc']],
+			});
 	},
 	mounted() {
             axios.get('/clusters-xhr')
