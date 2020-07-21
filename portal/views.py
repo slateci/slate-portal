@@ -1415,6 +1415,7 @@ def authcallback():
                         # Set profile and check for admin status
                         profile = r.json()
                         slate_user_id = profile['metadata']['id']
+                        session['user_id'] = slate_user_id
                         user_info = requests.get(slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
                         user_info = user_info.json()['metadata']
                         if user_info['admin']:
@@ -1436,6 +1437,7 @@ def authcallback():
             if profile:
                 # Check for admin status
                 slate_user_id = profile['metadata']['id']
+                session['user_id'] = slate_user_id
                 user_info = requests.get(slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
                 user_info = user_info.json()['metadata']
                 if user_info['admin']:
