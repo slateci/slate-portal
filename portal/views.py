@@ -446,7 +446,7 @@ def mailgun(group_name, user_name, user_email):
         return redirect(url_for('view_public_group', name=group_name))
     else:
         flash("Unable to send request", 'warning')
-        return redirect('view_public_group', name=group_name)
+        return redirect(url_for('view_public_group', name=group_name))
 
 
 @app.route('/groups', methods=['GET', 'POST'])

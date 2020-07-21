@@ -15,7 +15,7 @@
         <h2>SLATE Portal</h2>
         <p id="ajax-testing"></p>
         <p class="lead">
-          {% if session.get('is_authenticated') %}
+          {% if session.get('user_id') %}
           Account Summary
           {% else %}
           Public Summary
@@ -25,7 +25,7 @@
         <div class="row">
           <div class="col-sm-12 col-md-4">
             <div class="card h-100 btn-box-shadow">
-              {% if session.get('is_authenticated') %}
+              {% if session.get('is_authenticated') and session.get('user_id') %}
               <div class="card-header">
                 My Instances <i class="fas fa-server float-right"></i>
               </div>
@@ -157,7 +157,7 @@
         </div>
         <br/>
         <div class="row">
-          {% if session.get('is_authenticated') %}
+          {% if session.get('is_authenticated') and session.get('user_id') %}
           <div class="col-sm-12 col-md-4">
             <div class="card h-100 btn-box-shadow">
               <div class="card-header">
