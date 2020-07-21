@@ -121,7 +121,7 @@ def list_public_clusters_request(session, name):
     access_token = get_user_access_token(session)
     query = {'token': access_token}
 
-    cluster_query = "/v1alpha3/clusters/"+name+"?token="+query['token']
+    cluster_query = "/v1alpha3/clusters/"+name+"?token="+query['token']+"&nodes=true"
     allowed_groups_query = "/v1alpha3/clusters/"+name+"/allowed_groups?token="+query['token']
     cluster_status_query = "/v1alpha3/clusters/"+name+"/ping?token="+query['token']+"&cache"
 
@@ -145,7 +145,7 @@ def list_public_clusters_request(session, name):
         slate_api_endpoint + '/v1alpha3/groups/' + owningGroupName, params=query)
     owningGroup = owningGroup.json()
     owningGroupEmail = owningGroup['metadata']['email']
-    
+
     # Get Cluster status from multiplex
     cluster_status = json.loads(multiplex[cluster_status_query]['body'])
     cluster_status = str(cluster_status['reachable'])

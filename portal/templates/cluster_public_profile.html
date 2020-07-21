@@ -37,7 +37,7 @@
                   {[{cluster.metadata.owningOrganization}]}
                 </p>
                 <p class="lead">
-                  <strong>Location: {{address}}</strong> 
+                  <strong>Location: {{address}}</strong>
                 </p>
                 <p class="lead">
                   <strong>Status: </strong>
@@ -52,7 +52,7 @@
             </div>
           </div>
 
-          <div class="col-sm-6">
+          <div class="col-sm-3">
             <div class="card h-100">
               <div class="card-header">
                 Groups with access
@@ -77,63 +77,63 @@
               </div>
             </div>
           </div>
+
+          <div class="col-sm-3">
+            <div class="card h-100">
+              <div class="card-header">
+                Number of nodes
+              </div>
+              <div class="card-body">
+                <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&from=1595235471059&to=1595257071060&var-cluster='+cluster.metadata.name+'&panelId=2'" width="100%" height="200" frameborder="0"></iframe>
+              </div>
+            </div>
+          </div>
         </div>
+
         <br/>
-        <span v-if="['uutah-prod', 'utah-dev', 'umich-prod', 'uchicago-prod'].includes(cluster.metadata.name)">
-          <div class="row">
-            <div class="col-sm-4">
-              <div class="card h-100">
-                <div class="card-body">
-                <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&from=1583336972691&to=1583358572692&var-cluster='+cluster.metadata.name+'&panelId=10'" width="100%" height="200" frameborder="0"></iframe>
+
+        <span v-if="cluster.metadata.hasMonitoring">
+          <div v-for="node in cluster.metadata.nodes">
+            <div class="row">
+              <div class="col-sm-12">
+                Node: {[{node.name}]}
+              </div>
+
+              <div class="col-sm-3">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-monitoring-startout-copy?orgId=1&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-job=node-exporter&var-name='+node.name+'&var-node='+node.addresses[0].address+'&var-port=9100&from=1595184321372&to=1595270721372&panelId=3'" width="100%" height="200" frameborder="0"></iframe>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="col-sm-4">
-              <div class="card h-100">
-                <div class="card-body">
-                  <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&var-cluster='+cluster.metadata.name+'&theme=light&panelId=11'" width="100%" height="100%" frameborder="0"></iframe>
+
+              <div class="col-sm-3">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-monitoring-startout-copy?orgId=1&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-job=node-exporter&var-name='+node.name+'&var-node='+node.addresses[0].address+'&var-port=9100&from=1595185245188&to=1595271645188&panelId=24'" width="100%" height="200" frameborder="0"></iframe>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="col-sm-4">
-              <div class="card h-100">
-                <!-- <div class="card-header">
-                  Average Uptime
-                </div> -->
-                <div class="card-body">
-                  <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&var-cluster='+cluster.metadata.name+'&panelId=7'" width="100%" height="200" frameborder="0"></iframe>
+
+              <div class="col-sm-3">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-monitoring-startout-copy?orgId=1&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-job=node-exporter&var-name='+node.name+'&var-node='+node.addresses[0].address+'&var-port=9100&from=1595185568621&to=1595271968621&panelId=84'" width="100%" height="200" frameborder="0"></iframe>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-          <br>
-          <div class="row">
-            <div class="col-sm-12">
-              <div class="card h-100">
-                <!--<div class="card-header">
-                  Load Monitoring
-                </div>-->
-                <div class="card-body">
-                  <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&var-cluster='+cluster.metadata.name+'&theme=light&panelId=5'" width="100%" height="200" frameborder="0"></iframe>
+
+              <div class="col-sm-3">
+                <div class="card h-100">
+                  <div class="card-body">
+                    <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-monitoring-startout-copy?orgId=1&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-job=node-exporter&var-name='+node.name+'&var-node='+node.addresses[0].address+'&var-port=9100&from=1595185694355&to=1595272094355&panelId=156'" width="100%" height="200" frameborder="0"></iframe>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-          <br>
-          <div class="row">
-            <div class="col-sm-12">
-              <div class="card h-100">
-                <!--<div class="card-header">
-                  Node details
-                </div>-->
-                <div class="card-body">
-                  <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&var-cluster='+cluster.metadata.name+'&theme=light&panelId=3'" width="100%" height="200" frameborder="0"></iframe>
-                </div>
-              </div>
+
             </div>
           </div>
         </span>
-
       </div>
     </div>
 
