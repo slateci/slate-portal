@@ -1,0 +1,84 @@
+<div class="table-responsive">
+  <h4>Pods</h4>
+  <table class="table" id="pods-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+    <thead>
+      <tr>
+        <th data-field="name" data-sortable="true">Name</th>
+        <th data-field="status" data-sortable="true">Status</th>
+        <th data-field="created" data-sortable="true">Created</th>
+      </tr>
+    </thead>
+    <tbody data-link="row" class="rowlink" style="font-size:14px;">
+
+  {% if instance_details['details'] and instance_details['details']['pods'] %}
+    {% for pod in instance_details['details']['pods'] %}
+      <tr data-toggle="collapse" data-target="#accordion-{{pod['name']}}" class="clickable">
+        <td><a href="#" data-toggle="collapse" data-target="#accordion-{{pod['name']}}">{{pod['name']}}</a></td>
+        {% if pod['status'] == 'Running'%}
+        <td><span style='color:green;'>{{pod['status']}}</span></td>
+        {% else %}
+        <td><span style='color:orange;'>{{pod['status']}}</span></td>
+        {% endif %}
+        <td>{{pod['created']|formatdatetime}}</td>
+      </tr>
+      <tr>
+        <td colspan="3">
+          <div id="accordion-{{pod['name']}}" class="collapse row">
+            <div class="col-sm-4">
+              <h5 class="card-title">Conditions</h5>
+              <h6 class="card-subtitle mb-2 text-muted">Created: {{pod['created']|formatdatetime}}</h6>
+              <div>
+        {% if pod['conditions'] %}
+          {% for condition in pod['conditions']%}
+                <p class="card-text">{{condition['lastTransitionTime']|formatdatetime}} - {{condition['type']}}</p>
+          {% endfor %}
+        {% else %}
+          <p>Currently no conditons</p>
+        {% endif %}
+              </div>
+            </div>
+
+            <div class="col-sm-4">
+              <h5 class="card-title">Containers</h5>
+          {% if pod['containers'] %}
+            {% for container in pod['containers'] %}
+                <li style="list-style: none"><strong>Name:</strong> {{container['name']}}</li>
+                <li style="list-style: none"><strong>Restarts:</strong> {{container['restartCount']}}</li>
+                <li style="list-style: none"><strong>State:</strong> {% for key, value in container['state'].items() %} {{key}} - {% for k, v in value.items() %} {{k}}: {{v}} {% endfor %} {% endfor %}</li>
+              {% if container['lastState'] %}
+                <li style="list-style: none"><strong>Last State:</strong> {% for state, info in container['lastState'].items() %}{{state}} at {{info['startedAt']}}{% endfor %}</li>
+              {% endif %}
+                <li style="list-style: none"><strong>Image:</strong> {{container['image']}}</li>
+                <hr/>
+            {% endfor %}
+          {% else %}
+          <p>Currently no containers</p>
+          {% endif %}
+            </div>
+
+            <div class="col-sm-4">
+              <h5 class="card-title">Events</h5>
+        {% if pod['events'] %}
+          {% for event in pod['events']%}
+            {% if event['count'] > 1 %}
+                  <li style="list-style: none"><strong>Count:</strong> {{event['count']}}</li>
+            {% endif %}
+                  <li style="list-style: none"><strong>First Timestamp:</strong> {{event['firstTimestamp'].split('T')[0] if event['firstTimestamp'] != None }} {{event['firstTimestamp'].split('T')[1].split('Z')[0] if event['firstTimestamp'] != None else 'None'}}</li>
+                  <li style="list-style: none"><strong>Last Timestamp:</strong> {{event['lastTimestamp'].split('T')[0] if event['lastTimestamp'] != None }} {{event['lastTimestamp'].split('T')[1].split('Z')[0] if event['lastTimestamp'] != None else 'None'}}</li>
+                  <li style="list-style: none"><strong>Reason:</strong> {{event['reason']}}</li>
+                  <li style="list-style: none"><strong>Message:</strong> {{event['message']}}</li>
+                  <hr/>
+          {% endfor %}
+        {% else %}
+        <p>Currently no events</p>
+        {% endif %}
+            </div>
+          </div>
+        </td>
+      </tr>
+    {% endfor %}
+  {% endif %}
+    </tbody>
+
+  </table>
+</div>

@@ -2,7 +2,7 @@ from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 from datetime import timedelta
 import json
-
+import datetime
 # from flask import Markup
 from flask_misaka import markdown
 from flask_misaka import Misaka
@@ -31,5 +31,19 @@ handler.setLevel(logging.DEBUG)
 app.logger.addHandler(handler)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s: %(message)s')
 handler.setFormatter(formatter)
+
+def format_datetime(value, format="%b %d %Y %I:%M %p"):
+    """Format a date time to (Default): d Mon YYYY HH:MM P"""
+
+    if value is None:
+        return ""
+    
+    date_time_obj = datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M:%SZ')
+    date_time_pretty_format = date_time_obj.strftime(format)
+
+    return date_time_pretty_format
+
+# Register the template filter with the Jinja Environment
+app.jinja_env.filters['formatdatetime'] = format_datetime
 
 import portal.views
