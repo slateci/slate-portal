@@ -93,44 +93,31 @@
         <br/>
 
         <span v-if="cluster.metadata.hasMonitoring">
-          <div v-for="node in cluster.metadata.nodes">
+          <div v-for="node in cluster.metadata.nodes" style="padding-bottom: 10px;">
             <div class="row">
               <div class="col-sm-12">
-                Node: {[{node.name}]}
-              </div>
-
-              <div class="col-sm-3">
                 <div class="card h-100">
+                  <div class="card-header">
+                    Node: {[{node.name}]}
+                  </div>
                   <div class="card-body">
-                    <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-monitoring-startout-copy?orgId=1&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-job=node-exporter&var-name='+node.name+'&var-node='+node.addresses[0].address+'&var-port=9100&from=1595184321372&to=1595270721372&panelId=3'" width="100%" height="200" frameborder="0"></iframe>
+                    <div class="row">
+                      <div class="col-sm-12 col-md-6 col-lg-3">
+                        <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-monitoring-startout-copy?orgId=1&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-job=node-exporter&var-name='+node.name+'&var-node='+node.addresses[0].address+'&var-port=9100&from=1595184321372&to=1595270721372&panelId=3'" width="100%" height="200" frameborder="0"></iframe>
+                      </div>
+                      <div class="col-sm-12 col-md-6 col-lg-3">
+                        <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-monitoring-startout-copy?orgId=1&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-job=node-exporter&var-name='+node.name+'&var-node='+node.addresses[0].address+'&var-port=9100&from=1595185245188&to=1595271645188&panelId=24'" width="100%" height="200" frameborder="0"></iframe>
+                      </div>
+                      <div class="col-sm-12 col-md-6 col-lg-3">
+                        <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-monitoring-startout-copy?orgId=1&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-job=node-exporter&var-name='+node.name+'&var-node='+node.addresses[0].address+'&var-port=9100&from=1595185568621&to=1595271968621&panelId=84'" width="100%" height="200" frameborder="0"></iframe>
+                      </div>
+                      <div class="col-sm-12 col-md-6 col-lg-3">
+                        <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-monitoring-startout-copy?orgId=1&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-job=node-exporter&var-name='+node.name+'&var-node='+node.addresses[0].address+'&var-port=9100&from=1595185694355&to=1595272094355&panelId=156'" width="100%" height="200" frameborder="0"></iframe>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-
-              <div class="col-sm-3">
-                <div class="card h-100">
-                  <div class="card-body">
-                    <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-monitoring-startout-copy?orgId=1&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-job=node-exporter&var-name='+node.name+'&var-node='+node.addresses[0].address+'&var-port=9100&from=1595185245188&to=1595271645188&panelId=24'" width="100%" height="200" frameborder="0"></iframe>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-sm-3">
-                <div class="card h-100">
-                  <div class="card-body">
-                    <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-monitoring-startout-copy?orgId=1&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-job=node-exporter&var-name='+node.name+'&var-node='+node.addresses[0].address+'&var-port=9100&from=1595185568621&to=1595271968621&panelId=84'" width="100%" height="200" frameborder="0"></iframe>
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-sm-3">
-                <div class="card h-100">
-                  <div class="card-body">
-                    <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-monitoring-startout-copy?orgId=1&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-job=node-exporter&var-name='+node.name+'&var-node='+node.addresses[0].address+'&var-port=9100&from=1595185694355&to=1595272094355&panelId=156'" width="100%" height="200" frameborder="0"></iframe>
-                  </div>
-                </div>
-              </div>
-
             </div>
           </div>
         </span>
