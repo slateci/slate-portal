@@ -40,6 +40,10 @@
                   <strong>Location: {{address}}</strong>
                 </p>
                 <p class="lead">
+                  <strong>Number of Nodes:</strong>
+                  {[{cluster.metadata.nodes.length}]}
+                </p>
+                <p class="lead">
                   <strong>Status: </strong>
                   <span v-if="cluster_status === 'True'">
                     Reachable <i class='fas fa-check-circle' style='color: green'></i>
@@ -52,7 +56,7 @@
             </div>
           </div>
 
-          <div class="col-sm-3">
+          <div class="col-sm-6">
             <div class="card h-100">
               <div class="card-header">
                 Groups with access
@@ -77,17 +81,6 @@
               </div>
             </div>
           </div>
-
-          <div class="col-sm-3">
-            <div class="card h-100">
-              <div class="card-header">
-                Number of nodes
-              </div>
-              <div class="card-body">
-                <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/3T3FQKnZk/slate-cluster-status?orgId=1&theme=light&var-cluster='+cluster.metadata.name+'&panelId=2'" width="100%" height="200" frameborder="0"></iframe>
-              </div>
-            </div>
-          </div>
         </div>
 
         <br/>
@@ -103,16 +96,20 @@
                   <div class="card-body">
                     <div class="row">
                       <div class="col-sm-12 col-md-6 col-lg-3">
-                        <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-monitoring-startout-copy?orgId=1&theme=light&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-name='+node.name+'&panelId=3'" width="100%" height="200" frameborder="0"></iframe>
+                        <!-- CPU -->
+                        <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-monitoring-startout-copy?orgId=1&theme=light&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-name='+node.name+'&panelId=310'" width="100%" height="200" frameborder="0" style="pointer-events: none"></iframe>
                       </div>
                       <div class="col-sm-12 col-md-6 col-lg-3">
-                        <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-monitoring-startout-copy?orgId=1&theme=light&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-name='+node.name+'&panelId=24'" width="100%" height="200" frameborder="0"></iframe>
+                        <!-- memory -->
+                        <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-monitoring-startout-copy?orgId=1&theme=light&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-name='+node.name+'&panelId=316'" width="100%" height="200" frameborder="0" style="pointer-events: none"></iframe>
                       </div>
                       <div class="col-sm-12 col-md-6 col-lg-3">
-                        <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-monitoring-startout-copy?orgId=1&theme=light&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-name='+node.name+'&panelId=84'" width="100%" height="200" frameborder="0"></iframe>
+                        <!-- network -->
+                        <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-monitoring-startout-copy?orgId=1&theme=light&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-name='+node.name+'&panelId=315'" width="100%" height="200" frameborder="0" style="pointer-events: none"></iframe>
                       </div>
                       <div class="col-sm-12 col-md-6 col-lg-3">
-                        <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-monitoring-startout-copy?orgId=1&theme=light&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-name='+node.name+'&panelId=156'" width="100%" height="200" frameborder="0"></iframe>
+                        <!-- disk -->
+                        <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-monitoring-startout-copy?orgId=1&theme=light&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-name='+node.name+'&panelId=314'" width="100%" height="200" frameborder="0" style="pointer-events: none"></iframe>
                       </div>
                     </div>
                   </div>
