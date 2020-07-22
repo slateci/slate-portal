@@ -144,3 +144,10 @@ def list_public_clusters_request(session, name):
     cluster_status = str(cluster_status['reachable'])
 
     return cluster, owningGroupEmail, allowed_groups, cluster_status
+
+
+@app.route('/clusters/<cluster_name>/<node_name>', methods=['GET'])
+@authenticated
+def view_node_details(cluster_name, node_name):
+    return render_template('cluster_node_details.html', cluster_name=cluster_name, node_name=node_name)
+
