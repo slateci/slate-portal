@@ -13,7 +13,7 @@
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
           <li class="breadcrumb-item"><a href="{{url_for('list_clusters')}}">Clusters</a></li>
-          <li class="breadcrumb-item"><a href="/clusters/{{cluster_name}}">{{cluster_name}}</a></li>
+          <li class="breadcrumb-item"><a href="{{url_for('view_public_cluster', name=cluster_name)}}">{{cluster_name}}</a></li>
           <li class="breadcrumb-item active">{{node_name}}</li>
         </ol>
         <h1>Node: {{node_name}}</h1>
@@ -53,11 +53,4 @@
     </div>
   </div>
 </section>
-
-<meta id="cluster-data" data-cluster_name="{{cluster_name}}" data-node_name="{{node_name}}">
-<script>
-var cluster = $('#cluster-data').data();
-var cluster_name = cluster.cluster_name;
-var node_name = cluster.node_name;
-</script>
 {%endblock%}
