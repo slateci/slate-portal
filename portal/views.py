@@ -31,7 +31,7 @@ import portal.views
 import views_applications
 import views_clusters
 import views_instances
-
+import views_webhooks
 
 # Read endpoint and token from config file
 slate_api_token = app.config['SLATE_API_TOKEN']
@@ -69,27 +69,6 @@ def podnameformat(value):
     except:
         hostName = "None"
     return hostName
-
-
-@app.route('/webhooks/github', methods=['GET', 'POST'])
-@csrf.exempt
-def webhooks():
-    """Endpoint that acepts post requests from Github Webhooks"""
-
-    cmd = """
-    git pull origin master
-    """
-    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-    out, err = p.communicate()
-    print("Return code: {}".format(p.returncode))
-    print("Error message: {}".format(err))
-
-    parent_pid = os.getppid()
-    print("Parent PID: {}".format(parent_pid))
-    os.kill(parent_pid, signal.SIGHUP)
-
-    return out
 
 
 @app.route('/applications_ajax', methods=['GET'])
@@ -1446,34 +1425,6 @@ def authcallback():
                 return redirect(url_for('dashboard'))
             else:
                 return redirect(next_url)
-
-
-@app.route('/register', methods=['GET', 'POST'])
-@authenticated
-def register():
-    if request.method == 'GET':
-        globus_id = session['primary_identity']
-        query = {'token': slate_api_token,
-                 'globus_id': globus_id}
-
-        r = requests.get(
-            slate_api_endpoint + '/v1alpha3/find_user', params=query)
-        user_info = r.json()
-        slate_user_id = user_info['metadata']['id']
-
-        query = {'token': slate_api_token}
-        s = requests.get(
-            slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=query)
-
-        s_info = s.json()
-        group_list = s_info['items']
-
-        return render_template('register.html', user_info=user_info,
-                               group_list=group_list, slate_user_id=slate_user_id)
-    elif request.method == 'POST':
-        name = request.form['name']
-        group = request.form['group']
-        return render_template('clusters.html', name=name, group=group, slate_api_endpoint=slate_api_endpoint)
 
 
 @app.route('/clusters/new', methods=['GET'])
