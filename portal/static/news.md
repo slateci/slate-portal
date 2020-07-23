@@ -1,3 +1,3 @@
-PEARC20 tutorial - July 31
+PEARC20 Tutorial - July 31, 2020
 
-US CMS tutorial - August 7
+US CMS Tutorial - August 7, 2020
