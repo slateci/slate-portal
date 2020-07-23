@@ -1,12 +1,10 @@
 from portal.utils import (
     load_portal_client, get_safe_redirect)
 from portal.decorators import authenticated
-from portal import app, csrf
-from werkzeug.exceptions import HTTPException
+from portal import app
 from datetime import datetime
 import json
 import requests
-import traceback
 import time
 import base64
 from flask import (flash, redirect, render_template,
@@ -21,9 +19,7 @@ from connect_api import (list_applications_request,
                         get_user_access_token, get_user_id,
                         get_user_info, delete_user)
 import sys
-import subprocess
 import os
-import signal
 sys.path.insert(0, '/etc/slate/secrets')
 # Set sys path and import view routes
 sys.path.insert(1, 'portal/views')
@@ -32,6 +28,7 @@ import views_applications
 import views_clusters
 import views_instances
 import views_webhooks
+import views_error_handling
 
 # Read endpoint and token from config file
 slate_api_token = app.config['SLATE_API_TOKEN']
@@ -54,21 +51,6 @@ except ImportError:
     from urlparse import urlparse, parse_qs
     from urllib import urlencode
     # print("Using Python 3")
-
-
-@app.template_filter('datetimeformat')
-def datetimeformat(value, format='%m/%d/%Y, %H:%M:%S'):
-    d = datetime.strptime(value, '%Y-%m-%dT%H:%M:%SZ')
-    return d.strftime(format)
-
-
-@app.template_filter('podnameformat')
-def podnameformat(value):
-    try:
-        hostName = value.decode('utf-8').split('.')[0]
-    except:
-        hostName = "None"
-    return hostName
 
 
 @app.route('/applications_ajax', methods=['GET'])
@@ -223,40 +205,6 @@ def logout():
 
     # Redirect the user to the Globus Auth logout page
     return redirect(''.join(ga_logout_url))
-
-
-# Create a custom error handler for Exceptions
-@app.errorhandler(Exception)
-def exception_occurred(e):
-    print("ERROR HIT: {}".format(e))
-    trace = traceback.format_tb(sys.exc_info()[2])
-    app.logger.error("{0} Traceback occurred:\n".format(time.ctime()) +
-                     "{0}\nTraceback completed".format("n".join(trace)))
-    trace = "<br>".join(trace)
-    trace.replace('\n', '<br>')
-    return render_template('error.html', exception=trace,
-                           debug=app.config['DEBUG'])
-
-
-@app.route('/error', methods=['GET'])
-def errorpage():
-    if request.method == 'GET':
-        return render_template('error.html')
-
-
-@app.errorhandler(404)
-def not_found(e):
-    return render_template("404.html")
-
-
-@app.errorhandler(Exception)
-def handle_exception(e):
-    # pass through HTTP errors
-    if isinstance(e, HTTPException):
-        return e
-    print("ERROR CAUGHT: Issue with {}".format(e))
-    # now you're handling non-HTTP exceptions only
-    return render_template("500.html", e=e), 500
 
 
 @app.route('/slate_portal', methods=['GET'])
