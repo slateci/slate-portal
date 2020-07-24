@@ -85,6 +85,73 @@
 
         <br/>
 
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="card h-100">
+              <div class="card-header">
+                Storage Classes
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table" id="groups-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+                    <thead>
+                      <tr>
+                        <th data-field="name" data-sortable="true">Name</th>
+                        <th data-field="binding-mode" data-sortable="true">Binding Mode</th>
+                        <th data-field="vol-expansion" data-sortable="true">Volume Expansion</th>
+                        <th data-field="reclaim-policy" data-sortable="true">Reclaim Policy</th>
+                      </tr>
+                    </thead>
+                    <tbody data-link="row" class="rowlink" style="font-size:14px;">
+                      <tr v-for="storageclass in storageClasses">
+                        <td>{[{ storageclass.name }]}</td>
+                        <td>{[{ storageclass.bindingMode }]}</td>
+                        <td>{[{ storageclass.allowVolumeExpansion }]}</td>
+                        <td>{[{ storageclass.reclaimPolicy }]}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <br/>
+
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="card h-100">
+              <div class="card-header">
+                Storage Classes
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table" id="groups-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+                    <thead>
+                      <tr>
+                        <th data-field="priority" data-sortable="true">Priority</th>
+                        <th data-field="priority-name" data-sortable="true">Name</th>
+                        <th data-field="description" data-sortable="true">Description</th>
+                      </tr>
+                    </thead>
+                    <tbody data-link="row" class="rowlink" style="font-size:14px;">
+                      <tr v-for="priorityClass in priorityClasses">
+                        <td>{[{ priorityClass.priority }]}</td>
+                        <td>{[{ priorityClass.name }]}</td>
+                        <td>{[{ priorityClass.description }]}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+        </div>
+
+        <br/>
+
         <span v-if="cluster.metadata.hasMonitoring">
           <div v-for="node in cluster.metadata.nodes" style="padding-bottom: 10px;">
             <div class="row">
@@ -137,6 +204,8 @@ $(document).ready(function() {
         cluster: {},
         owningGroupEmail: {},
         allowed_groups: {},
+        storageClasses: {},
+        priorityClasses: {},
         cluster_status: {},
         loading: true,
         failed: false
@@ -149,7 +218,11 @@ $(document).ready(function() {
         this.owningGroupEmail = response.data[1];
         this.allowed_groups = response.data[2];
         this.cluster_status = response.data[3];
+        this.storageClasses = response.data[4];
+        this.priorityClasses = response.data[5];
         this.loading = false;
+        console.log(this.storageClasses);
+        console.log(this.priorityClasses);
         }.bind(this)) //must use bind(this) unless using arrow function
         .catch(error => { this.failed = true; this.loading = false; })
       }

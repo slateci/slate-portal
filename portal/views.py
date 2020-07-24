@@ -236,18 +236,18 @@ def dashboard():
             query = {'token': slate_api_token}
             user_token = query['token']
 
-        clusters_json = list_clusters_request()
+        # clusters_json = list_clusters_request()
         # single-user mode
         if session["slate_portal_user"]:
-            selected_clusters = ["ms-c"]
+            clusters = ["ms-c"]
         else:
-            selected_clusters = ["uutah-prod", "uchicago-prod", "umich-prod"]
-        clusters = [cluster for cluster in clusters_json if cluster['metadata']['name'] in selected_clusters]
+            clusters = ["uutah-prod", "uchicago-prod", "umich-prod"]
+        # clusters = [cluster['metadata']['name'] for cluster in clusters_json if cluster['metadata']['name'] in selected_clusters]
 
         # Set up multiplex JSON
         cluster_multiplex_Json = {}
-        for cluster in clusters:
-            cluster_name = cluster['metadata']['name']
+        for cluster_name in clusters:
+            # cluster_name = cluster['metadata']['name']
             cluster_status_query = "/v1alpha3/clusters/"+cluster_name+"/ping?token="+query['token']+"&cache"
             cluster_multiplex_Json[cluster_status_query] = {"method":"GET"}
         # POST request for multiplex return
@@ -264,6 +264,7 @@ def dashboard():
             news = file.read()
 
         return render_template('dashboard.html', clusters=clusters,
+                                clusters_json=json.dumps(clusters),
                                 cluster_status_dict=cluster_status_dict,
                                 users=None, user_token=user_token, news=news)
 

@@ -4,7 +4,7 @@ import json
 import requests
 import time
 from flask import (render_template, request, session, jsonify)
-from connect_api import (list_clusters_request, coordsConversion, get_user_access_token)
+from connect_api import (list_clusters_request, coordsConversion, get_user_access_token, get_cluster_info)
 
 # Read endpoint and token from config file
 slate_api_token = app.config['SLATE_API_TOKEN']
@@ -29,12 +29,6 @@ def list_clusters_xhr():
     """
     if request.method == 'GET':
         slate_clusters, cluster_status_dict = list_clusters_dict_request(session)
-        # print(slate_clusters)
-        # for cluster in slate_clusters:
-        #     lat = cluster['metadata']['location'][0]['lat']
-        #     lon = cluster['metadata']['location'][0]['lon']
-        #     readable_address = coordsConversion(lat, lon)
-        #     cluster['metadata']['coordsConversion'] = readable_address
         return jsonify(slate_clusters, cluster_status_dict)
 
 
@@ -72,26 +66,18 @@ def view_public_cluster(name):
     - List Clusters Registered on SLATE
     """
     if request.method == 'GET':
-        access_token = get_user_access_token(session)
-        query = {'token': access_token}
 
-        cluster_query = "/v1alpha3/clusters/"+name+"?token="+query['token']
-        # Set up multiplex JSON
-        multiplexJson = {cluster_query: {"method":"GET"}}
-        # POST request for multiplex return
-        multiplex = requests.post(
-            slate_api_endpoint + '/v1alpha3/multiplex', params=query, json=multiplexJson)
-        multiplex = multiplex.json()
+        cluster = get_cluster_info(name)
+        location = cluster['metadata']['location']
+        if location:
+            try:
+                address = location[0]['desc']
+            except:
+                address = '{}, {}'.format(location[0]['lat'], location[0]['lon'])
 
-        # cluster = ast.literal_eval(multiplex[cluster_query]['body'])
-        cluster = json.loads(multiplex[cluster_query]['body'])
-        try:
-            lat = cluster['metadata']['location'][0]['lat']
-            lon = cluster['metadata']['location'][0]['lon']
-        except:
-            lat = 0
-            lon = 0
-        address = coordsConversion(lat, lon)
+        else:
+            print('no loco')
+            address = ''
 
         return render_template('cluster_public_profile.html', name=name, address=address)
 
@@ -103,8 +89,8 @@ def list_public_clusters_xhr(name):
     - List User's Instances Registered on SLATE (json response)
     """
     if request.method == 'GET':
-        cluster, owningGroupEmail, allowed_groups, cluster_status = list_public_clusters_request(session, name)
-        return jsonify(cluster, owningGroupEmail, allowed_groups, cluster_status)
+        cluster, owningGroupEmail, allowed_groups, cluster_status, storageClasses, priorityClasses = list_public_clusters_request(session, name)
+        return jsonify(cluster, owningGroupEmail, allowed_groups, cluster_status, storageClasses, priorityClasses)
 
 
 def list_public_clusters_request(session, name):
@@ -139,11 +125,14 @@ def list_public_clusters_request(session, name):
     owningGroup = owningGroup.json()
     owningGroupEmail = owningGroup['metadata']['email']
 
+    storageClasses = cluster['metadata']['storageClasses']
+    priorityClasses = cluster['metadata']['priorityClasses']
+
     # Get Cluster status from multiplex
     cluster_status = json.loads(multiplex[cluster_status_query]['body'])
     cluster_status = str(cluster_status['reachable'])
 
-    return cluster, owningGroupEmail, allowed_groups, cluster_status
+    return cluster, owningGroupEmail, allowed_groups, cluster_status, storageClasses, priorityClasses
 
 
 @app.route('/clusters/<cluster_name>/<node_name>', methods=['GET'])
@@ -151,3 +140,29 @@ def list_public_clusters_request(session, name):
 def view_node_details(cluster_name, node_name):
     return render_template('cluster_node_details.html', cluster_name=cluster_name, node_name=node_name)
 
+
+@app.route('/cluster-status-xhr/<cluster_name>', methods=['GET'])
+@authenticated
+def get_cluster_status_xhr(cluster_name):
+    """
+    - List Clusters Registered on SLATE (json response)
+    """
+    if request.method == 'GET':
+        cluster_status = get_cluster_status(cluster_name)
+        print(cluster_status)
+        return jsonify(cluster_status)
+
+
+def get_cluster_status(cluster_name):
+    """
+    - Get Clusters and Status on SLATE
+    """
+    access_token = get_user_access_token(session)
+    query = {'token': access_token, 'cache': 'cache'}
+
+    cluster_status_query = requests.get(
+            slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/ping', params=query)
+    cluster_status_query = cluster_status_query.json()
+    cluster_status = cluster_status_query['reachable']
+    
+    return cluster_status
