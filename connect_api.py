@@ -221,9 +221,17 @@ def list_connect_admins(group_name):
     """
     query = {'token': slate_api_token}
     group_members = requests.get(
-            slate_api_endpoint + '/v1alpha1/groups/'
+            slate_api_endpoint + '/v1alpha3/groups/'
             + connect_name(group_name) + '/members', params=query)
     memberships = group_members.json()['memberships']
     memberships = [member for member in memberships if member['state'] == 'admin']
 
     return memberships
+
+
+def get_cluster_info(cluster_name):
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
+    cluster = requests.get(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name, params=query)
+    cluster = cluster.json()
+    return cluster
