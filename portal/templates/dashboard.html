@@ -130,7 +130,7 @@
               <div class="card-header">
                 Clusters <i class="fas fa-cubes float-right"></i>
               </div>
-              <div class="card-body">
+              <div class="card-body" id="clusters-card">
                 <table class="table" id="#" data-toggle="table" data-sort-name="name" data-sort-order="desc">
                   <tbody data-link="row" class="rowlink" style="font-size:12px;">
                     {% for cluster in clusters %}
@@ -210,21 +210,22 @@ $(document).ready(function() {
   new Vue({
 	el: '#applications-card',
 	data () {
-	    return {
-	      applications: {},
-		loading: true,
-		failed: false
-	    }
-	},
-	mounted() {
-            axios.get('/applications_ajax')
-	        .then(function (response) {
-		    this.applications = response.data.slice(0,5);
-				this.loading = false;
-		}.bind(this)) //must use bind(this) unless using arrow function
-		.catch(error => { this.failed = true; this.loading = false; })
-		}
-  });
+    return {
+	    applications: {},
+      loading: true,
+      failed: false
+      }
+    },
+    mounted() {
+      axios.get('/applications_ajax')
+      .then(function (response) {
+        this.applications = response.data.slice(0,5);
+        this.loading = false;
+        }.bind(this)) //must use bind(this) unless using arrow function
+        .catch(error => { this.failed = true; this.loading = false; })
+        }
+      }
+    );
 
   new Vue({
 	el: '#public-groups-card',
@@ -236,13 +237,13 @@ $(document).ready(function() {
     }
 	},
 	mounted() {
-            axios.get('/public_groups_ajax')
-	        .then(function (response) {
-		    this.public_groups = response.data.slice(0,5);
-				this.loading = false;
-		}.bind(this)) //must use bind(this) unless using arrow function
-		.catch(error => { this.failed = true; this.loading = false; })
-		}
+    axios.get('/public_groups_ajax')
+    .then(function (response) {
+      this.public_groups = response.data.slice(0,5);
+      this.loading = false;
+      }.bind(this)) //must use bind(this) unless using arrow function
+      .catch(error => { this.failed = true; this.loading = false; })
+    }
   });
 
   new Vue({
@@ -258,9 +259,9 @@ $(document).ready(function() {
     axios.get('/users_instances_ajax')
     .then(function (response) {
       this.instances = response.data.slice(0,5);
-			this.loading = false;
-		}.bind(this)) //must use bind(this) unless using arrow function
-		.catch(error => { this.failed = true; this.loading = false; })
+      this.loading = false;
+      }.bind(this)) //must use bind(this) unless using arrow function
+      .catch(error => { this.failed = true; this.loading = false; })
 		}
   });
 });
