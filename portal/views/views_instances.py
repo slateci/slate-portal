@@ -70,16 +70,26 @@ def view_instance(name):
         multiplex = requests.post(
             slate_api_endpoint + '/v1alpha3/multiplex', params=query, json=multiplexJson)
         multiplex = multiplex.json()
+        # print("multiplex: {}".format(multiplex))
         # Parse post return for instance, instance details, and instance logs
         instance_details = multiplex[instance_detail_query]['body']
         instance_log = multiplex[instance_log_query]['body']
+        # print("instance details: {}".format(instance_details))
+        # print('-----')
+        # print("instance logs: {}".format(instance_log))
 
-        instance_details = json.loads(instance_details)
+        if instance_details:
+            instance_details = json.loads(multiplex[instance_detail_query]['body'])
         # print("instance details: {}".format(instance_details))
         if instance_log:
             instance_log = json.loads(multiplex[instance_log_query]['body'])
+        else:
+            instance_log = {'logs': ''}
 
         instance_status = True
+        # print("instance details: {}".format(instance_details))
+        # print('-----')
+        # print("instance logs: {}".format(instance_log))
 
         if instance_details['kind'] == 'Error':
             instance_status = False

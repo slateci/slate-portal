@@ -17,8 +17,12 @@
           <li class="breadcrumb-item active">{{instance_details['metadata']['name']}}</li>
         </ol>
 
-        <h1>Instance: {{instance_details['metadata']['name']}}</h1>
-        <h4>Cluster: <span class='text-muted'>{{instance_details['metadata']['cluster']}}</span></h4>
+        <h2>Instance: {{instance_details['metadata']['name']}}</h2>
+        <h6><strong>Application:</strong> {{instance_details['metadata']['application']}}</h6>
+        <h6><strong>Version:</strong> {{instance_details['metadata']['appVersion']}}</h6>
+        <h6><strong>Cluster:</strong> {{instance_details['metadata']['cluster']}}</h6>
+        <h6><strong>Group:</strong> {{instance_details['metadata']['group']}}</h6>
+        <h6><strong>Created:</strong> {{instance_details['metadata']['created']}}</h6>
         <a href="#" class="btn btn-danger btn-sm btn-box-shadow" onclick="btnConfirm()">Delete Instance</a>
         <hr/>
 
