@@ -71,8 +71,13 @@ def view_instance(name):
             slate_api_endpoint + '/v1alpha3/multiplex', params=query, json=multiplexJson)
         multiplex = multiplex.json()
         # Parse post return for instance, instance details, and instance logs
-        instance_details = json.loads(multiplex[instance_detail_query]['body'])
-        instance_log = json.loads(multiplex[instance_log_query]['body'])
+        instance_details = multiplex[instance_detail_query]['body']
+        instance_log = multiplex[instance_log_query]['body']
+
+        instance_details = json.loads(instance_details)
+        # print("instance details: {}".format(instance_details))
+        if instance_log:
+            instance_log = json.loads(multiplex[instance_log_query]['body'])
 
         instance_status = True
 
@@ -81,8 +86,6 @@ def view_instance(name):
             return render_template('404.html')
   
         # pretty_print = json.dumps(instance_details, sort_keys = True, indent = 2)
-        # print(pretty_print)
-
         return render_template('instance_profile.html', name=name,
                                 instance_details=instance_details,
                                 instance_status=instance_status,
