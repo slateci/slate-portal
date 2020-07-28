@@ -27,22 +27,23 @@ def authenticated(fn):
     return decorated_function
 
 
-# def instance_authenticated(fn):
-#     """Mark a route as requiring authentication."""
-#     @wraps(fn)
-#     def decorated_function(*args, **kwargs):
-#         instance_id = request.path.split('/')[-1]
-#         instance_details = get_instance_details(instance_id)
-#         group_name = instance_details['metadata']['group']
-#         group_members = get_group_members(group_name)
-#         group_members = group_members['items']
-#         group_user_ids = []
-#         for group_member in group_members:
-#             group_user_ids.append(group_member['metadata']['id'])
-#         print(request.url)
-#         if (not session.get('user_id') in group_user_ids):
-#             flash('You do not have permission to access this instance', 'warning')
-#             return redirect(url_for('list_instances'))
+def instance_authenticated(fn):
+    """Mark a route as requiring authentication."""
+    @wraps(fn)
+    def decorated_function(*args, **kwargs):
+        instance_id = request.path.split('/')[-1]
+        instance_details = get_instance_details(instance_id)
+        group_name = instance_details['metadata']['group']
+        group_members = get_group_members(group_name)
+        group_members = group_members['items']
+        group_user_ids = []
 
-#         return fn(*args, **kwargs)
-#     return decorated_function
+        for group_member in group_members:
+            group_user_ids.append(group_member['metadata']['id'])
+        
+        if (not session.get('user_id') in group_user_ids):
+            flash('You do not have permission to access this instance', 'warning')
+            return redirect(url_for('list_instances'))
+
+        return fn(*args, **kwargs)
+    return decorated_function

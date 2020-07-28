@@ -1,4 +1,4 @@
-from portal.decorators import authenticated
+from portal.decorators import authenticated, instance_authenticated
 from portal import app
 import json
 import requests
@@ -52,6 +52,7 @@ def list_instances_xhr():
 
 @app.route('/instances/<name>', methods=['GET'])
 @authenticated
+@instance_authenticated
 def view_instance(name):
     """
     - View detailed instance information on SLATE
