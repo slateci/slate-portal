@@ -1127,10 +1127,15 @@ def create_profile():
              'globus_id': globus_id}
 
     if request.method == 'GET':
-        with open('portal/static/AUP.md', 'r') as f:
-            aup = f.read()
+        try:
+            access_token, user_id = get_user_info(session)
+            session['user_id'] = user_id
+            return redirect(url_for('dashboard'))
+        except:
+            with open('portal/static/AUP.md', 'r') as f:
+                aup = f.read()
 
-        return render_template('profile_create.html', aup=aup)
+            return render_template('profile_create.html', aup=aup)
 
     elif request.method == 'POST':
         # Check for AUP agreement from form
@@ -1361,7 +1366,7 @@ def authcallback():
                 user_info = user_info.json()['metadata']
                 if user_info['admin']:
                     session['admin'] = True
-
+                return redirect(url_for('dashboard'))
             else:
                 return redirect(url_for('create_profile',
                                         next=url_for('dashboard')))
