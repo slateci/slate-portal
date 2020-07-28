@@ -1,6 +1,6 @@
 from portal.utils import (
     load_portal_client, get_safe_redirect)
-from portal.decorators import authenticated
+from portal.decorators import authenticated, group_authenticated
 from portal import app
 from datetime import datetime
 import json
@@ -476,6 +476,7 @@ def create_group():
 
 @app.route('/groups/<name>', methods=['GET', 'POST'])
 @authenticated
+@group_authenticated
 def view_group(name):
     access_token, slate_user_id = get_user_info(session)
     query = {'token': access_token}
@@ -576,6 +577,7 @@ def group_admin_clusters_request(group_name):
 
 @app.route('/groups/<name>/members', methods=['GET', 'POST'])
 @authenticated
+@group_authenticated
 def view_group_members(name):
     access_token, slate_user_id = get_user_info(session)
     query = {'token': access_token}
@@ -632,6 +634,7 @@ def view_group_members(name):
 
 @app.route('/groups/<name>/add_members', methods=['GET', 'POST'])
 @authenticated
+@group_authenticated
 def view_group_add_members(name):
     access_token, slate_user_id = get_user_info(session)
     query = {'token': access_token}
@@ -687,6 +690,7 @@ def view_group_add_members(name):
 
 @app.route('/groups/<name>/secrets', methods=['GET', 'POST'])
 @authenticated
+@group_authenticated
 def view_group_secrets(name):
     access_token, slate_user_id = get_user_info(session)
     query = {'token': access_token}
