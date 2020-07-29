@@ -61,7 +61,7 @@ def group_authenticated(fn):
             group_members = group_members['items']
         except:
             if group_members['message'] == 'Not authorized':
-                flash('You do not have permission to access this instance', 'warning')
+                flash('You do not have permission to access this group', 'warning')
                 return redirect(url_for('list_groups'))
         
         group_user_ids = []
@@ -70,7 +70,7 @@ def group_authenticated(fn):
             group_user_ids.append(group_member['metadata']['id'])
 
         if (not session.get('user_id') in group_user_ids):
-            flash('You do not have permission to access this instance', 'warning')
+            flash('You do not have permission to access this group', 'warning')
             return redirect(url_for('list_groups'))
 
         return fn(*args, **kwargs)
