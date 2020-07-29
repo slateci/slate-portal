@@ -110,7 +110,7 @@ def list_public_clusters_request(session, name):
                         cluster_status_query: {"method":"GET"}}
     # POST request for multiplex return
     multiplex = requests.post(
-        slate_api_endpoint + '/v1alpha3/multiplex', params=query, json=multiplexJson)
+        slate_api_endpoint + '/v1alpha3/multiplex', params=query, json=multiplexJson, timeout=10)
     multiplex = multiplex.json()
 
     # Parse post return for apps, clusters, and pub groups

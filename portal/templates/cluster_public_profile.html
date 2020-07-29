@@ -39,9 +39,13 @@
                 <p class="lead">
                   <strong>Location: {{address}}</strong>
                 </p>
-                <p class="lead">
+                <p class="lead" v-if="cluster.metadata.nodes">
                   <strong>Number of Nodes:</strong>
                   {[{cluster.metadata.nodes.length}]}
+                </p>
+                <p class="lead" v-else>
+                  <strong>Number of Nodes:</strong>
+                  None
                 </p>
                 <p class="lead">
                   <strong>Status: </strong>
@@ -93,7 +97,7 @@
               </div>
               <div class="card-body">
                 <div class="table-responsive">
-                  <table class="table" id="groups-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+                  <table class="table" id="storage-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
                     <thead>
                       <tr>
                         <th data-field="name" data-sortable="true">Name</th>
@@ -127,7 +131,7 @@
               </div>
               <div class="card-body">
                 <div class="table-responsive">
-                  <table class="table" id="groups-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+                  <table class="table" id="priority-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
                     <thead>
                       <tr>
                         <th data-field="priority" data-sortable="true">Priority</th>
@@ -211,6 +215,11 @@ $(document).ready(function() {
         failed: false
       }
     },
+    updated: function() {
+      //call DataTable after view is updated
+      $('#storage-table').DataTable();
+      $('#priority-table').DataTable();
+    },
     mounted() {
       axios.get('/public-clusters-xhr/'+cluster_name)
       .then(function (response) {
@@ -221,6 +230,10 @@ $(document).ready(function() {
         this.storageClasses = response.data[4];
         this.priorityClasses = response.data[5];
         this.loading = false;
+        console.log(this.cluster);
+        console.log(this.owningGroupEmail);
+        console.log(this.allowed_groups);
+        console.log(this.cluster_status);
         console.log(this.storageClasses);
         console.log(this.priorityClasses);
         }.bind(this)) //must use bind(this) unless using arrow function
