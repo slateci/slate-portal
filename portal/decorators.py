@@ -57,11 +57,12 @@ def group_authenticated(fn):
 
         group_members = get_group_members(group_name)
         
-        if group_members['message'] == 'Not authorized':
-            flash('You do not have permission to access this instance', 'warning')
-            return redirect(url_for('list_groups'))
-
-        group_members = group_members['items']
+        try:
+            group_members = group_members['items']
+        except:
+            if group_members['message'] == 'Not authorized':
+                flash('You do not have permission to access this instance', 'warning')
+                return redirect(url_for('list_groups'))
         
         group_user_ids = []
 
