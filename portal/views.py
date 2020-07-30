@@ -1035,9 +1035,9 @@ def edit_cluster(project_name, name):
         # Set up JSON and request query
         add_cluster = {"apiVersion": 'v1alpha3',
                   'metadata': {'owningOrganization': owningOrganization, 'location': locations}}
-        print("Updating cluster info: {}".format(add_cluster))
+        # print("Updating cluster info: {}".format(add_cluster))
         r = requests.put(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_id, params=query, json=add_cluster)
-        print("Response for update query: {}".format(r.json()))
+        # print("Response for update query: {}".format(r.json()))
         if r.status_code == requests.codes.ok:
             flash("Successfully updated cluster information", 'success')
         else:
