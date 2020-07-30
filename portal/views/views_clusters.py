@@ -109,15 +109,14 @@ def list_public_clusters_request(session, name):
 
     cluster_query = "/v1alpha3/clusters/"+name+"?token="+query['token']+"&nodes=true"
     allowed_groups_query = "/v1alpha3/clusters/"+name+"/allowed_groups?token="+query['token']
-    cluster_status_query = "/v1alpha3/clusters/"+name+"/ping?token="+query['token']+"&cache"
 
     # Set up multiplex JSON
     multiplexJson = {cluster_query: {"method":"GET"},
-                        allowed_groups_query: {"method":"GET"},
-                        cluster_status_query: {"method":"GET"}}
+                     allowed_groups_query: {"method":"GET"}
+                    }
     # POST request for multiplex return
     multiplex = requests.post(
-        slate_api_endpoint + '/v1alpha3/multiplex', params=query, json=multiplexJson, timeout=10)
+        slate_api_endpoint + '/v1alpha3/multiplex', params=query, json=multiplexJson)
     multiplex = multiplex.json()
 
     # Parse post return for apps, clusters, and pub groups
@@ -136,7 +135,11 @@ def list_public_clusters_request(session, name):
     priorityClasses = cluster['metadata']['priorityClasses']
 
     # Get Cluster status from multiplex
-    cluster_status = json.loads(multiplex[cluster_status_query]['body'])
+    status_query = {'token': access_token, 'cache': True}
+    cluster_status = requests.get(
+        slate_api_endpoint + '/v1alpha3/clusters/' + name + '/ping', params=status_query)
+    cluster_status = cluster_status.json()
+    print("Finished pinging status response: {}".format(cluster_status))
     cluster_status = str(cluster_status['reachable'])
 
     return cluster, owningGroupEmail, allowed_groups, cluster_status, storageClasses, priorityClasses
