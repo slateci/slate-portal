@@ -25,7 +25,8 @@ except:
 
 #  Users
 def get_user_info(session):
-
+    # test_new_id = 'user_oXa_2vOeAHw'
+    # test_original_id = 'user_XYiA5LV1SdA'
     query = {'token': slate_api_token,
              'globus_id': session['primary_identity']}
 
@@ -63,6 +64,17 @@ def get_user_access_token(session):
     profile = profile.json()
     access_token = profile['metadata']['access_token']
     return access_token
+
+
+def get_user_details(user_id):
+    query = {'token': slate_api_token,
+             'globus_id': session['primary_identity']}
+
+    user_details = requests.get(
+        slate_api_endpoint + '/v1alpha3/users/' + user_id, params=query)
+
+    user_details = user_details.json()
+    return user_details
 
 
 def delete_user(userID, query):
