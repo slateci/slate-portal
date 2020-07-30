@@ -17,7 +17,7 @@ from connect_api import (list_applications_request,
                         list_users_instances_request,
                         list_clusters_request, coordsConversion,
                         get_user_access_token, get_user_id,
-                        get_user_info, delete_user, get_user_details)
+                        get_user_info, delete_user)
 import sys
 import os
 sys.path.insert(0, '/etc/slate/secrets')
@@ -276,10 +276,6 @@ def view_admin():
         users = requests.get(
             slate_api_endpoint + '/v1alpha3/users', params=query)
         users = users.json()['items']
-
-        # user_id = 'user_XYiA5LV1SdA'
-        # user_details = get_user_details(user_id)
-        # print(user_details)
 
         return render_template('admin.html', users=users)
 
@@ -1017,14 +1013,10 @@ def edit_cluster(project_name, name):
         except:
             latitude = cluster['metadata']['location']
             longitude = cluster['metadata']['location']
-        try:
-            address = cluster['metadata']['location'][0]['desc']
-        except:
-            address = ''
 
         return render_template('cluster_edit.html', cluster=cluster,
                                 project_name=project_name, name=name,
-                                latitude=latitude, longitude=longitude, address=address)
+                                latitude=latitude, longitude=longitude)
 
     elif request.method == 'POST':
         # locations param is a list of coordinates, initialized as empty list
@@ -1032,18 +1024,12 @@ def edit_cluster(project_name, name):
         owningOrganization = request.form['owningOrganization']
         # grab one or many location coordinates from dynamic form fields
         for latitude, longitude in zip (request.form.getlist('latitude'), request.form.getlist('longitude')):
-            # try:
-            #     address = coordsConversion(latitude, longitude)
-            # except:
-            #     address = ''
             locations.append({'lat': float(latitude), 'lon': float(longitude)})
         # print("Locations: ", locations)
         # Set up JSON and request query
         add_cluster = {"apiVersion": 'v1alpha3',
                   'metadata': {'owningOrganization': owningOrganization, 'location': locations}}
-        print("Updating cluster info: {}".format(add_cluster))
         r = requests.put(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_id, params=query, json=add_cluster)
-        print("Response for update query: {}".format(r.json()))
         if r.status_code == requests.codes.ok:
             flash("Successfully updated cluster information", 'success')
         else:

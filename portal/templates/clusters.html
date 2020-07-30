@@ -43,27 +43,18 @@
           		</tr>
 
           		<tr v-for="(cluster, index) in clusters" v-cloak >
-          			<td><a :href="'/clusters/' + cluster.metadata.name">{[{cluster.metadata.name}]}</a></td>
-          			<td>{[{cluster.metadata.owningGroup}]}</td>
-          			<td>
-						<span v-for="location in cluster.metadata.location">
-							<span v-if="location.desc">
-								{[{location.desc}]}
-							</span>
-							<span v-else>
-								{[{location.lat}]},{[{location.lon}]}
-							</span>
-						</span>
-					</td>
-          			<td>
-          		    	<span v-if="clusterStatus[cluster.metadata.name]">
-          			    	<i class="fas fa-check-circle" style="color: green"></i> Reachable
+          		  <td><a :href="'/clusters/' + cluster.metadata.name">{[{cluster.metadata.name}]}</a></td>
+          		  <td>{[{cluster.metadata.owningGroup}]}</td>
+          		  <td><span v-for="location in cluster.metadata.location">{[{location.lat}]},{[{location.lon}]}</span></td>
+          		  <td>
+          		    <span v-if="clusterStatus[cluster.metadata.name]">
+          			    <i class="fas fa-check-circle" style="color: green"></i>	Reachable
           				</span>
           				<span v-else>
-          					<i class="fas fa-times-circle" style="color: red"></i> Unreachable
-    					</span>
-          			</td>
-          			<td>{[{cluster.metadata.owningOrganization}]}</td>
+          				  <i class="fas fa-times-circle" style="color: red"></i> Unreachable
+          			  </span>
+          		  </td>
+          		  <td>{[{cluster.metadata.owningOrganization}]}</td>
           		</tr>
             </tbody>
 
