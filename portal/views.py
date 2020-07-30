@@ -1036,7 +1036,7 @@ def edit_cluster(project_name, name):
             #     address = coordsConversion(latitude, longitude)
             # except:
             #     address = ''
-            locations.append({'lat': float(latitude), 'lon': float(longitude), 'desc': address})
+            locations.append({'lat': float(latitude), 'lon': float(longitude)})
         # print("Locations: ", locations)
         # Set up JSON and request query
         add_cluster = {"apiVersion": 'v1alpha3',
