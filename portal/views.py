@@ -1030,7 +1030,11 @@ def edit_cluster(project_name, name):
         owningOrganization = request.form['owningOrganization']
         # grab one or many location coordinates from dynamic form fields
         for latitude, longitude in zip (request.form.getlist('latitude'), request.form.getlist('longitude')):
-            locations.append({'lat': float(latitude), 'lon': float(longitude)})
+            try:
+                address = coordsConversion(latitude, longitude)
+                locations.append({'lat': float(latitude), 'lon': float(longitude), 'desc': address})
+            except:
+                locations.append({'lat': float(latitude), 'lon': float(longitude)})
         # print("Locations: ", locations)
         # Set up JSON and request query
         add_cluster = {"apiVersion": 'v1alpha3',
