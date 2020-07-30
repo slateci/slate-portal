@@ -1013,10 +1013,16 @@ def edit_cluster(project_name, name):
         except:
             latitude = cluster['metadata']['location']
             longitude = cluster['metadata']['location']
+        
+        try:
+            address = cluster['metadata']['location'][0]['desc']
+        except:
+            address = ''
 
         return render_template('cluster_edit.html', cluster=cluster,
                                 project_name=project_name, name=name,
-                                latitude=latitude, longitude=longitude)
+                                latitude=latitude, longitude=longitude,
+                                address=address)
 
     elif request.method == 'POST':
         # locations param is a list of coordinates, initialized as empty list
@@ -1029,7 +1035,9 @@ def edit_cluster(project_name, name):
         # Set up JSON and request query
         add_cluster = {"apiVersion": 'v1alpha3',
                   'metadata': {'owningOrganization': owningOrganization, 'location': locations}}
+        print("Updating cluster info: {}".format(add_cluster))
         r = requests.put(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_id, params=query, json=add_cluster)
+        print("Response for update query: {}".format(r.json()))
         if r.status_code == requests.codes.ok:
             flash("Successfully updated cluster information", 'success')
         else:
