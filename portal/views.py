@@ -1263,7 +1263,10 @@ def authcallback():
         # Change to location of slate_portal_user file
         f = open("/slate_portal_user", "r")
         slate_portal_user = f.read().split()
-
+    except:
+        slate_portal_user = None
+    
+    if slate_portal_user:
         session['slate_id'] = slate_portal_user[0]
         session['name'] = slate_portal_user[1]
         session['email'] = slate_portal_user[2]
@@ -1277,109 +1280,113 @@ def authcallback():
 
         # print("SINGLE USER MODE")
         return redirect(url_for('dashboard'))
-    except:
-        # If we're coming back from Globus Auth in an error state, the error
-        # will be in the "error" query string parameter.
-        if 'error' in request.args:
-            flash("You could not be logged into the portal: "
-                  + request.args.get('error_description', request.args['error']))
-            return redirect(url_for('home'))
 
-        # Set up our Globus Auth/OAuth2 state
-        redirect_uri = url_for('authcallback', _external=True)
+    # If we're coming back from Globus Auth in an error state, the error
+    # will be in the "error" query string parameter.
+    if 'error' in request.args:
+        flash("You could not be logged into the portal: "
+                + request.args.get('error_description', request.args['error']))
+        return redirect(url_for('home'))
 
-        client = load_portal_client()
-        client.oauth2_start_flow(redirect_uri, refresh_tokens=True)
+    # Set up our Globus Auth/OAuth2 state
+    redirect_uri = url_for('authcallback', _external=True)
 
-        # If there's no "code" query string parameter, we're in this route
-        # starting a Globus Auth login flow.
-        if 'code' not in request.args:
-            next_url = get_safe_redirect()
-            additional_authorize_params = (
-                {'signup': 1} if request.args.get('signup') else {'next': next_url})
+    client = load_portal_client()
+    client.oauth2_start_flow(redirect_uri, refresh_tokens=True)
 
-            auth_uri = client.oauth2_get_authorize_url(
-                additional_params=additional_authorize_params)
-            # print("AUTH URI: {}".format(auth_uri))
+    # If there's no "code" query string parameter, we're in this route
+    # starting a Globus Auth login flow.
+    if 'code' not in request.args:
+        next_url = get_safe_redirect()
+        additional_authorize_params = (
+            {'signup': 1} if request.args.get('signup') else {'next': next_url})
 
-            return redirect(auth_uri)
-        else:
-            # If we do have a "code" param, we're coming back from Globus Auth
-            # and can start the process of exchanging an auth code for a token.
-            next_url = get_safe_redirect()
-            code = request.args.get('code')
-            tokens = client.oauth2_exchange_code_for_tokens(code)
+        auth_uri = client.oauth2_get_authorize_url(
+            additional_params=additional_authorize_params)
+        # print("AUTH URI: {}".format(auth_uri))
 
-            id_token = tokens.decode_id_token(client)
+        return redirect(auth_uri)
+    else:
+        # If we do have a "code" param, we're coming back from Globus Auth
+        # and can start the process of exchanging an auth code for a token.
+        next_url = get_safe_redirect()
+        code = request.args.get('code')
+        tokens = client.oauth2_exchange_code_for_tokens(code)
 
-            session.update(
-                tokens=tokens.by_resource_server,
-                is_authenticated=True,
-                name=id_token.get('name', ''),
-                email=id_token.get('email', ''),
-                institution=id_token.get('institution', ''),
-                primary_username=id_token.get('preferred_username'),
-                primary_identity=id_token.get('sub'),
-                identity_provider=id_token.get('identity_provider')
-            )
-            #  Grab user's access token in order to find their identity set
-            access_token = session['tokens']['auth.globus.org']['access_token']
-            token_introspect = client.oauth2_token_introspect(
-                token=access_token, include='identity_set')
-            identity_set = token_introspect.data['identity_set']
-            # Initialize profile variable to None
-            profile = None
-            # Need to query a request to view all users in Slate DB, then iterate
-            # to see if profile exists by matching globus_id ideally.
-            for identity in identity_set:
-                query = {'token': slate_api_token,
-                        'globus_id': identity}
-                try:
-                    # print("Trying this query: {}".format(query))
-                    # Query response to find user profile
-                    r = requests.get(
-                        slate_api_endpoint + '/v1alpha3/find_user', params=query)
-                    if r.status_code == requests.codes.ok:
-                        # Set profile and check for admin status
-                        profile = r.json()
-                        slate_user_id = profile['metadata']['id']
-                        session['user_id'] = slate_user_id
-                        user_info = requests.get(slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
-                        user_info = user_info.json()['metadata']
-                        if user_info['admin']:
-                            session['admin'] = True
-                except:
-                    print("User identity not found: {}".format(identity))
-            
+        id_token = tokens.decode_id_token(client)
+
+        session.update(
+            tokens=tokens.by_resource_server,
+            is_authenticated=True,
+            name=id_token.get('name', ''),
+            email=id_token.get('email', ''),
+            institution=id_token.get('institution', ''),
+            primary_username=id_token.get('preferred_username'),
+            primary_identity=id_token.get('sub'),
+            identity_provider=id_token.get('identity_provider')
+        )
+        #  Grab user's access token in order to find their identity set
+        access_token = session['tokens']['auth.globus.org']['access_token']
+        token_introspect = client.oauth2_token_introspect(
+            token=access_token, include='identity_set')
+        identity_set = token_introspect.data['identity_set']
+        # Initialize profile variable to None
+        profile = None
+        # Need to query a request to view all users in Slate DB, then iterate
+        # to see if profile exists by matching globus_id ideally.
+        for identity in identity_set:
+            query = {'token': slate_api_token,
+                    'globus_id': identity}
             try:
-                referrer = urlparse(request.referrer)
-                # print("REFERRER: {}".format(referrer))
-                queries = parse_qs(referrer.query)
-                # print("QUERIES: {}".format(queries))
-                redirect_uri = queries['redirect_uri']
-                next_url = queries['next'][0]
-                # print("AFTER QUERIES NEXT URL: {}".format(next_url))
+                # print("Trying this query: {}".format(query))
+                # Query response to find user profile
+                r = requests.get(
+                    slate_api_endpoint + '/v1alpha3/find_user', params=query)
+                if r.status_code == requests.codes.ok:
+                    # Set profile and check for admin status
+                    print('Found profile with globus_id: {}'.format(identity))
+                    profile = r.json()
+                    print('Profile Information: {}'.format(profile))
+
+                    slate_user_id = profile['metadata']['id']
+                    session['user_id'] = slate_user_id
+                    user_info = requests.get(slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
+                    user_info = user_info.json()['metadata']
+                    if user_info['admin']:
+                        session['admin'] = True
             except:
-                next_url = '/'
+                print("User identity not found: {}".format(identity))
+        
+        try:
+            referrer = urlparse(request.referrer)
+            # print("REFERRER: {}".format(referrer))
+            queries = parse_qs(referrer.query)
+            # print("QUERIES: {}".format(queries))
+            redirect_uri = queries['redirect_uri']
+            next_url = queries['next'][0]
+            # print("AFTER QUERIES NEXT URL: {}".format(next_url))
+        except:
+            next_url = '/'
 
-            if profile:
-                # Check for admin status
-                slate_user_id = profile['metadata']['id']
-                session['user_id'] = slate_user_id
-                user_info = requests.get(slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
-                user_info = user_info.json()['metadata']
-                if user_info['admin']:
-                    session['admin'] = True
-                return redirect(url_for('dashboard'))
-            else:
-                return redirect(url_for('create_profile',
-                                        next=url_for('dashboard')))
-            # print("FINAL NEXT URL {}".format(next_url))
+        if profile:
+            print('Logging in with profile: {}'.format(profile))
+            # Check for admin status
+            slate_user_id = profile['metadata']['id']
+            session['user_id'] = slate_user_id
+            user_info = requests.get(slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
+            user_info = user_info.json()['metadata']
+            if user_info['admin']:
+                session['admin'] = True
+            return redirect(url_for('dashboard'))
+        else:
+            return redirect(url_for('create_profile',
+                                    next=url_for('dashboard')))
+        # print("FINAL NEXT URL {}".format(next_url))
 
-            if next_url == '/':
-                return redirect(url_for('dashboard'))
-            else:
-                return redirect(next_url)
+        if next_url == '/':
+            return redirect(url_for('dashboard'))
+        else:
+            return redirect(next_url)
 
 
 @app.route('/clusters/new', methods=['GET'])
