@@ -4,7 +4,7 @@ import json
 import requests
 import time
 from flask import (render_template, request, session, jsonify)
-from connect_api import (list_clusters_request, coordsConversion, get_user_access_token, get_cluster_info)
+from connect_api import (list_clusters_request, coordsConversion, get_user_access_token, get_cluster_info, get_group_members)
 
 # Read endpoint and token from config file
 slate_api_token = app.config['SLATE_API_TOKEN']
@@ -68,6 +68,7 @@ def view_public_cluster(name):
     if request.method == 'GET':
 
         cluster = get_cluster_info(name)
+        group_name = cluster['metadata']['owningGroup']
         location = cluster['metadata']['location']
         if location:
             try:
@@ -78,8 +79,14 @@ def view_public_cluster(name):
         else:
             print('no loco')
             address = ''
-
-        return render_template('cluster_public_profile.html', name=name, address=address)
+        # Get group members
+        group_members = get_group_members(group_name)
+        group_members_id_list = [member['metadata']['id'] for member in group_members['items']]
+        # Check if user is in group
+        cluster_member_status = session['user_id'] in group_members_id_list
+        # print(cluster_member_status)
+        return render_template('cluster_public_profile.html', name=name, address=address, 
+                                cluster_member_status=cluster_member_status, group_name=group_name)
 
 
 @app.route('/public-clusters-xhr/<name>', methods=['GET'])
