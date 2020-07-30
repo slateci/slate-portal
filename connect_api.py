@@ -33,6 +33,7 @@ def get_user_info(session):
         slate_api_endpoint + '/v1alpha3/find_user', params=query)
 
     profile = profile.json()
+    print('Trying to get using info from method: {}'.format(profile))
     user_id = profile['metadata']['id']
     access_token = profile['metadata']['access_token']
     return access_token, user_id

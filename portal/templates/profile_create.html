@@ -11,6 +11,9 @@
     <div class="row">
       <div class="col-lg-8 mx-auto">
         <h1>Create Profile</h1>
+        {% if session.get('user_id') %}
+        <h5>User ID: {{ session['user_id'] }}</h5>
+        {% endif %}
         <hr/>
         <form role="form" action="{{url_for('create_profile')}}" method="POST">
           <div class="form-group">
