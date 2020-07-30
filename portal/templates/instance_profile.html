@@ -103,18 +103,15 @@
                 </select>
               </label>
               <br>
-              <label> Enter lines of logs (0 to show the full log):
+              <label> Enter lines of most recent logs to show (0 for the full log):
                 <input type="number" id="nlines" name="nlines" value="20">
                 <button class="btn btn-primary btn-sm btn-box-shadow" v-on:click="getLogs">Submit</button>
               </label>
               <br>
-              <pre class="app-logs">
-                {[{logs}]}
-              </pre>
+              <pre class="app-logs">{[{logs}]}</pre>
             </div>
-
-            <br>
-            <pre class="app-logs">{% if instance_log['logs'] %}{{instance_log['logs']}}{% else %}Logs currently unavailable{% endif %}</pre>
+            <!-- <br>
+            <pre class="app-logs">{% if instance_log['logs'] %}{{instance_log['logs']}}{% else %}Logs currently unavailable{% endif %}</pre> -->
           </div>
 
         </div>
@@ -138,9 +135,9 @@ function btnConfirm() {
 }
 
 var instance = $('#instance-data').data();
-var instance_id = instance.name
+var instance_id = instance.name;
 
-var logtest = new Vue({
+var request_logs = new Vue({
   el: '#logs-display',
   data: {
     logs: null
@@ -151,7 +148,11 @@ var logtest = new Vue({
       var container = document.getElementById('container-list').value
       axios.get('/instances-log-xhr/' + instance_id + '/' + container + '/' + lines)
       .then(response => this.logs = response.data)
+      .catch(error => this.logs = "Logs currently unavailable")
     }
+  },
+  mounted: function(){
+    this.getLogs()
   }
 })
 
