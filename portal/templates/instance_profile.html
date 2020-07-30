@@ -93,8 +93,20 @@
             <br>
             <!-- <h3>Logs</h3> -->
             <div id="logs-display">
-              <input type="number" id="nlines" name="nlines" value="20">
-              <button class="btn btn-primary btn-sm btn-box-shadow" v-on:click="getLogs">Submit</button>
+              <label> Select container:
+                <select id="container-list" name=‘container-list’>
+                  {% for container in instance_details['details']['pods'][0]['containers'] %}
+                  <option value="{{container['name']}}">
+                    {{container['name']}}
+                  </option>
+                  {% endfor %}
+                </select>
+              </label>
+              <br>
+              <label> Enter lines of logs (0 to show the full log):
+                <input type="number" id="nlines" name="nlines" value="20">
+                <button class="btn btn-primary btn-sm btn-box-shadow" v-on:click="getLogs">Submit</button>
+              </label>
               <br>
               <pre class="app-logs">
                 {[{logs}]}
@@ -136,7 +148,8 @@ var logtest = new Vue({
   methods: {
     getLogs: function () {
       var lines = document.getElementById('nlines').value
-      axios.get('/instances-log-xhr/' + instance_id + '/' + lines)
+      var container = document.getElementById('container-list').value
+      axios.get('/instances-log-xhr/' + instance_id + '/' + container + '/' + lines)
       .then(response => this.logs = response.data)
     }
   }

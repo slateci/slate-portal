@@ -89,13 +89,13 @@ def view_instance(name):
                                 instance_log=instance_log)
 
 
-@app.route('/instances-log-xhr/<name>/<lines>', methods=['GET'])
+@app.route('/instances-log-xhr/<name>/<container>/<lines>', methods=['GET'])
 @authenticated
-def get_instance_container_log(name, lines):
+def get_instance_container_log(name, container, lines):
     access_token = get_user_access_token(session)
     query = {'token': access_token}
     # Initialize instance log query for multiplex request
-    instance_log_query = '/v1alpha3/instances/' + name + '/logs' + '?token=' + query['token'] + '&max_lines=' + lines
+    instance_log_query = '/v1alpha3/instances/' + name + '/logs' + '?token=' + query['token'] + '&container=' + container + '&max_lines=' + lines
     # Set up multiplex JSON
     multiplexJson = {instance_log_query: {"method":"GET"}}
     # POST request for multiplex return
