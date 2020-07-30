@@ -92,6 +92,16 @@
           <div role="tabpanel" class="tab-pane fade" id="logs">
             <br>
             <!-- <h3>Logs</h3> -->
+            <div id="logs-display">
+              <input type="number" id="nlines" name="nlines" value="20">
+              <button class="btn btn-primary btn-sm btn-box-shadow" v-on:click="getLogs">Submit</button>
+              <br>
+              <pre class="app-logs">
+                {[{logs}]}
+              </pre>
+            </div>
+
+            <br>
             <pre class="app-logs">{% if instance_log['logs'] %}{{instance_log['logs']}}{% else %}Logs currently unavailable{% endif %}</pre>
           </div>
 
@@ -102,6 +112,7 @@
   </div>
 </section>
 
+<meta id="instance-data" data-name="{{name}}">
 <script>
 $(document).ready(function() {
     $('#pods-table').DataTable();
@@ -113,6 +124,23 @@ function btnConfirm() {
       window.location.href = "{{url_for('delete_instance', name=name)}}";
     }
 }
+
+var instance = $('#instance-data').data();
+var instance_id = instance.name
+
+var logtest = new Vue({
+  el: '#logs-display',
+  data: {
+    logs: null
+  },
+  methods: {
+    getLogs: function () {
+      var lines = document.getElementById('nlines').value
+      axios.get('/instances-log-xhr/' + instance_id + '/' + lines)
+      .then(response => this.logs = response.data)
+    }
+  }
+})
 
 </script>
 {%endblock%}
