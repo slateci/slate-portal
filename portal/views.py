@@ -277,9 +277,9 @@ def view_admin():
             slate_api_endpoint + '/v1alpha3/users', params=query)
         users = users.json()['items']
 
-        user_id = 'user_XYiA5LV1SdA'
-        user_details = get_user_details(user_id)
-        print(user_details)
+        # user_id = 'user_XYiA5LV1SdA'
+        # user_details = get_user_details(user_id)
+        # print(user_details)
 
         return render_template('admin.html', users=users)
 
@@ -1010,11 +1010,6 @@ def edit_cluster(project_name, name):
 
     if request.method == 'GET':
         """Members of group may edit information about cluster"""
-        # lat = cluster['metadata']['location'][0]['lat']
-        # lon = cluster['metadata']['location'][0]['lon']
-        # address = coordsConversion(lat, lon)
-        # cluster['metadata']['location'][0]['desc'] = address
-        print(cluster['metadata'])
         # Setting lat/lon coordinates for edit fields to autofill
         try:
             latitude = cluster['metadata']['location'][0]['lat']
@@ -1037,10 +1032,10 @@ def edit_cluster(project_name, name):
         owningOrganization = request.form['owningOrganization']
         # grab one or many location coordinates from dynamic form fields
         for latitude, longitude in zip (request.form.getlist('latitude'), request.form.getlist('longitude')):
-            try:
-                address = coordsConversion(latitude, longitude)
-            except:
-                address = ''
+            # try:
+            #     address = coordsConversion(latitude, longitude)
+            # except:
+            #     address = ''
             locations.append({'lat': float(latitude), 'lon': float(longitude), 'desc': address})
         # print("Locations: ", locations)
         # Set up JSON and request query
