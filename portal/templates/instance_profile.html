@@ -108,7 +108,8 @@
                 <button class="btn btn-primary btn-sm btn-box-shadow" v-on:click="getLogs">Submit</button>
               </label>
               <br>
-              <pre class="app-logs">{[{logs}]}</pre>
+              <button class="btn btn-primary btn-sm btn-box-shadow" onclick="wrapLogs()">Wrap/Unwrap Logs</button>
+              <pre id="logs-box" class="app-logs">{[{logs}]}</pre>
             </div>
             <!-- <br>
             <pre class="app-logs">{% if instance_log['logs'] %}{{instance_log['logs']}}{% else %}Logs currently unavailable{% endif %}</pre> -->
@@ -134,9 +135,19 @@ function btnConfirm() {
     }
 }
 
+var isWrapped = false
+function wrapLogs() {
+  if(!isWrapped){
+    document.getElementById("logs-box").style.whiteSpace="pre-wrap";
+    isWrapped = true
+  } else {
+    document.getElementById("logs-box").style.whiteSpace="";
+    isWrapped = false
+  }
+}
+
 var instance = $('#instance-data').data();
 var instance_id = instance.name;
-
 var request_logs = new Vue({
   el: '#logs-display',
   data: {
