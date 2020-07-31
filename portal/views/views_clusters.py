@@ -81,11 +81,11 @@ def view_public_cluster(name):
             address = ''
         # Get group members
         group_members = get_group_members(group_name)
-        if group_members['items']:
+        try:
             group_members_id_list = [member['metadata']['id'] for member in group_members['items']]
             # Check if user is in group
             cluster_member_status = session['user_id'] in group_members_id_list
-        else:
+        except:
             cluster_member_status = False
         # print(cluster_member_status)
         return render_template('cluster_public_profile.html', name=name, address=address, 
