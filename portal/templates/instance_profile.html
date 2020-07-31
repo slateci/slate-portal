@@ -137,9 +137,11 @@ var isWrapped = false
 function wrapLogs() {
   if(!isWrapped){
     document.getElementById("logs-box").style.whiteSpace = "pre-wrap";
+    document.getElementById("logs-box").style.wordBreak = "break-word";
     isWrapped = true
   } else {
     document.getElementById("logs-box").style.whiteSpace = "";
+    document.getElementById("logs-box").style.wordBreak = "normal";
     isWrapped = false
   }
 }
