@@ -93,20 +93,18 @@
             <br>
             <!-- <h3>Logs</h3> -->
             <div id="logs-display">
-              <label> Select container:
-                <select id="container-list" name=‘container-list’>
-                  {% for container in instance_details['details']['pods'][0]['containers'] %}
-                  <option value="{{container['name']}}">
-                    {{container['name']}}
-                  </option>
-                  {% endfor %}
-                </select>
-              </label>
+              <label for="container-list"> Select container: </label>
+              <select id="container-list" name="container-list">
+                {% for container in instance_details['details']['pods'][0]['containers'] %}
+                <option value="{{container['name']}}">
+                  {{container['name']}}
+                </option>
+                {% endfor %}
+              </select>
               <br>
-              <label> Enter lines of most recent logs to show (0 for the full log):
-                <input type="number" id="nlines" name="nlines" value="20">
-                <button class="btn btn-primary btn-sm btn-box-shadow" v-on:click="getLogs">Submit</button>
-              </label>
+              <label for="nlines"> Enter lines of most recent logs to show (0 for the full log): </label>
+              <input type="number" id="nlines" name="nlines" value="20">
+              <button class="btn btn-primary btn-sm btn-box-shadow" v-on:click="getLogs">Submit</button>
               <br>
               <button class="btn btn-primary btn-sm btn-box-shadow" onclick="wrapLogs()">Wrap/Unwrap Logs</button>
               <pre id="logs-box" class="app-logs">{[{logs}]}</pre>
@@ -138,10 +136,10 @@ function btnConfirm() {
 var isWrapped = false
 function wrapLogs() {
   if(!isWrapped){
-    document.getElementById("logs-box").style.whiteSpace="pre-wrap";
+    document.getElementById("logs-box").style.whiteSpace = "pre-wrap";
     isWrapped = true
   } else {
-    document.getElementById("logs-box").style.whiteSpace="";
+    document.getElementById("logs-box").style.whiteSpace = "";
     isWrapped = false
   }
 }
