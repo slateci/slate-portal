@@ -29,6 +29,7 @@ import views_clusters
 import views_instances
 import views_webhooks
 import views_error_handling
+import views_groups
 
 # Read endpoint and token from config file
 slate_api_token = app.config['SLATE_API_TOKEN']
@@ -236,18 +237,18 @@ def dashboard():
             query = {'token': slate_api_token}
             user_token = query['token']
 
-        clusters_json = list_clusters_request()
+        # clusters_json = list_clusters_request()
         # single-user mode
         if session["slate_portal_user"]:
             selected_clusters = ["ms-c"]
         else:
             selected_clusters = ["uutah-prod", "uchicago-prod", "umich-prod"]
-        clusters = [cluster for cluster in clusters_json if cluster['metadata']['name'] in selected_clusters]
+        # clusters = [cluster for cluster in clusters_json if cluster['metadata']['name'] in selected_clusters]
         # Set up multiplex JSON
         cluster_multiplex_Json = {}
-        for cluster in clusters:
-            cluster_name = cluster['metadata']['name']
-            cluster_status_query = "/v1alpha3/clusters/"+cluster_name+"/ping?token="+query['token']+"&cache"
+        for cluster in selected_clusters:
+            # cluster_name = cluster['metadata']['name']
+            cluster_status_query = "/v1alpha3/clusters/"+cluster+"/ping?token="+query['token']+"&cache"
             cluster_multiplex_Json[cluster_status_query] = {"method":"GET"}
         # POST request for multiplex return
         cluster_multiplex = requests.post(
@@ -261,7 +262,7 @@ def dashboard():
 
         with open('portal/static/news.md', "r") as file:
             news = file.read()
-        return render_template('dashboard.html', clusters=clusters,
+        return render_template('dashboard.html', clusters=selected_clusters,
                                 cluster_status_dict=cluster_status_dict,
                                 users=None, user_token=user_token, news=news)
 
@@ -372,22 +373,6 @@ def mailgun(group_name, user_name, user_email):
     else:
         flash("Unable to send request", 'warning')
         return redirect(url_for('view_public_group', name=group_name))
-
-
-@app.route('/groups', methods=['GET', 'POST'])
-@authenticated
-def list_groups():
-    if request.method == 'GET':
-        access_token, slate_user_id = get_user_info(session)
-        query = {'token': access_token}
-
-        s = requests.get(
-            slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=query)
-
-        s_info = s.json()
-        group_list = s_info['items']
-
-        return render_template('groups.html', group_list=group_list)
 
 
 @app.route('/secret-select-group', methods=['GET', 'POST'])

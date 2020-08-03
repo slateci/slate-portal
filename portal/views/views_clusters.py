@@ -81,6 +81,7 @@ def view_public_cluster(name):
             address = ''
         # Get group members
         group_members = get_group_members(group_name)
+        print("Cluster's Owning Group Members: {}".format(group_members))
         try:
             group_members_id_list = [member['metadata']['id'] for member in group_members['items']]
             # Check if user is in group

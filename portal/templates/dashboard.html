@@ -136,10 +136,10 @@
                     {% for cluster in clusters %}
                     <tr>
                       <td>
-                        <a href="{{url_for('view_public_cluster', name=cluster['metadata']['name'])}}">{{cluster['metadata']['name']}}</a>
+                        <a href="{{url_for('view_public_cluster', name=cluster)}}">{{cluster}}</a>
                       </td>
                       <td>
-                        {% if cluster_status_dict[cluster['metadata']['name']]%}
+                        {% if cluster_status_dict[cluster]%}
                         <i class="fas fa-check-circle" style="color: green"></i> Reachable
                         {% else %}
                         <i class="fas fa-times-circle" style="color: red"></i> Unreachable
