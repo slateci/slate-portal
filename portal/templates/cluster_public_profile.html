@@ -80,8 +80,8 @@
 
                 <ul class="list-unstyled" id="allowed_groups">
                   <li v-for="(group, index) in allowed_groups">
-                    <a v-if="group.metadata.name == '<all>' " :href="'/public_groups'">All Groups</a>
-                    <a v-else :href="'/public_groups/' + group.metadata.name">{[{group.metadata.name}]}</a>
+                    <a v-if="group.metadata.name == '<all>' " :href="'/public-groups'">All Groups</a>
+                    <a v-else :href="'/public-groups/' + group.metadata.name">{[{group.metadata.name}]}</a>
                   </li>
                 </ul>
 
