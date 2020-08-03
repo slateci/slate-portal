@@ -237,7 +237,7 @@ $(document).ready(function() {
     }
 	},
 	mounted() {
-    axios.get('/public_groups_ajax')
+    axios.get('/public-groups-xhr')
     .then(function (response) {
       this.public_groups = response.data.slice(0,5);
       this.loading = false;
