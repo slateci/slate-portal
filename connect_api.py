@@ -163,6 +163,34 @@ def list_public_groups_request():
     return public_groups
 
 
+def get_group_info(group_name):
+    """
+    Returns group info
+    :return:
+    """
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
+
+    group_info = requests.get(
+        slate_api_endpoint + '/v1alpha3/groups/' + group_name, params=query)
+    group_info = group_info.json()
+    return group_info
+
+
+def get_group_clusters(group_name):
+    """
+    Returns list of clusters administered by group
+    :return: list
+    """
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
+
+    group_clusters = requests.get(
+        slate_api_endpoint + '/v1alpha3/groups/' + group_name + '/clusters', params=query)
+    group_clusters = group_clusters.json()
+    return group_clusters
+
+
 def get_group_members(group_name):
     """
     Returns list of members of group

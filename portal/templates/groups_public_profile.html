@@ -5,7 +5,7 @@
 {%endblock%}
 
 {%block body%}
-<section id="cluster-profile" class="bg-light">
+<section id="public-group-profile" class="bg-light">
   <div class="container col-lg-12 mx-auto">
 
     <div class="row">
@@ -18,7 +18,7 @@
         </ol>
         <h1>Group: {{name}}</h1>
         <hr/>
-        <div class="row">
+        <div class="row" id="public-group-row">
           <div class="col-sm-6">
             <div class="card h-100">
               <div class="card-header">
@@ -26,16 +26,16 @@
               </div>
               <div class="card-body">
                 <p class="lead">
-                  <strong>Contact Email:</strong> <a href="mailto:{{group_info['metadata']['email']}}">{{group_info['metadata']['email']}}</a>
+                  <strong>Contact Email:</strong> <a :href="'mailto: + group_info.metadata.email'">{[{group_info.metadata.email}]}</a>
                 </p>
                 <p class="lead">
-                  <strong>Phone Number:</strong> {{group_info['metadata']['phone']}}
+                  <strong>Phone Number:</strong> {[{group_info.metadata.phone}]}
                 </p>
                 <p class="lead">
-                  <strong>Field of Science:</strong> {{group_info['metadata']['scienceField']}}
+                  <strong>Field of Science:</strong> {[{group_info.metadata.scienceField}]}
                 </p>
                 <p class="lead">
-                  <strong>Description:</strong> {{group_info['metadata']['description']}}
+                  <strong>Description:</strong> {[{group_info.metadata.description}]}
                 </p>
                 {% if not session.get('slate_portal_user') %}
                   {% if session.get('is_authenticated') %}
@@ -44,7 +44,7 @@
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                   </div>
                   <div class="form-group">
-                    <button type="submit" name="admin_email" class="btn btn-sm btn-primary btn-box-shadow" value="{{group_info['metadata']['email']}}">Request to Join <i class="fas fa-envelope"></i></button>
+                    <button type="submit" name="admin_email" class="btn btn-sm btn-primary btn-box-shadow" :value="group_info.metadata.email">Request to Join <i class="fas fa-envelope"></i></button>
                   </div>
                 </form>
                   {% endif %}
@@ -59,14 +59,13 @@
                 Administering Clusters
               </div>
               <div class="card-body">
-                <ul class="list-unstyled">
-                  {% if group_clusters %}
-                    {% for cluster in group_clusters %}
-                  <li><a href="{{url_for('view_public_cluster', name=cluster['metadata']['name'])}}">{{cluster['metadata']['name']}}</a></li>
-                    {% endfor %}
-                  {% else %}
+                <ul v-if="group_clusters.length !== 0" class="list-unstyled">
+                  <span v-for="cluster in group_clusters">
+                    <li><a :href="'/clusters/' + cluster.metadata.name">{[{cluster.metadata.name}]}</a></li>
+                  </span>
+                </ul>
+                <ul v-else class="list-unstyled">
                   <li>Currently not administering any clusters</li>
-                  {% endif %}
                 </ul>
               </div>
             </div>
@@ -78,4 +77,33 @@
 
   </div>
 </section>
+
+<meta id="group-data" data-name="{{name}}">
+<script>
+var group = $('#group-data').data();
+var name = group.name
+$(document).ready(function() {
+  new Vue({
+    el: '#public-group-row',
+    data () {
+      return {
+        group_info: {},
+        group_clusters: {},
+        loading: true,
+        failed: false
+        }
+      },
+    mounted() {
+      axios.get('/public-groups-xhr/' + name)
+      .then(function (response) {
+        this.group_info = response.data[0];
+        this.group_clusters = response.data[1];
+        this.loading = false;
+        console.log(this.group_clusters);
+        }.bind(this)) //must use bind(this) unless using arrow function
+        .catch(error => { this.failed = true; this.loading = false; })
+        }
+      });
+    });
+</script>
 {%endblock%}
