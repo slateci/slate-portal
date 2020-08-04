@@ -163,7 +163,7 @@ def get_cluster_status_xhr(cluster_name):
     """
     if request.method == 'GET':
         cluster_status = get_cluster_status(cluster_name)
-        print(cluster_status)
+        # print(cluster_status)
         return jsonify(cluster_status)
 
 

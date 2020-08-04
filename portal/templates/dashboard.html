@@ -133,20 +133,15 @@
               <div class="card-body" id="clusters-card">
                 <table class="table" id="#" data-toggle="table" data-sort-name="name" data-sort-order="desc">
                   <tbody data-link="row" class="rowlink" style="font-size:12px;">
-                    {% for cluster in clusters %}
-                    <tr>
+                    <tr v-for="cluster in clusters">
                       <td>
-                        <a href="{{url_for('view_public_cluster', name=cluster)}}">{{cluster}}</a>
+                        <a :href="'/clusters/' + cluster[0]">{[{cluster[0]}]}</a>
                       </td>
                       <td>
-                        {% if cluster_status_dict[cluster]%}
-                        <i class="fas fa-check-circle" style="color: green"></i> Reachable
-                        {% else %}
-                        <i class="fas fa-times-circle" style="color: red"></i> Unreachable
-                        {% endif %}
+                        <i v-if="cluster[1]" class="fas fa-check-circle" style="color: green"></i> Reachable
+                        <i v-else class="fas fa-times-circle" style="color: red"></i> Unreachable
                       </td>
                     </tr>
-                    {% endfor %}
                   </tbody>
                 </table>
                 <!-- <p class="card-text">You can view your clusters here after you register them</p> -->
@@ -202,9 +197,13 @@
   </div> <!-- container -->
 </section>
 
+<meta id="flask-data" data-news="{{news|safe}}" >
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script type="text/javascript">
 $.noConflict();
+
+var flask_data = $('#flask-data').data();
+var news_md = flask_data.news
 
 $(document).ready(function() {
   new Vue({
@@ -264,10 +263,32 @@ $(document).ready(function() {
       .catch(error => { this.failed = true; this.loading = false; })
 		}
   });
+
+  var clusters = JSON.parse({{ clusters_list | tojson }});
+
+  new Vue({
+	el: '#clusters-card',
+	data () {
+    return {
+      clusters: {},
+      loading: true,
+      failed: false
+    }
+	},
+	async mounted() {
+    let status_results = [];
+    await Promise.all(clusters.map(cluster =>
+      axios.get('/cluster-status-xhr/' + cluster).then(response => {
+        status_results.push([cluster, response.data]);
+        })
+      ));
+    this.clusters = status_results;
+		}
+  });
+
 });
 
 var md = new Remarkable('full');
-var news_md = {{news|tojson}};
 
 $(window).on('load',function(){
   var news = md.render(news_md);

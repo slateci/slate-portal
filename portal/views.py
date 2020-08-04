@@ -262,9 +262,11 @@ def dashboard():
 
         with open('portal/static/news.md', "r") as file:
             news = file.read()
+        clusters_list = json.dumps(selected_clusters)
         return render_template('dashboard.html', clusters=selected_clusters,
                                 cluster_status_dict=cluster_status_dict,
-                                users=None, user_token=user_token, news=news)
+                                users=None, user_token=user_token, news=news,
+                                clusters_list=clusters_list)
 
 
 @app.route('/admin', methods=['GET', 'POST'])
