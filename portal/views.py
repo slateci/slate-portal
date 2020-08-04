@@ -229,44 +229,19 @@ def dashboard():
         session['slate_portal_user'] = False
 
     if request.method == 'GET':
-        try:
-            access_token = get_user_access_token(session)
-            query = {'token': access_token}
-            user_token = query['token']
-        except:
-            query = {'token': slate_api_token}
-            user_token = query['token']
-
-        # clusters_json = list_clusters_request()
-        # single-user mode
         if session["slate_portal_user"]:
-            selected_clusters = ["ms-c"]
+            # single-user mode
+            clusters = ["ms-c"]
         else:
-            selected_clusters = ["uutah-prod", "uchicago-prod", "umich-prod"]
-        # clusters = [cluster for cluster in clusters_json if cluster['metadata']['name'] in selected_clusters]
-        # Set up multiplex JSON
-        cluster_multiplex_Json = {}
-        for cluster in selected_clusters:
-            # cluster_name = cluster['metadata']['name']
-            cluster_status_query = "/v1alpha3/clusters/"+cluster+"/ping?token="+query['token']+"&cache"
-            cluster_multiplex_Json[cluster_status_query] = {"method":"GET"}
-        # POST request for multiplex return
-        cluster_multiplex = requests.post(
-            slate_api_endpoint + '/v1alpha3/multiplex', params=query, json=cluster_multiplex_Json)
-        cluster_multiplex = cluster_multiplex.json()
-
-        cluster_status_dict = {}
-        for cluster in cluster_multiplex:
-            cluster_name = cluster.split('/')[3]
-            cluster_status_dict[cluster_name] = json.loads(cluster_multiplex[cluster]['body'])['reachable']
+            clusters = ["uutah-prod", "uchicago-prod", "umich-prod"]
 
         with open('portal/static/news.md', "r") as file:
             news = file.read()
-        clusters_list = json.dumps(selected_clusters)
-        return render_template('dashboard.html', clusters=selected_clusters,
-                                cluster_status_dict=cluster_status_dict,
-                                users=None, user_token=user_token, news=news,
-                                clusters_list=clusters_list)
+        # This json conversion is for JS to read on the frontend
+        clusters_list = json.dumps(clusters)
+
+        return render_template('dashboard.html', clusters=clusters,
+                                news=news, clusters_list=clusters_list)
 
 
 @app.route('/admin', methods=['GET', 'POST'])
