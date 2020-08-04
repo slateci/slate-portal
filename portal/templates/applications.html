@@ -78,14 +78,25 @@
                   </tr>
                 </thead>
                 <tbody data-link="row" class="rowlink" style="font-size:14px;">
-                  {% for application in incubator_apps %}
-                  <tr>
-                    <td><a href="{{url_for('view_incubator_application', name=application['metadata']['name'])}}">{{application['metadata']['name']}}</a></td>
-                    <td>{{application['metadata']['description']}}</td>
-                    <td>{{application['metadata']['chart_version']}}</td>
-                    <td>{{application['metadata']['app_version']}}</td>
+                  <tr v-if="loading">
+              			<td>Loading Data <i class="fas fa-sync fa-spin"></i></td>
+              			<td><i class="fas fa-sync fa-spin"></i></td>
+              			<td><i class="fas fa-sync fa-spin"></i></td>
+              			<td><i class="fas fa-sync fa-spin"></i></td>
+              		</tr>
+              		<tr v-if="failed">
+              			<td>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></td>
+              			<td><i class="far fa-times-circle"></i></td>
+              			<td><i class="far fa-times-circle"></i></td>
+              			<td><i class="far fa-times-circle"></i></td>
+              		</tr>
+
+                  <tr v-for="(application, index) in incubator_applications" v-cloak >
+              		  <td><a :href="'/applications/incubator/' + application.metadata.name">{[{application.metadata.name}]}</a></td>
+              		  <td>{[{application.metadata.description}]}</td>
+              		  <td>{[{application.metadata.chart_version}]}</td>
+                    <td>{[{application.metadata.app_version}]}</td>
                   </tr>
-                  {% endfor %}
                 </tbody>
 
               </table>
@@ -102,29 +113,50 @@
 
 <script>
 $(document).ready(function() {
-    new Vue({
-	el: '#apps-ajax',
-	data () {
-	    return {
-	      applications: {},
-		loading: true,
-		failed: false
-	    }
-	},
-	updated: function() {
+  new Vue({
+    el: '#apps-ajax',
+    data () {
+      return {
+        applications: {},
+        loading: true,
+        failed: false
+        }
+      },
+    updated: function() {
 	    //call DataTable after view is updated
       $('#apps-table').DataTable();
+      },
+    mounted() {
+      axios.get('/applications-xhr')
+      .then(function (response) {
+        this.applications = response.data;
+        this.loading = false;
+        }.bind(this)) //must use bind(this) unless using arrow function
+        .catch(error => { this.failed = true; this.loading = false; })
+      }
+    });
+  new Vue({
+    el: '#incubator-apps-table',
+    data () {
+      return {
+        incubator_applications: {},
+        loading: true,
+        failed: false
+        }
+      },
+    updated: function() {
+	    //call DataTable after view is updated
       $('#incubator-apps-table').DataTable();
-	},
-	mounted() {
-            axios.get('/applications-xhr')
-	        .then(function (response) {
-		    this.applications = response.data;
-				this.loading = false;
-		}.bind(this)) //must use bind(this) unless using arrow function
-		.catch(error => { this.failed = true; this.loading = false; })
-		}
+      },
+    mounted() {
+      axios.get('/incubator-applications-xhr')
+      .then(function (response) {
+        this.incubator_applications = response.data;
+        this.loading = false;
+        }.bind(this)) //must use bind(this) unless using arrow function
+        .catch(error => { this.failed = true; this.loading = false; })
+      }
+    });
   });
-});
 </script>
 {%endblock%}

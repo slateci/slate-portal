@@ -20,8 +20,7 @@ def list_applications():
     - List Known Applications on SLATE
     """
     if request.method == 'GET':
-        incubator_apps = list_incubator_applications_request()
-        return render_template('applications.html', incubator_apps=incubator_apps)
+        return render_template('applications.html')
 
 
 @app.route('/applications-xhr', methods=['GET'])
