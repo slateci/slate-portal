@@ -216,7 +216,7 @@ def dashboard():
         f = open("/slate_portal_user", "r")
         slate_portal_user = f.read().split()
 
-        session['slate_id'] = slate_portal_user[0]
+        session['user_id'] = slate_portal_user[0]
         session['name'] = slate_portal_user[1]
         session['email'] = slate_portal_user[2]
         session['phone'] = slate_portal_user[3]
@@ -1191,7 +1191,7 @@ def authcallback():
         slate_portal_user = None
     
     if slate_portal_user:
-        session['slate_id'] = slate_portal_user[0]
+        session['user_id'] = slate_portal_user[0]
         session['name'] = slate_portal_user[1]
         session['email'] = slate_portal_user[2]
         session['phone'] = slate_portal_user[3]
