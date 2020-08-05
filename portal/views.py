@@ -971,8 +971,7 @@ def delete_group(name):
         if r.status_code == requests.codes.ok:
             flash("Successfully deleted group", 'success')
         else:
-            err_message = r.json()['message']
-            flash('Failed to delete group: {}'.format(err_message), 'warning')
+            flash('Failed to delete group', 'warning')
 
         return redirect(url_for('list_groups'))
 
