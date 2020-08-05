@@ -1,5 +1,5 @@
 from portal.decorators import authenticated
-from portal import app, csrf
+from portal import app, csrf, slate_api_token, slate_api_endpoint
 import json
 import requests
 from flask import (flash, redirect, render_template,
@@ -9,10 +9,6 @@ from connect_api import (list_applications_request,
                         list_instances_request, list_user_groups, 
                         get_user_access_token)
 import os
-# Read endpoint and token from config file
-slate_api_token = app.config['SLATE_API_TOKEN']
-slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
-
 
 @app.route('/applications', methods=['GET'])
 def list_applications():

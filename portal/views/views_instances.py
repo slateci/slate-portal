@@ -1,5 +1,5 @@
 from portal.decorators import authenticated, instance_authenticated
-from portal import app
+from portal import app, slate_api_token, slate_api_endpoint
 import json
 import requests
 from flask import (flash, redirect, render_template,
@@ -8,9 +8,6 @@ from connect_api import (list_instances_request,
                         list_user_groups,
                         list_users_instances_request,
                         get_user_access_token)
-# Read endpoint and token from config file
-slate_api_token = app.config['SLATE_API_TOKEN']
-slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
 
 
 @app.route('/instances_ajax', methods=['GET'])

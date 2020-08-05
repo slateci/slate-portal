@@ -32,6 +32,9 @@ app.logger.addHandler(handler)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s: %(message)s')
 handler.setFormatter(formatter)
 
+slate_api_token = app.config['SLATE_API_TOKEN']
+slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
+
 def format_datetime(value, format="%b %d %Y %I:%M %p"):
     """Format a date time to (Default): d Mon YYYY HH:MM P"""
 

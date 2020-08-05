@@ -1,14 +1,10 @@
 from portal.decorators import authenticated
-from portal import app
+from portal import app, slate_api_token, slate_api_endpoint
 import json
 import requests
 import time
 from flask import (render_template, request, session, jsonify)
 from connect_api import (list_clusters_request, coordsConversion, get_user_access_token, get_cluster_info, get_group_members)
-
-# Read endpoint and token from config file
-slate_api_token = app.config['SLATE_API_TOKEN']
-slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
 
 
 @app.route('/clusters', methods=['GET'])

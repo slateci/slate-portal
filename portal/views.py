@@ -1,7 +1,7 @@
 from portal.utils import (
     load_portal_client, get_safe_redirect)
 from portal.decorators import authenticated, group_authenticated
-from portal import app
+from portal import app, slate_api_token, slate_api_endpoint
 from datetime import datetime
 import json
 import requests
@@ -30,10 +30,6 @@ import views_instances
 import views_webhooks
 import views_error_handling
 import views_groups
-
-# Read endpoint and token from config file
-slate_api_token = app.config['SLATE_API_TOKEN']
-slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
 
 try:
     # Read endpoint and token from VM
