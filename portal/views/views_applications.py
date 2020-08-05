@@ -185,18 +185,19 @@ def create_application(name, group_name):
         for clusters in list_clusters:
             cluster_name = clusters['metadata']['name']
 
-            cluster_allowed_groups_query = '/v1alpha3/clusters/' + cluster_name + '/allowed_groups' + '?token=' + query['token']
+            cluster_allowed_groups_query = '/v1alpha3/clusters/' + cluster_name + '/allowed_groups/' + group_name + '?token=' + query['token']
             cluster_allowed_groups_multiplexJson[cluster_allowed_groups_query] = {"method":"GET"}
 
         cluster_multiplex = requests.post(
             slate_api_endpoint + '/v1alpha3/multiplex', params=query, json=cluster_allowed_groups_multiplexJson)
         cluster_multiplex = cluster_multiplex.json()
+        # print(cluster_multiplex)
 
         for query, value in list(cluster_multiplex.items()):
             a = json.loads(value['body'])
-            items = a['items']
-            for item in items:
-                if item['metadata']['name'] == group_name:
+            # print(a)
+            access_allowed = a['accessAllowed']
+            if access_allowed:
                     cluster_name = query.split('/')[3]
                     accessible_clusters.append(cluster_name)
 
