@@ -1,7 +1,7 @@
 from portal.utils import (
     load_portal_client, get_safe_redirect)
 from portal.decorators import authenticated, group_authenticated
-from portal import app, slate_api_token, slate_api_endpoint
+from portal import app, slate_api_token, slate_api_endpoint, minislate_user
 from datetime import datetime
 import json
 import requests
