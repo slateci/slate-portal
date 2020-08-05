@@ -466,15 +466,14 @@ def group_admin_clusters_request(group_name):
 
     # Create list of group's accesible clusters
     accessible_clusters = []
+    # /groups/groupsID/clusters
     for clusters in list_clusters:
         cluster_name = clusters['metadata']['name']
         cluster_allowed_groups = requests.get(
-            slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=query)
-        cluster_allowed_groups = cluster_allowed_groups.json()['items']
-
-        for group in cluster_allowed_groups:
-            if group['metadata']['name'] == group_name:
-                accessible_clusters.append(clusters)
+            slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups/' + group_name, params=query)
+        cluster_allowed_groups = cluster_allowed_groups.json()['accessAllowed']
+        if cluster_allowed_groups:
+            accessible_clusters.append(clusters)
 
     # Create accessible clusters list without duplicate names of administering clusters
     accessible_clusters_names = [accessible_cluster['metadata']['name'] for accessible_cluster in accessible_clusters]
