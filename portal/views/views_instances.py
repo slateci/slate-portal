@@ -50,13 +50,18 @@ def list_instances_xhr():
 
 @app.route('/instances/<name>', methods=['GET'])
 @authenticated
-# @instance_authenticated
+@instance_authenticated
 def view_instance(name):
     """
     - View detailed instance information on SLATE
     """
     if request.method == 'GET':
         instance_details = get_instance_details(name)
+
+        if instance_details == 504:
+            flash('The connection to {} has timed out. Please try again later.'.format(name), 'warning')
+            return redirect(url_for('list_instances'))
+
         try:
             if instance_details['details']['pods'][0]['kind'] == 'Error':
                 print("No pod exist, so emptying logs and skipping lookup")

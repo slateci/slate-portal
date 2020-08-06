@@ -365,9 +365,13 @@ def get_instance_details(instance_id):
     query = {'token': access_token, 'detailed': True}
 
     print("Querying instance details...")
-    instance_details = requests.get(slate_api_endpoint + '/v1alpha3/instances/' + instance_id, params=query)
-    print("Query response: {}".format(instance_details))
-    instance_details = instance_details.json()
+    response = requests.get(slate_api_endpoint + '/v1alpha3/instances/' + instance_id, params=query)
+    print("Query response: {}".format(response))
+    
+    if response.status_code == 504:
+        return 504
+    else:
+        instance_details = response.json()
     
     return instance_details
 
