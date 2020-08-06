@@ -936,9 +936,11 @@ def delete_group(name):
 
         if r.status_code == requests.codes.ok:
             flash("Successfully deleted group", 'success')
+        elif r.status_code == 504:
+            print("The status code for deleting the group was not 200: {}".format(r))
+            flash("Successfully deleted group", 'success')
         else:
             print("The status code for deleting the group was not 200: {}".format(r))
-            flash('Failed to delete group', 'warning')
 
         return redirect(url_for('list_groups'))
 
