@@ -327,7 +327,7 @@ def get_cluster_info(cluster_name, nodes=False):
         query = {'token': access_token, 'nodes': nodes}
     else:
         query = {'token': access_token}
-    cluster = requests.get(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name, params=query)
+    cluster = requests.get(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name, params=query, timeout=200)
     print("Get Cluster Info query response before parsing JSON: {}".format(cluster))
     cluster = cluster.json()
     return cluster
