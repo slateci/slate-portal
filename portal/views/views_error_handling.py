@@ -18,10 +18,10 @@ def exception_occurred(e):
                            debug=app.config['DEBUG'])
 
 
-@app.route('/error', methods=['GET'])
-def errorpage():
+@app.route('/error/<message>', methods=['GET'])
+def errorpage(message):
     if request.method == 'GET':
-        return render_template('error.html')
+        return render_template('error.html', message=message)
 
 
 @app.errorhandler(404)
@@ -35,6 +35,7 @@ def handle_exception(e):
     # pass through HTTP errors
     if isinstance(e, HTTPException):
         return e
-    print("ERROR CAUGHT: {}".format(e))
+    print("Triggered Exception: {}".format(Exception.with_traceback))
+    print("Error: {}".format(e))
     # now you're handling non-HTTP exceptions only
     return render_template("500.html", e=e), 500

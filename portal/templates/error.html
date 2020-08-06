@@ -15,6 +15,8 @@
         {% if debug %}
         <h5>Python Stacktrace:</h5>
         <div class="description">{{ exception|safe }}</div>
+        {% else %}
+        <div class="description">{{ message }}</div>
         {% endif %}
       </div>
     </div>

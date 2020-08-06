@@ -33,6 +33,12 @@ def instance_authenticated(fn):
     def decorated_function(*args, **kwargs):
         instance_id = request.path.split('/')[-1]
         instance_details = get_instance_details(instance_id)
+
+        if instance_details['kind'] == 'Error':
+            message = instance_details['message']
+            flash('{}'.format(message), 'warning')
+            return redirect(url_for('list_instances'))
+
         group_name = instance_details['metadata']['group']
         group_members = get_group_members(group_name)
         group_members = group_members['items']
@@ -56,6 +62,13 @@ def group_authenticated(fn):
         group_name = request.path.split('/')[2]
 
         group_members = get_group_members(group_name)
+        try:
+            if group_members['kind'] == 'Error':
+                message = group_members['message']
+                flash('{}'.format(message), 'warning')
+                return redirect(url_for('list_groups'))
+        except:
+            print("Finished querying group members")
         
         try:
             group_members = group_members['items']

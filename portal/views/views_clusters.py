@@ -3,7 +3,7 @@ from portal import app, slate_api_token, slate_api_endpoint
 import json
 import requests
 import time
-from flask import (render_template, request, session, jsonify)
+from flask import (render_template, request, session, jsonify, redirect, flash, url_for)
 from connect_api import (list_clusters_request, coordsConversion, get_user_access_token, get_cluster_info, get_group_members)
 
 
@@ -64,6 +64,15 @@ def view_public_cluster(name):
     if request.method == 'GET':
 
         cluster = get_cluster_info(name)
+        try:
+            if cluster['kind'] == 'Error':
+                message = cluster['message']
+                print(message)
+                flash('{}'.format(message), 'warning')
+                return redirect(url_for('list_clusters'))
+        except:
+            print("Finished querying cluster information")
+
         group_name = cluster['metadata']['owningGroup']
         location = cluster['metadata']['location']
         if location:
