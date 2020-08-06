@@ -386,21 +386,13 @@ def create_group():
 @authenticated
 @group_authenticated
 def view_group(name):
-    access_token, slate_user_id = get_user_info(session)
-    query = {'token': access_token}
-
     if request.method == 'GET':
-        # Get Group Info
-        group_info = requests.get(
-            slate_api_endpoint + '/v1alpha3/groups/' + name, params=query)
-        group_info = group_info.json()
-
-        if group_info['kind'] == 'Error':
-            return render_template('404.html')
-
-        return render_template('groups_profile_overview.html', name=name, group_info=group_info)
+        return render_template('groups_profile_overview.html', name=name)
 
     elif request.method == 'POST':
+        access_token, slate_user_id = get_user_info(session)
+        query = {'token': access_token}
+        
         cluster_name = request.form['delete_cluster']
         r = requests.delete(
                     slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name,
@@ -593,28 +585,8 @@ def view_group_add_members(name):
 @authenticated
 @group_authenticated
 def view_group_secrets(name):
-    access_token, slate_user_id = get_user_info(session)
-    query = {'token': access_token}
-
     if request.method == 'GET':
-        # Get group's information for display
-        s = requests.get(
-            slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=query)
-        s_info = s.json()
-        group_list = s_info['items']
-        group_id = None
-        for group in group_list:
-            if group['metadata']['name'] == name:
-                group_id = group['metadata']['id']
-                group_name = group['metadata']['name']
-
-        # Get Group Info
-        group_info = requests.get(
-            slate_api_endpoint + '/v1alpha3/groups/' + name, params=query)
-        group_info = group_info.json()
-
-        return render_template('groups_profile_secrets.html', name=name,
-                                group_info=group_info)
+        return render_template('groups_profile_secrets.html', name=name)
     elif request.method == 'POST':
         """ Method to delete secret from group """
         secret_id = request.form['secret_id']
