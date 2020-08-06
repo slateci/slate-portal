@@ -68,6 +68,8 @@ def view_public_cluster(name):
         # Check if cluster exists
         if cluster_exists(name):
             print("Found cluster: {}".format(name))
+            cluster_info = get_cluster_info(name)
+            print("Response from querying cluster info: {}".format(cluster_info))
             return render_template('cluster_public_profile.html', name=name)
         else:
             message = "Could not find that cluster"
@@ -100,7 +102,6 @@ def list_public_clusters_request(session, name):
     allowed_groups = [item for item in whitelist['items']]
 
     # Get cluster info and parse below
-    print("Querying cluster info...")
     cluster = get_cluster_info(name, nodes=True)
     print("Query Results: {}".format(cluster))
     if cluster == 504:
