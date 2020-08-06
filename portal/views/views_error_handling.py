@@ -29,13 +29,18 @@ def not_found(e):
     print("ERROR CAUGHT: {}".format(e))
     return render_template("404.html", e=e)
 
+@app.errorhandler(504)
+def handle_gateway_timeout(e):
+    print("GATEWAY TIMEOUT CAUGHT: {}".format(e))
+    return render_template("404.html", e=e)
 
-@app.errorhandler(Exception)
-def handle_exception(e):
-    # pass through HTTP errors
-    if isinstance(e, HTTPException):
-        return e
-    print("Triggered Exception: {}".format(Exception.with_traceback))
-    print("Error: {}".format(e))
-    # now you're handling non-HTTP exceptions only
-    return render_template("500.html", e=e), 500
+
+# @app.errorhandler(Exception)
+# def handle_exception(e):
+#     # pass through HTTP errors
+#     if isinstance(e, HTTPException):
+#         return e
+#     print("Triggered Exception: {}".format(Exception.with_traceback))
+#     print("Error: {}".format(e))
+#     # now you're handling non-HTTP exceptions only
+#     return render_template("500.html", e=e), 500
