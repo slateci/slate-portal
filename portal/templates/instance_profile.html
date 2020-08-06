@@ -96,7 +96,25 @@
           <div role="tabpanel" class="tab-pane fade" id="logs">
             <br>
             <!-- <h3>Logs</h3> -->
-            <pre class="app-logs">{% if instance_log['logs'] %}{{instance_log['logs']}}{% else %}Logs currently unavailable{% endif %}</pre>
+            <div id="logs-display">
+              <label for="container-list"> Select container: </label>
+              <select id="container-list" name="container-list">
+                {% for container in instance_details['details']['pods'][0]['containers'] %}
+                <option value="{{container['name']}}">
+                  {{container['name']}}
+                </option>
+                {% endfor %}
+              </select>
+              <br>
+              <label for="nlines"> Enter lines of most recent logs to show (0 for the full log): </label>
+              <input type="number" id="nlines" name="nlines" value="20">
+              <button class="btn btn-primary btn-sm btn-box-shadow" v-on:click="getLogs">Submit</button>
+              <br>
+              <button class="btn btn-primary btn-sm btn-box-shadow" onclick="wrapLogs()">Wrap/Unwrap Logs</button>
+              <pre id="logs-box" class="app-logs">{[{logs}]}</pre>
+            </div>
+            <!-- <br>
+            <pre class="app-logs">{% if instance_log['logs'] %}{{instance_log['logs']}}{% else %}Logs currently unavailable{% endif %}</pre> -->
           </div>
 
         </div>
@@ -106,6 +124,7 @@
   </div>
 </section>
 
+<meta id="instance-data" data-name="{{name}}">
 <script>
 $(document).ready(function() {
     $('#pods-table').DataTable();
@@ -117,6 +136,40 @@ function btnConfirm() {
       window.location.href = "{{url_for('delete_instance', name=name)}}";
     }
 }
+
+var isWrapped = false
+function wrapLogs() {
+  if(!isWrapped){
+    document.getElementById("logs-box").style.whiteSpace = "pre-wrap";
+    document.getElementById("logs-box").style.wordBreak = "break-word";
+    isWrapped = true
+  } else {
+    document.getElementById("logs-box").style.whiteSpace = "pre";
+    document.getElementById("logs-box").style.wordBreak = "normal";
+    isWrapped = false
+  }
+}
+
+var instance = $('#instance-data').data();
+var instance_id = instance.name;
+var request_logs = new Vue({
+  el: '#logs-display',
+  data: {
+    logs: null
+  },
+  methods: {
+    getLogs: function () {
+      var lines = document.getElementById('nlines').value
+      var container = document.getElementById('container-list').value
+      axios.get('/instances-log-xhr/' + instance_id + '/' + container + '/' + lines)
+      .then(response => this.logs = response.data)
+      .catch(error => this.logs = "Logs currently unavailable")
+    }
+  },
+  mounted: function(){
+    this.getLogs()
+  }
+})
 
 </script>
 {%endblock%}
