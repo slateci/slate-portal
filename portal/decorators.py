@@ -34,6 +34,11 @@ def instance_authenticated(fn):
         instance_id = request.path.split('/')[-1]
         instance_details = get_instance_details(instance_id)
 
+        if instance_details == 504:
+            message = instance_details['message']
+            flash('The connection to {} has timed out. Please try again later.'.format(instance_id), 'warning')
+            return redirect(url_for('list_instances'))
+
         if instance_details['kind'] == 'Error':
             message = instance_details['message']
             flash('{}'.format(message), 'warning')
