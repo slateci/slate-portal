@@ -103,19 +103,26 @@ def list_public_clusters_request(session, name):
     print("Querying cluster info...")
     cluster = get_cluster_info(name, nodes=True)
     print("Query Results: {}".format(cluster))
+    if cluster == 504:
+        cluster = {}
+        storageClasses = {}
+        priorityClasses = {}
+        owningGroupEmail = ''
+        cluster_status = "False"
+    else:
+        
+        # Get owning group information for contact info
+        print("Setting owning group...")
+        owningGroupName = cluster['metadata']['owningGroup']
+        print("Querying owning group info for email info...")
+        owningGroup = requests.get(
+            slate_api_endpoint + '/v1alpha3/groups/' + owningGroupName, params=query)
+        print("Query Response: {}".format(owningGroup))
+        owningGroup = owningGroup.json()
+        owningGroupEmail = owningGroup['metadata']['email']
 
-    # Get owning group information for contact info
-    print("Setting owning group...")
-    owningGroupName = cluster['metadata']['owningGroup']
-    print("Querying owning group info for email info...")
-    owningGroup = requests.get(
-        slate_api_endpoint + '/v1alpha3/groups/' + owningGroupName, params=query)
-    print("Query Response: {}".format(owningGroup))
-    owningGroup = owningGroup.json()
-    owningGroupEmail = owningGroup['metadata']['email']
-
-    storageClasses = cluster['metadata']['storageClasses']
-    priorityClasses = cluster['metadata']['priorityClasses']
+        storageClasses = cluster['metadata']['storageClasses']
+        priorityClasses = cluster['metadata']['priorityClasses']
 
     # Get Cluster status and return as string for flask template
     print("Querying for cluster status")
