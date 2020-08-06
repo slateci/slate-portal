@@ -6,7 +6,8 @@ import time
 from flask import (render_template, request, session, jsonify, redirect, flash, url_for)
 from connect_api import (list_clusters_request, coordsConversion, 
                          get_user_access_token, get_cluster_info, 
-                         get_group_members, list_cluster_whitelist)
+                         get_group_members, list_cluster_whitelist,
+                         cluster_exists)
 
 
 @app.route('/clusters', methods=['GET'])
@@ -64,17 +65,15 @@ def view_public_cluster(name):
     - List Clusters Registered on SLATE
     """
     if request.method == 'GET':
-        # Get cluster info and parse below
-        cluster = get_cluster_info(name)
-        try:
-            if cluster['kind'] == 'Error':
-                message = cluster['message']
-                print(message)
-                flash('{}'.format(message), 'warning')
-                return redirect(url_for('list_clusters'))
-        except:
-            print("Finished querying cluster information")
-        return render_template('cluster_public_profile.html', name=name)
+        # Check if cluster exists
+        if cluster_exists(name):
+            print("Found cluster: {}".format(name))
+            return render_template('cluster_public_profile.html', name=name)
+        else:
+            message = "Could not find that cluster"
+            print(message)
+            flash('{}'.format(message), 'warning')
+            return redirect(url_for('list_clusters'))
 
 
 @app.route('/public-clusters-xhr/<name>', methods=['GET'])
@@ -95,17 +94,23 @@ def list_public_clusters_request(session, name):
     access_token = get_user_access_token(session)
     query = {'token': access_token}
     # Get cluster whitelist and parse allowed groups
+    print("Querying cluster whitelist...")
     whitelist = list_cluster_whitelist(name)
+    print("Query Results: {}".format(whitelist))
     allowed_groups = [item for item in whitelist['items']]
 
     # Get cluster info and parse below
+    print("Querying cluster info...")
     cluster = get_cluster_info(name, nodes=True)
-    print("Cluster Info: {}".format(cluster))
+    print("Query Results: {}".format(cluster))
 
     # Get owning group information for contact info
+    print("Setting owning group...")
     owningGroupName = cluster['metadata']['owningGroup']
+    print("Querying owning group info for email info...")
     owningGroup = requests.get(
         slate_api_endpoint + '/v1alpha3/groups/' + owningGroupName, params=query)
+    print("Query Response: {}".format(owningGroup))
     owningGroup = owningGroup.json()
     owningGroupEmail = owningGroup['metadata']['email']
 
@@ -113,7 +118,9 @@ def list_public_clusters_request(session, name):
     priorityClasses = cluster['metadata']['priorityClasses']
 
     # Get Cluster status and return as string for flask template
+    print("Querying for cluster status")
     cluster_status = get_cluster_status(name)
+    print("Cluster Status Response: {}".format(cluster_status))
     cluster_status = str(cluster_status)
 
     return cluster, owningGroupEmail, allowed_groups, cluster_status, storageClasses, priorityClasses

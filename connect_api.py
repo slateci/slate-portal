@@ -328,9 +328,23 @@ def get_cluster_info(cluster_name, nodes=False):
     else:
         query = {'token': access_token}
     cluster = requests.get(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name, params=query)
+    print("Get Cluster Info query response before parsing JSON: {}".format(cluster))
     cluster = cluster.json()
     return cluster
 
+def cluster_exists(cluster_name):
+    print("Querying list of existing clusters...")
+    clusters = list_clusters_request()
+    print("Checking if cluster {} exists in current clusters...".format(cluster_name))
+    cluster_names = []
+    for cluster in clusters:
+        cluster_names.append(cluster['metadata']['name'])
+    if cluster_name not in cluster_names:
+        print("Returning False because did not find {} in {}".format(cluster_name, cluster_names))
+        return False
+    else:
+        print("Found {} in current exisint clusters".format(cluster_name))
+        return True
 
 def get_instance_details(instance_id):
     access_token = get_user_access_token(session)
