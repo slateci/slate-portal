@@ -27,6 +27,12 @@
           
           <div class="form-group">
             <label for="cluster">Cluster</label>
+            <span v-if='loading'>
+              Loading Data <i class="fas fa-sync fa-spin"></i>
+            </span>
+            <span v-if='failed'>
+              Failed to load the data, please refresh the page <i class="far fa-times-circle"></i>
+            </span>
             <select class="form-control" id="cluster" name="cluster" required="required" tabindex="2">
               <option value="" selected disabled>--- Select One ---</option>
               <option v-for='cluster in clusters' :value="cluster.metadata.name">{[{cluster.metadata.name}]}</option>
@@ -68,7 +74,7 @@ new Vue({
   el: '#app-profile',
   data () {
     return {
-      app_config: {},
+      app_config: null,
       clusters: {},
       loading: true,
       failed: false
@@ -80,10 +86,19 @@ new Vue({
     this.app_config = response.data[0];
     this.clusters = response.data[1];
     this.loading = false;
-    console.log(this.app_config)
   }.bind(this)) //must use bind(this) unless using arrow function
   .catch(error => { this.failed = true; this.loading = false; })
-  }
+  },
+  updated: function() {
+    // Function to sort group listing after mounted
+	  var options = $('select.form-control option');
+    var arr = options.map(function(_, o) { return { t: $(o).text(), v: o.value }; }).get();
+    arr.sort(function(o1, o2) { return o1.t > o2.t ? 1 : o1.t < o2.t ? -1 : 0; });
+    options.each(function(i, o) {
+      o.value = arr[i].v;
+      $(o).text(arr[i].t);
+    });
+	}
 })
 </script>
 {%endblock%}
