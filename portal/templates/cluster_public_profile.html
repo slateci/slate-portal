@@ -18,10 +18,19 @@
         <h1>Cluster: {{name}}</h1>
         <hr/>
         <span id='cluster-xhr'>
+
           <div v-if='loading'>
             <div class="row">
               <div class="col-sm-12">
                 Loading Data <i class="fas fa-sync fa-spin"></i>
+              </div>
+            </div>
+          </div>
+
+          <div v-else-if="timeout">
+            <div class="row">
+              <div class="col-sm-12">
+                The request for this cluster has timed out. Please try again later.
               </div>
             </div>
           </div>
@@ -246,6 +255,7 @@ $(document).ready(function() {
         storageClasses: {},
         priorityClasses: {},
         cluster_status: {},
+        timeout: false,
         loading: true,
         failed: false
       }
@@ -264,7 +274,13 @@ $(document).ready(function() {
         this.cluster_status = response.data[3];
         this.storageClasses = response.data[4];
         this.priorityClasses = response.data[5];
-        this.loading = false;
+        console.log(this.cluster);
+        if(response.data[6] === 'true'){
+          this.timeout = true;
+          this.loading = false;
+        } else {
+          this.loading = false;
+        }
         }.bind(this)) //must use bind(this) unless using arrow function
         .catch(error => { this.failed = true; this.loading = false; })
       }

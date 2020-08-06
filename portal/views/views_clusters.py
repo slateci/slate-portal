@@ -68,13 +68,13 @@ def view_public_cluster(name):
         # Check if cluster exists
         if cluster_exists(name):
             print("Found cluster: {}".format(name))
-            cluster_info = get_cluster_info(name)
-            print("Response from querying cluster info: {}".format(cluster_info))
-            if cluster_info == 504:
-                flash('The connection to this cluster has timed out', 'warning')
-                return redirect(url_for('list_clusters'))
-            else:
-                return render_template('cluster_public_profile.html', name=name)
+            # cluster_info = get_cluster_info(name)
+            # print("Response from querying cluster info: {}".format(cluster_info))
+            # if cluster_info == 504:
+            #     flash('The connection to this cluster has timed out', 'warning')
+            #     return redirect(url_for('list_clusters'))
+            # else:
+            return render_template('cluster_public_profile.html', name=name)
         else:
             message = "Could not find that cluster"
             print(message)
@@ -89,8 +89,8 @@ def list_public_clusters_xhr(name):
     - List User's Instances Registered on SLATE (json response)
     """
     if request.method == 'GET':
-        cluster, owningGroupEmail, allowed_groups, cluster_status, storageClasses, priorityClasses = list_public_clusters_request(session, name)
-        return jsonify(cluster, owningGroupEmail, allowed_groups, cluster_status, storageClasses, priorityClasses)
+        cluster, owningGroupEmail, allowed_groups, cluster_status, storageClasses, priorityClasses, timeout = list_public_clusters_request(session, name)
+        return jsonify(cluster, owningGroupEmail, allowed_groups, cluster_status, storageClasses, priorityClasses, timeout)
 
 
 def list_public_clusters_request(session, name):
@@ -114,6 +114,7 @@ def list_public_clusters_request(session, name):
         priorityClasses = {}
         owningGroupEmail = ''
         cluster_status = "False"
+        timeout = "true"
     else:
         
         # Get owning group information for contact info
@@ -128,14 +129,16 @@ def list_public_clusters_request(session, name):
 
         storageClasses = cluster['metadata']['storageClasses']
         priorityClasses = cluster['metadata']['priorityClasses']
+        timeout = "false"
 
     # Get Cluster status and return as string for flask template
     print("Querying for cluster status")
     cluster_status = get_cluster_status(name)
     print("Cluster Status Response: {}".format(cluster_status))
     cluster_status = str(cluster_status)
+    print("Timeout Status: {}".format(timeout))
 
-    return cluster, owningGroupEmail, allowed_groups, cluster_status, storageClasses, priorityClasses
+    return cluster, owningGroupEmail, allowed_groups, cluster_status, storageClasses, priorityClasses, timeout
 
 
 @app.route('/clusters/<cluster_name>/<node_name>', methods=['GET'])
