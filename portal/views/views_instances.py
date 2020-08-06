@@ -7,7 +7,8 @@ from flask import (flash, redirect, render_template,
 from connect_api import (list_instances_request, 
                         list_user_groups,
                         list_users_instances_request,
-                        get_user_access_token)
+                        get_user_access_token, 
+                        get_instance_details, get_instance_logs)
 
 
 @app.route('/instances_ajax', methods=['GET'])
@@ -54,40 +55,17 @@ def view_instance(name):
     """
     - View detailed instance information on SLATE
     """
-    access_token = get_user_access_token(session)
-    query = {'token': access_token}
     if request.method == 'GET':
-
-        # Initialize separate list queries for multiplex request
-        instance_detail_query = '/v1alpha3/instances/' + name + '?token=' + query['token'] + '&detailed'
-        instance_log_query = '/v1alpha3/instances/' + name + '/logs' + '?token=' + query['token']
-        # Set up multiplex JSON
-        multiplexJson = {instance_detail_query: {"method":"GET"},
-                            instance_log_query: {"method":"GET"}}
-        # POST request for multiplex return
-        multiplex = requests.post(
-            slate_api_endpoint + '/v1alpha3/multiplex', params=query, json=multiplexJson)
-        multiplex = multiplex.json()
-        # print("multiplex: {}".format(multiplex))
-        # Parse post return for instance, instance details, and instance logs
-        instance_details = multiplex[instance_detail_query]['body']
-        instance_log = multiplex[instance_log_query]['body']
-        # print("instance details: {}".format(instance_details))
-        # print('-----')
-        # print("instance logs: {}".format(instance_log))
-
-        if instance_details:
-            instance_details = json.loads(multiplex[instance_detail_query]['body'])
-        # print("instance details: {}".format(instance_details))
-        if instance_log:
-            instance_log = json.loads(multiplex[instance_log_query]['body'])
-        else:
+        instance_details = get_instance_details(name)
+        if instance_details['details']['pods'][0]['kind'] == 'Error':
             instance_log = {'logs': ''}
+        else:
+            instance_log = get_instance_logs(name)
+        
+        if instance_log == 500:
+            return render_template('500.html')
 
         instance_status = True
-        # print("instance details: {}".format(instance_details))
-        # print('-----')
-        # print("instance logs: {}".format(instance_log))
 
         if instance_details['kind'] == 'Error':
             instance_status = False

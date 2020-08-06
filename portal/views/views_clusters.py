@@ -116,7 +116,6 @@ def list_public_clusters_request(session, name):
         cluster_status = "False"
         timeout = "true"
     else:
-        
         # Get owning group information for contact info
         print("Setting owning group...")
         owningGroupName = cluster['metadata']['owningGroup']

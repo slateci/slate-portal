@@ -929,19 +929,17 @@ def delete_group(name):
     if request.method == 'POST':
         access_token = get_user_access_token(session)
         query = {'token': access_token}
-        group_id = name
+        # group_id = name
 
-        r = requests.delete(
-            slate_api_endpoint + '/v1alpha3/groups/' + group_id, params=query)
+        try:
+            print("Querying deletion of group: {}".format(name))
+            r = requests.delete(
+                slate_api_endpoint + '/v1alpha3/groups/' + name, params=query, timeout=1)
+            print("Query to delete group {} RESPONSE: {}".format(name, r))
+        except requests.exceptions.ReadTimeout:
+            print("Timedout, but force to next page")
 
-        if r.status_code == requests.codes.ok:
-            flash("Successfully deleted group", 'success')
-        elif r.status_code == 504:
-            print("The status code for deleting the group was not 200: {}".format(r))
-            flash("Successfully deleted group", 'success')
-        else:
-            print("The status code for deleting the group was not 200: {}".format(r))
-
+        flash("Successfully deleted group", 'success')
         return redirect(url_for('list_groups'))
 
 
