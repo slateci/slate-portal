@@ -363,10 +363,12 @@ def cluster_exists(cluster_name):
 def get_instance_details(instance_id):
     access_token = get_user_access_token(session)
     query = {'token': access_token, 'detailed': True}
+
     print("Querying instance details...")
     instance_details = requests.get(slate_api_endpoint + '/v1alpha3/instances/' + instance_id, params=query)
     print("Query response: {}".format(instance_details))
     instance_details = instance_details.json()
+    
     return instance_details
 
 
@@ -380,5 +382,4 @@ def get_instance_logs(instance_id):
         return 500
     elif response.status_code == requests.codes.ok:
         instance_logs = response.json()
-        print(instance_logs)
         return instance_logs

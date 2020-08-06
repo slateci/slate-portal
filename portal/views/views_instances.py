@@ -50,16 +50,18 @@ def list_instances_xhr():
 
 @app.route('/instances/<name>', methods=['GET'])
 @authenticated
-@instance_authenticated
+# @instance_authenticated
 def view_instance(name):
     """
     - View detailed instance information on SLATE
     """
     if request.method == 'GET':
         instance_details = get_instance_details(name)
-        if instance_details['details']['pods'][0]['kind'] == 'Error':
-            instance_log = {'logs': ''}
-        else:
+        try:
+            if instance_details['details']['pods'][0]['kind'] == 'Error':
+                print("No pod exist, so emptying logs and skipping lookup")
+                instance_log = {'logs': ''}
+        except:
             instance_log = get_instance_logs(name)
         
         if instance_log == 500:
@@ -67,9 +69,6 @@ def view_instance(name):
 
         instance_status = True
 
-        if instance_details['kind'] == 'Error':
-            instance_status = False
-            return render_template('404.html')
         # pretty_print = json.dumps(instance_details, sort_keys = True, indent = 2)
         return render_template('instance_profile.html', name=name,
                                 instance_details=instance_details,
