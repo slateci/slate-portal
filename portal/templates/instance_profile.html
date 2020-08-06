@@ -115,6 +115,7 @@ function btnConfirm() {
     var r = confirm("Are you sure you want to delete this instance?");
     if(r == true){
       window.location.href = "{{url_for('delete_instance', name=name)}}";
+      loader();
     }
 }
 

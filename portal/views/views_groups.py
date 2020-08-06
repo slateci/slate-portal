@@ -13,7 +13,7 @@ from connect_api import (list_applications_request,
                         list_users_instances_request,
                         list_clusters_request, coordsConversion,
                         get_user_access_token, get_user_id,
-                        get_user_info, delete_user)
+                        get_user_info, delete_user, get_group_members)
 
 
 @app.route('/groups', methods=['GET', 'POST'])
@@ -29,6 +29,14 @@ def view_user_groups():
     if request.method == 'GET':
         user_groups = list_user_groups(session)
         return jsonify(user_groups)
+
+
+@app.route('/groups-profile-members-xhr/<group_name>', methods=['GET'])
+@authenticated
+def groups_profile_members_xhr(group_name):
+    if request.method == 'GET':
+        group_members = get_group_members(group_name)
+        return jsonify(group_members)
 
 
 @app.route('/public-groups', methods=['GET', 'POST'])
