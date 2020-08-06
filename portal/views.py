@@ -27,7 +27,7 @@ import portal.views
 import views_applications
 import views_clusters
 import views_instances
-import views_webhooks
+# import views_webhooks
 import views_error_handling
 import views_groups
 
