@@ -20,7 +20,7 @@
         <hr/>
         <div class="row" id="public-group-row">
           <div class="col-sm-6">
-            <div class="card h-100">
+            <div class="card h-100" id="group-info-card">
               <div class="card-header">
                 Group Information:
               </div>
@@ -54,7 +54,7 @@
           </div>
 
           <div class="col-sm-6">
-            <div class="card h-100">
+            <div class="card h-100" id='group-clusters-card'>
               <div class="card-header">
                 Administering Clusters
               </div>
@@ -81,7 +81,8 @@
 <meta id="group-data" data-name="{{name}}">
 <script>
 var group = $('#group-data').data();
-var name = group.name
+var name = group.name;
+
 $(document).ready(function() {
   new Vue({
     el: '#public-group-row',
@@ -99,11 +100,10 @@ $(document).ready(function() {
         this.group_info = response.data[0];
         this.group_clusters = response.data[1];
         this.loading = false;
-        console.log(this.group_clusters);
         }.bind(this)) //must use bind(this) unless using arrow function
         .catch(error => { this.failed = true; this.loading = false; })
-        }
-      });
+      }
     });
+  });
 </script>
 {%endblock%}
