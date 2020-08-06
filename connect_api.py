@@ -2,6 +2,7 @@ from flask import session
 import requests
 import sys
 from geopy.geocoders import Nominatim
+# from portal import slate_api_token, slate_api_token
 
 sys.path.insert(0, '/etc/slate/secrets')
 
@@ -150,6 +151,28 @@ def list_incubator_applications_request():
     # incubator_apps = incubator_apps.json()['items']
     incubator_apps = query_status_code(incubator_apps)
     return incubator_apps
+    
+
+def get_app_config(app_name):
+    response = requests.get(
+        slate_api_endpoint + '/v1alpha3/apps/' + app_name, params=query)
+    app_config = response.json()
+
+    return app_config
+
+
+def cluster_allowed_groups(cluster_name, group_name):
+    """
+    Request query check if a group has access to a cluster
+    :cluster_name: str cluster name
+    :group_name: str group name
+    :return: bool
+    """
+    response = requests.get(
+        slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups/' + group_name, params=query)
+    cluster_allowed = response.json()
+    accessAllowed = cluster_allowed['accessAllowed']
+    return accessAllowed
 
 
 def list_public_groups_request():

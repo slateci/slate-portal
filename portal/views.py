@@ -390,19 +390,13 @@ def view_group(name):
     query = {'token': access_token}
 
     if request.method == 'GET':
-        group_name = name
         # Get Group Info
         group_info = requests.get(
-            slate_api_endpoint + '/v1alpha3/groups/' + group_name, params=query)
+            slate_api_endpoint + '/v1alpha3/groups/' + name, params=query)
         group_info = group_info.json()
 
         if group_info['kind'] == 'Error':
             return render_template('404.html')
-
-        # Get User
-        user = requests.get(
-            slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
-        user = user.json()['metadata']['name']
 
         return render_template('groups_profile_overview.html', name=name, group_info=group_info)
 
@@ -971,6 +965,7 @@ def delete_group(name):
         if r.status_code == requests.codes.ok:
             flash("Successfully deleted group", 'success')
         else:
+            print("The status code for deleting the group was not 200: {}".format(r))
             flash('Failed to delete group', 'warning')
 
         return redirect(url_for('list_groups'))

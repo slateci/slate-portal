@@ -233,12 +233,6 @@ $(document).ready(function() {
         this.storageClasses = response.data[4];
         this.priorityClasses = response.data[5];
         this.loading = false;
-        console.log(this.cluster);
-        console.log(this.owningGroupEmail);
-        console.log(this.allowed_groups);
-        console.log(this.cluster_status);
-        console.log(this.storageClasses);
-        console.log(this.priorityClasses);
         }.bind(this)) //must use bind(this) unless using arrow function
         .catch(error => { this.failed = true; this.loading = false; })
       }

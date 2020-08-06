@@ -17,6 +17,7 @@
           <li class="breadcrumb-item active">Install Application </li>
         </ol>
         <h1>Install Application: </h1>
+        <h5>Group: {{group_name}}</h5>
         <hr/>
 
         <form role="form" action="{{url_for('create_application', name=name, group_name=group_name)}}" method="POST">
@@ -28,15 +29,21 @@
             <label for="cluster">Cluster</label>
             <select class="form-control" id="cluster" name="cluster" required="required" tabindex="2">
               <option value="" selected disabled>--- Select One ---</option>
-              {% for cluster in cluster_list %}
-              <option value="{{cluster}}">{{cluster}}</option>
-              {% endfor %}
+              <option v-for='cluster in clusters' :value="cluster.metadata.name">{[{cluster.metadata.name}]}</option>
             </select>
           </div>
 
           <div class="form-group">
             <label for="config">Configuration:</label>
-            <textarea class="form-control" rows="10" id="config" name="config" style="resize: vertical;">{{app_config['spec']['body']}}</textarea>
+            <span v-if='loading'>
+              Loading Data <i class="fas fa-sync fa-spin"></i>
+            </span>
+            <span v-if='failed'>
+              Failed to load the data, please refresh the page <i class="far fa-times-circle"></i>
+            </span>
+            <span v-else>
+              <textarea class="form-control" rows="10" id="config" name="config" style="resize: vertical;">{[{app_config}]}</textarea>
+            </span>
           </div>
 
           <div class="form-group">
@@ -49,4 +56,34 @@
   </div>
 </section>
 
+<meta id="flask-data" 
+      data-group_name="{{group_name}}" 
+      data-app_name="{{name}}">
+<script>
+var flask_data = $('#flask-data').data();
+var group_name = flask_data.group_name;
+var app_name = flask_data.app_name;
+
+new Vue({
+  el: '#app-profile',
+  data () {
+    return {
+      app_config: {},
+      clusters: {},
+      loading: true,
+      failed: false
+    }
+  },
+  mounted(){
+    axios.get('/applications-create-final-xhr/' + group_name + '/' + app_name)
+  .then(function (response) {
+    this.app_config = response.data[0];
+    this.clusters = response.data[1];
+    this.loading = false;
+    console.log(this.app_config)
+  }.bind(this)) //must use bind(this) unless using arrow function
+  .catch(error => { this.failed = true; this.loading = false; })
+  }
+})
+</script>
 {%endblock%}
