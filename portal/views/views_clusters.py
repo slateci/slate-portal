@@ -70,7 +70,11 @@ def view_public_cluster(name):
             print("Found cluster: {}".format(name))
             cluster_info = get_cluster_info(name)
             print("Response from querying cluster info: {}".format(cluster_info))
-            return render_template('cluster_public_profile.html', name=name)
+            if cluster_info == 504:
+                flash('The connection to this cluster has timed out', 'warning')
+                return redirect(url_for('list_clusters'))
+            else:
+                return render_template('cluster_public_profile.html', name=name)
         else:
             message = "Could not find that cluster"
             print(message)

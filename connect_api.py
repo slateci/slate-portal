@@ -329,7 +329,7 @@ def get_cluster_info(cluster_name, nodes=False):
         query = {'token': access_token}
     # try:
     print("Querying cluster info...")
-    cluster = requests.get(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name, params=query)
+    cluster = requests.get(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name, params=query, timeout=20)
     print("Got past query...")
     # except Exception as ex:
     #     print("Timedout: {}".format(ex.__dict__))
