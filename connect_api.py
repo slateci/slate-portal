@@ -329,7 +329,7 @@ def get_cluster_info(cluster_name, nodes=False):
         query = {'token': access_token}
     cluster = requests.get(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name, params=query, timeout=1000)
     print("Response from querying cluter info: {}".format(cluster))
-    if cluster == 504:
+    if cluster.status_code == 504:
         print("At least we found the error response: {}".format(cluster))
         return 504
     else:
