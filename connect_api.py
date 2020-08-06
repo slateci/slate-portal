@@ -173,6 +173,20 @@ def cluster_allowed_groups(cluster_name, group_name):
     cluster_allowed = response.json()
     accessAllowed = cluster_allowed['accessAllowed']
     return accessAllowed
+    
+
+def list_cluster_whitelist(cluster_name):
+    """
+    Request cluster whitelist
+    :cluster_name: str cluster name
+    :group_name: str group name
+    :return: bool
+    """
+    response = requests.get(
+        slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=query)
+    cluster_whitelist = response.json()
+    # print("WHITE LIST {}".format(cluster_whitelist))
+    return cluster_whitelist
 
 
 def list_public_groups_request():
@@ -307,9 +321,12 @@ def list_connect_admins(group_name):
     return memberships
 
 
-def get_cluster_info(cluster_name):
+def get_cluster_info(cluster_name, nodes=False):
     access_token = get_user_access_token(session)
-    query = {'token': access_token}
+    if nodes:
+        query = {'token': access_token, 'nodes': nodes}
+    else:
+        query = {'token': access_token}
     cluster = requests.get(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name, params=query)
     cluster = cluster.json()
     return cluster
