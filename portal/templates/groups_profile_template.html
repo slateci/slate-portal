@@ -15,23 +15,30 @@
           <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
           <li class="breadcrumb-item"><a href="{{url_for('list_groups')}}">Group</a></li>
         </ol>
-        <h2>Group: {{name}}</h2>
-        <p class="lead">
-          <strong>Description:</strong>
-          {{group_info['metadata']['description']}}
-          </p>
-        <p class="lead">
-          <strong>Field of Science:</strong>
-          {{group_info['metadata']['scienceField']}}
-        </p>
-        <p class="lead">
-          <strong>Contact Email:</strong>
-          {{group_info['metadata']['email']}}
-        </p>
-        <p class="lead">
-          <strong>Phone Number:</strong>
-          {{group_info['metadata']['phone']}}
-        </p>
+        <div id='group-info'>
+          <span v-if='loading'>
+            <h2>Group: Loading Data <i class="fas fa-sync fa-spin"></i></h2>
+          </span>
+          <span v-else>
+            <h2>Group: {[{group_info.metadata.name}]}</h2>
+            <p class="lead">
+              <strong>Description:</strong>
+              {[{group_info.metadata.description}]}
+              </p>
+            <p class="lead">
+              <strong>Field of Science:</strong>
+              {[{group_info.metadata.scienceField}]}
+            </p>
+            <p class="lead">
+              <strong>Contact Email:</strong>
+              {[{group_info.metadata.email}]}
+            </p>
+            <p class="lead">
+              <strong>Phone Number:</strong>
+              {[{group_info.metadata.phone}]}
+            </p>
+          </span>
+        </div>
 
         <div class="btn-toolbar" role="toolbar">
           <div class="btn-group mr-2" role="group" aria-label="first group">
@@ -94,6 +101,26 @@ $(document).ready(function() {
     $('#overview_tab').addClass('active')
     $('.breadcrumb').append('<li class="breadcrumb-item active">'+route+'</li>');
   };
+
+  new Vue({
+    el: '#group-info',
+    data () {
+      return {
+        group_info: {},
+        loading: true,
+        failed: false
+      }
+    },
+    mounted(){
+      axios.get('/get-group-info-xhr/{{name}}')
+    .then(function (response) {
+      this.group_info = response.data;
+      this.loading = false;
+    }.bind(this)) //must use bind(this) unless using arrow function
+    .catch(error => { this.failed = true; this.loading = false; })
+    }
+  })
+
 });
 
 </script>

@@ -31,6 +31,15 @@ def view_user_groups():
         return jsonify(user_groups)
 
 
+@app.route('/get-group-info-xhr/<group_name>', methods=['GET'])
+@authenticated
+def get_group_info_xhr(group_name):
+    if request.method == 'GET':
+        group_info = get_group_info(group_name)
+        print(group_info)
+        return jsonify(group_info)
+
+
 @app.route('/groups-profile-members-xhr/<group_name>', methods=['GET'])
 @authenticated
 def groups_profile_members_xhr(group_name):
