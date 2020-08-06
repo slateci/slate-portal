@@ -64,6 +64,16 @@ def view_public_cluster(name):
     - List Clusters Registered on SLATE
     """
     if request.method == 'GET':
+        # Get cluster info and parse below
+        cluster = get_cluster_info(name)
+        try:
+            if cluster['kind'] == 'Error':
+                message = cluster['message']
+                print(message)
+                flash('{}'.format(message), 'warning')
+                return redirect(url_for('list_clusters'))
+        except:
+            print("Finished querying cluster information")
         return render_template('cluster_public_profile.html', name=name)
 
 
@@ -90,7 +100,7 @@ def list_public_clusters_request(session, name):
 
     # Get cluster info and parse below
     cluster = get_cluster_info(name, nodes=True)
-    # print("Cluster Info: {}".format(cluster))
+    print("Cluster Info: {}".format(cluster))
 
     # Get owning group information for contact info
     owningGroupName = cluster['metadata']['owningGroup']
