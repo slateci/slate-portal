@@ -409,34 +409,13 @@ def view_group(name):
 
 @app.route('/group-admin-clusters-xhr/<group_name>', methods=['GET'])
 def group_admin_clusters_ajax(group_name):
-    administering_clusters, accessible_clusters_diff, member_access = group_admin_clusters_request(group_name)
-    return jsonify(administering_clusters, accessible_clusters_diff, member_access)
+    administering_clusters, accessible_clusters_diff = group_admin_clusters_request(group_name)
+    return jsonify(administering_clusters, accessible_clusters_diff)
 
 
 def group_admin_clusters_request(group_name):
     access_token, slate_user_id = get_user_info(session)
     query = {'token': access_token}
-    # Get Group Info
-    group_info = requests.get(
-        slate_api_endpoint + '/v1alpha3/groups/' + group_name, params=query)
-    group_info = group_info.json()
-
-    if group_info['kind'] == 'Error':
-        return render_template('404.html')
-
-    # Get User
-    user = requests.get(
-        slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
-    user = user.json()['metadata']['name']
-
-    # Get Group Members
-    group_members = requests.get(
-        slate_api_endpoint + '/v1alpha3/groups/' + group_name + '/members', params=query)
-    group_members = group_members.json()['items']
-    member_access = False
-    for member in group_members:
-        if member['metadata']['name'] == user:
-            member_access = True
 
     # Get clusters owned by group
     administering_clusters = requests.get(
@@ -465,7 +444,7 @@ def group_admin_clusters_request(group_name):
     accessible_clusters_names = [accessible_cluster['metadata']['name'] for accessible_cluster in accessible_clusters]
     accessible_clusters_diff = list(set(accessible_clusters_names) - set(administering_clusters_names))
     # print(accessible_clusters_diff)
-    return administering_clusters, accessible_clusters_diff, member_access
+    return administering_clusters, accessible_clusters_diff
 
 
 @app.route('/groups/<name>/members', methods=['GET', 'POST'])
