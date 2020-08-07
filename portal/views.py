@@ -1099,19 +1099,27 @@ def edit_profile():
     if request.method == 'GET':
         identity_id = session.get('primary_identity')
         access_token = get_user_access_token(session)
-        query = {'token': access_token,
+        query = {'token': slate_api_token,
                  'globus_id': identity_id}
-
+        print("Querying for user profile...")
         profile = requests.get(
             slate_api_endpoint + '/v1alpha3/find_user', params=query)
+        print("Response from querying profile: {}".format(profile.json()))
 
         if profile:
+            print("Found profile: {}".format(profile))
+            query = {'token': access_token,
+                     'globus_id': identity_id}
             slate_user_id = get_user_id(session)
+
+            print("Querying profile details...")
             profile = requests.get(slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
+
+            print("Response from querying profile details: {}".format(profile))
             profile = profile.json()['metadata']
         else:
-            flash(
-                'Please complete any missing profile fields and press Save.')
+            flash('Please complete any missing profile fields and press Save.')
+            return redirect('create_profile')
 
         if request.args.get('next'):
             session['next'] = get_safe_redirect()

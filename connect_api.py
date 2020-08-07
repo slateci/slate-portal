@@ -25,6 +25,15 @@ except:
     query = {'token': slate_api_token}
 
 #  Users
+def check_user_exists():
+    identity_id = session.get('primary_identity')
+    query = {'token': slate_api_token,
+             'globus_id': identity_id}
+    response = requests.get(
+            slate_api_endpoint + '/v1alpha3/find_user', params=query)
+    return response
+
+
 def get_user_info(session):
     # test_new_id = 'user_oXa_2vOeAHw'
     # test_original_id = 'user_XYiA5LV1SdA'
