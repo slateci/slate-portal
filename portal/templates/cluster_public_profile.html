@@ -56,7 +56,7 @@
                       {[{cluster.metadata.owningOrganization}]}
                     </p>
                     <p class="lead">
-                      <strong v-if="cluster.metadata.location[0].desc">Location: {[{cluster.metadata.location[0].desc}]}</strong>
+                      <strong v-if="cluster.metadata.location[0]">Location: {[{cluster.metadata.location[0].desc}]}</strong>
                       <strong v-else>Location: {[{cluster.metadata.location[0]}]}</strong>
                     </p>
                     <p class="lead" v-if="cluster.metadata.nodes">
