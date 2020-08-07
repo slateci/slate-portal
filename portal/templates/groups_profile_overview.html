@@ -24,15 +24,10 @@
     		<tr v-for="(cluster, index) in administering_clusters" v-cloak >
     		  <td><a :href="'/groups/' + cluster.metadata.owningGroup + '/clusters/' + cluster.metadata.name">{[{cluster.metadata.name}]}</a></td>
     		  <td>
-    		    <span v-if="member_access">
               <form role="form" action="{{url_for('view_group', name=name)}}" method="POST" onsubmit="return confirm('Are you sure you want to delete this cluster?');">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <button type="submit" name="delete_cluster" value="{[{cluster.metadata.name}]}" class="btn btn-danger btn-sm btn-box-shadow" data-submit="Removing Cluster...">Delete Cluster</button>
               </form>
-    				</span>
-    				<span v-else>
-    				  None
-    			  </span>
     		  </td>
     		</tr>
 
@@ -81,7 +76,6 @@ $(document).ready(function() {
 	    return {
 	      administering_clusters: {},
 		accessible_clusters: {},
-    member_access: false,
 		loading: true,
 		failed: false
 	    }
@@ -96,7 +90,6 @@ $(document).ready(function() {
 	        .then(function (response) {
 		    this.administering_clusters = response.data[0];
 		    this.accessible_clusters = response.data[1];
-        this.member_access = response.data[2];
 				this.loading = false;
 		}.bind(this)) //must use bind(this) unless using arrow function
 		.catch(error => { this.failed = true; this.loading = false; })
