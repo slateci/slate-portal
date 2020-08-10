@@ -1,6 +1,6 @@
 from flask import redirect, request, session, url_for, flash
 from functools import wraps
-from connect_api import get_user_id, get_instance_details, get_group_members
+from portal.connect_api import get_user_id, get_instance_details, get_group_members
 
 def authenticated(fn):
     """Mark a route as requiring authentication."""

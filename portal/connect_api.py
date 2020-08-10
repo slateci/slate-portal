@@ -2,21 +2,21 @@ from flask import session
 import requests
 import sys
 from geopy.geocoders import Nominatim
-# from portal import slate_api_token, slate_api_token
+from portal import slate_api_token, slate_api_endpoint
 
 sys.path.insert(0, '/etc/slate/secrets')
 
-try:
-    # Read endpoint and token from VM
-    f = open("/etc/slate/secrets/slate_api_token.txt", "r")
-    g = open("slate_api_endpoint.txt", "r")
-except:
-    # Read endpoint and token local
-    f = open("secrets/slate_api_token.txt", "r")
-    g = open("secrets/slate_api_endpoint.txt", "r")
+# try:
+#     # Read endpoint and token from VM
+#     f = open("/etc/slate/secrets/slate_api_token.txt", "r")
+#     g = open("slate_api_endpoint.txt", "r")
+# except:
+#     # Read endpoint and token local
+#     f = open("secrets/slate_api_token.txt", "r")
+#     g = open("secrets/slate_api_endpoint.txt", "r")
 
-slate_api_token = f.read().split()[0]
-slate_api_endpoint = g.read().split()[0]
+# slate_api_token = f.read().split()[0]
+# slate_api_endpoint = g.read().split()[0]
 
 try:
     access_token = get_user_access_token(session)

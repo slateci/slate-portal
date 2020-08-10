@@ -4,7 +4,7 @@ import json
 import requests
 import time
 from flask import (render_template, request, session, jsonify, redirect, flash, url_for)
-from connect_api import (list_clusters_request, coordsConversion, 
+from portal.connect_api import (list_clusters_request, coordsConversion, 
                          get_user_access_token, get_cluster_info, 
                          get_group_members, list_cluster_whitelist,
                          cluster_exists)

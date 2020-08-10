@@ -4,7 +4,7 @@ import json
 import requests
 from flask import (flash, redirect, render_template,
                    request, session, url_for, jsonify)
-from connect_api import (list_instances_request, 
+from portal.connect_api import (list_instances_request, 
                         list_user_groups,
                         list_users_instances_request,
                         get_user_access_token, 
