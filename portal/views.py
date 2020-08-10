@@ -1147,6 +1147,7 @@ def authcallback():
         session['slate_token'] = slate_portal_user[5]
         session['is_authenticated'] = True
         session['slate_portal_user'] = True
+        session['primary_identity'] = slate_portal_user[5]
 
         query = {'token': slate_api_token}
 
