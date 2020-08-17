@@ -32,6 +32,21 @@ app.logger.addHandler(handler)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s: %(message)s')
 handler.setFormatter(formatter)
 
+try:
+    # Change to location of slate_portal_user file
+    f = open("/slate_portal_user", "r")
+    minislate_user = f.read().split()
+except:
+    minislate_user = None
+    
+if minislate_user:
+    slate_api_token = minislate_user[5]
+    slate_api_endpoint = "http://localhost:18080"
+else:
+    slate_api_token = app.config['SLATE_API_TOKEN']
+    slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
+
+
 def format_datetime(value, format="%b %d %Y %I:%M %p"):
     """Format a date time to (Default): d Mon YYYY HH:MM P"""
 

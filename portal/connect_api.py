@@ -2,20 +2,21 @@ from flask import session
 import requests
 import sys
 from geopy.geocoders import Nominatim
+from portal import slate_api_token, slate_api_endpoint
 
 sys.path.insert(0, '/etc/slate/secrets')
 
-try:
-    # Read endpoint and token from VM
-    f = open("/etc/slate/secrets/slate_api_token.txt", "r")
-    g = open("slate_api_endpoint.txt", "r")
-except:
-    # Read endpoint and token local
-    f = open("secrets/slate_api_token.txt", "r")
-    g = open("secrets/slate_api_endpoint.txt", "r")
+# try:
+#     # Read endpoint and token from VM
+#     f = open("/etc/slate/secrets/slate_api_token.txt", "r")
+#     g = open("slate_api_endpoint.txt", "r")
+# except:
+#     # Read endpoint and token local
+#     f = open("secrets/slate_api_token.txt", "r")
+#     g = open("secrets/slate_api_endpoint.txt", "r")
 
-slate_api_token = f.read().split()[0]
-slate_api_endpoint = g.read().split()[0]
+# slate_api_token = f.read().split()[0]
+# slate_api_endpoint = g.read().split()[0]
 
 try:
     access_token = get_user_access_token(session)
@@ -24,8 +25,18 @@ except:
     query = {'token': slate_api_token}
 
 #  Users
-def get_user_info(session):
+def check_user_exists():
+    identity_id = session.get('primary_identity')
+    query = {'token': slate_api_token,
+             'globus_id': identity_id}
+    response = requests.get(
+            slate_api_endpoint + '/v1alpha3/find_user', params=query)
+    return response
 
+
+def get_user_info(session):
+    # test_new_id = 'user_oXa_2vOeAHw'
+    # test_original_id = 'user_XYiA5LV1SdA'
     query = {'token': slate_api_token,
              'globus_id': session['primary_identity']}
 
@@ -33,6 +44,7 @@ def get_user_info(session):
         slate_api_endpoint + '/v1alpha3/find_user', params=query)
 
     profile = profile.json()
+    print('Trying to get using info from method: {}'.format(profile))
     user_id = profile['metadata']['id']
     access_token = profile['metadata']['access_token']
     return access_token, user_id
@@ -62,6 +74,17 @@ def get_user_access_token(session):
     profile = profile.json()
     access_token = profile['metadata']['access_token']
     return access_token
+
+
+def get_user_details(user_id):
+    query = {'token': slate_api_token,
+             'globus_id': session['primary_identity']}
+
+    user_details = requests.get(
+        slate_api_endpoint + '/v1alpha3/users/' + user_id, params=query)
+
+    user_details = user_details.json()
+    return user_details
 
 
 def delete_user(userID, query):
@@ -137,6 +160,42 @@ def list_incubator_applications_request():
     # incubator_apps = incubator_apps.json()['items']
     incubator_apps = query_status_code(incubator_apps)
     return incubator_apps
+    
+
+def get_app_config(app_name):
+    response = requests.get(
+        slate_api_endpoint + '/v1alpha3/apps/' + app_name, params=query)
+    app_config = response.json()
+
+    return app_config
+
+
+def cluster_allowed_groups(cluster_name, group_name):
+    """
+    Request query check if a group has access to a cluster
+    :cluster_name: str cluster name
+    :group_name: str group name
+    :return: bool
+    """
+    response = requests.get(
+        slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups/' + group_name, params=query)
+    cluster_allowed = response.json()
+    accessAllowed = cluster_allowed['accessAllowed']
+    return accessAllowed
+    
+
+def list_cluster_whitelist(cluster_name):
+    """
+    Request cluster whitelist
+    :cluster_name: str cluster name
+    :group_name: str group name
+    :return: bool
+    """
+    response = requests.get(
+        slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=query)
+    cluster_whitelist = response.json()
+    # print("WHITE LIST {}".format(cluster_whitelist))
+    return cluster_whitelist
 
 
 def list_public_groups_request():
@@ -148,6 +207,48 @@ def list_public_groups_request():
         slate_api_endpoint + '/v1alpha3/groups', params=query)
     public_groups = public_groups.json()['items']
     return public_groups
+
+
+def get_group_info(group_name):
+    """
+    Returns group info
+    :return:
+    """
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
+
+    group_info = requests.get(
+        slate_api_endpoint + '/v1alpha3/groups/' + group_name, params=query)
+    group_info = group_info.json()
+    return group_info
+
+
+def get_group_clusters(group_name):
+    """
+    Returns list of clusters administered by group
+    :return: list
+    """
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
+
+    group_clusters = requests.get(
+        slate_api_endpoint + '/v1alpha3/groups/' + group_name + '/clusters', params=query)
+    group_clusters = group_clusters.json()
+    return group_clusters
+
+
+def get_group_members(group_name):
+    """
+    Returns list of members of group
+    :return: list of members belonging to group
+    """
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
+
+    group_members = requests.get(
+        slate_api_endpoint + '/v1alpha3/groups/' + group_name + '/members', params=query)
+    group_members = group_members.json()
+    return group_members
 
 
 def list_clusters_request():
@@ -221,9 +322,77 @@ def list_connect_admins(group_name):
     """
     query = {'token': slate_api_token}
     group_members = requests.get(
-            slate_api_endpoint + '/v1alpha1/groups/'
+            slate_api_endpoint + '/v1alpha3/groups/'
             + connect_name(group_name) + '/members', params=query)
     memberships = group_members.json()['memberships']
     memberships = [member for member in memberships if member['state'] == 'admin']
 
     return memberships
+
+
+def get_cluster_info(cluster_name, nodes=False):
+    access_token = get_user_access_token(session)
+    if nodes:
+        query = {'token': access_token, 'nodes': nodes}
+    else:
+        query = {'token': access_token}
+    # try:
+    print("Querying cluster info...")
+    try:
+        cluster = requests.get(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name, params=query, timeout=10)
+    except:
+        print("Got past query...")
+        cluster = 504
+    # except Exception as ex:
+    #     print("Timedout: {}".format(ex.__dict__))
+    print("Response from querying cluter info: {}".format(cluster))
+
+    if cluster == 504:
+        print("At least we found the error response: {}".format(cluster))
+        return 504
+    else:
+        cluster = cluster.json()
+        print("Response JSON: {}".format(cluster))
+        return cluster
+
+def cluster_exists(cluster_name):
+    print("Querying list of existing clusters...")
+    clusters = list_clusters_request()
+    print("Checking if cluster {} exists in current clusters...".format(cluster_name))
+    cluster_names = []
+    for cluster in clusters:
+        cluster_names.append(cluster['metadata']['name'])
+    if cluster_name not in cluster_names:
+        print("Returning False because did not find {} in {}".format(cluster_name, cluster_names))
+        return False
+    else:
+        print("Found {} in current exisint clusters".format(cluster_name))
+        return True
+
+def get_instance_details(instance_id):
+    access_token = get_user_access_token(session)
+    query = {'token': access_token, 'detailed': True}
+
+    print("Querying instance details...")
+    response = requests.get(slate_api_endpoint + '/v1alpha3/instances/' + instance_id, params=query)
+    print("Query response: {}".format(response))
+    
+    if response.status_code == 504:
+        return 504
+    else:
+        instance_details = response.json()
+    
+    return instance_details
+
+
+def get_instance_logs(instance_id):
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
+    print("Querying instance logs...")
+    response = requests.get(slate_api_endpoint + '/v1alpha3/instances/' + instance_id + '/logs', params=query)
+    print("Query response: {}".format(response))
+    if response.status_code == 500:
+        return 500
+    elif response.status_code == requests.codes.ok:
+        instance_logs = response.json()
+        return instance_logs

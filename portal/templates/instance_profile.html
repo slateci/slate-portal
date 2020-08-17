@@ -17,8 +17,13 @@
           <li class="breadcrumb-item active">{{instance_details['metadata']['name']}}</li>
         </ol>
 
-        <h1>Instance: {{instance_details['metadata']['name']}}</h1>
-        <h4>Cluster: <span class='text-muted'>{{instance_details['metadata']['cluster']}}</span></h4>
+        <h2>Instance: {{instance_details['metadata']['name']}}</h2>
+        <h6><strong>Instance ID:</strong> {{instance_details['metadata']['id']}}</h6>
+        <h6><strong>Application:</strong> {{instance_details['metadata']['application']}}</h6>
+        <h6><strong>Version:</strong> {{instance_details['metadata']['appVersion']}}</h6>
+        <h6><strong>Cluster:</strong> {{instance_details['metadata']['cluster']}}</h6>
+        <h6><strong>Group:</strong> {{instance_details['metadata']['group']}}</h6>
+        <h6><strong>Created:</strong> {{instance_details['metadata']['created']}}</h6>
         <a href="#" class="btn btn-danger btn-sm btn-box-shadow" onclick="btnConfirm()">Delete Instance</a>
         <hr/>
 
@@ -92,6 +97,7 @@
           <div role="tabpanel" class="tab-pane fade" id="logs">
             <br>
             <!-- <h3>Logs</h3> -->
+<<<<<<< HEAD
             <div id="logs-display">
               <label for="container-list"> Select container: </label>
               <select id="container-list" name="container-list">
@@ -109,6 +115,9 @@
               <button class="btn btn-primary btn-sm btn-box-shadow" onclick="wrapLogs()">Wrap/Unwrap Logs</button>
               <pre id="logs-box" class="app-logs">{[{logs}]}</pre>
             </div>
+=======
+            <pre class="app-logs">{% if instance_log['logs'] %}{{instance_log['logs']}}{% else %}Logs currently unavailable{% endif %}</pre>
+>>>>>>> upstream/master
           </div>
 
         </div>
@@ -118,7 +127,6 @@
   </div>
 </section>
 
-<meta id="instance-data" data-name="{{name}}">
 <script>
 $(document).ready(function() {
     $('#pods-table').DataTable();
@@ -128,42 +136,9 @@ function btnConfirm() {
     var r = confirm("Are you sure you want to delete this instance?");
     if(r == true){
       window.location.href = "{{url_for('delete_instance', name=name)}}";
+      loader();
     }
 }
-
-var isWrapped = false
-function wrapLogs() {
-  if(!isWrapped){
-    document.getElementById("logs-box").style.whiteSpace = "pre-wrap";
-    document.getElementById("logs-box").style.wordBreak = "break-word";
-    isWrapped = true
-  } else {
-    document.getElementById("logs-box").style.whiteSpace = "pre";
-    document.getElementById("logs-box").style.wordBreak = "normal";
-    isWrapped = false
-  }
-}
-
-var instance = $('#instance-data').data();
-var instance_id = instance.name;
-var request_logs = new Vue({
-  el: '#logs-display',
-  data: {
-    logs: null
-  },
-  methods: {
-    getLogs: function () {
-      var lines = document.getElementById('nlines').value
-      var container = document.getElementById('container-list').value
-      axios.get('/instances-log-xhr/' + instance_id + '/' + container + '/' + lines)
-      .then(response => this.logs = response.data)
-      .catch(error => this.logs = "Logs currently unavailable")
-    }
-  },
-  mounted: function(){
-    this.getLogs()
-  }
-})
 
 </script>
 {%endblock%}

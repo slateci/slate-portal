@@ -69,10 +69,22 @@
   </div>
 </section>
 
+<meta id="cluster-data" 
+      data-name="{{cluster['metadata']['name']}}" 
+      data-owning_group="{{cluster['metadata']['owningGroup']}}" 
+      data-owning_organization="{{cluster['metadata']['owningOrganization']}}"
+      data-latitude="{{latitude}}"
+      data-longitude="{{longitude}}"
+      data-address="{{address}}">
 <script>
-var owningOrganization = {{cluster['metadata']['owningOrganization']|tojson}} || "Organization";
-var latitude = {{latitude|tojson}};
-var longitude = {{longitude|tojson}};
+var cluster = $('#cluster-data').data();
+var name = cluster.name;
+var owningGroup = cluster.owning_group;
+var owningOrganization = cluster.owning_organization;
+var latitude = cluster.latitude;
+var longitude = cluster.longitude;
+var address = cluster.address;
+
 window.onload = setEditFields(owningOrganization, latitude, longitude);
 
 function setEditFields(owningOrganization, latitude, longitude){

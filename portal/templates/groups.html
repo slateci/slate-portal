@@ -4,7 +4,7 @@
 
 {%block body%}
 
-<section id="cli-access" class="bg-light">
+<section id="user-groups" class="bg-light">
   <div class="container col-lg-12 mx-auto">
 
     <div class="row">
@@ -28,12 +28,20 @@
               </tr>
             </thead>
             <tbody data-link="row" class="rowlink" style="font-size:14px;">
-              {% for group in group_list %}
-              <tr>
-                <td><a href="{{url_for('view_group', name=group['metadata']['name'])}}" title="View Group Profile" style="font-weight:bold">{{ group['metadata']['name'] }}</a></td>
-                <td>{{ group['metadata']['id'] }}</td>
-              </tr>
-              {% endfor %}
+              <tr v-if="loading">
+          			<td>Loading Data <i class="fas fa-sync fa-spin"></i></td>
+          			<td><i class="fas fa-sync fa-spin"></i></td>
+          		</tr>
+          		<tr v-if="failed">
+          			<td>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></td>
+          			<td><i class="far fa-times-circle"></i></td>
+          		</tr>
+
+          		<tr v-for="group in user_groups" v-cloak >
+                <td><a :href="'/groups/' + group.metadata.name">{[{group.metadata.name}]}</a></td>
+                <td>{[{group.metadata.id}]}</td>
+          		</tr>
+
             </tbody>
 
           </table>
@@ -46,6 +54,29 @@
 </section>
 
 <script>
-$('#groups-table').DataTable();
+  $(document).ready(function() {
+      new Vue({
+        el: '#groups-table',
+        data () {
+          return {
+            user_groups: {},
+            loading: true,
+            failed: false
+            }
+          },
+        updated: function() {
+          //call DataTable after view is updated
+          $('#groups-table').DataTable();
+          },
+        mounted() {
+          axios.get('/groups-xhr')
+          .then(function (response) {
+            this.user_groups = response.data;
+            this.loading = false;
+            }.bind(this)) //must use bind(this) unless using arrow function
+            .catch(error => { this.failed = true; this.loading = false; })
+            }
+          });
+        });
 </script>
 {%endblock%}

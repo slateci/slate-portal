@@ -5,7 +5,7 @@
 {%endblock%}
 
 {%block body%}
-<section id="cli-access" class="bg-light">
+<section id="public-groups" class="bg-light">
   <div class="container col-lg-12 mx-auto">
 
     <div class="row">
@@ -15,11 +15,6 @@
           <li class="breadcrumb-item active">Public Groups</li>
         </ol>
         <h2>All Public Groups</h2>
-        <!-- <p class="lead">
-          A list of public groups on SLATE
-        </p> -->
-        <!-- <a href="{{url_for('create_group')}}" class="btn btn-primary btn-sm">Register New Group</a> -->
-        <!-- <hr/> -->
         <div class="table-responsive">
           <table class="table" id="groups-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
             <thead>
@@ -30,13 +25,21 @@
               </tr>
             </thead>
             <tbody data-link="row" class="rowlink" style="font-size:14px;">
-              {% for group in group_list %}
-              <tr>
-                <td><a href="{{url_for('view_public_group', name=group['metadata']['name'])}}" title="View Group Profile">{{ group['metadata']['name'] }}</a></td>
-                <td>{{ group['metadata']['scienceField']}}</td>
-                <td>{{ group['metadata']['id'] }}</td>
+              <tr v-if="loading">
+          			<td>Loading Data <i class="fas fa-sync fa-spin"></i></td>
+                <td><i class="fas fa-sync fa-spin"></i></td>
+                <td><i class="fas fa-sync fa-spin"></i></td>
+          		</tr>
+          		<tr v-if="failed">
+          			<td>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></td>
+                <td><i class="far fa-times-circle"></i></td>
+                <td><i class="far fa-times-circle"></i></td>
               </tr>
-              {% endfor %}
+              <tr v-for="group in public_groups" v-cloak >
+                <td><a :href="'/public-groups/' + group.metadata.name" title="View Group Profile">{[{group.metadata.name}]}</a></td>
+                <td>{[{group.metadata.scienceField}]}</td>
+                <td>{[{group.metadata.id}]}</td>
+          		</tr>
             </tbody>
 
           </table>
@@ -49,7 +52,28 @@
 
 <script>
 $(document).ready(function() {
-    $('#groups-table').DataTable();
-});
+      new Vue({
+        el: '#groups-table',
+        data () {
+          return {
+            public_groups: {},
+            loading: true,
+            failed: false
+            }
+          },
+        updated: function() {
+          //call DataTable after view is updated
+          $('#groups-table').DataTable();
+          },
+        mounted() {
+          axios.get('/public-groups-xhr')
+          .then(function (response) {
+            this.public_groups = response.data;
+            this.loading = false;
+            }.bind(this)) //must use bind(this) unless using arrow function
+            .catch(error => { this.failed = true; this.loading = false; })
+            }
+          });
+        });
 </script>
 {%endblock%}

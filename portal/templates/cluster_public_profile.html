@@ -7,120 +7,235 @@
 {%block body%}
 <section id="cluster-profile" class="bg-light">
   <div class="container col-lg-12 mx-auto">
-
     <div class="row">
       <div class="col-lg-12 mx-auto">
+
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
           <li class="breadcrumb-item"><a href="{{url_for('list_clusters')}}">Clusters</a></li>
-          <li class="breadcrumb-item active">{[{cluster.metadata.name}]}</li>
+          <li class="breadcrumb-item active">{{name}}</li>
         </ol>
-        <h1>Cluster: {[{cluster.metadata.name}]}</h1>
+        <h1>Cluster: {{name}}</h1>
         <hr/>
-        <div class="row">
-          <div class="col-sm-6">
-            <div class="card h-100">
-              <div class="card-header">
-                Cluster Information
-              </div>
-              <div class="card-body">
-                <p class="lead">
-                  <strong>Administering Group:</strong>
-                  {[{cluster.metadata.owningGroup}]}
-                </p>
-                <p class="lead">
-                  <strong>Contact:</strong>
-                  <a :href="'mailto:'+owningGroupEmail">{[{owningGroupEmail}]}</a>
-                </p>
-                <p class="lead">
-                  <strong>Organization:</strong>
-                  {[{cluster.metadata.owningOrganization}]}
-                </p>
-                <p class="lead">
-                  <strong>Location: {{address}}</strong>
-                </p>
-                <p class="lead">
-                  <strong>Number of Nodes:</strong>
-                  {[{cluster.metadata.nodes.length}]}
-                </p>
-                <p class="lead">
-                  <strong>Status: </strong>
-                  <span v-if="cluster_status === 'True'">
-                    Reachable <i class='fas fa-check-circle' style='color: green'></i>
-                  </span>
-                  <span v-else>
-                    Currently unreachable <i class='fas fa-times-circle' style='color: red'></i>
-                  </span>
-                </p>
+        <span id='cluster-xhr'>
+
+          <div v-if='loading'>
+            <div class="row">
+              <div class="col-sm-12">
+                Loading Data <i class="fas fa-sync fa-spin"></i>
               </div>
             </div>
           </div>
 
-          <div class="col-sm-6">
-            <div class="card h-100">
-              <div class="card-header">
-                Groups with access
-              </div>
-              <div class="card-body">
-
-                <ul class="list-unstyled" v-if="loading">
-                  <li>Loading Data <i class="fas fa-sync fa-spin"></i></li>
-                </ul>
-
-                <ul class="list-unstyled" v-if="failed">
-                  <li>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></li>
-                </ul>
-
-                <ul class="list-unstyled" id="allowed_groups">
-                  <li v-for="(group, index) in allowed_groups">
-                    <a v-if="group.metadata.name == '<all>' " :href="'/public_groups'">All Groups</a>
-                    <a v-else :href="'/public_groups/' + group.metadata.name">{[{group.metadata.name}]}</a>
-                  </li>
-                </ul>
-
+          <div v-else-if="timeout">
+            <div class="row">
+              <div class="col-sm-12">
+                The request for this cluster has timed out. Please try again later.
               </div>
             </div>
           </div>
-        </div>
 
-        <br/>
+          <div v-else>
+            <div class="row">
+              <div class="col-sm-6" id='cluster-info-col'>
+                <div class="card h-100">
+                  <div class="card-header">
+                    Cluster Information
+                  </div>
+                  <div class="card-body" v-cloak>
+                    <p class="lead">
+                      <strong>Administering Group:</strong>
+                      {[{cluster.metadata.owningGroup}]}
+                    </p>
+                    <p class="lead">
+                      <strong>Contact:</strong>
+                      <a :href="'mailto:'+owningGroupEmail">{[{owningGroupEmail}]}</a>
+                    </p>
+                    <p class="lead">
+                      <strong>Organization:</strong>
+                      {[{cluster.metadata.owningOrganization}]}
+                    </p>
+                    <p class="lead">
+                      <strong v-if="cluster.metadata.location[0]">Location: {[{cluster.metadata.location[0].desc}]}</strong>
+                      <strong v-else>Location: {[{cluster.metadata.location[0]}]}</strong>
+                    </p>
+                    <p class="lead" v-if="cluster.metadata.nodes">
+                      <strong>Number of Nodes:</strong>
+                      {[{cluster.metadata.nodes.length}]}
+                    </p>
+                    <p class="lead" v-else>
+                      <strong>Number of Nodes:</strong>
+                      None
+                    </p>
+                    <p class="lead">
+                      <strong>Status: </strong>
+                      <span v-if="cluster_status === 'True'">
+                        Reachable <i class='fas fa-check-circle' style='color: green'></i>
+                      </span>
+                      <span v-else>
+                        Currently unreachable <i class='fas fa-times-circle' style='color: red'></i>
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-        <span v-if="cluster.metadata.hasMonitoring">
-          <div v-for="node in cluster.metadata.nodes" style="padding-bottom: 10px;">
+              <div class="col-sm-6">
+                <div class="card h-100">
+                  <div class="card-header">
+                    Groups with access
+                  </div>
+                  <div class="card-body">
+
+                    <ul class="list-unstyled" v-if="loading">
+                      <li>Loading Data <i class="fas fa-sync fa-spin"></i></li>
+                    </ul>
+
+                    <ul class="list-unstyled" v-if="failed">
+                      <li>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></li>
+                    </ul>
+
+                    <ul class="list-unstyled" id="allowed_groups">
+                      <li v-for="(group, index) in allowed_groups">
+                        <a v-if="group.metadata.name == '<all>' " :href="'/public-groups'">All Groups</a>
+                        <a v-else :href="'/public-groups/' + group.metadata.name">{[{group.metadata.name}]}</a>
+                      </li>
+                    </ul>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <br/>
+
             <div class="row">
               <div class="col-sm-12">
                 <div class="card h-100">
                   <div class="card-header">
-                    Node:<a :href="'/clusters/'+cluster.metadata.name+'/'+node.name"> {[{node.name}]} </a>
+                    Storage Classes
                   </div>
                   <div class="card-body">
-                    <div class="row">
-                      <div class="col-sm-12 col-md-6 col-lg-3">
-                        <!-- CPU -->
-                        <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-node-monitoring-updated?orgId=1&theme=light&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-name='+node.name+'&panelId=310'" width="100%" height="330" frameborder="0" style="pointer-events: none"></iframe>
-                      </div>
-                      <div class="col-sm-12 col-md-6 col-lg-3">
-                        <!-- memory -->
-                        <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-node-monitoring-updated?orgId=1&theme=light&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-name='+node.name+'&panelId=316'" width="100%" height="330" frameborder="0" style="pointer-events: none"></iframe>
-                      </div>
-                      <div class="col-sm-12 col-md-6 col-lg-3">
-                        <!-- network -->
-                        <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-node-monitoring-updated?orgId=1&theme=light&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-name='+node.name+'&panelId=315'" width="100%" height="330" frameborder="0" style="pointer-events: none"></iframe>
-                      </div>
-                      <div class="col-sm-12 col-md-6 col-lg-3">
-                        <!-- disk -->
-                        <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/6u_Akx7Gk/cluster-node-monitoring-updated?orgId=1&theme=light&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-name='+node.name+'&panelId=314'" width="100%" height="330" frameborder="0" style="pointer-events: none"></iframe>
-                      </div>
+                    <div class="table-responsive">
+                      <table class="table" id="storage-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+                        <thead>
+                          <tr>
+                            <th data-field="name" data-sortable="true">Name</th>
+                            <th data-field="binding-mode" data-sortable="true">Binding Mode</th>
+                            <th data-field="vol-expansion" data-sortable="true">Volume Expansion</th>
+                            <th data-field="reclaim-policy" data-sortable="true">Reclaim Policy</th>
+                          </tr>
+                        </thead>
+                        <tbody data-link="row" class="rowlink" style="font-size:14px;">
+                          <tr v-if="loading">
+                            <td>Loading Data <i class="fas fa-sync fa-spin"></i></td>
+                            <td><i class="fas fa-sync fa-spin"></i></td>
+                            <td><i class="fas fa-sync fa-spin"></i></td>
+                            <td><i class="fas fa-sync fa-spin"></i></td>
+                          </tr>
+                          <tr v-if="failed">
+                            <td>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></td>
+                            <td><i class="far fa-times-circle"></i></td>
+                            <td><i class="far fa-times-circle"></i></td>
+                            <td><i class="far fa-times-circle"></i></td>
+                          </tr>
+                          <tr v-for="storageclass in storageClasses" v-cloak>
+                            <td>{[{ storageclass.name }]}</td>
+                            <td>{[{ storageclass.bindingMode }]}</td>
+                            <td>{[{ storageclass.allowVolumeExpansion }]}</td>
+                            <td>{[{ storageclass.reclaimPolicy }]}</td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+
+            <br/>
+
+            <div class="row">
+              <div class="col-sm-12">
+                <div class="card h-100">
+                  <div class="card-header">
+                    Priority Classes
+                  </div>
+                  <div class="card-body">
+                    <div class="table-responsive">
+                      <table class="table" id="priority-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+                        <thead>
+                          <tr>
+                            <th data-field="priority" data-sortable="true">Priority</th>
+                            <th data-field="priority-name" data-sortable="true">Name</th>
+                            <th data-field="description" data-sortable="true">Description</th>
+                          </tr>
+                        </thead>
+                        <tbody data-link="row" class="rowlink" style="font-size:14px;">
+                          <tr v-if="loading">
+                            <td>Loading Data <i class="fas fa-sync fa-spin"></i></td>
+                            <td><i class="fas fa-sync fa-spin"></i></td>
+                            <td><i class="fas fa-sync fa-spin"></i></td>
+                          </tr>
+                          <tr v-if="failed">
+                            <td>Failed to load the data, please refresh the page <i class="far fa-times-circle"></i></td>
+                            <td><i class="far fa-times-circle"></i></td>
+                            <td><i class="far fa-times-circle"></i></td>
+                          </tr>
+                          <tr v-for="priorityClass in priorityClasses">
+                            <td>{[{ priorityClass.priority }]}</td>
+                            <td>{[{ priorityClass.name }]}</td>
+                            <td>{[{ priorityClass.description }]}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+      
+            </div>
+
+            <br/>
+
+            <span v-if="cluster.metadata.hasMonitoring">
+              <div v-for="node in cluster.metadata.nodes" style="padding-bottom: 10px;">
+                <div class="row">
+                  <div class="col-sm-12">
+                    <div class="card h-100">
+                      <div class="card-header">
+                        Node:<a :href="'/clusters/'+cluster.metadata.name+'/'+node.name"> {[{node.name}]} </a>
+                      </div>
+                      <div class="card-body">
+                        <div class="row">
+                          <div class="col-sm-12 col-md-6 col-lg-3">
+                            <!-- CPU -->
+                            <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/y775HBIGk/slate-node-summary?orgId=1&theme=light&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-name='+node.name+'&panelId=310'" width="100%" height="330" frameborder="0" style="pointer-events: none"></iframe>
+                          </div>
+                          <div class="col-sm-12 col-md-6 col-lg-3">
+                            <!-- memory -->
+                            <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/y775HBIGk/slate-node-summary?orgId=1&theme=light&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-name='+node.name+'&panelId=316'" width="100%" height="330" frameborder="0" style="pointer-events: none"></iframe>
+                          </div>
+                          <div class="col-sm-12 col-md-6 col-lg-3">
+                            <!-- network -->
+                            <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/y775HBIGk/slate-node-summary?orgId=1&theme=light&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-name='+node.name+'&panelId=315'" width="100%" height="330" frameborder="0" style="pointer-events: none"></iframe>
+                          </div>
+                          <div class="col-sm-12 col-md-6 col-lg-3">
+                            <!-- disk -->
+                            <iframe :src="'https://monitoring.umich-prod.slateci.net/d-solo/y775HBIGk/slate-node-summary?orgId=1&theme=light&var-DS_PROMETHEUS=SLATE&var-cluster='+cluster.metadata.name+'&var-name='+node.name+'&panelId=314'" width="100%" height="330" frameborder="0" style="pointer-events: none"></iframe>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </span>
           </div>
-        </span>
+        </span> 
+      
       </div>
     </div>
-
   </div>
 </section>
 
@@ -137,10 +252,18 @@ $(document).ready(function() {
         cluster: {},
         owningGroupEmail: {},
         allowed_groups: {},
+        storageClasses: {},
+        priorityClasses: {},
         cluster_status: {},
+        timeout: false,
         loading: true,
         failed: false
       }
+    },
+    updated: function() {
+      //call DataTable after view is updated
+      $('#storage-table').DataTable();
+      $('#priority-table').DataTable();
     },
     mounted() {
       axios.get('/public-clusters-xhr/'+cluster_name)
@@ -149,7 +272,15 @@ $(document).ready(function() {
         this.owningGroupEmail = response.data[1];
         this.allowed_groups = response.data[2];
         this.cluster_status = response.data[3];
-        this.loading = false;
+        this.storageClasses = response.data[4];
+        this.priorityClasses = response.data[5];
+        console.log(this.cluster);
+        if(response.data[6] === 'true'){
+          this.timeout = true;
+          this.loading = false;
+        } else {
+          this.loading = false;
+        }
         }.bind(this)) //must use bind(this) unless using arrow function
         .catch(error => { this.failed = true; this.loading = false; })
       }

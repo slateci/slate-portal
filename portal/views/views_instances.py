@@ -1,16 +1,14 @@
-from portal.decorators import authenticated
-from portal import app
+from portal.decorators import authenticated, instance_authenticated
+from portal import app, slate_api_token, slate_api_endpoint
 import json
 import requests
 from flask import (flash, redirect, render_template,
                    request, session, url_for, jsonify)
-from connect_api import (list_instances_request,
+from portal.connect_api import (list_instances_request, 
                         list_user_groups,
                         list_users_instances_request,
-                        get_user_access_token)
-# Read endpoint and token from config file
-slate_api_token = app.config['SLATE_API_TOKEN']
-slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
+                        get_user_access_token, 
+                        get_instance_details, get_instance_logs)
 
 
 @app.route('/instances_ajax', methods=['GET'])
@@ -52,60 +50,35 @@ def list_instances_xhr():
 
 @app.route('/instances/<name>', methods=['GET'])
 @authenticated
+@instance_authenticated
 def view_instance(name):
     """
     - View detailed instance information on SLATE
     """
-    access_token = get_user_access_token(session)
-    query = {'token': access_token}
     if request.method == 'GET':
+        instance_details = get_instance_details(name)
 
-        # Initialize separate list queries for multiplex request
-        instance_detail_query = '/v1alpha3/instances/' + name + '?token=' + query['token'] + '&detailed'
-        instance_log_query = '/v1alpha3/instances/' + name + '/logs' + '?token=' + query['token']
-        # Set up multiplex JSON
-        multiplexJson = {instance_detail_query: {"method":"GET"},
-                            instance_log_query: {"method":"GET"}}
-        # POST request for multiplex return
-        multiplex = requests.post(
-            slate_api_endpoint + '/v1alpha3/multiplex', params=query, json=multiplexJson)
-        multiplex = multiplex.json()
-        # Parse post return for instance, instance details, and instance logs
-        instance_details = json.loads(multiplex[instance_detail_query]['body'])
-        instance_log = json.loads(multiplex[instance_log_query]['body'])
+        if instance_details == 504:
+            flash('The connection to {} has timed out. Please try again later.'.format(name), 'warning')
+            return redirect(url_for('list_instances'))
+
+        try:
+            if instance_details['details']['pods'][0]['kind'] == 'Error':
+                print("No pod exist, so emptying logs and skipping lookup")
+                instance_log = {'logs': ''}
+        except:
+            instance_log = get_instance_logs(name)
+        
+        if instance_log == 500:
+            return render_template('500.html')
 
         instance_status = True
 
-        if instance_details['kind'] == 'Error':
-            instance_status = False
-            return render_template('404.html')
-
         # pretty_print = json.dumps(instance_details, sort_keys = True, indent = 2)
-        # print(pretty_print)
-
         return render_template('instance_profile.html', name=name,
                                 instance_details=instance_details,
                                 instance_status=instance_status,
                                 instance_log=instance_log)
-
-
-@app.route('/instances-log-xhr/<name>/<container>/<lines>', methods=['GET'])
-@authenticated
-def get_instance_container_log(name, container, lines):
-    access_token = get_user_access_token(session)
-    query = {'token': access_token}
-    # Initialize instance log query for multiplex request
-    instance_log_query = '/v1alpha3/instances/' + name + '/logs' + '?token=' + query['token'] + '&container=' + container + '&max_lines=' + lines
-    # Set up multiplex JSON
-    multiplexJson = {instance_log_query: {"method":"GET"}}
-    # POST request for multiplex return
-    multiplex = requests.post(
-        slate_api_endpoint + '/v1alpha3/multiplex', params=query, json=multiplexJson)
-    multiplex = multiplex.json()
-    # Parse post return for instance, instance details, and instance logs
-    instance_log = json.loads(multiplex[instance_log_query]['body'])
-
-    return jsonify(instance_log['logs'])
 
 
 @app.route('/instances/<name>/delete_instance', methods=['GET'])

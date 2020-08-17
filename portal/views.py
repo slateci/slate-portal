@@ -1,17 +1,15 @@
 from portal.utils import (
     load_portal_client, get_safe_redirect)
-from portal.decorators import authenticated
-from portal import app, csrf
-from werkzeug.exceptions import HTTPException
+from portal.decorators import authenticated, group_authenticated
+from portal import app, slate_api_token, slate_api_endpoint, minislate_user
 from datetime import datetime
 import json
 import requests
-import traceback
 import time
 import base64
 from flask import (flash, redirect, render_template,
                    request, session, url_for, jsonify)
-from connect_api import (list_applications_request,
+from portal.connect_api import (list_applications_request,
                         list_incubator_applications_request,
                         list_instances_request,
                         list_public_groups_request,
@@ -21,9 +19,7 @@ from connect_api import (list_applications_request,
                         get_user_access_token, get_user_id,
                         get_user_info, delete_user)
 import sys
-import subprocess
 import os
-import signal
 sys.path.insert(0, '/etc/slate/secrets')
 # Set sys path and import view routes
 sys.path.insert(1, 'portal/views')
@@ -31,11 +27,9 @@ import portal.views
 import views_applications
 import views_clusters
 import views_instances
-
-
-# Read endpoint and token from config file
-slate_api_token = app.config['SLATE_API_TOKEN']
-slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
+# import views_webhooks
+import views_error_handling
+import views_groups
 
 try:
     # Read endpoint and token from VM
@@ -54,42 +48,6 @@ except ImportError:
     from urlparse import urlparse, parse_qs
     from urllib import urlencode
     # print("Using Python 3")
-
-
-@app.template_filter('datetimeformat')
-def datetimeformat(value, format='%m/%d/%Y, %H:%M:%S'):
-    d = datetime.strptime(value, '%Y-%m-%dT%H:%M:%SZ')
-    return d.strftime(format)
-
-
-@app.template_filter('podnameformat')
-def podnameformat(value):
-    try:
-        hostName = value.decode('utf-8').split('.')[0]
-    except:
-        hostName = "None"
-    return hostName
-
-
-@app.route('/webhooks/github', methods=['GET', 'POST'])
-@csrf.exempt
-def webhooks():
-    """Endpoint that acepts post requests from Github Webhooks"""
-
-    cmd = """
-    git pull origin master
-    """
-    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-    out, err = p.communicate()
-    print("Return code: {}".format(p.returncode))
-    print("Error message: {}".format(err))
-
-    parent_pid = os.getppid()
-    print("Parent PID: {}".format(parent_pid))
-    os.kill(parent_pid, signal.SIGHUP)
-
-    return out
 
 
 @app.route('/applications_ajax', methods=['GET'])
@@ -246,40 +204,6 @@ def logout():
     return redirect(''.join(ga_logout_url))
 
 
-# Create a custom error handler for Exceptions
-@app.errorhandler(Exception)
-def exception_occurred(e):
-    print("ERROR HIT: {}".format(e))
-    trace = traceback.format_tb(sys.exc_info()[2])
-    app.logger.error("{0} Traceback occurred:\n".format(time.ctime()) +
-                     "{0}\nTraceback completed".format("n".join(trace)))
-    trace = "<br>".join(trace)
-    trace.replace('\n', '<br>')
-    return render_template('error.html', exception=trace,
-                           debug=app.config['DEBUG'])
-
-
-@app.route('/error', methods=['GET'])
-def errorpage():
-    if request.method == 'GET':
-        return render_template('error.html')
-
-
-@app.errorhandler(404)
-def not_found(e):
-    return render_template("404.html")
-
-
-@app.errorhandler(Exception)
-def handle_exception(e):
-    # pass through HTTP errors
-    if isinstance(e, HTTPException):
-        return e
-    print("ERROR CAUGHT: Issue with {}".format(e))
-    # now you're handling non-HTTP exceptions only
-    return render_template("500.html", e=e), 500
-
-
 @app.route('/slate_portal', methods=['GET'])
 def dashboard():
     """Send the user to dashboard"""
@@ -288,7 +212,7 @@ def dashboard():
         f = open("/slate_portal_user", "r")
         slate_portal_user = f.read().split()
 
-        session['slate_id'] = slate_portal_user[0]
+        session['user_id'] = slate_portal_user[0]
         session['name'] = slate_portal_user[1]
         session['email'] = slate_portal_user[2]
         session['phone'] = slate_portal_user[3]
@@ -301,44 +225,19 @@ def dashboard():
         session['slate_portal_user'] = False
 
     if request.method == 'GET':
-        try:
-            access_token = get_user_access_token(session)
-            query = {'token': access_token}
-            user_token = query['token']
-        except:
-            query = {'token': slate_api_token}
-            user_token = query['token']
-
-        clusters_json = list_clusters_request()
-        # single-user mode
         if session["slate_portal_user"]:
-            selected_clusters = ["ms-c"]
+            # single-user mode
+            clusters = ["ms-c"]
         else:
-            selected_clusters = ["uutah-prod", "uchicago-prod", "umich-prod"]
-        clusters = [cluster for cluster in clusters_json if cluster['metadata']['name'] in selected_clusters]
-
-        # Set up multiplex JSON
-        cluster_multiplex_Json = {}
-        for cluster in clusters:
-            cluster_name = cluster['metadata']['name']
-            cluster_status_query = "/v1alpha3/clusters/"+cluster_name+"/ping?token="+query['token']+"&cache"
-            cluster_multiplex_Json[cluster_status_query] = {"method":"GET"}
-        # POST request for multiplex return
-        cluster_multiplex = requests.post(
-            slate_api_endpoint + '/v1alpha3/multiplex', params=query, json=cluster_multiplex_Json)
-        cluster_multiplex = cluster_multiplex.json()
-
-        cluster_status_dict = {}
-        for cluster in cluster_multiplex:
-            cluster_name = cluster.split('/')[3]
-            cluster_status_dict[cluster_name] = json.loads(cluster_multiplex[cluster]['body'])['reachable']
+            clusters = ["uutah-prod", "uchicago-prod", "umich-prod"]
 
         with open('portal/static/news.md', "r") as file:
             news = file.read()
+        # This json conversion is for JS to read on the frontend
+        clusters_list = json.dumps(clusters)
 
         return render_template('dashboard.html', clusters=clusters,
-                                cluster_status_dict=cluster_status_dict,
-                                users=None, user_token=user_token, news=news)
+                                news=news, clusters_list=clusters_list)
 
 
 @app.route('/admin', methods=['GET', 'POST'])
@@ -377,56 +276,6 @@ def cli_access():
         return render_template('cli_access.html', access_token=access_token, slate_api_endpoint=slate_api_endpoint)
 
 
-@app.route('/public_groups', methods=['GET', 'POST'])
-@authenticated
-def list_public_groups():
-    if request.method == 'GET':
-        access_token = get_user_access_token(session)
-        query = {'token': access_token}
-
-        s = requests.get(
-            slate_api_endpoint + '/v1alpha3/groups', params=query)
-
-        s_info = s.json()
-        group_list = s_info['items']
-
-        return render_template('groups_public.html', group_list=group_list)
-
-
-@app.route('/public_groups_ajax', methods=['GET'])
-def public_groups_ajax():
-    public_groups = list_public_groups_request()
-    return jsonify(public_groups)
-
-
-@app.route('/public_groups/<name>', methods=['GET', 'POST'])
-@authenticated
-def view_public_group(name):
-    access_token = get_user_access_token(session)
-    query = {'token': access_token}
-    if request.method == 'GET':
-
-        group_info_query = '/v1alpha3/groups/' + name + '?token=' +query['token']
-        group_clusters_query = '/v1alpha3/groups/' + name + '/clusters?token=' +query['token']
-        # Set up multiplex JSON
-        multiplexJson = {group_info_query: {"method":"GET"},
-                            group_clusters_query: {"method":"GET"}}
-        # POST request for multiplex return
-        multiplex = requests.post(
-            slate_api_endpoint + '/v1alpha3/multiplex', params=query, json=multiplexJson)
-        multiplex = multiplex.json()
-
-        # Parse post return for apps, clusters, and pub groups
-        try:
-            group_info_json = json.loads(multiplex[group_info_query]['body'])
-            group_clusters_json = json.loads(multiplex[group_clusters_query]['body'])
-            group_clusters_json = group_clusters_json['items']
-        except:
-            return render_template('404.html')
-
-        return render_template('groups_public_profile.html', group_info=group_info_json, group_clusters=group_clusters_json, name=name)
-
-
 @app.route('/mailgun/<group_name>/<user_name>/<user_email>', methods=['GET', 'POST'])
 @authenticated
 def mailgun(group_name, user_name, user_email):
@@ -447,22 +296,6 @@ def mailgun(group_name, user_name, user_email):
     else:
         flash("Unable to send request", 'warning')
         return redirect(url_for('view_public_group', name=group_name))
-
-
-@app.route('/groups', methods=['GET', 'POST'])
-@authenticated
-def list_groups():
-    if request.method == 'GET':
-        access_token, slate_user_id = get_user_info(session)
-        query = {'token': access_token}
-
-        s = requests.get(
-            slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=query)
-
-        s_info = s.json()
-        group_list = s_info['items']
-
-        return render_template('groups.html', group_list=group_list)
 
 
 @app.route('/secret-select-group', methods=['GET', 'POST'])
@@ -551,28 +384,15 @@ def create_group():
 
 @app.route('/groups/<name>', methods=['GET', 'POST'])
 @authenticated
+@group_authenticated
 def view_group(name):
-    access_token, slate_user_id = get_user_info(session)
-    query = {'token': access_token}
-
     if request.method == 'GET':
-        group_name = name
-        # Get Group Info
-        group_info = requests.get(
-            slate_api_endpoint + '/v1alpha3/groups/' + group_name, params=query)
-        group_info = group_info.json()
-
-        if group_info['kind'] == 'Error':
-            return render_template('404.html')
-
-        # Get User
-        user = requests.get(
-            slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
-        user = user.json()['metadata']['name']
-
-        return render_template('groups_profile_overview.html', name=name, group_info=group_info)
+        return render_template('groups_profile_overview.html', name=name)
 
     elif request.method == 'POST':
+        access_token, slate_user_id = get_user_info(session)
+        query = {'token': access_token}
+        
         cluster_name = request.form['delete_cluster']
         r = requests.delete(
                     slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name,
@@ -589,34 +409,13 @@ def view_group(name):
 
 @app.route('/group-admin-clusters-xhr/<group_name>', methods=['GET'])
 def group_admin_clusters_ajax(group_name):
-    administering_clusters, accessible_clusters_diff, member_access = group_admin_clusters_request(group_name)
-    return jsonify(administering_clusters, accessible_clusters_diff, member_access)
+    administering_clusters, accessible_clusters_diff = group_admin_clusters_request(group_name)
+    return jsonify(administering_clusters, accessible_clusters_diff)
 
 
 def group_admin_clusters_request(group_name):
     access_token, slate_user_id = get_user_info(session)
     query = {'token': access_token}
-    # Get Group Info
-    group_info = requests.get(
-        slate_api_endpoint + '/v1alpha3/groups/' + group_name, params=query)
-    group_info = group_info.json()
-
-    if group_info['kind'] == 'Error':
-        return render_template('404.html')
-
-    # Get User
-    user = requests.get(
-        slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
-    user = user.json()['metadata']['name']
-
-    # Get Group Members
-    group_members = requests.get(
-        slate_api_endpoint + '/v1alpha3/groups/' + group_name + '/members', params=query)
-    group_members = group_members.json()['items']
-    member_access = False
-    for member in group_members:
-        if member['metadata']['name'] == user:
-            member_access = True
 
     # Get clusters owned by group
     administering_clusters = requests.get(
@@ -632,25 +431,25 @@ def group_admin_clusters_request(group_name):
 
     # Create list of group's accesible clusters
     accessible_clusters = []
+    # /groups/groupsID/clusters
     for clusters in list_clusters:
         cluster_name = clusters['metadata']['name']
         cluster_allowed_groups = requests.get(
-            slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=query)
-        cluster_allowed_groups = cluster_allowed_groups.json()['items']
-
-        for group in cluster_allowed_groups:
-            if group['metadata']['name'] == group_name:
-                accessible_clusters.append(clusters)
+            slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups/' + group_name, params=query)
+        cluster_allowed_groups = cluster_allowed_groups.json()['accessAllowed']
+        if cluster_allowed_groups:
+            accessible_clusters.append(clusters)
 
     # Create accessible clusters list without duplicate names of administering clusters
     accessible_clusters_names = [accessible_cluster['metadata']['name'] for accessible_cluster in accessible_clusters]
     accessible_clusters_diff = list(set(accessible_clusters_names) - set(administering_clusters_names))
     # print(accessible_clusters_diff)
-    return administering_clusters, accessible_clusters_diff, member_access
+    return administering_clusters, accessible_clusters_diff
 
 
 @app.route('/groups/<name>/members', methods=['GET', 'POST'])
 @authenticated
+@group_authenticated
 def view_group_members(name):
     access_token, slate_user_id = get_user_info(session)
     query = {'token': access_token}
@@ -707,6 +506,7 @@ def view_group_members(name):
 
 @app.route('/groups/<name>/add_members', methods=['GET', 'POST'])
 @authenticated
+@group_authenticated
 def view_group_add_members(name):
     access_token, slate_user_id = get_user_info(session)
     query = {'token': access_token}
@@ -762,29 +562,10 @@ def view_group_add_members(name):
 
 @app.route('/groups/<name>/secrets', methods=['GET', 'POST'])
 @authenticated
+@group_authenticated
 def view_group_secrets(name):
-    access_token, slate_user_id = get_user_info(session)
-    query = {'token': access_token}
-
     if request.method == 'GET':
-        # Get group's information for display
-        s = requests.get(
-            slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=query)
-        s_info = s.json()
-        group_list = s_info['items']
-        group_id = None
-        for group in group_list:
-            if group['metadata']['name'] == name:
-                group_id = group['metadata']['id']
-                group_name = group['metadata']['name']
-
-        # Get Group Info
-        group_info = requests.get(
-            slate_api_endpoint + '/v1alpha3/groups/' + name, params=query)
-        group_info = group_info.json()
-
-        return render_template('groups_profile_secrets.html', name=name,
-                                group_info=group_info)
+        return render_template('groups_profile_secrets.html', name=name)
     elif request.method == 'POST':
         """ Method to delete secret from group """
         secret_id = request.form['secret_id']
@@ -1084,10 +865,16 @@ def edit_cluster(project_name, name):
         except:
             latitude = cluster['metadata']['location']
             longitude = cluster['metadata']['location']
+        
+        try:
+            address = cluster['metadata']['location'][0]['desc']
+        except:
+            address = ''
 
         return render_template('cluster_edit.html', cluster=cluster,
                                 project_name=project_name, name=name,
-                                latitude=latitude, longitude=longitude)
+                                latitude=latitude, longitude=longitude,
+                                address=address)
 
     elif request.method == 'POST':
         # locations param is a list of coordinates, initialized as empty list
@@ -1095,12 +882,18 @@ def edit_cluster(project_name, name):
         owningOrganization = request.form['owningOrganization']
         # grab one or many location coordinates from dynamic form fields
         for latitude, longitude in zip (request.form.getlist('latitude'), request.form.getlist('longitude')):
-            locations.append({'lat': float(latitude), 'lon': float(longitude)})
+            try:
+                address = coordsConversion(latitude, longitude)
+                locations.append({'lat': float(latitude), 'lon': float(longitude), 'desc': address})
+            except:
+                locations.append({'lat': float(latitude), 'lon': float(longitude)})
         # print("Locations: ", locations)
         # Set up JSON and request query
         add_cluster = {"apiVersion": 'v1alpha3',
                   'metadata': {'owningOrganization': owningOrganization, 'location': locations}}
+        # print("Updating cluster info: {}".format(add_cluster))
         r = requests.put(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_id, params=query, json=add_cluster)
+        # print("Response for update query: {}".format(r.json()))
         if r.status_code == requests.codes.ok:
             flash("Successfully updated cluster information", 'success')
         else:
@@ -1115,17 +908,17 @@ def delete_group(name):
     if request.method == 'POST':
         access_token = get_user_access_token(session)
         query = {'token': access_token}
-        group_id = name
+        # group_id = name
 
-        r = requests.delete(
-            slate_api_endpoint + '/v1alpha3/groups/' + group_id, params=query)
+        try:
+            print("Querying deletion of group: {}".format(name))
+            r = requests.delete(
+                slate_api_endpoint + '/v1alpha3/groups/' + name, params=query, timeout=1)
+            print("Query to delete group {} RESPONSE: {}".format(name, r))
+        except requests.exceptions.ReadTimeout:
+            print("Timedout, but force to next page")
 
-        if r.status_code == requests.codes.ok:
-            flash("Successfully deleted group", 'success')
-        else:
-            err_message = r.json()['message']
-            flash('Failed to delete group: {}'.format(err_message), 'warning')
-
+        flash("Successfully deleted group", 'success')
         return redirect(url_for('list_groups'))
 
 
@@ -1202,10 +995,15 @@ def create_profile():
              'globus_id': globus_id}
 
     if request.method == 'GET':
-        with open('portal/static/AUP.md', 'r') as f:
-            aup = f.read()
+        try:
+            access_token, user_id = get_user_info(session)
+            session['user_id'] = user_id
+            return redirect(url_for('dashboard'))
+        except:
+            with open('portal/static/AUP.md', 'r') as f:
+                aup = f.read()
 
-        return render_template('profile_create.html', aup=aup)
+            return render_template('profile_create.html', aup=aup)
 
     elif request.method == 'POST':
         # Check for AUP agreement from form
@@ -1280,19 +1078,27 @@ def edit_profile():
     if request.method == 'GET':
         identity_id = session.get('primary_identity')
         access_token = get_user_access_token(session)
-        query = {'token': access_token,
+        query = {'token': slate_api_token,
                  'globus_id': identity_id}
-
+        print("Querying for user profile...")
         profile = requests.get(
             slate_api_endpoint + '/v1alpha3/find_user', params=query)
+        print("Response from querying profile: {}".format(profile.json()))
 
         if profile:
+            print("Found profile: {}".format(profile))
+            query = {'token': access_token,
+                     'globus_id': identity_id}
             slate_user_id = get_user_id(session)
+
+            print("Querying profile details...")
             profile = requests.get(slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
+
+            print("Response from querying profile details: {}".format(profile))
             profile = profile.json()['metadata']
         else:
-            flash(
-                'Please complete any missing profile fields and press Save.')
+            flash('Please complete any missing profile fields and press Save.')
+            return redirect('create_profile')
 
         if request.args.get('next'):
             session['next'] = get_safe_redirect()
@@ -1329,8 +1135,11 @@ def authcallback():
         # Change to location of slate_portal_user file
         f = open("/slate_portal_user", "r")
         slate_portal_user = f.read().split()
-
-        session['slate_id'] = slate_portal_user[0]
+    except:
+        slate_portal_user = None
+    
+    if slate_portal_user:
+        session['user_id'] = slate_portal_user[0]
         session['name'] = slate_portal_user[1]
         session['email'] = slate_portal_user[2]
         session['phone'] = slate_portal_user[3]
@@ -1338,142 +1147,119 @@ def authcallback():
         session['slate_token'] = slate_portal_user[5]
         session['is_authenticated'] = True
         session['slate_portal_user'] = True
+        session['primary_identity'] = slate_portal_user[5]
 
         query = {'token': slate_api_token}
 
         # print("SINGLE USER MODE")
         return redirect(url_for('dashboard'))
-    except:
-        # If we're coming back from Globus Auth in an error state, the error
-        # will be in the "error" query string parameter.
-        if 'error' in request.args:
-            flash("You could not be logged into the portal: "
-                  + request.args.get('error_description', request.args['error']))
-            return redirect(url_for('home'))
 
-        # Set up our Globus Auth/OAuth2 state
-        redirect_uri = url_for('authcallback', _external=True)
+    # If we're coming back from Globus Auth in an error state, the error
+    # will be in the "error" query string parameter.
+    if 'error' in request.args:
+        flash("You could not be logged into the portal: "
+                + request.args.get('error_description', request.args['error']))
+        return redirect(url_for('home'))
 
-        client = load_portal_client()
-        client.oauth2_start_flow(redirect_uri, refresh_tokens=True)
+    # Set up our Globus Auth/OAuth2 state
+    redirect_uri = url_for('authcallback', _external=True)
 
-        # If there's no "code" query string parameter, we're in this route
-        # starting a Globus Auth login flow.
-        if 'code' not in request.args:
-            next_url = get_safe_redirect()
-            additional_authorize_params = (
-                {'signup': 1} if request.args.get('signup') else {'next': next_url})
+    client = load_portal_client()
+    client.oauth2_start_flow(redirect_uri, refresh_tokens=True)
 
-            auth_uri = client.oauth2_get_authorize_url(
-                additional_params=additional_authorize_params)
-            # print("AUTH URI: {}".format(auth_uri))
+    # If there's no "code" query string parameter, we're in this route
+    # starting a Globus Auth login flow.
+    if 'code' not in request.args:
+        next_url = get_safe_redirect()
+        additional_authorize_params = (
+            {'signup': 1} if request.args.get('signup') else {'next': next_url})
 
-            return redirect(auth_uri)
-        else:
-            # If we do have a "code" param, we're coming back from Globus Auth
-            # and can start the process of exchanging an auth code for a token.
-            next_url = get_safe_redirect()
-            code = request.args.get('code')
-            tokens = client.oauth2_exchange_code_for_tokens(code)
+        auth_uri = client.oauth2_get_authorize_url(
+            additional_params=additional_authorize_params)
+        # print("AUTH URI: {}".format(auth_uri))
 
-            id_token = tokens.decode_id_token(client)
+        return redirect(auth_uri)
+    else:
+        # If we do have a "code" param, we're coming back from Globus Auth
+        # and can start the process of exchanging an auth code for a token.
+        next_url = get_safe_redirect()
+        code = request.args.get('code')
+        tokens = client.oauth2_exchange_code_for_tokens(code)
 
-            session.update(
-                tokens=tokens.by_resource_server,
-                is_authenticated=True,
-                name=id_token.get('name', ''),
-                email=id_token.get('email', ''),
-                institution=id_token.get('institution', ''),
-                primary_username=id_token.get('preferred_username'),
-                primary_identity=id_token.get('sub'),
-                identity_provider=id_token.get('identity_provider')
-            )
-            #  Grab user's access token in order to find their identity set
-            access_token = session['tokens']['auth.globus.org']['access_token']
-            token_introspect = client.oauth2_token_introspect(
-                token=access_token, include='identity_set')
-            identity_set = token_introspect.data['identity_set']
-            # Initialize profile variable to None
-            profile = None
-            # Need to query a request to view all users in Slate DB, then iterate
-            # to see if profile exists by matching globus_id ideally.
-            for identity in identity_set:
-                query = {'token': slate_api_token,
-                        'globus_id': identity}
-                try:
-                    # print("Trying this query: {}".format(query))
-                    # Query response to find user profile
-                    r = requests.get(
-                        slate_api_endpoint + '/v1alpha3/find_user', params=query)
-                    if r.status_code == requests.codes.ok:
-                        # Set profile and check for admin status
-                        profile = r.json()
-                        slate_user_id = profile['metadata']['id']
-                        session['user_id'] = slate_user_id
-                        user_info = requests.get(slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
-                        user_info = user_info.json()['metadata']
-                        if user_info['admin']:
-                            session['admin'] = True
-                except:
-                    print("User identity not found: {}".format(identity))
-            
+        id_token = tokens.decode_id_token(client)
+
+        session.update(
+            tokens=tokens.by_resource_server,
+            is_authenticated=True,
+            name=id_token.get('name', ''),
+            email=id_token.get('email', ''),
+            institution=id_token.get('institution', ''),
+            primary_username=id_token.get('preferred_username'),
+            primary_identity=id_token.get('sub'),
+            identity_provider=id_token.get('identity_provider')
+        )
+        #  Grab user's access token in order to find their identity set
+        access_token = session['tokens']['auth.globus.org']['access_token']
+        token_introspect = client.oauth2_token_introspect(
+            token=access_token, include='identity_set')
+        identity_set = token_introspect.data['identity_set']
+        # Initialize profile variable to None
+        profile = None
+        # Need to query a request to view all users in Slate DB, then iterate
+        # to see if profile exists by matching globus_id ideally.
+        for identity in identity_set:
+            query = {'token': slate_api_token,
+                    'globus_id': identity}
             try:
-                referrer = urlparse(request.referrer)
-                # print("REFERRER: {}".format(referrer))
-                queries = parse_qs(referrer.query)
-                # print("QUERIES: {}".format(queries))
-                redirect_uri = queries['redirect_uri']
-                next_url = queries['next'][0]
-                # print("AFTER QUERIES NEXT URL: {}".format(next_url))
+                # print("Trying this query: {}".format(query))
+                # Query response to find user profile
+                r = requests.get(
+                    slate_api_endpoint + '/v1alpha3/find_user', params=query)
+                if r.status_code == requests.codes.ok:
+                    # Set profile and check for admin status
+                    print('Found profile with globus_id: {}'.format(identity))
+                    profile = r.json()
+                    print('Profile Information: {}'.format(profile))
+
+                    slate_user_id = profile['metadata']['id']
+                    session['user_id'] = slate_user_id
+                    user_info = requests.get(slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
+                    user_info = user_info.json()['metadata']
+                    if user_info['admin']:
+                        session['admin'] = True
             except:
-                next_url = '/'
+                print("User identity not found: {}".format(identity))
+        
+        try:
+            referrer = urlparse(request.referrer)
+            # print("REFERRER: {}".format(referrer))
+            queries = parse_qs(referrer.query)
+            # print("QUERIES: {}".format(queries))
+            redirect_uri = queries['redirect_uri']
+            next_url = queries['next'][0]
+            # print("AFTER QUERIES NEXT URL: {}".format(next_url))
+        except:
+            next_url = '/'
 
-            if profile:
-                # Check for admin status
-                slate_user_id = profile['metadata']['id']
-                session['user_id'] = slate_user_id
-                user_info = requests.get(slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
-                user_info = user_info.json()['metadata']
-                if user_info['admin']:
-                    session['admin'] = True
+        if profile:
+            print('Logging in with profile: {}'.format(profile))
+            # Check for admin status
+            slate_user_id = profile['metadata']['id']
+            session['user_id'] = slate_user_id
+            user_info = requests.get(slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
+            user_info = user_info.json()['metadata']
+            if user_info['admin']:
+                session['admin'] = True
+            return redirect(url_for('dashboard'))
+        else:
+            return redirect(url_for('create_profile',
+                                    next=url_for('dashboard')))
+        # print("FINAL NEXT URL {}".format(next_url))
 
-            else:
-                return redirect(url_for('create_profile',
-                                        next=url_for('dashboard')))
-            # print("FINAL NEXT URL {}".format(next_url))
-
-            if next_url == '/':
-                return redirect(url_for('dashboard'))
-            else:
-                return redirect(next_url)
-
-
-@app.route('/register', methods=['GET', 'POST'])
-@authenticated
-def register():
-    if request.method == 'GET':
-        globus_id = session['primary_identity']
-        query = {'token': slate_api_token,
-                 'globus_id': globus_id}
-
-        r = requests.get(
-            slate_api_endpoint + '/v1alpha3/find_user', params=query)
-        user_info = r.json()
-        slate_user_id = user_info['metadata']['id']
-
-        query = {'token': slate_api_token}
-        s = requests.get(
-            slate_api_endpoint + '/v1alpha3/users/' + slate_user_id + '/groups', params=query)
-
-        s_info = s.json()
-        group_list = s_info['items']
-
-        return render_template('register.html', user_info=user_info,
-                               group_list=group_list, slate_user_id=slate_user_id)
-    elif request.method == 'POST':
-        name = request.form['name']
-        group = request.form['group']
-        return render_template('clusters.html', name=name, group=group, slate_api_endpoint=slate_api_endpoint)
+        if next_url == '/':
+            return redirect(url_for('dashboard'))
+        else:
+            return redirect(next_url)
 
 
 @app.route('/clusters/new', methods=['GET'])

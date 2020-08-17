@@ -1,4 +1,4 @@
-{% if instance_details['metadata']['cluster'] in ['uutah-prod', 'utah-dev', 'umich-prod', 'uchicago-prod']%}
+{% if instance_details['metadata']['cluster'] in ['uutah-prod', 'utah-dev', 'umich-prod', 'uchicago-prod'] and instance_details['details']['pods'] %}
 
 <h4>Application Monitoring</h4>
 <hr/>
@@ -7,7 +7,7 @@
     <div class="card h-100">
       <!-- CPU -->
       <div class="card-body">
-        <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/lxSpFWVGz/slate-usage-by-application-copy?orgId=1&var-datasource=SLATE&var-cluster={{instance_details['metadata']['cluster']}}&var-namespace=All&var-pod={{instance_details['details']['pods'][0]['name']}}&panelId=9&theme=light" width="100%" height="400" frameborder="0"></iframe>
+        <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/qZHpHV5Zk/slate-usage-by-application?orgId=1&var-datasource=SLATE&var-cluster={{instance_details['metadata']['cluster']}}&var-namespace=All&var-pod={{instance_details['details']['pods'][0]['name']}}&panelId=9&theme=light" width="100%" height="400" frameborder="0"></iframe>
       </div>
     </div>
   </div>
@@ -18,7 +18,7 @@
     <div class="card h-100">
       <!-- memory -->
       <div class="card-body">
-        <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/lxSpFWVGz/slate-usage-by-application-copy?orgId=1&var-datasource=SLATE&var-cluster={{instance_details['metadata']['cluster']}}&var-namespace=All&var-pod={{instance_details['details']['pods'][0]['name']}}&panelId=3&theme=light" width="100%" height="400" frameborder="0"></iframe>
+        <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/qZHpHV5Zk/slate-usage-by-application?orgId=1&var-datasource=SLATE&var-cluster={{instance_details['metadata']['cluster']}}&var-namespace=All&var-pod={{instance_details['details']['pods'][0]['name']}}&panelId=3&theme=light" width="100%" height="400" frameborder="0"></iframe>
       </div>
     </div>
   </div>
@@ -29,7 +29,7 @@
     <div class="card h-100">
       <!-- network -->
       <div class="card-body">
-        <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/lxSpFWVGz/slate-usage-by-application-copy?orgId=1&var-datasource=SLATE&var-cluster={{instance_details['metadata']['cluster']}}&var-namespace=All&var-pod={{instance_details['details']['pods'][0]['name']}}&panelId=12&theme=light" width="100%" height="400" frameborder="0"></iframe>
+        <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/qZHpHV5Zk/slate-usage-by-application?orgId=1&var-datasource=SLATE&var-cluster={{instance_details['metadata']['cluster']}}&var-namespace=All&var-pod={{instance_details['details']['pods'][0]['name']}}&panelId=12&theme=light" width="100%" height="400" frameborder="0"></iframe>
       </div>
     </div>
   </div>
@@ -40,7 +40,7 @@
     <div class="card h-100">
       <!-- disk -->
       <div class="card-body">
-        <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/lxSpFWVGz/slate-usage-by-application-copy?orgId=1&var-datasource=SLATE&var-cluster={{instance_details['metadata']['cluster']}}&var-namespace=All&var-pod={{instance_details['details']['pods'][0]['name']}}&panelId=4&theme=light" width="100%" height="400" frameborder="0"></iframe>
+        <iframe src="https://monitoring.umich-prod.slateci.net/d-solo/qZHpHV5Zk/slate-usage-by-application?orgId=1&var-datasource=SLATE&var-cluster={{instance_details['metadata']['cluster']}}&var-namespace=All&var-pod={{instance_details['details']['pods'][0]['name']}}&panelId=4&theme=light" width="100%" height="400" frameborder="0"></iframe>
       </div>
     </div>
   </div>
