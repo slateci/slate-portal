@@ -225,10 +225,11 @@ def dashboard():
     #     session['slate_portal_user'] = False
 
     if request.method == 'GET':
-        if session["slate_portal_user"]:
-            # single-user mode
-            clusters = ["ms-c"]
-        else:
+        try:
+            if session["slate_portal_user"]:
+                # single-user mode
+                clusters = ["ms-c"]
+        except:
             clusters = ["uutah-prod", "uchicago-prod", "umich-prod"]
 
         with open('portal/static/news.md', "r") as file:
