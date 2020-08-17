@@ -65,7 +65,6 @@ def public_groups_ajax():
 @authenticated
 def view_public_group(name):
     access_token = get_user_access_token(session)
-    query = {'token': access_token}
     if request.method == 'GET':
         return render_template('groups_public_profile.html', name=name)
 

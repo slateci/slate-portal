@@ -4,26 +4,6 @@ import sys
 from geopy.geocoders import Nominatim
 from portal import slate_api_token, slate_api_endpoint
 
-sys.path.insert(0, '/etc/slate/secrets')
-
-# try:
-#     # Read endpoint and token from VM
-#     f = open("/etc/slate/secrets/slate_api_token.txt", "r")
-#     g = open("slate_api_endpoint.txt", "r")
-# except:
-#     # Read endpoint and token local
-#     f = open("secrets/slate_api_token.txt", "r")
-#     g = open("secrets/slate_api_endpoint.txt", "r")
-
-# slate_api_token = f.read().split()[0]
-# slate_api_endpoint = g.read().split()[0]
-
-try:
-    access_token = get_user_access_token(session)
-    query = {'token': access_token}
-except:
-    query = {'token': slate_api_token}
-
 #  Users
 def check_user_exists():
     identity_id = session.get('primary_identity')
@@ -35,8 +15,6 @@ def check_user_exists():
 
 
 def get_user_info(session):
-    # test_new_id = 'user_oXa_2vOeAHw'
-    # test_original_id = 'user_XYiA5LV1SdA'
     query = {'token': slate_api_token,
              'globus_id': session['primary_identity']}
 
@@ -44,7 +22,7 @@ def get_user_info(session):
         slate_api_endpoint + '/v1alpha3/find_user', params=query)
 
     profile = profile.json()
-    print('Trying to get using info from method: {}'.format(profile))
+    print('Trying to get user info from method: {}'.format(profile))
     user_id = profile['metadata']['id']
     access_token = profile['metadata']['access_token']
     return access_token, user_id
@@ -67,11 +45,13 @@ def get_user_access_token(session):
 
     query = {'token': slate_api_token,
              'globus_id': session['primary_identity']}
-
+    print("Querying user information using: {}".format(query))
     profile = requests.get(
         slate_api_endpoint + '/v1alpha3/find_user', params=query)
-
+    print("RESPONSE from getting user profile: {}".format(profile))
     profile = profile.json()
+    print("JSONIFY Response: {}".format(profile))
+
     access_token = profile['metadata']['access_token']
     return access_token
 
@@ -163,6 +143,9 @@ def list_incubator_applications_request():
     
 
 def get_app_config(app_name):
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
+    
     response = requests.get(
         slate_api_endpoint + '/v1alpha3/apps/' + app_name, params=query)
     app_config = response.json()
@@ -177,6 +160,9 @@ def cluster_allowed_groups(cluster_name, group_name):
     :group_name: str group name
     :return: bool
     """
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
+
     response = requests.get(
         slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups/' + group_name, params=query)
     cluster_allowed = response.json()
@@ -191,6 +177,9 @@ def list_cluster_whitelist(cluster_name):
     :group_name: str group name
     :return: bool
     """
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
+
     response = requests.get(
         slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name + '/allowed_groups', params=query)
     cluster_whitelist = response.json()
@@ -203,6 +192,9 @@ def list_public_groups_request():
     Returns list of all public groups on slate
     :return: list of public groups
     """
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
+
     public_groups = requests.get(
         slate_api_endpoint + '/v1alpha3/groups', params=query)
     public_groups = public_groups.json()['items']
@@ -256,6 +248,9 @@ def list_clusters_request():
     Returns list of all clusters on slate
     :return: list of slate clusters
     """
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
+
     clusters = requests.get(
         slate_api_endpoint + '/v1alpha3/clusters', params=query)
     clusters = clusters.json()['items']
@@ -267,6 +262,8 @@ def list_instances_request():
     Returns list of all instances on slate
     :return: list of slate instances
     """
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
     instances = requests.get(
         slate_api_endpoint + '/v1alpha3/instances', params=query)
     instances = instances.json()['items']
@@ -280,6 +277,8 @@ def list_user_groups(session):
     :param session: session from User accessing information
     :return: list of user's groups
     """
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
     # Get groups to which the user belongs
     slate_user_id = get_user_id(session)
     user_groups = requests.get(
