@@ -7,8 +7,8 @@ def authenticated(fn):
     """Mark a route as requiring authentication."""
     @wraps(fn)
     def decorated_function(*args, **kwargs):
-        if minislate_user:
-            check_minislate_user()
+        # if minislate_user:
+        #     check_minislate_user()
             
         if not session.get('is_authenticated'):
             print("Authenticated decorator could not verify session")
@@ -68,8 +68,8 @@ def group_authenticated(fn):
     """Mark a route as requiring group authentication."""
     @wraps(fn)
     def decorated_function(*args, **kwargs):
-        if minislate_user:
-            return fn(*args, **kwargs)
+        # if minislate_user:
+        #     return fn(*args, **kwargs)
             
         group_name = request.path.split('/')[2]
 

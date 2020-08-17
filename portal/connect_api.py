@@ -194,10 +194,12 @@ def list_public_groups_request():
     """
     access_token = get_user_access_token(session)
     query = {'token': access_token}
+
     print("Querying to get public groups...")
     public_groups = requests.get(
         slate_api_endpoint + '/v1alpha3/groups', params=query)
     print("Response: {}".format(public_groups))
+    
     public_groups = public_groups.json()['items']
     print("Public Group items: {}".format(public_groups))
     return public_groups
