@@ -7,6 +7,8 @@ def authenticated(fn):
     """Mark a route as requiring authentication."""
     @wraps(fn)
     def decorated_function(*args, **kwargs):
+        if minislate_user:
+            check_minislate_user()
         print("Session from inside authenticated decorator: {}".format(session))
         if not session.get('is_authenticated'):
             print("Authenticated decorator could not verify session")
@@ -95,3 +97,22 @@ def group_authenticated(fn):
 
         return fn(*args, **kwargs)
     return decorated_function
+
+
+def check_minislate_user():
+    try:
+        # Check location of slate_portal_user file on minislate
+        f = open("/slate_portal_user", "r")
+        slate_portal_user = f.read().split()
+
+        session['user_id'] = slate_portal_user[0]
+        session['name'] = slate_portal_user[1]
+        session['email'] = slate_portal_user[2]
+        session['phone'] = slate_portal_user[3]
+        session['institution'] = slate_portal_user[4]
+        # session['slate_token'] = slate_portal_user[5]
+        session['is_authenticated'] = True
+        session['slate_portal_user'] = True
+
+    except:
+        session['slate_portal_user'] = False
