@@ -1130,15 +1130,18 @@ def edit_profile():
 @app.route('/authcallback', methods=['GET'])
 def authcallback():
     """Handles the interaction with Globus Auth."""
+    print("Entering Authcallback Route")
     # Check if single user instance on minislate
     try:
         # Change to location of slate_portal_user file
+        print("Trying to read slate portal user file")
         f = open("/slate_portal_user", "r")
         slate_portal_user = f.read().split()
     except:
         slate_portal_user = None
-    
+    print("Slate Portal User: {}".format(slate_portal_user))
     if slate_portal_user:
+        print("Found slate portal user on minislate")
         session['user_id'] = slate_portal_user[0]
         session['name'] = slate_portal_user[1]
         session['email'] = slate_portal_user[2]
@@ -1151,7 +1154,7 @@ def authcallback():
 
         query = {'token': slate_api_token}
 
-        # print("SINGLE USER MODE")
+        print("Redirecting to dashboard in single user mode.")
         return redirect(url_for('dashboard'))
 
     # If we're coming back from Globus Auth in an error state, the error
