@@ -8,7 +8,7 @@ def authenticated(fn):
     @wraps(fn)
     def decorated_function(*args, **kwargs):
         if minislate_user:
-            return fn(*args, **kwargs)
+            check_minislate_user()
             
         if not session.get('is_authenticated'):
             print("Authenticated decorator could not verify session")
