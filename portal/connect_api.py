@@ -3,6 +3,7 @@ import requests
 import sys
 from geopy.geocoders import Nominatim
 from portal import slate_api_token, slate_api_endpoint, minislate_user
+from portal.decorators import check_minislate_user
 
 #  Users
 def check_user_exists():
@@ -192,6 +193,9 @@ def list_public_groups_request():
     Returns list of all public groups on slate
     :return: list of public groups
     """
+    if minislate_user:
+        check_minislate_user()
+    print("Getting user's access token with session: {}".format(session))
     access_token = get_user_access_token(session)
     query = {'token': access_token}
 
