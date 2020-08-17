@@ -1144,17 +1144,26 @@ def authcallback():
     print("Slate Portal User: {}".format(slate_portal_user))
     if slate_portal_user:
         print("Found slate portal user on minislate")
-        session['user_id'] = slate_portal_user[0]
-        session['name'] = slate_portal_user[1]
-        session['email'] = slate_portal_user[2]
-        session['phone'] = slate_portal_user[3]
-        session['institution'] = slate_portal_user[4]
+        user_id = session['user_id'] = slate_portal_user[0]
+        name = session['name'] = slate_portal_user[1]
+        email = session['email'] = slate_portal_user[2]
+        phone = session['phone'] = slate_portal_user[3]
+        institution = session['institution'] = slate_portal_user[4]
         session['slate_token'] = slate_portal_user[5]
         session['is_authenticated'] = True
         session['slate_portal_user'] = True
-        session['primary_identity'] = slate_portal_user[5]
+        globus_id = session['primary_identity'] = slate_portal_user[5]
+        admin = False
+
+        # Schema and query for adding users to Slate DB
+        post_user = {"apiVersion": 'v1alpha3',
+                     'metadata': {'globusID': globus_id, 'name': name, 'email': email,
+                                  'phone': phone, 'institution': institution, 'admin': admin}}
 
         query = {'token': slate_api_token}
+        print("Query to post new user")
+        r = requests.post(slate_api_endpoint + '/v1alpha3/users', params=query, json=post_user)
+        print("Response: {}".format(r))
 
         print("Redirecting to dashboard in single user mode with the following session {}".format(session))
         return redirect(url_for('dashboard'))

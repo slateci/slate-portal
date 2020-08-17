@@ -68,6 +68,9 @@ def group_authenticated(fn):
     """Mark a route as requiring group authentication."""
     @wraps(fn)
     def decorated_function(*args, **kwargs):
+        if minislate_user:
+            return fn(*args, **kwargs)
+            
         group_name = request.path.split('/')[2]
 
         group_members = get_group_members(group_name)
