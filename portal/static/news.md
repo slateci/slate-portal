@@ -1,1 +1,1 @@
-US CMS Tutorial - August 7, 2020
+US ATLAS Tutorial - August 19, 2020
