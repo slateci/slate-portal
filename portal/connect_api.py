@@ -3,7 +3,6 @@ import requests
 import sys
 from geopy.geocoders import Nominatim
 from portal import slate_api_token, slate_api_endpoint, minislate_user
-from portal.decorators import check_minislate_user
 
 #  Users
 def check_user_exists():
@@ -195,6 +194,7 @@ def list_public_groups_request():
     """
     if minislate_user:
         check_minislate_user()
+        
     print("Getting user's access token with session: {}".format(session))
     access_token = get_user_access_token(session)
     query = {'token': access_token}
@@ -406,3 +406,23 @@ def get_instance_logs(instance_id):
     elif response.status_code == requests.codes.ok:
         instance_logs = response.json()
         return instance_logs
+
+
+def check_minislate_user():
+    try:
+        # Check location of slate_portal_user file on minislate
+        f = open("/slate_portal_user", "r")
+        slate_portal_user = f.read().split()
+
+        session['user_id'] = slate_portal_user[0]
+        session['name'] = slate_portal_user[1]
+        session['email'] = slate_portal_user[2]
+        session['phone'] = slate_portal_user[3]
+        session['institution'] = slate_portal_user[4]
+        # session['slate_token'] = slate_portal_user[5]
+        session['primary_identity'] = slate_portal_user[5]
+        session['is_authenticated'] = True
+        session['slate_portal_user'] = True
+
+    except:
+        session['slate_portal_user'] = False
