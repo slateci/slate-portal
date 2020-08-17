@@ -2,7 +2,7 @@ from flask import session
 import requests
 import sys
 from geopy.geocoders import Nominatim
-from portal import slate_api_token, slate_api_endpoint
+from portal import slate_api_token, slate_api_endpoint, minislate_user
 
 #  Users
 def check_user_exists():
@@ -281,10 +281,13 @@ def list_user_groups(session):
     query = {'token': access_token}
     # Get groups to which the user belongs
     slate_user_id = get_user_id(session)
+    print("Querying to get user groups with user id: {}".format(slate_user_id))
     user_groups = requests.get(
         slate_api_endpoint + '/v1alpha3/users/'
         + slate_user_id + '/groups', params=query)
+    print("Response: {}, {}".format(user_groups))
     user_groups = user_groups.json()['items']
+    print("User group items: {}".format(user_groups))
     return user_groups
 
 

@@ -229,7 +229,7 @@ def dashboard():
         print("Session from dashboard: {}".format(session))
         if session["slate_portal_user"]:
             # single-user mode
-            clusters = ["ms-c"]
+            clusters = ["my-cluster"]
         else:
             clusters = ["uutah-prod", "uchicago-prod", "umich-prod"]
 
