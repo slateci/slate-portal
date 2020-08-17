@@ -139,8 +139,12 @@
                         <a :href="'/clusters/' + cluster[0]">{[{cluster[0]}]}</a>
                       </td>
                       <td>
-                        <i v-if="cluster[1]" class="fas fa-check-circle" style="color: green"></i> Reachable
-                        <i v-else class="fas fa-times-circle" style="color: red"></i> Unreachable
+                        <span v-if="cluster[1]" >
+                          <i class="fas fa-check-circle" style="color: green"></i> Reachable
+                        </span>
+                        <span v-else>
+                          <i class="fas fa-times-circle" style="color: red"></i> Unreachable
+                        </span>
                       </td>
                     </tr>
                   </tbody>
