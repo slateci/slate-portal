@@ -97,27 +97,7 @@
           <div role="tabpanel" class="tab-pane fade" id="logs">
             <br>
             <!-- <h3>Logs</h3> -->
-<<<<<<< HEAD
-            <div id="logs-display">
-              <label for="container-list"> Select container: </label>
-              <select id="container-list" name="container-list">
-                {% for container in instance_details['details']['pods'][0]['containers'] %}
-                <option value="{{container['name']}}">
-                  {{container['name']}}
-                </option>
-                {% endfor %}
-              </select>
-              <br>
-              <label for="nlines"> Enter lines of most recent logs to show (0 for the full log): </label>
-              <input type="number" id="nlines" name="nlines" value="20">
-              <button class="btn btn-primary btn-sm btn-box-shadow" v-on:click="getLogs">Submit</button>
-              <br>
-              <button class="btn btn-primary btn-sm btn-box-shadow" onclick="wrapLogs()">Wrap/Unwrap Logs</button>
-              <pre id="logs-box" class="app-logs">{[{logs}]}</pre>
-            </div>
-=======
             <pre class="app-logs">{% if instance_log['logs'] %}{{instance_log['logs']}}{% else %}Logs currently unavailable{% endif %}</pre>
->>>>>>> upstream/master
           </div>
 
         </div>
