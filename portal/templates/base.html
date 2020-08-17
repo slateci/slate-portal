@@ -198,7 +198,7 @@
             <form class="form-inline">
               {% if session.get('is_authenticated') %}
                 {% if session.get('slate_portal_user') %}
-              <a class="nav-link js-scroll-trigger" href="#">{{session['name']}}</a>
+              <a class="nav-link js-scroll-trigger" href="{{url_for('profile')}}">{{session['name']}}</a>
                 {% else %}
               <a class="nav-link js-scroll-trigger" href="{{url_for('profile')}}" id="nav-profile">Profile</a>
                 {% endif %}
