@@ -4,10 +4,10 @@ import json
 import requests
 from flask import (flash, redirect, render_template,
                    request, session, url_for, jsonify)
-from portal.connect_api import (list_instances_request, 
+from portal.connect_api import (list_instances_request,
                         list_user_groups,
                         list_users_instances_request,
-                        get_user_access_token, 
+                        get_user_access_token,
                         get_instance_details, get_instance_logs)
 
 
@@ -68,7 +68,7 @@ def view_instance(name):
                 instance_log = {'logs': ''}
         except:
             instance_log = get_instance_logs(name)
-        
+
         if instance_log == 500:
             return render_template('500.html')
 
@@ -79,6 +79,25 @@ def view_instance(name):
                                 instance_details=instance_details,
                                 instance_status=instance_status,
                                 instance_log=instance_log)
+
+
+@app.route('/instances-log-xhr/<name>/<container>/<lines>', methods=['GET'])
+@authenticated
+def get_instance_container_log(name, container, lines):
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
+    # Initialize instance log query for multiplex request
+    instance_log_query = '/v1alpha3/instances/' + name + '/logs' + '?token=' + query['token'] + '&container=' + container + '&max_lines=' + lines
+    # Set up multiplex JSON
+    multiplexJson = {instance_log_query: {"method":"GET"}}
+    # POST request for multiplex return
+    multiplex = requests.post(
+        slate_api_endpoint + '/v1alpha3/multiplex', params=query, json=multiplexJson)
+    multiplex = multiplex.json()
+    # Parse post return for instance, instance details, and instance logs
+    instance_log = json.loads(multiplex[instance_log_query]['body'])
+
+    return jsonify(instance_log['logs'])
 
 
 @app.route('/instances/<name>/delete_instance', methods=['GET'])
