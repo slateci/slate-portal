@@ -1155,7 +1155,7 @@ def authcallback():
 
         query = {'token': slate_api_token}
 
-        print("Redirecting to dashboard in single user mode.")
+        print("Redirecting to dashboard in single user mode with the following session {}".format(session))
         return redirect(url_for('dashboard'))
 
     # If we're coming back from Globus Auth in an error state, the error

@@ -7,6 +7,7 @@ def authenticated(fn):
     """Mark a route as requiring authentication."""
     @wraps(fn)
     def decorated_function(*args, **kwargs):
+        print("Session from inside authenticated decorator: {}".format(session))
         if not session.get('is_authenticated'):
             print("Authenticated decorator could not verify session")
             return redirect(url_for('login', next=request.url))
