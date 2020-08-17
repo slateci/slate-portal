@@ -10,6 +10,8 @@ def authenticated(fn):
         if minislate_user:
             check_minislate_user()
             
+        print("SESSION INSIDE AUTH DECORATOR: {}".format(session))
+        
         if not session.get('is_authenticated'):
             print("Authenticated decorator could not verify session")
             return redirect(url_for('login', next=request.url))
