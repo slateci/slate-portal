@@ -217,6 +217,7 @@ def dashboard():
         session['email'] = slate_portal_user[2]
         session['phone'] = slate_portal_user[3]
         session['institution'] = slate_portal_user[4]
+        session['primary_identity'] = slate_portal_user[5]
         # session['slate_token'] = slate_portal_user[5]
         session['is_authenticated'] = True
         session['slate_portal_user'] = True
@@ -226,11 +227,10 @@ def dashboard():
 
     if request.method == 'GET':
         print("Session from dashboard: {}".format(session))
-        try:
-            if session["slate_portal_user"]:
-                # single-user mode
-                clusters = ["ms-c"]
-        except:
+        if session["slate_portal_user"]:
+            # single-user mode
+            clusters = ["ms-c"]
+        else:
             clusters = ["uutah-prod", "uchicago-prod", "umich-prod"]
 
         with open('portal/static/news.md', "r") as file:

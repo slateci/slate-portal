@@ -9,7 +9,7 @@ def authenticated(fn):
     def decorated_function(*args, **kwargs):
         if minislate_user:
             check_minislate_user()
-        print("Session from inside authenticated decorator: {}".format(session))
+            
         if not session.get('is_authenticated'):
             print("Authenticated decorator could not verify session")
             return redirect(url_for('login', next=request.url))
@@ -111,6 +111,7 @@ def check_minislate_user():
         session['phone'] = slate_portal_user[3]
         session['institution'] = slate_portal_user[4]
         # session['slate_token'] = slate_portal_user[5]
+        session['primary_identity'] = slate_portal_user[5]
         session['is_authenticated'] = True
         session['slate_portal_user'] = True
 
