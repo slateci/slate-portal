@@ -37,11 +37,17 @@ def get_user_id(session):
         slate_api_endpoint + '/v1alpha3/find_user', params=query)
 
     profile = profile.json()
-    user_id = profile['metadata']['id']
+    if minislate_user:
+        user_id = session['user_id']
+    else:
+        user_id = profile['metadata']['id']
     return user_id
 
 
 def get_user_access_token(session):
+
+    if minislate_user:
+        check_minislate_user()
 
     query = {'token': slate_api_token,
              'globus_id': session['primary_identity']}
@@ -51,8 +57,10 @@ def get_user_access_token(session):
     print("RESPONSE from getting user profile: {}".format(profile))
     profile = profile.json()
     print("JSONIFY Response: {}".format(profile))
-
-    access_token = profile['metadata']['access_token']
+    if minislate_user:
+        access_token = session['primary_identity']
+    else:
+        access_token = profile['metadata']['access_token']
     return access_token
 
 
@@ -192,10 +200,6 @@ def list_public_groups_request():
     Returns list of all public groups on slate
     :return: list of public groups
     """
-    if minislate_user:
-        check_minislate_user()
-        
-    print("Getting user's access token with session: {}".format(session))
     access_token = get_user_access_token(session)
     query = {'token': access_token}
 
