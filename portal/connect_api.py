@@ -26,10 +26,11 @@ def get_user_info(session):
 
     profile = profile.json()
     print('Trying to get user info from method: {}'.format(profile))
-    user_id = profile['metadata']['id']
     if minislate_user:
         access_token = session['access_token']
+        user_id = session['user_id']
     else:
+        user_id = profile['metadata']['id']
         access_token = profile['metadata']['access_token']
     return access_token, user_id
 
@@ -429,7 +430,7 @@ def check_minislate_user():
         session['email'] = slate_portal_user[2]
         session['phone'] = slate_portal_user[3]
         session['institution'] = slate_portal_user[4]
-        # session['slate_token'] = slate_portal_user[5]
+        session['primary_identity'] = slate_portal_user[5]
         session['access_token'] = slate_portal_user[5]
         session['is_authenticated'] = True
         session['slate_portal_user'] = True

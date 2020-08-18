@@ -218,6 +218,7 @@ def dashboard():
         session['phone'] = slate_portal_user[3]
         session['institution'] = slate_portal_user[4]
         session['access_token'] = slate_portal_user[5]
+        session['primary_identity'] = slate_portal_user[5]
         # session['slate_token'] = slate_portal_user[5]
         session['is_authenticated'] = True
         session['slate_portal_user'] = True
