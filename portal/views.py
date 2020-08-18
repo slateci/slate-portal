@@ -217,7 +217,7 @@ def dashboard():
         session['email'] = slate_portal_user[2]
         session['phone'] = slate_portal_user[3]
         session['institution'] = slate_portal_user[4]
-        session['primary_identity'] = slate_portal_user[5]
+        session['access_token'] = slate_portal_user[5]
         # session['slate_token'] = slate_portal_user[5]
         session['is_authenticated'] = True
         session['slate_portal_user'] = True
@@ -1149,7 +1149,7 @@ def authcallback():
         email = session['email'] = slate_portal_user[2]
         phone = session['phone'] = slate_portal_user[3]
         institution = session['institution'] = slate_portal_user[4]
-        session['slate_token'] = slate_portal_user[5]
+        session['access_token'] = slate_portal_user[5]
         session['is_authenticated'] = True
         session['slate_portal_user'] = True
         globus_id = session['primary_identity'] = slate_portal_user[5]
