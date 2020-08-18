@@ -15,6 +15,9 @@ def check_user_exists():
 
 
 def get_user_info(session):
+    if minislate_user:
+        check_minislate_user()
+
     query = {'token': slate_api_token,
              'globus_id': session['primary_identity']}
 
@@ -24,7 +27,10 @@ def get_user_info(session):
     profile = profile.json()
     print('Trying to get user info from method: {}'.format(profile))
     user_id = profile['metadata']['id']
-    access_token = profile['metadata']['access_token']
+    if minislate_user:
+        access_token = session['access_token']
+    else:
+        access_token = profile['metadata']['access_token']
     return access_token, user_id
 
 
@@ -58,7 +64,7 @@ def get_user_access_token(session):
     profile = profile.json()
     print("JSONIFY Response: {}".format(profile))
     if minislate_user:
-        access_token = session['primary_identity']
+        access_token = session['access_token']
     else:
         access_token = profile['metadata']['access_token']
     return access_token
@@ -424,7 +430,7 @@ def check_minislate_user():
         session['phone'] = slate_portal_user[3]
         session['institution'] = slate_portal_user[4]
         # session['slate_token'] = slate_portal_user[5]
-        session['primary_identity'] = slate_portal_user[5]
+        session['access_token'] = slate_portal_user[5]
         session['is_authenticated'] = True
         session['slate_portal_user'] = True
 
