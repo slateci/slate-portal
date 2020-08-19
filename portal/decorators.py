@@ -9,6 +9,7 @@ def authenticated(fn):
     def decorated_function(*args, **kwargs):
         if minislate_user:
             check_minislate_user()
+            return fn(*args, **kwargs)
             
         print("SESSION INSIDE AUTH DECORATOR: {}".format(session))
 

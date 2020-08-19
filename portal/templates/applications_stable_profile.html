@@ -28,7 +28,7 @@
         <h1>Could not find the application you are looking for...</h1>
         {% endif %}
         {% if session.get('is_authenticated') and not error %}
-	      <div style="display: flex; justify-contet: flex-start; padding: 10px 0;">
+	      <div style="display: flex; justify-content: flex-start; padding: 10px 0;">
           <div class="install-app">
             <form action="{{url_for('create_application_group', name=name)}}" method="GET">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>

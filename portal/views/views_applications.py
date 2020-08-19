@@ -12,6 +12,7 @@ from portal.connect_api import (list_applications_request,
 import os
 
 @app.route('/applications', methods=['GET'])
+@authenticated
 def list_applications():
     """
     - List Known Applications on SLATE
@@ -41,6 +42,7 @@ def list_incubator_applications_xhr():
 
 
 @app.route('/applications/<name>', methods=['GET'])
+@authenticated
 def view_application(name):
     """
     - View Known Applications Detail Page on SLATE
