@@ -137,7 +137,7 @@
     <div id="loader" class="center" style='display: none;'></div> 
     <div class="wrapper">
     <!-- Navigation -->
-    {% if session.get('is_authenticated') and session.get('user_id') %}
+    {% if session.get('is_authenticated') and session.get('user_id') or session.get('slate_portal_user') %}
       <!-- <nav id="sidebar" class="active nav-bar-shadow"> -->
       <!-- <aside class="col-12 col-sm-2 bg-light"> -->
         <nav class="sidenav navbar navbar-expand-custom navbar-light bg-light align-items-start flex-row" id="sidenav">
