@@ -45,45 +45,45 @@
           <div role="tabpanel" class="tab-pane active" id="details">
             {% if instance_status %}
               {% if instance_details['services'] %}
-            <div class="table-responsive">
-              <br>
-              <h4>Detailed Services</h4>
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">External IP</th>
-                    <th scope="col">Cluster IP</th>
-                    <th scope="col">Ports</th>
-                    <th scope="col">URL</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for service in instance_details['services'] %}
-                  <tr>
-                    {% set addr = 'http://' +service['externalIP'] + ':' + service['ports'].split(':')[1].split('/')[0] %}
-                    <td>{{service['name']}}</td>
-                    <td><a href="{{addr}}" target="_blank">{{service['externalIP']}}</a></td>
-                    <td>{{service['clusterIP']}}</td>
-                    <td>{{service['ports']}}</td>
-                    <td><a href="{{service['url']}}" target="_blank">{{service['url']}}</a></td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
+              <div class="table-responsive">
+                <br>
+                <h4>Detailed Services</h4>
+                <table class="table table-hover">
+                  <thead>
+                    <tr>
+                      <th scope="col">Name</th>
+                      <th scope="col">External IP</th>
+                      <th scope="col">Cluster IP</th>
+                      <th scope="col">Ports</th>
+                      <th scope="col">URL</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for service in instance_details['services'] %}
+                    <tr>
+                      {% set addr = 'http://' +service['externalIP'] + ':' + service['ports'].split(':')[1].split('/')[0] %}
+                      <td>{{service['name']}}</td>
+                      <td><a href="{{addr}}" target="_blank">{{service['externalIP']}}</a></td>
+                      <td>{{service['clusterIP']}}</td>
+                      <td>{{service['ports']}}</td>
+                      <td><a href="{{service['url']}}" target="_blank">{{service['url']}}</a></td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
               {% endif %}
-            <br>
+              <br>
 
-            {%include 'instance_profile_pod_details.html'%}
+              {%include 'instance_profile_pod_details.html'%}
 
-            <br>
+              <br>
 
-            {%include 'instance_profile_monitoring.html'%}
+              {%include 'instance_profile_monitoring.html'%}
 
-            <br>
+              <br>
             {% else %}
-            <h1>Detailed services information currently not available</h1>
+              <h1>Detailed services information currently not available</h1>
             {% endif %}
           </div>
 
@@ -100,18 +100,21 @@
             <div id="logs-display">
               <label for="container-list"> Select container: </label>
               <select id="container-list" name="container-list">
-                {% for container in instance_details['details']['pods'][0]['containers'] %}
-                <option value="{{container['name']}}">
-                  {{container['name']}}
-                </option>
-                {% endfor %}
+                {% if instance_details['details']['pods'] %}
+                  {% for container in instance_details['details']['pods'][0]['containers'] %}
+                  <option value="{{container['name']}}">
+                    {{container['name']}}
+                  </option>
+                  {% endfor %}
+                {% endif %}
               </select>
               <br>
               <label for="nlines"> Enter lines of most recent logs to show (0 for the full log): </label>
-              <input type="number" id="nlines" name="nlines" value="20">
+              <input type="number" id="nlines" name="nlines" value="20" min="0">
               <button class="btn btn-primary btn-sm btn-box-shadow" v-on:click="getLogs">Submit</button>
               <br>
               <button class="btn btn-primary btn-sm btn-box-shadow" onclick="wrapLogs()">Wrap/Unwrap Logs</button>
+              <br>
               <pre id="logs-box" class="app-logs">{[{logs}]}</pre>
             </div>
           </div>
@@ -161,9 +164,13 @@ var request_logs = new Vue({
     getLogs: function () {
       var lines = document.getElementById('nlines').value
       var container = document.getElementById('container-list').value
+      if (container == ''){
+        this.logs = 'This instance does not have pods'
+      } else {
       axios.get('/instances-log-xhr/' + instance_id + '/' + container + '/' + lines)
       .then(response => this.logs = response.data)
       .catch(error => this.logs = "Logs currently unavailable")
+      }
     }
   },
   mounted: function(){
