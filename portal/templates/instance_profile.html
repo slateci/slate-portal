@@ -100,13 +100,13 @@
             <div id="logs-display">
               <label for="container-list"> Select container: </label>
               <select id="container-list" name="container-list">
-                {% if instance_details['details']['pods'] %}
-                  {% for container in instance_details['details']['pods'][0]['containers'] %}
-                  <option value="{{container['name']}}">
-                    {{container['name']}}
-                  </option>
-                  {% endfor %}
-                {% endif %}
+              {% if instance_details['details']['pods'] %}
+                {% for container in instance_details['details']['pods'][0]['containers'] %}
+                <option value="{{container['name']}}">
+                  {{container['name']}}
+                </option>
+                {% endfor %}
+              {% endif %}
               </select>
               <br>
               <label for="nlines"> Enter lines of most recent logs to show (0 for the full log): </label>
