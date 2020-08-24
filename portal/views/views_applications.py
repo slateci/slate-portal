@@ -85,7 +85,7 @@ def view_incubator_application(name):
 def create_application_group(name):
     """ View form to install new application """
     if request.method == 'GET':
-        return render_template('applications_create.html', name=name)
+        return render_template('applications_create.html', name=name, minislate_user=minislate_user)
 
     elif request.method == 'POST':
         group = request.form["group"]
@@ -127,7 +127,7 @@ def applications_create_final_xhr(group_name, app_name):
 def create_application(name, group_name):
     """ View form to install new application """
     if request.method == 'GET':
-        return render_template('applications_create_final.html', name=name, group_name=group_name)
+        return render_template('applications_create_final.html', name=name, group_name=group_name, minislate_user=minislate_user)
 
     elif request.method == 'POST':
         access_token = get_user_access_token(session)
