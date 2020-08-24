@@ -504,7 +504,7 @@ def view_group_members(name):
         return render_template('groups_profile_members.html',
                                 group_list=group_list, users=users, name=name,
                                 group_members=group_members, group_info=group_info,
-                                non_members=non_members, admin=admin)
+                                non_members=non_members, admin=admin, minislate_user=minislate_user)
 
 
 @app.route('/groups/<name>/add_members', methods=['GET', 'POST'])
@@ -560,7 +560,7 @@ def view_group_add_members(name):
 
         return render_template('groups_profile_add_members.html', users=users,
                                 name=name, group_info=group_info,
-                                non_members=non_members)
+                                non_members=non_members, minislate_user=minislate_user)
 
 
 @app.route('/groups/<name>/secrets', methods=['GET', 'POST'])
@@ -568,7 +568,7 @@ def view_group_add_members(name):
 @group_authenticated
 def view_group_secrets(name):
     if request.method == 'GET':
-        return render_template('groups_profile_secrets.html', name=name)
+        return render_template('groups_profile_secrets.html', name=name, minislate_user=minislate_user)
     elif request.method == 'POST':
         """ Method to delete secret from group """
         secret_id = request.form['secret_id']
@@ -798,7 +798,7 @@ def group_cluster_apps(project_name, name, group_name):
 
         return render_template('group_cluster_apps.html', project_name=project_name,
                                 name=name, group_name=group_name, applications=applications,
-                                group_allowed_apps=group_allowed_apps)
+                                group_allowed_apps=group_allowed_apps, minislate_user=minislate_user)
 
     elif request.method == 'POST':
         cluster_id = name
@@ -958,7 +958,7 @@ def edit_group(name):
                                 params=query)
         group = group.json()
 
-        return render_template('groups_edit.html', sciences=sciences, group=group, name=name)
+        return render_template('groups_edit.html', sciences=sciences, group=group, name=name, minislate_user=minislate_user)
 
     elif request.method == 'POST':
         """Route method to handle query to edit Group inro"""

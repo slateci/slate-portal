@@ -96,6 +96,7 @@ def get_instance_container_log(name, container, lines):
     multiplex = multiplex.json()
     # Parse post return for instance, instance details, and instance logs
     instance_log = json.loads(multiplex[instance_log_query]['body'])
+    print("insTANCE LOGS FROM XHR: {}".format(instance_log))
 
     return jsonify(instance_log['logs'])
 

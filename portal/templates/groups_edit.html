@@ -25,9 +25,11 @@
         <hr/>
 
         <form role="form" action="{{url_for('edit_group', name=name)}}" method="POST">
+          {% if not minislate_user %}
           <div class="form-group">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           </div>
+          {% endif %}
           <div class="form-group">
             <label for="phone-number">Email *</label>
             <input

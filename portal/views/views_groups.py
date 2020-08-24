@@ -1,5 +1,5 @@
 from portal.decorators import authenticated, group_authenticated
-from portal import app, slate_api_token, slate_api_endpoint
+from portal import app, slate_api_token, slate_api_endpoint, minislate_user
 import json
 import requests
 from flask import (flash, redirect, render_template,
@@ -66,7 +66,7 @@ def public_groups_ajax():
 def view_public_group(name):
     access_token = get_user_access_token(session)
     if request.method == 'GET':
-        return render_template('groups_public_profile.html', name=name)
+        return render_template('groups_public_profile.html', name=name, minislate_user=minislate_user)
 
 
 @app.route('/public-groups-xhr/<name>', methods=['GET'])
