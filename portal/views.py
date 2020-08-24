@@ -759,7 +759,7 @@ def view_cluster(project_name, name):
                                project_name=project_name, name=name,
                                non_access_groups=sorted_non_access_groups,
                                cluster=cluster, administering=administering,
-                               group_clusters=group_clusters)
+                               group_clusters=group_clusters, minislate_user=minislate_user)
 
     elif request.method == 'POST':
         """Members of group may give other groups access to this cluster"""
@@ -877,7 +877,7 @@ def edit_cluster(project_name, name):
         return render_template('cluster_edit.html', cluster=cluster,
                                 project_name=project_name, name=name,
                                 latitude=latitude, longitude=longitude,
-                                address=address)
+                                address=address, minislate_user=minislate_user)
 
     elif request.method == 'POST':
         # locations param is a list of coordinates, initialized as empty list
@@ -1286,7 +1286,7 @@ def create_cluster():
     if request.method == 'GET':
         # Get groups to which the user belongs
         group_list = list_user_groups(session)
-        return render_template('clusters_create.html', group_list=group_list)
+        return render_template('clusters_create.html', group_list=group_list, minislate_user=minislate_user)
 
 
 @app.route('/_get_data', methods=["GET", "POST"])

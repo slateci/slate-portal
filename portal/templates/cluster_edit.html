@@ -19,9 +19,11 @@
         <hr/>
 
             <form role="form" action="{{url_for('edit_cluster', project_name=project_name, name=name)}}" method="POST">
+              {% if not minislate_user %}
               <div class="form-group">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               </div>
+              {% endif %}
 
               <div class="form-group">
                 <label for="phone-number">Organization *</label>
