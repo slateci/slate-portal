@@ -349,7 +349,7 @@ def create_group():
             slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
         user = user.json()
 
-        return render_template('groups_create.html', sciences=sciences, user=user)
+        return render_template('groups_create.html', sciences=sciences, user=user, minislate_user=minislate_user)
 
     elif request.method == 'POST':
         """Route method to handle query to create a new Group"""

@@ -21,9 +21,11 @@
         <hr/>
 
             <form role="form" action="{{url_for('create_group')}}" method="POST">
+              {% if not minislate_user %}
               <div class="form-group">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               </div>
+              {% endif %}
               <div class="form-group">
                 <label for="name">Group Name * (lowercase, alpha-numeric and -)</label>
                 <input
