@@ -314,7 +314,7 @@ def secret_select_group():
         s_info = s.json()
         group_list = s_info['items']
 
-        return render_template('secret-select-group.html', group_list=group_list)
+        return render_template('secret-select-group.html', group_list=group_list, minislate_user=minislate_user)
 
 
 @app.route('/groups/new', methods=['GET', 'POST'])
@@ -636,7 +636,7 @@ def create_secret(name):
             slate_api_endpoint + '/v1alpha3/clusters', params=query)
         clusters = clusters.json()['items']
 
-        return render_template('secrets_create.html', name=name, clusters=clusters)
+        return render_template('secrets_create.html', name=name, clusters=clusters, minislate_user=minislate_user)
     elif request.method == 'POST':
         # Initialize empty contents dict
         contents = {}
