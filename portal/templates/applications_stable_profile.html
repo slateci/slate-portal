@@ -31,13 +31,17 @@
 	      <div style="display: flex; justify-content: flex-start; padding: 10px 0;">
           <div class="install-app">
             <form action="{{url_for('create_application_group', name=name)}}" method="GET">
+              {% if not minislate_user %}
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+              {% endif %}
               <button class="btn btn-primary btn-sm btn-box-shadow" type="submit">Install App</button>
             </form>
           </div>
           <div style="padding-left: 10px;">
             <form role="form" action="{{url_for('secret_select_group')}}" method="GET">
+              {% if not minislate_user %}
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+              {% endif %}
               <button type="submit" class="btn btn-primary btn-sm btn-box-shadow">Add New Secret</button>
             </form>
 	        </div>

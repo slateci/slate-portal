@@ -1,5 +1,5 @@
 from portal.decorators import authenticated
-from portal import app, csrf, slate_api_token, slate_api_endpoint
+from portal import app, slate_api_token, slate_api_endpoint, minislate_user
 import json
 import requests
 from flask import (flash, redirect, render_template,
@@ -57,7 +57,8 @@ def view_application(name):
                 chart_version = application['metadata']['chart_version']
 
         return render_template('applications_stable_profile.html', name=name,
-                                app_version=app_version, chart_version=chart_version)
+                                app_version=app_version, chart_version=chart_version,
+                                minislate_user=minislate_user)
 
 
 @app.route('/applications/incubator/<name>', methods=['GET'])

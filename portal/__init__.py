@@ -12,9 +12,20 @@ import logging
 __author__ = 'Jeremy Van'
 # set up Flask App
 app = Flask(__name__, instance_relative_config=True)
-# Enable CSRF protection globally for Flask app
-csrf = CSRFProtect(app)
-csrf.init_app(app)
+
+try:
+    # Change to location of slate_portal_user file
+    f = open("/slate_portal_user", "r")
+    minislate_user = f.read().split()
+except:
+    minislate_user = None
+
+
+if not minislate_user:
+    # Enable CSRF protection globally for Flask app
+    csrf = CSRFProtect(app)
+    csrf.init_app(app)
+
 app.config.from_pyfile('portal.conf')
 app.url_map.strict_slashes = False
 app.config['DEBUG'] = True
@@ -32,20 +43,13 @@ app.logger.addHandler(handler)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s: %(message)s')
 handler.setFormatter(formatter)
 
-try:
-    # Change to location of slate_portal_user file
-    f = open("/slate_portal_user", "r")
-    minislate_user = f.read().split()
-except:
-    minislate_user = None
-    
+
 if minislate_user:
     slate_api_token = minislate_user[5]
     slate_api_endpoint = "http://localhost:18080"
 else:
     slate_api_token = app.config['SLATE_API_TOKEN']
     slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
-
 
 def format_datetime(value, format="%b %d %Y %I:%M %p"):
     """Format a date time to (Default): d Mon YYYY HH:MM P"""

@@ -390,7 +390,7 @@ def create_group():
 @group_authenticated
 def view_group(name):
     if request.method == 'GET':
-        return render_template('groups_profile_overview.html', name=name)
+        return render_template('groups_profile_overview.html', name=name, minislate_user=minislate_user)
 
     elif request.method == 'POST':
         access_token, slate_user_id = get_user_info(session)
