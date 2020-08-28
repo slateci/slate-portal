@@ -62,23 +62,23 @@ def view_instance(name):
             flash('The connection to {} has timed out. Please try again later.'.format(name), 'warning')
             return redirect(url_for('list_instances'))
 
-        try:
-            if instance_details['details']['pods'][0]['kind'] == 'Error':
-                print("No pod exist, so emptying logs and skipping lookup")
-                instance_log = {'logs': ''}
-        except:
-            instance_log = get_instance_logs(name)
+        # try:
+        #     if instance_details['details']['pods'][0]['kind'] == 'Error':
+        #         print("No pod exist, so emptying logs and skipping lookup")
+        #         instance_log = {'logs': ''}
+        # except:
+        #     instance_log = get_instance_logs(name)
 
-        if instance_log == 500:
-            return render_template('500.html')
+        # if instance_log == 500:
+        #     return render_template('500.html')
 
         instance_status = True
 
         # pretty_print = json.dumps(instance_details, sort_keys = True, indent = 2)
         return render_template('instance_profile.html', name=name,
                                 instance_details=instance_details,
-                                instance_status=instance_status,
-                                instance_log=instance_log)
+                                instance_status=instance_status)
+                                # instance_log=instance_log)
 
 
 @app.route('/instances-log-xhr/<name>/<container>/<lines>', methods=['GET'])
