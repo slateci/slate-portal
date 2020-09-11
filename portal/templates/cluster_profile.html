@@ -74,7 +74,7 @@
               </thead>
               <tbody>
                 {% for group in allowed_groups %}
-                  {% if group != project_name %}
+                  {% if group['metadata']['name'] != project_name %}
                 <tr>
                   <td>
                     <a href="{{url_for('group_cluster_apps', project_name=project_name, name=name, group_name=group['metadata']['name'])}}">{{group['metadata']['name']}}</a>
