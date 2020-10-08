@@ -63,7 +63,7 @@ jobs:
         run:
           python portal-unit-test/main.py
 
-      # Return result to slack
+      # Return result to Slack
       - name: Notify slack success
         if: success()
         env:
