@@ -23,7 +23,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
-          channel: website
+          channel_id: CLRGHCWG3
           status: STARTING
           color: warning
 
@@ -70,7 +70,7 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
-          channel: website
+          channel_id: CLRGHCWG3
           status: SUCCESS
           color: good
 
@@ -80,6 +80,6 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         uses: voxmedia/github-action-slack-notify-build@v1
         with:
-          channel: website
+          channel_id: CLRGHCWG3
           status: FAILED
           color: danger
