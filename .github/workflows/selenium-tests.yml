@@ -33,20 +33,21 @@ jobs:
           wget https://chromedriver.storage.googleapis.com/85.0.4183.87/chromedriver_linux64.zip
           unzip chromedriver_linux64.zip
           rm chromedriver_linux64.zip
-          export PATH=$PATH:/home/runner/work/git-action-test/git-action-test/ >> ~/.profile
+          pwd
+          # export PATH=$PATH:/home/runner/work/git-action-test/git-action-test/ >> ~/.profile
           # ls
           # pwd
       # set up MiniSlate
-      - name: Setup MiniSLATE
-        run: |
-          git clone https://github.com/slateci/minislate.git
-          cd minislate/
-          ./minislate init --selenium
-          # cat docker-compose.yml
-          cd ..
-      - name: Download tests
-        run: |
-          git clone https://github.com/lzhang666/portal-unit-test.git
-      - name: Run Selenium Tests
-        run:
-          python portal-unit-test/main.py
+      # - name: Setup MiniSLATE
+      #   run: |
+      #     git clone https://github.com/slateci/minislate.git
+      #     cd minislate/
+      #     ./minislate init --selenium
+      #     # cat docker-compose.yml
+      #     cd ..
+      # - name: Download tests
+      #   run: |
+      #     git clone https://github.com/lzhang666/portal-unit-test.git
+      # - name: Run Selenium Tests
+      #   run:
+      #     python portal-unit-test/main.py
