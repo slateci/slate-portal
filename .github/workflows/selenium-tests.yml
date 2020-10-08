@@ -1,7 +1,13 @@
 name: Selenium Tests
 
 # Run this workflow on push and pull request to master branch
-l
+on: 
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
   build:
@@ -9,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # # initialize slack notification
+      # initialize slack notification
       # - name: Notify slack success
       #   if: success()
       #   id: slack # IMPORTANT: reference this step ID value in future Slack steps
@@ -57,7 +63,7 @@ jobs:
         run:
           python portal-unit-test/main.py
 
-      # Return build result to Slack
+      # Return result to Slack
       - name: Notify slack success
         if: success()
         id: slack # IMPORTANT: reference this step ID value in future Slack steps
