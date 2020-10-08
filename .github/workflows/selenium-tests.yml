@@ -1,13 +1,13 @@
 name: Selenium Tests
 
-# Run this workflow on push and pull request to master branch
-on: 
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+# Run this workflow on push and pull request to all branch
+on: [push, pull_request]
+  # push:
+  #   branches:
+  #     - master
+  # pull_request:
+  #   branches:
+  #     - master
 
 jobs:
   build:
@@ -15,18 +15,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # initialize slack notification
-      # - name: Notify slack success
-      #   if: success()
-      #   id: slack # IMPORTANT: reference this step ID value in future Slack steps
-      #   env:
-      #     SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-      #   uses: voxmedia/github-action-slack-notify-build@v1
-      #   with:
-      #     channel_id: CLRGHCWG3
-      #     status: STARTING
-      #     color: warning
-
       # TESTS
       - uses: actions/checkout@v2
       # set up Python 3.8
