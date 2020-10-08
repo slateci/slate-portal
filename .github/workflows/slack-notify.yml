@@ -1,4 +1,4 @@
-name: Slack Notify
+name: Slack Notification
 
 # Run this workflow on push and pull request to master branch
 on: 
@@ -9,8 +9,6 @@ on:
     branches:
       - master
 
-
-name: Slack Notification Demo
 jobs:
   slackNotification:
     name: Slack Notification
