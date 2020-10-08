@@ -10,7 +10,6 @@ on:
       - master
 
 jobs:
-
   build:
     # Set the type of machine to run on
     runs-on: ubuntu-latest
