@@ -1238,6 +1238,7 @@ def authcallback():
 
                     slate_user_id = profile['metadata']['id']
                     session['user_id'] = slate_user_id
+                    session['primary_identity'] = identity
                     user_info = requests.get(slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
                     user_info = user_info.json()['metadata']
                     if user_info['admin']:
