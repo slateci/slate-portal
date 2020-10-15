@@ -1,0 +1,75 @@
+name: Selenium Tests
+
+# Run this workflow on push and pull request to all branch
+on: [push, pull_request]
+  # push:
+  #   branches:
+  #     - master
+  # pull_request:
+  #   branches:
+  #     - master
+
+jobs:
+  build:
+    # Set the type of machine to run on
+    runs-on: ubuntu-latest
+
+    steps:
+      # TESTS
+      - uses: actions/checkout@v2
+      # set up Python 3.8
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.8'
+
+      # Install Selenium Python Bindings
+      - name: Install Selenium Python Bindings
+        run: pip install -U selenium
+      # install chrome web driver
+      - name: Install Chrome web driver
+        run: |
+          google-chrome --version
+          wget https://chromedriver.storage.googleapis.com/85.0.4183.87/chromedriver_linux64.zip
+          unzip chromedriver_linux64.zip
+          rm chromedriver_linux64.zip
+          export PATH=$PATH:/home/runner/work/slate-portal/slate-portal/ >> ~/.profile
+          # ls
+          # pwd
+      # set up MiniSlate
+      - name: Setup MiniSLATE
+        run: |
+          git clone https://github.com/slateci/minislate.git
+          cd minislate/
+          ./minislate init --selenium
+          # cat docker-compose.yml
+          cd ..
+      - name: Download tests
+        run: |
+          git clone https://github.com/lzhang666/portal-unit-test.git
+      - name: Run Selenium Tests
+        run:
+          python portal-unit-test/main.py
+
+      # - name: Notify slack success
+      #   if: success()
+      #   id: slack # IMPORTANT: reference this step ID value in future Slack steps
+      #   env:
+      #     SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+      #   uses: voxmedia/github-action-slack-notify-build@v1
+      #   with:
+      #     channel_id: CLRGHCWG3
+      #     status: SUCCESS
+      #     color: good
+      
+      # Return result to Slack if tests failed
+      - name: Notify Slack Fail
+        if: failure()
+        id: slack # IMPORTANT: reference this step ID value in future Slack steps
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: CLRGHCWG3
+          status: FAILED
+          color: danger
