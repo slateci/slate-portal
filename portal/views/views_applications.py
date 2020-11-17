@@ -8,7 +8,8 @@ from portal.connect_api import (list_applications_request,
                         list_incubator_applications_request,
                         list_instances_request, list_user_groups, 
                         get_user_access_token, list_clusters_request,
-                        get_app_config, cluster_allowed_groups)
+                        get_app_config, get_incubator_app_config,
+                        cluster_allowed_groups)
 import os
 
 @app.route('/applications', methods=['GET'])
@@ -67,7 +68,7 @@ def view_incubator_application(name):
     - View Incubator Applications Detail Page on SLATE
     """
     if request.method == 'GET':
-        applications = list_applications_request()
+        applications = list_incubator_applications_request()
         app_version = None
         chart_version = None
 
@@ -109,6 +110,8 @@ def applications_create_final_xhr(group_name, app_name):
     if request.method == 'GET':
         # Get groups that user belongs to
         app_config = get_app_config(app_name)
+        if app_config['kind'] == 'Error':
+            app_config = get_incubator_app_config(app_name)
         app_config = app_config['spec']['body']
         # print(app_config)
         clusters_list = list_clusters_request()
@@ -138,7 +141,6 @@ def create_application(name, group_name):
         configuration = request.form["config"]
 
         install_app = {"apiVersion": 'v1alpha3', "group": group, "cluster": cluster, "configuration": configuration}
-
         # Post query to install application config
         app_install = requests.post(
             slate_api_endpoint + '/v1alpha3/apps/' + name, params=query, json=install_app)

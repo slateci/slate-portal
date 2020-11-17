@@ -168,6 +168,20 @@ def get_app_config(app_name):
     return app_config
 
 
+def get_incubator_app_config(app_name):
+    try:
+        access_token = get_user_access_token(session)
+        query = {'token': access_token, 'dev': 'true'}
+    except:
+        query = {'token': slate_api_token, 'dev': 'true'}
+    
+    response = requests.get(
+        slate_api_endpoint + '/v1alpha3/apps/' + app_name, params=query)
+    app_config = response.json()
+
+    return app_config
+
+
 def cluster_allowed_groups(cluster_name, group_name):
     """
     Request query check if a group has access to a cluster
