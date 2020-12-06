@@ -34,6 +34,9 @@ This repository contains the SLATE portal applications. The "Portal," utilizes G
 * `virtualenv venv`
 * `source venv/bin/activate`
 * `pip install -r requirements.txt`
+* `mkdir instance`
+* `touch instance/portal.conf`
+* Note that current `portal.conf` file located in `slate-portal/portal/portal.conf` is the default .conf file from the Globus Developer Portal. SLATE Portal will real from the new `instance/portal.conf` file.
 
 ##### Running the Portal App
 
@@ -58,29 +61,6 @@ This repository contains the SLATE portal applications. The "Portal," utilizes G
 
 * `./run_portal.py`
 * point your browser to `https://localhost:5000`
-
-### Windows
-
-##### Environment Setup
-
-* Install Python (<https://www.python.org/downloads/windows/>)
-* `pip install virtualenv`
-* Install git (<https://git-scm.com/downloads>)
-* `git clone https://github.com/globus/globus-sample-data-portal`
-* `cd globus-sample-data-portal`
-* `virtualenv venv`
-* `venv\Scripts\activate`
-* `pip install -r requirements.txt`
-
-##### Running the Portal App
-
-* `python run_portal.py`
-* point your browser to `https://localhost:5000`
-
-##### Running the Service App
-
-* `python run_service.py`
-* API is located at `https://localhost:5100/api`
 
 ### Amazon EC2
 
