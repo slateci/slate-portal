@@ -30,7 +30,8 @@ jobs:
       - name: Install Chrome web driver
         run: |
           google-chrome --version
-          wget https://chromedriver.storage.googleapis.com/85.0.4183.87/chromedriver_linux64.zip
+          # wget https://chromedriver.storage.googleapis.com/85.0.4183.87/chromedriver_linux64.zip
+          wget https://chromedriver.storage.googleapis.com/87.0.4280.88/chromedriver_linux64.zip
           unzip chromedriver_linux64.zip
           rm chromedriver_linux64.zip
           export PATH=$PATH:/home/runner/work/slate-portal/slate-portal/ >> ~/.profile
