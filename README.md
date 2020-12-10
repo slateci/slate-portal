@@ -29,6 +29,8 @@ This repository contains the SLATE portal applications. The "Portal," utilizes G
 
 * `sudo easy_install pip`
 * `sudo pip install virtualenv`
+* `sudo mkdir ~/projects`
+* `cd ~/projects`
 * `git clone https://github.com/slateci/slate-portal.git`
 * `cd slate-portal`
 * `virtualenv venv`
@@ -37,45 +39,9 @@ This repository contains the SLATE portal applications. The "Portal," utilizes G
 * `mkdir instance`
 * `touch instance/portal.conf`
 * Note that current `portal.conf` file located in `slate-portal/portal/portal.conf` is the default .conf file from the Globus Developer Portal. SLATE Portal will real from the new `instance/portal.conf` file.
+* New `instance/portal.conf` file should be updated with new/correct API keys.
 
 ##### Running the Portal App
 
 * `./run_portal.py`
 * point your browser to `https://localhost:5000`
-
-### Linux (Ubuntu)
-
-##### Environment Setup
-
-* `sudo apt-get update`
-* `sudo apt-get install python-pip python-dev gcc`
-* `sudo pip install virtualenv`
-* `sudo apt-get install git`
-* `git clone https://github.com/slateci/slate-portal.git`
-* `cd slate-portal`
-* `virtualenv venv`
-* `source venv/bin/activate`
-* `pip install -r requirements.txt`
-
-##### Running the Portal App
-
-* `./run_portal.py`
-* point your browser to `https://localhost:5000`
-
-### Amazon EC2
-
-##### Environment Setup
-
-* `git clone https://github.com/slateci/slate-portal.git`
-* `cd slate-portal`
-* `virtualenv venv`
-* `source venv/bin/activate`
-* `pip install -r requirements.txt`
-* `sed -i 's/localhost/0.0.0.0/' run_portal.py`
-* `sed -i '4,//s/localhost/YOUR_IP/' portal/portal.conf`
-* `echo "SESSION_COOKIE_DOMAIN = 'YOUR_IP'" >> portal/portal.conf`
-
-##### Running the Portal App
-
-* `./run_portal.py`
-* point your web browser to `https://YOUR_IP:5000/`
