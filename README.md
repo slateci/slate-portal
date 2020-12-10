@@ -9,9 +9,6 @@ This repository contains the SLATE portal applications. The "Portal," utilizes G
 ## Getting Started
 #### Set up your environment.
 * [OS X](#os-x)
-* [Linux](#linux-ubuntu)
-* [Windows](#windows)
-* [Amazon EC2](#amazon-ec2)
 
 #### Create your own App registration for use in the Portal. 
 * Visit the [Globus Developer Pages](https://developers.globus.org) to register an App.
