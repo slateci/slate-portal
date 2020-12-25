@@ -33,9 +33,9 @@
             <tbody data-link="row" class="rowlink" style="font-size:14px;">
               {% for volume in volumes %}
               <tr>
-                <td><a href="{{url_for('view_group_volumes', name=volume['group'])}}">{{volume['name']}}</a></td>
+                <td>{{volume['name']}}</a></td>
                 <td>{{volume['group']}}</td>
-                <td><a href="{{url_for('view_public_cluster', name=volume['cluster'])}}">{{volume['cluster']}}</a></td>
+                <td>{{volume['cluster']}}</a></td>
                 <td>{{volume['created']}}</td>
               </tr>
               {% endfor %}
