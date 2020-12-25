@@ -1394,7 +1394,7 @@ def volume_info(volume_id):
             return redirect(url_for('list_volumes'))
         else:
             volume_details = response.json()
-            return render_template('volume_profile.html', name=volume_id, volume_info=volume_details)
+            return render_template('volume_profile.html', name=volume_id, volume_details=volume_details)
    
     
 @app.route('/volumes/<volume_id>/delete', methods=['POST'])
