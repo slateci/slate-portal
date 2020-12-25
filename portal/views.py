@@ -1362,3 +1362,17 @@ def list_secrets():
         # end_time = time.time()
         # print(end_time-start_time)
         return render_template('secrets.html', secrets=secrets_content)
+    
+@app.route('/volumes', methods=['GET'])
+@authenticated
+def list_volumes():
+    """
+    - List Volumes Registered on SLATE
+    """
+    if request.method == 'GET':
+        access_token, slate_user_id = get_user_info(session)
+        query = {'token': access_token)               
+        volumes = requests.get(
+            slate_api_endpoint + '/v1alpha3/volumes', params=query)
+        volumes = volumes.json()['items']
+        return render_template('volumes.html', volumes=volumes)
