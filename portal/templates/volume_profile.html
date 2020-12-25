@@ -77,6 +77,11 @@
 </section>
 
 <script>
+  
+$(document).ready(function() {
+    $('#overview_tab').addClass('active')
+    $('.breadcrumb').append('<li class="breadcrumb-item active">'+route+'</li>');
+  };
 
   new Vue({
     el: '#volume-info',
