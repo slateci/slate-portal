@@ -1400,17 +1400,16 @@ def volume_info(volume_id):
 @app.route('/volumes/<volume_id>/delete', methods=['POST'])
 @authenticated
 def delete_volume(volume_id):
-    if request.method == 'POST':
-        access_token = get_user_access_token(session)
-        query = {'token': access_token}
+    """
+    - Delete a volume on SLATE
+    """
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
 
-        try:
-            print("Querying deletion of volume: {}".format(volume_id))
-            r = requests.delete(
-                slate_api_endpoint + '/v1alpha3/volumes/' + volume_id, params=query, timeout=1)
-            print("Query to delete volume {} RESPONSE: {}".format(volume_id, r))
-        except requests.exceptions.ReadTimeout:
-            print("Timedout, but force to next page")
+    r = requests.delete(slate_api_endpoint + '/v1alpha3/volumes/' + volumes_id, params=query)
+    if r.status_code == requests.codes.ok:
+        flash('Successfully deleted volume', 'success')
+    else:
+        flash('Failed to delete volume', 'warning')
 
-        flash("Successfully deleted volume", 'success')
-        return redirect(url_for('list_volumes'))
+    return redirect(url_for('list_instances'))
