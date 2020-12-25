@@ -22,9 +22,11 @@
         <h6><strong>Volume ID:</strong> {{volume_details['metadata']['id']}}</h6>
         <h6><strong>Size:</strong> {{volume_details['metadata']['storageRequest']}}</h6>
         <h6><strong>Storage Class:</strong> {{volume_details['metadata']['storageClass']}}</h6>
-        <h6><strong>Access Mode:</strong> {{volume_details['metadata']['accessMode]}}</h6>
+        <h6><strong>Access Mode:</strong> {{volume_details['metadata']['accessMode']}}</h6>
+        <h6><strong>Volume Mode:</strong> {{volume_details['metadata']['volumeMode']}}</h6>
         <h6><strong>Cluster:</strong> {{volume_details['metadata']['cluster']}}</h6>
         <h6><strong>Group:</strong> {{volume_details['metadata']['group']}}</h6>
+        <h6><strong>Status:</strong> {{volume_details['metadata']['status']}}</h6>
         <h6><strong>Created:</strong> {{volume_details['metadata']['created']}}</h6>
         <a href="#" class="btn btn-danger btn-sm btn-box-shadow" onclick="btnConfirm()">Delete Instance</a>
         <hr/>
