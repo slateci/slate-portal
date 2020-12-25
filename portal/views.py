@@ -1397,7 +1397,7 @@ def volume_info(volume_id):
             return render_template('volume_profile.html', name=volume_id, volume_details=volume_details)
    
     
-@app.route('/volumes/<volume_id>/delete', methods=['POST'])
+@app.route('/volumes/<volume_id>/delete', methods=['GET'])
 @authenticated
 def delete_volume(volume_id):
     """
