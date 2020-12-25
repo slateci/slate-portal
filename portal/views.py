@@ -1395,16 +1395,9 @@ def volume_info(volume_id):
         volume_details = response.json()
         return render_template('volume_profile.html', name=volume_id,
                                 volume_info=volume_details)
+   
     
-@app.route('/get-volume-info-xhr/<volume_id>', methods=['GET'])
-@authenticated
-def get_volume_info_xhr(volume_id):
-    if request.method == 'GET':
-        volume_info = get_volume_info(volume_id)
-        print(volume_info)
-        return jsonify(volume_info)
-    
-@app.route('/volumes/volume_id/delete', methods=['POST'])
+@app.route('/volumes/<volume_id>/delete', methods=['POST'])
 @authenticated
 def delete_volume(volume_id):
     if request.method == 'POST':
