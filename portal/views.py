@@ -1371,7 +1371,7 @@ def list_volumes():
     """
     if request.method == 'GET':
         access_token, slate_user_id = get_user_info(session)
-        query = {'token': access_token)               
+        query = {'token': access_token}               
         volumes = requests.get(
             slate_api_endpoint + '/v1alpha3/volumes', params=query)
         volumes = volumes.json()['items']
