@@ -33,10 +33,10 @@
             <tbody data-link="row" class="rowlink" style="font-size:14px;">
               {% for volume in volumes %}
               <tr>
-                <td>{{volume['name']}}</a></td>
-                <td>{{volume['group']}}</td>
-                <td>{{volume['cluster']}}</a></td>
-                <td>{{volume['created']}}</td>
+                <td>{{volume['metadata']['name']}}</a></td>
+                <td>{{volume['metadata']['group']}}</td>
+                <td>{{volume['metadata']['cluster']}}</a></td>
+                <td>{{volume['metadata']['created']}}</td>
               </tr>
               {% endfor %}
             </tbody>
