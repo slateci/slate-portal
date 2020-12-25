@@ -20,33 +20,53 @@
             <h2>Group: Loading Data <i class="fas fa-sync fa-spin"></i></h2>
           </span>
           <span v-else>
-            <h2>Group: {[{volume_info.metadata.name}]}</h2>
+            <h2>Volume: {[{volume_info.metadata.name}]}</h2>
             <p class="lead">
-              <strong>Description:</strong>
-              {[{volume_info.metadata.description}]}
+              <strong>ID:</strong>
+              {[{volume_info.metadata.id}]}
               </p>
             <p class="lead">
-              <strong>Field of Science:</strong>
-              {[{volume_info.metadata.scienceField}]}
+              <strong>Created:</strong>
+              {[{volume_info.metadata.created}]}
             </p>
             <p class="lead">
-              <strong>Contact Email:</strong>
-              {[{volume_info.metadata.email}]}
+              <strong>Group:</strong>
+              {[{volume_info.metadata.group}]}
             </p>
             <p class="lead">
-              <strong>Phone Number:</strong>
-              {[{volume_info.metadata.phone}]}
+              <strong>Cluster:</strong>
+              {[{volume_info.metadata.cluster}]}
+            </p>
+            <p class="lead">
+              <strong>Size:</strong>
+              {[{volume_info.metadata.sotrageRequest}]}
+            </p>
+            <p class="lead">
+              <strong>Storage Class:</strong>
+              {[{volume_info.metadata.storageClass}]}
+            </p>
+            <p class="lead">
+              <strong>Access Mode:</strong>
+              {[{volume_info.metadata.accessMode}]}
+            </p>
+            <p class="lead">
+              <strong>Volume Mode:</strong>
+              {[{volume_info.metadata.volumeMode}]}
+            </p>
+            <p class="lead">
+              <strong>Status:</strong>
+              {[{volume_info.metadata.status}]}
             </p>
           </span>
         </div>
 
         <div class="btn-toolbar" role="toolbar">
           <div class="btn-group mr-2" role="group", aria-label="second group">
-            <form role="form" action="{{url_for('delete_volume', name=name)}}" method="POST" onsubmit="return confirm('Are you sure you want to delete this group?');">
+            <form role="form" action="{{url_for('delete_volume', name=name)}}" method="POST" onsubmit="return confirm('Are you sure you want to delete this volume?');">
               {% if not minislate_user %}
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               {% endif %}
-              <button type="submit" name="delete_volume" class="btn btn-danger btn-sm btn-box-shadow" data-submit="Deleting Group...">Delete Group</button>
+              <button type="submit" name="delete_volume" class="btn btn-danger btn-sm btn-box-shadow" data-submit="Deleting Volume...">Delete Volume</button>
             </form>
           </div>
         </div>
