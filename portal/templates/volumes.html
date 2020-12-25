@@ -33,7 +33,7 @@
             <tbody data-link="row" class="rowlink" style="font-size:14px;">
               {% for volume in volumes %}
               <tr>
-                <td><a href="{{url_for('volume_info', name=volume['metadata']['id'])}}">{{volume['metadata']['name']}}</a></td>
+                <td><a href="{{url_for('volume_info', volume_id=volume['metadata']['id'])}}">{{volume['metadata']['name']}}</a></td>
                 <td><a href="{{url_for('view_public_group', name=volume['metadata']['group'])}}">{{volume['metadata']['group']}}</td>
                 <td><a href="{{url_for('view_public_cluster', name=volume['metadata']['cluster'])}}">{{volume['metadata']['cluster']}}</a></td>
                 <td>{{volume['metadata']['created']}}</td>
