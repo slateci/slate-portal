@@ -1395,3 +1395,22 @@ def volume_info(name):
         volume_details = response.json()
         return render_template('volume_profile.html', name=name,
                                 volume_info=volume_details)
+    
+@app.route('/volumes/<name>/delete', methods=['POST'])
+@authenticated
+def delete_volume(name):
+    if request.method == 'POST':
+        access_token = get_user_access_token(session)
+        query = {'token': access_token}
+        # group_id = name
+
+        try:
+            print("Querying deletion of volume: {}".format(name))
+            r = requests.delete(
+                slate_api_endpoint + '/v1alpha3/volumes/' + name, params=query, timeout=1)
+            print("Query to delete volume {} RESPONSE: {}".format(name, r))
+        except requests.exceptions.ReadTimeout:
+            print("Timedout, but force to next page")
+
+        flash("Successfully deleted volume", 'success')
+        return redirect(url_for('list_volumes'))
