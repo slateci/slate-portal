@@ -1386,7 +1386,9 @@ def volume_info(volume_id):
     if request.method == 'GET':
         access_token, slate_user_id = get_user_info(session)
         query = {'token': access_token}
+        print("Querying VOLUME details...")
         response = requests.get(slate_api_endpoint + '/v1alpha3/volumes/' + volume_id, params=query)
+        print("Query response: {}".format(response))
         if response.status_code == 504:
             flash('The connection to {} has timed out. Please try again later.'.format(name), 'warning')
             return redirect(url_for('list_volumes'))
