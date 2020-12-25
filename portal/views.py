@@ -1377,9 +1377,9 @@ def list_volumes():
         volumes = volumes.json()['items']
         return render_template('volumes.html', volumes=volumes)
     
-@app.route('/volumes/<name>', methods=['GET'])
+@app.route('/volumes/<volume_id>', methods=['GET'])
 @authenticated
-def volume_info(name):
+def volume_info(volume_id):
     """
     - View detailed volume information on SLATE
     """
@@ -1387,36 +1387,36 @@ def volume_info(name):
         access_token, slate_user_id = get_user_info(session)
         query = {'token': access_token}
         print("Querying volume details...")
-        response = requests.get(slate_api_endpoint + '/v1alpha3/volumes/' + name, params=query)
+        response = requests.get(slate_api_endpoint + '/v1alpha3/volumes/' + volume_id, params=query)
         print("Query response: {}".format(response))
         if response.status_code == 504:
             flash('The connection to {} has timed out. Please try again later.'.format(name), 'warning')
             return redirect(url_for('list_volumes'))
         volume_details = response.json()
-        return render_template('volume_profile.html', name=name,
+        return render_template('volume_profile.html', name=volume_id,
                                 volume_info=volume_details)
     
-@app.route('/get-volume-info-xhr/<volume_name>', methods=['GET'])
+@app.route('/get-volume-info-xhr/<volume_id>', methods=['GET'])
 @authenticated
-def get_volume_info_xhr(volume_name):
+def get_volume_info_xhr(volume_id):
     if request.method == 'GET':
-        volume_info = get_volume_info(volume_name)
+        volume_info = get_volume_info(volume_id)
         print(volume_info)
         return jsonify(volume_info)
     
-@app.route('/volumes/<name>/delete', methods=['POST'])
+@app.route('/volumes/volume_id/delete', methods=['POST'])
 @authenticated
-def delete_volume(name):
+def delete_volume(volume_id):
     if request.method == 'POST':
         access_token = get_user_access_token(session)
         query = {'token': access_token}
         # group_id = name
 
         try:
-            print("Querying deletion of volume: {}".format(name))
+            print("Querying deletion of volume: {}".format(volume_id))
             r = requests.delete(
-                slate_api_endpoint + '/v1alpha3/volumes/' + name, params=query, timeout=1)
-            print("Query to delete volume {} RESPONSE: {}".format(name, r))
+                slate_api_endpoint + '/v1alpha3/volumes/' + volume_id, params=query, timeout=1)
+            print("Query to delete volume {} RESPONSE: {}".format(volume_id, r))
         except requests.exceptions.ReadTimeout:
             print("Timedout, but force to next page")
 
