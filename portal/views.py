@@ -681,6 +681,45 @@ def create_secret(name):
             flash('Unable to add secret: {}'.format(err_message), 'warning')
 
         return redirect(url_for('view_group_secrets', name=name))
+    
+@app.route('/groups/<name>/new_volume', methods=['GET', 'POST'])
+@authenticated
+def create_group_volume(name):
+    access_token = get_user_access_token(session)
+    query = {'token': access_token, 'group': name}
+    if request.method == 'GET':
+        # Get clusters owned by group
+        clusters = requests.get(
+            slate_api_endpoint + '/v1alpha3/clusters', params=query)
+        clusters = clusters.json()['items']
+
+        return render_template('secrets_create.html', name=name, clusters=clusters, minislate_user=minislate_user)
+    elif request.method == 'POST':
+        # Initialize empty contents dict
+        contents = {}
+
+        cluster = request.form['cluster']
+        volume_name = request.form['name']
+        storageRequest = request.form['storageRequest']
+        storageClass = request.form['storageClass']
+        accessMode = request.form['accessMode']
+        volumeMode = request.form['volumeMode']
+
+        add_volume = {"apiVersion": 'v1alpha3',
+                    'metadata': {'name': volume, 'group': name, 'cluster': cluster,
+                    'storageRequest': storageRequest, 'accessMode': accessMode, 'volumeMode' = volumeMode, 'storageClass' = storageClass}
+
+        # Add secret to Group
+        r = requests.post(
+            slate_api_endpoint + '/v1alpha3/volumes', params=query, json=add_volume)
+        if r.status_code == requests.codes.ok:
+            flash("Successfully added secret", 'success')
+        else:
+            err_message = r.json()['message']
+            flash('Unable to add secret: {}'.format(err_message), 'warning')
+
+        return redirect(url_for('view_group_volumes', name=name))
+
 
 
 @app.route('/groups/<name>/add_member', methods=['POST'])
