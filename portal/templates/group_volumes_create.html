@@ -7,17 +7,21 @@
 {%block body%}
 <section id="volume-create" class="bg-light">
   <div class="container">
-    <div class="page-header">
-    </div>
+    
 
     <div class="row">
       <div class="col-lg-12 mx-auto">
-        {%include 'messages.html' %}
-        <h2>Create New Volume</h2>
+       {%include 'messages.html' %}
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
+          <li class="breadcrumb-item"><a href="{{url_for('list_groups')}}">Group</a></li>
+          <li class="breadcrumb-item"><a href="{{url_for('view_group', name=name)}}">{{name}}</a></li>
+          <li class="breadcrumb-item active">New Secret</li>
+        </ol>
+        <h1>Create New Volume</h1>
         <p class="lead">
           Enter Volume information below
         </p>
-
         <hr/>
 
             <form role="form" action="{{url_for('create_group_volume', name = name)}}" method="POST">
