@@ -699,7 +699,7 @@ def create_group_volume(name):
         contents = {}
 
         cluster = request.form['cluster']
-        volume_name = request.form['name']
+        volume_name = request.form['volume-name']
         storageRequest = request.form['storageRequest']
         storageClass = request.form['storageClass']
         accessMode = request.form['accessMode']
