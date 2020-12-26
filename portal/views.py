@@ -706,7 +706,7 @@ def create_group_volume(name):
         volumeMode = request.form['volumeMode']
 
         add_volume = {"apiVersion": 'v1alpha3',
-                    'metadata': {'name': volume, 'group': name, 'cluster': cluster,
+                    'metadata': {'name': volume_name, 'group': name, 'cluster': cluster,
                     'storageRequest': storageRequest, 'accessMode': accessMode, 'volumeMode': volumeMode, 'storageClass': storageClass}}
 
         # Add volume to Group
