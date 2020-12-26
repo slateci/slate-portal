@@ -1,7 +1,7 @@
 {%extends "groups_profile_template.html"%}
 
 {%block content%}
-<form role="form" action="{{url_for('create_volume', name=name)}}" method="GET">
+<form role="form" action="{{url_for('create_group_volume', name=name)}}" method="GET">
   {% if not minislate_user %}
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
   {% endif %}
