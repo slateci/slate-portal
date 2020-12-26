@@ -566,7 +566,7 @@ def view_group_add_members(name):
 @app.route('/groups/<name>/volumes', methods=['GET', 'POST'])
 @authenticated
 @group_authenticated
-def view_group_secrets(name):
+def view_group_volumes(name):
     if request.method == 'GET':
         access_token = get_user_access_token(session)
         volumes_query = {'token': access_token, 'group': name}
