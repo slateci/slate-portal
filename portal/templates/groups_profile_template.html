@@ -69,6 +69,9 @@
           <li class="nav-item">
             <a class="nav-link" href="{{url_for('view_group_secrets', name=name)}}" id="secrets_tab"><i class="fas fa-key"></i> Secrets</a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{url_for('view_group_volumes', name=name)}}" id="volumes_tab"><i class="fas fa-database"></i> Volumes</a>
+          </li>
         </ul>
         <br>
 
@@ -98,6 +101,9 @@ $(document).ready(function() {
       $('.breadcrumb').append("<li class='breadcrumb-item active'>Add Members</li>");
     } else if (route === 'secrets') {
       $('.breadcrumb').append("<li class='breadcrumb-item active'>Secrets</li>");
+    }
+    } else if (route === 'volumes') {
+      $('.breadcrumb').append("<li class='breadcrumb-item active'>Volumes</li>");
     }
   } else {
     $('#overview_tab').addClass('active')
