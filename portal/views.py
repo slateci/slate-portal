@@ -570,7 +570,8 @@ def view_group_volumes(name):
     if request.method == 'GET':
         access_token, slate_user_id = get_user_info(session)
         query = {'token': access_token}
-        group_volumes = requests.get(slate_api_endpoint + '/v1alpha3/volumes/', params=query)
+        group_volumes = requests.get(
+            slate_api_endpoint + '/v1alpha3/volumes', params=query)
         group_volumes = group_volumes.json()['items']
         return render_template('groups_profile_volumes.html', name=name, group_volumes=group_volumes, minislate_user=minislate_user)
     elif request.method == 'POST':
