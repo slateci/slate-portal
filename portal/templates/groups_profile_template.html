@@ -69,9 +69,6 @@
           <li class="nav-item">
             <a class="nav-link" href="{{url_for('view_group_secrets', name=name)}}" id="secrets_tab"><i class="fas fa-key"></i> Secrets</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{{url_for('view_group_volumes', name=name)}}" id="volumes_tab"><i class="fas fa-database"></i> Volumes</a>
-          </li>
         </ul>
         <br>
 
@@ -88,7 +85,7 @@
 $(document).ready(function() {
   var pathname = window.location.pathname;
   var route_split_list = pathname.split('/');
-  var routes_list = ['members', 'add_members', 'secrets', 'volumes']
+  var routes_list = ['members', 'add_members', 'secrets']
   var route = route_split_list[route_split_list.length - 1];
   // console.log(route)
   // $('nav > div > ul > li > a[href="/'+parentpath+'"]').parent().addClass('active')
@@ -102,13 +99,9 @@ $(document).ready(function() {
     } else if (route === 'secrets') {
       $('.breadcrumb').append("<li class='breadcrumb-item active'>Secrets</li>");
     }
-    } else if (route === 'volumes') {
-      $('.breadcrumb').append("<li class='breadcrumb-item active'>Volumes</li>");
-    }
-    else {
-      $('#overview_tab').addClass('active');
-      $('.breadcrumb').append('<li class="breadcrumb-item active">'+route+'</li>');
-    }
+  } else {
+    $('#overview_tab').addClass('active')
+    $('.breadcrumb').append('<li class="breadcrumb-item active">'+route+'</li>');
   };
 
   new Vue({
