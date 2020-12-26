@@ -1413,3 +1413,14 @@ def delete_volume(volume_id):
         flash('Failed to delete volume', 'warning')
 
     return redirect(url_for('list_volumes'))
+
+@app.route('/volumes/new', methods=['GET', 'POST'])
+@authenticated
+def create_application_group():
+    """ View form to install new application """
+    if request.method == 'GET':
+        return render_template('volume_create.html', minislate_user=minislate_user)
+
+    elif request.method == 'POST':
+        group = request.form["group"]
+        return redirect(url_for('create_application', name=name, group_name=group))
