@@ -1416,7 +1416,7 @@ def delete_volume(volume_id):
 
 @app.route('/volumes/new', methods=['GET', 'POST'])
 @authenticated
-def create_application_group():
+def create_volume():
     """ View form to install new application """
     if request.method == 'GET':
         return render_template('volume_create.html', minislate_user=minislate_user)
