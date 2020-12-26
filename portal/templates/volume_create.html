@@ -55,8 +55,8 @@
                   tabindex="1"
                   style="width:300px;">
                   <option value="" selected disabled>--- Select One ---</option>
-                  {% for cluster in clusters %}
-                  <option value="{{cluster['metadata']['name']}}">{{cluster['metadata']['name']}}</option>
+                  {% for group in groups %}
+                  <option value="{{group['metadata']['name']}}">{{group['metadata']['name']}}</option>
                   {% endfor %}
                 </select>
               </div>
