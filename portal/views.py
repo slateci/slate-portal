@@ -732,7 +732,8 @@ def volumes_create_xhr():
         for cluster in clusters_list:
             cluster_name = cluster['metadata']['name']
             for group in groups:
-                if cluster_allowed_groups(cluster_name, group['metadata']['name']):
+                group_name = group['metadata']['name']
+                if cluster_allowed_groups(cluster_name, group_name):
                     accessible_clusters.append(cluster)
         return jsonify(groups, accessible_clusters)
 
@@ -1499,7 +1500,8 @@ def create_volume():
         for cluster in clusters_list:
             cluster_name = cluster['metadata']['name']
             for group in groups:
-                if cluster_allowed_groups(cluster_name, group['metadata']['name']):
+                group_name = group['metadata']['name']
+                if cluster_allowed_groups(cluster_name, group_name):
                     accessible_clusters.append(cluster)
         return render_template('volume_create.html', groups=groups, clusters=accessible_clusters, minislate_user=minislate_user)
     elif request.method == 'POST':
