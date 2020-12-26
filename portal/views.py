@@ -707,7 +707,7 @@ def create_group_volume(name):
 
         add_volume = {"apiVersion": 'v1alpha3',
                     'metadata': {'name': volume, 'group': name, 'cluster': cluster,
-                    'storageRequest': storageRequest, 'accessMode': accessMode, 'volumeMode': volumeMode, 'storageClass': storageClass}
+                    'storageRequest': storageRequest, 'accessMode': accessMode, 'volumeMode': volumeMode, 'storageClass': storageClass}}
 
         # Add secret to Group
         r = requests.post(
