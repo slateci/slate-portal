@@ -577,8 +577,8 @@ def view_group_volumes(name):
     elif request.method == 'POST':
         """ Method to delete volume from group """
         volume_id = request.form['volume_id']
-        access_token = get_user_access_token(session)
-        volumes_query = {'token': access_token, 'group': name}
+        access_token, slate_user_id = get_user_access_token(session)
+        volumes_query = {'token': access_token}
         r = requests.delete(slate_api_endpoint + '/v1alpha3/volumes/' + volume_id, params=volumes_query)
         # print(name, secret_id)
         if r.status_code == requests.codes.ok:
