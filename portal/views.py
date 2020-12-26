@@ -1490,11 +1490,40 @@ def delete_volume(volume_id):
 @app.route('/volumes/new', methods=['GET', 'POST'])
 @authenticated
 def create_volume():
-    """ View form to install new application """
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
     if request.method == 'GET':
-        return render_template('volume_create.html', minislate_user=minislate_user)
-
+        groups = list_user_groups(session)
+        clusters_list = list_clusters_request()
+        accessible_clusters = []
+        for cluster in clusters_list:
+            cluster_name = cluster['metadata']['name']
+            for group in groups:
+                if cluster_allowed_groups(cluster_name, group['metadata']['name']):
+                    accessible_clusters.append(cluster)
+        return render_template('volume_create.html', groups=groups, clusters=accessible_clusters, minislate_user=minislate_user)
     elif request.method == 'POST':
-        group = request.form["group"]
-        return redirect(url_for('create_application', name=name, group_name=group))
+        # Initialize empty contents dict
+        contents = {}
+        cluster = request.form['cluster']
+        volume_name = request.form['volume-name']
+        storageRequest = request.form['storageRequest']
+        storageClass = request.form['storageClass']
+        accessMode = request.form['accessMode']
+        volumeMode = request.form['volumeMode']
+
+        add_volume = {"apiVersion": 'v1alpha3',
+                    'metadata': {'name': volume_name, 'group': name, 'cluster': cluster,
+                    'storageRequest': storageRequest, 'accessMode': accessMode, 'volumeMode': volumeMode, 'storageClass': storageClass}}
+
+        # Add volume to Group
+        r = requests.post(
+            slate_api_endpoint + '/v1alpha3/volumes', params=query, json=add_volume)
+        if r.status_code == requests.codes.ok:
+            flash("Successfully added volume", 'success')
+        else:
+            err_message = r.json()['message']
+            flash('Unable to add volume: {}'.format(err_message), 'warning')
+
+        return redirect(url_for('list_volumes'))
    
