@@ -1,13 +1,10 @@
 name: Selenium Tests
 
 # Run this workflow on push and pull request to all branch
-on: [push, pull_request]
-  # push:
-  #   branches:
-  #     - master
-  # pull_request:
-  #   branches:
-  #     - master
+on:
+  push:
+    branches:
+      - master
 
 jobs:
   build:
