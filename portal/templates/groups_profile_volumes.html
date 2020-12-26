@@ -1,0 +1,55 @@
+{%extends "groups_profile_template.html"%}
+
+{%block content%}
+
+<div class="table-responsive">
+  <table class="table" id="volumes-table" data-toggle="table" data-sort-name="name" data-sort-order="desc">
+    <thead>
+      <tr>
+        <th data-field="name" data-sortable="true">Name</th>
+        <th data-field="group_id" data-sortable="true">Group</th>
+        <th data-field="cluster" data-sortable="true">Cluster</th>
+        <th data-field="id" data-sortable="true">Created</th>
+        <th data-field="status" data-sortable="true">Status</th>
+      </tr>
+    </thead>
+    <tbody data-link="row" class="rowlink" style="font-size:14px;">
+      {% for volume in group_volumes %}
+      {% set volume_name = volume['metadata']['name'] %}
+      <tr>
+        <td><a href="{{url_for('volume_info', volume_id=volume['metadata']['id'])}}">{{volume['metadata']['name']}}</a></td>
+        <td><a href="{{url_for('view_public_group', name=volume['metadata']['group'])}}">{{volume['metadata']['group']}}</td>
+        <td><a href="{{url_for('view_public_cluster', name=volume['metadata']['cluster'])}}">{{volume['metadata']['cluster']}}</a></td>
+        <td>{{volume['metadata']['created']}}</td>
+        <td>
+          <form role="form" action="{{url_for('delete_volume', volume_id=volume['metadata']['id'])}}" method="GET" onsubmit="return confirm('Are you sure you remove {{volume_name}}?');">
+            {% if not minislate_user %}
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            {% endif %}
+            <button type="submit" name="delete_volume" value="{{volume['metadata']['id']}}" class="btn btn-danger btn-sm btn-box-shadow" data-submit="Removing Volume...">Remove Volume</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+
+  </table>
+</div>
+
+
+<meta id="flask-data" data-group_name="{{name}}">
+<script>
+var flask_data = $('#flask-data').data();
+var group_name = flask_data.group_name
+
+function btnConfirm() {
+  var r = confirm("Are you sure you want to delete this secret?");
+  if(r == true){
+    window.location.href = "{{url_for('delete_group', name=name)}}";
+  } else {
+    return
+  }
+}
+
+</script>
+{%endblock%}
