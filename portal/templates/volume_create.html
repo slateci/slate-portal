@@ -13,6 +13,10 @@
     <div class="row">
       <div class="col-lg-12 mx-auto">
         {%include 'messages.html' %}
+          <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{{url_for('dashboard')}}">Home</a></li>
+          <li class="breadcrumb-item"><a href="{{url_for('list_volumes')}}">Volumes</a></li>
+          <li class="breadcrumb-item active">New Volume</li>
         <h2>Create New Volume</h2>
         <p class="lead">
           Enter Volume information below
@@ -31,8 +35,8 @@
                 <input
                   type="text"
                   class="form-control"
-                  id="name"
-                  name="name"
+                  id="volume-name"
+                  name="volume-name"
                   placeholder="Volume name"
                   pattern="[a-zA-Z0-9-]+"
                   required="required"
@@ -75,13 +79,12 @@
                 <input 
                   type="text"
                   class="form-control"
-                  id="name"
-                  name="name"
+                  id="storageRequest"
+                  name="storageRequest"
                   placeholder="1G"
                   pattern="\d{1,5}[a-zA-Z]{1,2}"
                   required="required"
                   tabindex="1"
-                  style="text-transform:lowercase"
                   maxlength="64"
               </div>
               
@@ -90,8 +93,8 @@
                 <input
                   type="text"
                   class="form-control"
-                  id="name"
-                  name="name"
+                  id="storageClass"
+                  name="storageClass"
                   placeholder="nfs-provisioner"
                   pattern="[a-zA-Z0-9-]+"
                   required="required"
@@ -106,13 +109,12 @@
                 <input
                   type="text"
                   class="form-control"
-                  id="name"
-                  name="name"
+                  id="accessMode"
+                  name="accessMode"
                   placeholder="ReadWriteOnce"
                   pattern="[a-zA-Z0-9-]+"
                   required="required"
                   tabindex="1"
-                  style="text-transform:lowercase"
                   maxlength="64"
                 >
               </div>
@@ -122,13 +124,12 @@
                 <input
                   type="text"
                   class="form-control"
-                  id="name"
-                  name="name"
+                  id="volumeMode"
+                  name="volumeMode"
                   placeholder="Filesystem"
                   pattern="[a-zA-Z0-9-]+"
                   required="required"
                   tabindex="1"
-                  style="text-transform:lowercase"
                   maxlength="64"
                 >
               </div>
