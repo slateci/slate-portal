@@ -722,7 +722,7 @@ def create_group_volume(name):
     
 @app.route('/volumes-create-xhr', methods=['GET'])
 @authenticated
-def applications_create_xhr():
+def volumes_create_xhr():
     """ View form to install new application """
     if request.method == 'GET':
         # Get groups that user belongs to
