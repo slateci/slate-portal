@@ -709,16 +709,32 @@ def create_group_volume(name):
                     'metadata': {'name': volume, 'group': name, 'cluster': cluster,
                     'storageRequest': storageRequest, 'accessMode': accessMode, 'volumeMode': volumeMode, 'storageClass': storageClass}}
 
-        # Add secret to Group
+        # Add volume to Group
         r = requests.post(
             slate_api_endpoint + '/v1alpha3/volumes', params=query, json=add_volume)
         if r.status_code == requests.codes.ok:
-            flash("Successfully added secret", 'success')
+            flash("Successfully added volume", 'success')
         else:
             err_message = r.json()['message']
-            flash('Unable to add secret: {}'.format(err_message), 'warning')
+            flash('Unable to add volume: {}'.format(err_message), 'warning')
 
         return redirect(url_for('view_group_volumes', name=name))
+    
+@app.route('/volumes-create-xhr', methods=['GET'])
+@authenticated
+def applications_create_xhr():
+    """ View form to install new application """
+    if request.method == 'GET':
+        # Get groups that user belongs to
+        groups = list_user_groups(session)
+        clusters_list = list_clusters_request()
+        accessible_clusters = []
+        for cluster in clusters_list:
+            cluster_name = cluster['metadata']['name']
+            for group in groups:
+                if cluster_allowed_groups(cluster_name, group['metadata']['name']):
+                    accessible_clusters.append(cluster)
+        return jsonify(groups, accessible_clusters)
 
 
 
