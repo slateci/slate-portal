@@ -1422,8 +1422,9 @@ def delete_volume(volume_id):
     """
     access_token = get_user_access_token(session)
     query = {'token': access_token}
-
+    print("Querying VOLUME deletion...")
     r = requests.delete(slate_api_endpoint + '/v1alpha3/volumes/' + volume_id, params=query)
+    print("Query response: {}".format(response))
     if r.status_code == requests.codes.ok:
         flash('Successfully deleted volume', 'success')
     else:
