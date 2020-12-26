@@ -1496,14 +1496,7 @@ def create_volume():
     if request.method == 'GET':
         groups = list_user_groups(session)
         clusters_list = list_clusters_request()
-        accessible_clusters = []
-        for cluster in clusters_list:
-            cluster_name = cluster['metadata']['name']
-            for group in groups:
-                group_name = group['metadata']['name']
-                if cluster_allowed_groups(cluster_name, group_name):
-                    accessible_clusters.append(cluster)
-        return render_template('volume_create.html', groups=groups, clusters=accessible_clusters, minislate_user=minislate_user)
+        return render_template('volume_create.html', groups=groups, clusters=clusters_list, minislate_user=minislate_user)
     elif request.method == 'POST':
         # Initialize empty contents dict
         contents = {}
