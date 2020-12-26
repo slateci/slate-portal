@@ -575,9 +575,15 @@ def view_group_volumes(name):
         group_volumes = group_volumes.json()['items']
         return render_template('groups_profile_volumes.html', name=name, group_volumes=group_volumes, minislate_user=minislate_user)
     elif request.method == 'POST':
-        """ Method to delete volume from group """
+        """ Method to delete volume from group """       
         volume_id = request.form['volume_id']
-        delete_volume(volume_id)
+        access_token = get_user_access_token(session)
+        query = {'token': access_token}
+        r = requests.delete(slate_api_endpoint + '/v1alpha3/secrets/' + volume_id, params=query)
+        if r.status_code == requests.codes.ok:
+            flash('Successfully deleted volume', 'success')
+        else:
+            flash('Failed to delete volume', 'warning')
         return redirect(url_for('view_group_volumes', name=name))
 
 
