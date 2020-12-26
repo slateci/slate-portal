@@ -50,9 +50,11 @@
                 <span v-if='failed'>
                   Failed to load the data, please refresh the page <i class="far fa-times-circle"></i>
                 </span>
-                <select class="form-control" id="cluster" name="cluster" required="required" tabindex="2">
+                <select class="form-control" id="cluster" name="cluster" required="required" tabindex="1">
                   <option value="" selected disabled>--- Select One ---</option>
-                  <option v-for='cluster in clusters' :value="cluster.metadata.name">{[{cluster.metadata.name}]}</option>
+                  {% for cluster in clusters %}
+                  <option value="{{cluster['metadata']['name']}}">{{cluster['metadata']['name']}}</option>
+                  {% endfor %}
                 </select>
               </div>
 
@@ -82,7 +84,6 @@
                   pattern="[a-zA-Z0-9-]+"
                   required="required"
                   tabindex="1"
-                  style="text-transform:lowercase"
                   maxlength="64"
                 >
               </div>
@@ -98,7 +99,6 @@
                   pattern="[a-zA-Z0-9-]+"
                   required="required"
                   tabindex="1"
-                  style="text-transform:lowercase"
                   maxlength="64"
                 >
               </div>
@@ -114,7 +114,6 @@
                   pattern="[a-zA-Z0-9-]+"
                   required="required"
                   tabindex="1"
-                  style="text-transform:lowercase"
                   maxlength="64"
                 >
               </div>
@@ -129,5 +128,39 @@
     </div>
   </div>
 </section>
+  
+<script>
+$(document).ready(function() {
+  new Vue({
+	el: '#group',
+	data () {
+    return {
+      groups: {},
+		  loading: true,
+		  failed: false
+	  }
+	},
+	mounted() {
+    axios.get('/volumes-create-xhr')
+    .then(function (response) {
+      this.groups = response.data[0];
+			this.loading = false;
+		}.bind(this)) //must use bind(this) unless using arrow function
+		.catch(error => { this.failed = true; this.loading = false; })
+	},
+  updated: function() {
+    // Function to sort group listing after mounted
+	  var options = $('select.form-control option');
+    var arr = options.map(function(_, o) { return { t: $(o).text(), v: o.value }; }).get();
+    arr.sort(function(o1, o2) { return o1.t > o2.t ? 1 : o1.t < o2.t ? -1 : 0; });
+    options.each(function(i, o) {
+      o.value = arr[i].v;
+      $(o).text(arr[i].t);
+    });
+	}
+});
+
+})
+</script>
 
 {%endblock%}
