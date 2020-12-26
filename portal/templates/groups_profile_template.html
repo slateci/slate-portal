@@ -16,6 +16,10 @@
           <li class="breadcrumb-item"><a href="{{url_for('list_groups')}}">Group</a></li>
         </ol>
         <div id='group-info'>
+          <span v-if='loading'>
+            <h2>Group: Loading Data <i class="fas fa-sync fa-spin"></i></h2>
+          </span>
+          <span v-else>
             <h2>Group: {[{group_info.metadata.name}]}</h2>
             <p class="lead">
               <strong>Description:</strong>
@@ -33,6 +37,7 @@
               <strong>Phone Number:</strong>
               {[{group_info.metadata.phone}]}
             </p>
+          </span>
         </div>
 
         <div class="btn-toolbar" role="toolbar">
