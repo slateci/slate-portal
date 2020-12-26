@@ -1501,6 +1501,7 @@ def create_volume():
         # Initialize empty contents dict
         contents = {}
         cluster = request.form['cluster']
+        group = request.form['group']
         volume_name = request.form['volume-name']
         storageRequest = request.form['storageRequest']
         storageClass = request.form['storageClass']
@@ -1508,7 +1509,7 @@ def create_volume():
         volumeMode = request.form['volumeMode']
 
         add_volume = {"apiVersion": 'v1alpha3',
-                    'metadata': {'name': volume_name, 'group': name, 'cluster': cluster,
+                    'metadata': {'name': volume_name, 'group': group, 'cluster': cluster,
                     'storageRequest': storageRequest, 'accessMode': accessMode, 'volumeMode': volumeMode, 'storageClass': storageClass}}
 
         # Add volume to Group
