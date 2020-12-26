@@ -569,7 +569,7 @@ def view_group_add_members(name):
 def view_group_volumes(name):
     if request.method == 'GET':
         access_token, slate_user_id = get_user_info(session)
-        query = {'token': access_token}
+        query = {'token': access_token, 'group': name}
         group_volumes = requests.get(
             slate_api_endpoint + '/v1alpha3/volumes', params=query)
         group_volumes = group_volumes.json()['items']
