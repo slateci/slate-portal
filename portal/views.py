@@ -561,6 +561,31 @@ def view_group_add_members(name):
         return render_template('groups_profile_add_members.html', users=users,
                                 name=name, group_info=group_info,
                                 non_members=non_members, minislate_user=minislate_user)
+    
+
+@app.route('/groups/<name>/volumes', methods=['GET', 'POST'])
+@authenticated
+@group_authenticated
+def view_group_secrets(name):
+    if request.method == 'GET':
+        access_token = get_user_access_token(session)
+        volumes_query = {'token': access_token, 'group': name}
+        group_volumes = requests.get(slate_api_endpoint + '/v1alpha3/secrets/', params=volume_query)
+        return render_template('groups_profile_volumes.html', name=name, group_volumes=group_volumes, minislate_user=minislate_user)
+    elif request.method == 'POST':
+        """ Method to delete volume from group """
+        volume_id = request.form['volume_id']
+        access_token = get_user_access_token(session)
+        volumes_query = {'token': access_token, 'group': name}
+        r = requests.delete(slate_api_endpoint + '/v1alpha3/volumes/' + volume_id, params=volumes_query)
+        # print(name, secret_id)
+        if r.status_code == requests.codes.ok:
+            flash("Successfully deleted volume", 'success')
+        else:
+            err_message = r.json()['message']
+            flash('Failed to delete volume info: {}'.format(err_message), 'warning')
+
+        return redirect(url_for('view_group_volumes', name=name))
 
 
 @app.route('/groups/<name>/secrets', methods=['GET', 'POST'])
@@ -599,7 +624,6 @@ def group_secrets_ajax_request(name):
     secrets = secrets.json()['items']
 
     return secrets
-
 
 @app.route('/group-secrets-key-xhr/<secret_id>', methods=['GET'])
 def group_secrets_key_ajax(secret_id):
@@ -1424,3 +1448,4 @@ def create_volume():
     elif request.method == 'POST':
         group = request.form["group"]
         return redirect(url_for('create_application', name=name, group_name=group))
+   
