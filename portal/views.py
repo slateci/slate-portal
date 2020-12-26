@@ -577,15 +577,7 @@ def view_group_volumes(name):
     elif request.method == 'POST':
         """ Method to delete volume from group """
         volume_id = request.form['volume_id']
-        access_token = get_user_access_token(session)
-        query = {'token': access_token}
-        r = requests.delete(slate_api_endpoint + '/v1alpha3/volumes/' + volume_id, params=query)
-        if r.status_code == requests.codes.ok:
-            flash("Successfully deleted volume", 'success')
-        else:
-            err_message = r.json()['message']
-            flash('Failed to delete volume info: {}'.format(err_message), 'warning')
-
+        delete_volume(volume_id)
         return redirect(url_for('view_group_volumes', name=name))
 
 
