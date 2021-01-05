@@ -44,7 +44,7 @@ jobs:
           cd ..
       - name: Download tests
         run: |
-          git clone https://github.com/lzhang666/portal-unit-test.git
+          git clone https://github.com/slateci/portal-unit-test.git
       - name: Run Selenium Tests
         run:
           python portal-unit-test/main.py
