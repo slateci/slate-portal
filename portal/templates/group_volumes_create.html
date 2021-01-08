@@ -50,9 +50,7 @@
                 <label for="cluster">Cluster</label>
                 <select class="form-control" id="cluster" name="cluster" required="required" tabindex="1">
                   <option value="" selected disabled>--- Select One ---</option>
-                  {% for cluster in clusters %}
-                  <option value="{{cluster['metadata']['name']}}">{{cluster['metadata']['name']}}</option>
-                  {% endfor %}
+                  <option v-for='cluster in clusters' :value="cluster.metadata.name">{[{cluster.metadata.name}]}</option>
                 </select>
               </div>
 

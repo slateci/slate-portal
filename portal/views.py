@@ -17,6 +17,7 @@ from portal.connect_api import (list_applications_request,
                         list_users_instances_request,
                         list_clusters_request, coordsConversion,
                         get_user_access_token, get_user_id,
+                        cluster_allowed_groups,
                         get_user_info, delete_user)
 import sys
 import os
@@ -694,12 +695,8 @@ def create_group_volume(name):
     access_token = get_user_access_token(session)
     query = {'token': access_token, 'group': name}
     if request.method == 'GET':
-        # Get clusters owned by group
-        clusters = requests.get(
-            slate_api_endpoint + '/v1alpha3/clusters', params=query)
-        clusters = clusters.json()['items']
 
-        return render_template('group_volumes_create.html', name=name, clusters=clusters, minislate_user=minislate_user)
+        return render_template('group_volumes_create.html', name=name, minislate_user=minislate_user)
     elif request.method == 'POST':
         # Initialize empty contents dict
         contents = {}
@@ -729,7 +726,7 @@ def create_group_volume(name):
 @app.route('/volumes-create-xhr', methods=['GET'])
 @authenticated
 def volumes_create_xhr():
-    """ View form to install new application """
+    """ View form to install new volume"""
     if request.method == 'GET':
         # Get groups that user belongs to
         groups = list_user_groups(session)
