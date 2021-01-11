@@ -132,16 +132,6 @@ $(document).ready(function() {
 			this.loading = false;
 		}.bind(this)) //must use bind(this) unless using arrow function
 		.catch(error => { this.failed = true; this.loading = false; })
-	},
-  updated: function() {
-    // Function to sort group listing after mounted
-	  var options = $('select.form-control option');
-    var arr = options.map(function(_, o) { return { t: $(o).text(), v: o.value }; }).get();
-    arr.sort(function(o1, o2) { return o1.t > o2.t ? 1 : o1.t < o2.t ? -1 : 0; });
-    options.each(function(i, o) {
-      o.value = arr[i].v;
-      $(o).text(arr[i].t);
-    });
 	}
 });
 
