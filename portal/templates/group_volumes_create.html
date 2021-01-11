@@ -139,6 +139,7 @@ $(document).ready(function() {
 	mounted() {
     axios.get('/volumes-create-bygroup-xhr/{{name}}')
     .then(function (response) {
+      console.log(response);
       this.clusters = response.data[0];
 			this.loading = false;
 		}.bind(this)) //must use bind(this) unless using arrow function
