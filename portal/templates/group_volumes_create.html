@@ -140,7 +140,7 @@ $(document).ready(function() {
     axios.get('/volumes-create-bygroup-xhr/{{name}}')
     .then(function (response) {
       console.log(response);
-      this.clusters = response;
+      this.clusters = response.data;
 			this.loading = false;
 		}.bind(this)) //must use bind(this) unless using arrow function
 		.catch(error => { this.failed = true; this.loading = false; })
