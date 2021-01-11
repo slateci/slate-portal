@@ -740,6 +740,19 @@ def volumes_create_xhr():
                     accessible_clusters.append(cluster)
         return jsonify(groups, accessible_clusters)
 
+@app.route('/volumes-create-bygroup-xhr/<group_name>', methods=['GET'])
+@authenticated
+def volumes_create_bygroup_xhr(group_name):
+    """ View form to install new volume"""
+    if request.method == 'GET':
+        # Get groups that user belongs to
+        clusters_list = list_clusters_request()
+        accessible_clusters = []
+        for cluster in clusters_list:
+            cluster_name = cluster['metadata']['name']
+            if cluster_allowed_groups(cluster_name, group_name):
+                accessible_clusters.append(cluster)
+        return jsonify(accessible_clusters)
 
 
 @app.route('/groups/<name>/add_member', methods=['POST'])

@@ -137,9 +137,8 @@ $(document).ready(function() {
 	  }
 	},
 	mounted() {
-    axios.get('/volumes-create-xhr')
+    axios.get('/volumes-create-bygroup-xhr/{{name}}')
     .then(function (response) {
-      this.groups = response.data[0];
       this.clusters = response.data[1];
 			this.loading = false;
 		}.bind(this)) //must use bind(this) unless using arrow function
