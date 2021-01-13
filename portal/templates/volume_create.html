@@ -165,6 +165,7 @@
     },
     methods: {
       getClusters: function () {
+        alert("getClusters fired");
         //get value of group
         let group = $("#group").val()
         axios.get('/volumes-create-bygroup-xhr/' + group)
