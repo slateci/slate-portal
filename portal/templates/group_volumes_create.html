@@ -48,6 +48,12 @@
 
               <div class="form-group">
                 <label for="cluster">Cluster</label>
+                <span v-if='loading'>
+                  Loading Data <i class="fas fa-sync fa-spin"></i>
+                </span>
+                <span v-if='failed'>
+                  Failed to load the data, please refresh the page <i class="far fa-times-circle"></i>
+                </span>
                 <select class="form-control" id="cluster" name="cluster" required="required" tabindex="1">
                   <option value="" selected disabled>--- Select One ---</option>
                   <option v-for='cluster in clusters' :value="cluster.metadata.name">{[{cluster.metadata.name}]}</option>
