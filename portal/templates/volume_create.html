@@ -65,9 +65,7 @@
                 <label for="cluster">Cluster</label>
                 <select class="form-control" id="cluster" name="cluster" required="required" tabindex="2">
                   <option value="" selected disabled>--- Select One ---</option>
-                  {% for cluster in clusters %}
-                  <option value="{{cluster['metadata']['name']}}">{{cluster['metadata']['name']}}</option>
-                  {% endfor %}
+                  <option v-for='cluster in clusters' :value="cluster.metadata.name">{[{cluster.metadata.name}]}</option>
                 </select>
               </div>
 
@@ -141,5 +139,44 @@
     </div>
   </div>
 </section>
+
+<script>
+  $(document).ready(function() {
+    
+    const eventBus = new Vue();
+
+    $("#group").change(function () {
+      eventBus.$emit("updateClusters")
+    })
+
+    new Vue({
+    el: '#cluster',
+    data () {
+      return {
+        clusters: {},
+        loading: true,
+        failed: false
+      }
+    },
+    created() {
+      eventBus.$on('updateClusters', () => {
+        this.getClusters()
+      })
+    },
+    methods: {
+      getClusters: function () {
+        //get value of group
+        let group = $("#group").val()
+        axios.get('/volumes-create-bygroup-xhr/' + group)
+        .then(function (response) {
+          this.clusters = response.data;
+          this.loading = false;
+        }.bind(this)) //must use bind(this) unless using arrow function
+        .catch(error => { this.failed = true; this.loading = false; })
+    }
+  });
+  
+  })
+  </script>
 
 {%endblock%}
