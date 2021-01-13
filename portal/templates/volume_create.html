@@ -143,8 +143,10 @@
 <script>
   $(document).ready(function() {
     
+    // event for updating clusters list
     const eventBus = new Vue();
 
+    //fire event when group changes
     $("#group").change(function () {
       eventBus.$emit("updateClusters")
     })
@@ -165,7 +167,6 @@
     },
     methods: {
       getClusters: function () {
-        alert("getClusters fired");
         //get value of group
         let group = $("#group").val()
         axios.get('/volumes-create-bygroup-xhr/' + group)
