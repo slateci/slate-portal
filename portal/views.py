@@ -1511,8 +1511,7 @@ def create_volume():
     query = {'token': access_token}
     if request.method == 'GET':
         groups = list_user_groups(session)
-        clusters_list = list_clusters_request()
-        return render_template('volume_create.html', groups=groups, clusters=clusters_list, minislate_user=minislate_user)
+        return render_template('volume_create.html', groups=groups, minislate_user=minislate_user)
     elif request.method == 'POST':
         # Initialize empty contents dict
         contents = {}
