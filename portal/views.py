@@ -17,6 +17,7 @@ from portal.connect_api import (list_applications_request,
                         list_users_instances_request,
                         list_clusters_request, coordsConversion,
                         get_user_access_token, get_user_id,
+                        cluster_allowed_groups,
                         get_user_info, delete_user)
 import sys
 import os
@@ -561,6 +562,30 @@ def view_group_add_members(name):
         return render_template('groups_profile_add_members.html', users=users,
                                 name=name, group_info=group_info,
                                 non_members=non_members, minislate_user=minislate_user)
+    
+
+@app.route('/groups/<name>/volumes', methods=['GET', 'POST'])
+@authenticated
+@group_authenticated
+def view_group_volumes(name):
+    if request.method == 'GET':
+        access_token, slate_user_id = get_user_info(session)
+        query = {'token': access_token, 'group': name}
+        group_volumes = requests.get(
+            slate_api_endpoint + '/v1alpha3/volumes', params=query)
+        group_volumes = group_volumes.json()['items']
+        return render_template('groups_profile_volumes.html', name=name, group_volumes=group_volumes, minislate_user=minislate_user)
+    elif request.method == 'POST':
+        """ Method to delete volume from group """       
+        volume_id = request.form['volume_id']
+        access_token = get_user_access_token(session)
+        query = {'token': access_token}
+        r = requests.delete(slate_api_endpoint + '/v1alpha3/volumes/' + volume_id, params=query)
+        if r.status_code == requests.codes.ok:
+            flash('Successfully deleted volume', 'success')
+        else:
+            flash('Failed to delete volume', 'warning')
+        return redirect(url_for('view_group_volumes', name=name))
 
 
 @app.route('/groups/<name>/secrets', methods=['GET', 'POST'])
@@ -599,7 +624,6 @@ def group_secrets_ajax_request(name):
     secrets = secrets.json()['items']
 
     return secrets
-
 
 @app.route('/group-secrets-key-xhr/<secret_id>', methods=['GET'])
 def group_secrets_key_ajax(secret_id):
@@ -664,6 +688,71 @@ def create_secret(name):
             flash('Unable to add secret: {}'.format(err_message), 'warning')
 
         return redirect(url_for('view_group_secrets', name=name))
+    
+@app.route('/groups/<name>/new_volume', methods=['GET', 'POST'])
+@authenticated
+def create_group_volume(name):
+    access_token = get_user_access_token(session)
+    query = {'token': access_token, 'group': name}
+    if request.method == 'GET':
+
+        return render_template('group_volumes_create.html', name=name, minislate_user=minislate_user)
+    elif request.method == 'POST':
+        # Initialize empty contents dict
+        contents = {}
+
+        cluster = request.form['cluster']
+        volume_name = request.form['volume-name']
+        storageRequest = request.form['storageRequest']
+        storageClass = request.form['storageClass']
+        accessMode = request.form['accessMode']
+        volumeMode = request.form['volumeMode']
+
+        add_volume = {"apiVersion": 'v1alpha3',
+                    'metadata': {'name': volume_name, 'group': name, 'cluster': cluster,
+                    'storageRequest': storageRequest, 'accessMode': accessMode, 'volumeMode': volumeMode, 'storageClass': storageClass}}
+
+        # Add volume to Group
+        r = requests.post(
+            slate_api_endpoint + '/v1alpha3/volumes', params=query, json=add_volume)
+        if r.status_code == requests.codes.ok:
+            flash("Successfully added volume", 'success')
+        else:
+            err_message = r.json()['message']
+            flash('Unable to add volume: {}'.format(err_message), 'warning')
+
+        return redirect(url_for('view_group_volumes', name=name))
+    
+@app.route('/volumes-create-xhr', methods=['GET'])
+@authenticated
+def volumes_create_xhr():
+    """ View form to install new volume"""
+    if request.method == 'GET':
+        # Get groups that user belongs to
+        groups = list_user_groups(session)
+        clusters_list = list_clusters_request()
+        accessible_clusters = []
+        for cluster in clusters_list:
+            cluster_name = cluster['metadata']['name']
+            for group in groups:
+                group_name = group['metadata']['name']
+                if cluster_allowed_groups(cluster_name, group_name):
+                    accessible_clusters.append(cluster)
+        return jsonify(groups, accessible_clusters)
+
+@app.route('/volumes-create-bygroup-xhr/<group_name>', methods=['GET'])
+@authenticated
+def volumes_create_bygroup_xhr(group_name):
+    """ View form to install new volume"""
+    if request.method == 'GET':
+        # Get groups that user belongs to
+        clusters_list = list_clusters_request()
+        accessible_clusters = []
+        for cluster in clusters_list:
+            cluster_name = cluster['metadata']['name']
+            if cluster_allowed_groups(cluster_name, group_name):
+                accessible_clusters.append(cluster)
+        return jsonify(accessible_clusters)
 
 
 @app.route('/groups/<name>/add_member', methods=['POST'])
@@ -1362,3 +1451,90 @@ def list_secrets():
         # end_time = time.time()
         # print(end_time-start_time)
         return render_template('secrets.html', secrets=secrets_content)
+    
+@app.route('/volumes', methods=['GET'])
+@authenticated
+def list_volumes():
+    """
+    - List Volumes Registered on SLATE
+    """
+    if request.method == 'GET':
+        access_token, slate_user_id = get_user_info(session)
+        query = {'token': access_token}               
+        volumes = requests.get(
+            slate_api_endpoint + '/v1alpha3/volumes', params=query)
+        volumes = volumes.json()['items']
+        return render_template('volumes.html', volumes=volumes)
+    
+@app.route('/volumes/<volume_id>', methods=['GET'])
+@authenticated
+def volume_info(volume_id):
+    """
+    - View detailed volume information on SLATE
+    """
+    if request.method == 'GET':
+        access_token, slate_user_id = get_user_info(session)
+        query = {'token': access_token}
+        print("Querying VOLUME details...")
+        response = requests.get(slate_api_endpoint + '/v1alpha3/volumes/' + volume_id, params=query)
+        print("Query response: {}".format(response))
+        if response.status_code == 504:
+            flash('The connection to {} has timed out. Please try again later.'.format(name), 'warning')
+            return redirect(url_for('list_volumes'))
+        else:
+            volume_details = response.json()
+            return render_template('volume_profile.html', name=volume_id, volume_details=volume_details)
+   
+    
+@app.route('/volumes/<volume_id>/delete', methods=['GET'])
+@authenticated
+def delete_volume(volume_id):
+    """
+    - Delete a volume on SLATE
+    """
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
+    print("Querying VOLUME deletion...")
+    r = requests.delete(slate_api_endpoint + '/v1alpha3/volumes/' + volume_id, params=query)
+    print("Query response: {}".format(r))
+    if r.status_code == requests.codes.ok:
+        flash('Successfully deleted volume', 'success')
+    else:
+        flash('Failed to delete volume', 'warning')
+
+    return redirect(url_for('list_volumes'))
+
+@app.route('/volumes/new', methods=['GET', 'POST'])
+@authenticated
+def create_volume():
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
+    if request.method == 'GET':
+        groups = list_user_groups(session)
+        return render_template('volume_create.html', groups=groups, minislate_user=minislate_user)
+    elif request.method == 'POST':
+        # Initialize empty contents dict
+        contents = {}
+        cluster = request.form['cluster']
+        group = request.form['group']
+        volume_name = request.form['volume-name']
+        storageRequest = request.form['storageRequest']
+        storageClass = request.form['storageClass']
+        accessMode = request.form['accessMode']
+        volumeMode = request.form['volumeMode']
+
+        add_volume = {"apiVersion": 'v1alpha3',
+                    'metadata': {'name': volume_name, 'group': group, 'cluster': cluster,
+                    'storageRequest': storageRequest, 'accessMode': accessMode, 'volumeMode': volumeMode, 'storageClass': storageClass}}
+
+        # Add volume to Group
+        r = requests.post(
+            slate_api_endpoint + '/v1alpha3/volumes', params=query, json=add_volume)
+        if r.status_code == requests.codes.ok:
+            flash("Successfully added volume", 'success')
+        else:
+            err_message = r.json()['message']
+            flash('Unable to add volume: {}'.format(err_message), 'warning')
+
+        return redirect(url_for('list_volumes'))
+   
