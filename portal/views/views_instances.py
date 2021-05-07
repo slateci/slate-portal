@@ -122,7 +122,7 @@ def restart_instance(name):
     access_token = get_user_access_token(session)
     query = {'token': access_token}
 
-    r = requests.post(slate_api_endpoint + '/v1alpha3/instances/' + name + '/restart', params=query)
+    r = requests.put(slate_api_endpoint + '/v1alpha3/instances/' + name + '/restart', params=query)
     if r.status_code == requests.codes.ok:
         flash('Successfully restarted instance', 'success')
     else:
