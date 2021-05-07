@@ -124,8 +124,8 @@ def restart_instance(name):
 
     r = requests.post(slate_api_endpoint + '/v1alpha3/instances/' + name + '/restart', params=query)
     if r.status_code == requests.codes.ok:
-        flash('Successfully deleted instance', 'success')
+        flash('Successfully restarted instance', 'success')
     else:
-        flash('Failed to delete instance', 'warning')
+        flash('Failed to restart instance', 'warning', r)
 
-    return redirect(url_for('list_instances'))
+    return redirect(url_for('view_instance', name=name))
