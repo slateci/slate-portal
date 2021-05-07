@@ -126,6 +126,7 @@ def restart_instance(name):
     if r.status_code == requests.codes.ok:
         flash('Successfully restarted instance', 'success')
     else:
-        flash(r.data, 'warning')
+        flash('Failed to restart instance', 'warning')
+        print(r)
 
     return redirect(url_for('view_instance', name=name))
