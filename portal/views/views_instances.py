@@ -114,3 +114,19 @@ def delete_instance(name):
         flash('Failed to delete instance', 'warning')
 
     return redirect(url_for('list_instances'))
+
+
+@app.route('/instances/<name>/restart', methods=['GET'])
+@authenticated
+def restart_instance(name):
+    access_token = get_user_access_token(session)
+    query = {'token': access_token}
+
+    r = requests.put(slate_api_endpoint + '/v1alpha3/instances/' + name + '/restart', params=query)
+    if r.status_code == requests.codes.ok:
+        flash('Successfully restarted instance', 'success')
+    else:
+        flash('Failed to restart instance', 'warning')
+        print(r)
+
+    return redirect(url_for('view_instance', name=name))
