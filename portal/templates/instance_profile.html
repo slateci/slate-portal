@@ -24,9 +24,7 @@
         <h6><strong>Cluster:</strong> {{instance_details['metadata']['cluster']}}</h6>
         <h6><strong>Group:</strong> {{instance_details['metadata']['group']}}</h6>
         <h6><strong>Created:</strong> {{instance_details['metadata']['created']}}</h6>
-        <a href="#" class="btn btn-danger btn-sm btn-box-shadow" onclick="btnConfirm()">Delete Instance</a>
-        <hr/>
-        <a href="#" class="btn btn-danger btn-sm btn-box-shadow" onclick="restartBtnConfirm()">Restart Instance</a>
+        <a class="btn btn-danger btn-sm btn-box-shadow" onclick="btnConfirm()" href="#">Delete Instance</a><a class="btn btn-danger btn-sm btn-box-shadow" onclick="restartBtnConfirm()" href="#">Restart Instance</a>
         <hr/>
 
         <ul class="nav nav-tabs" role="tablist">
