@@ -1,1 +1,1 @@
-06/24/2021 - New blog post: [Launching a SLATE cluster on the CloudLab testbed](https://slateci.io/blog/slate-on-cloudlab.html)
+New blog post: [Launching a SLATE cluster on the CloudLab testbed](https://slateci.io/blog/slate-on-cloudlab.html)
