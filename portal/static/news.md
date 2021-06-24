@@ -1,1 +1,1 @@
-umich-prod cluster will be down for maintanence from 06/14/21 to 06/18/21. Monitoring will also be affected during that time.
+06/24/2021 - New blog post: [Launching a SLATE cluster on the CloudLab testbed](https://slateci.io/blog/slate-on-cloudlab.html)
