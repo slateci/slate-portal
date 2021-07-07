@@ -1,7 +1,7 @@
-Flask==1.0.1
+Flask==2.0.1
 Flask-Markdown
 Flask-Misaka
-flask_wtf
-pygal==2.1.1
-globus-sdk==1.5.0
+Flask-WTF
+pygal==2.4.0
+globus-sdk==2.0.1
 geopy
