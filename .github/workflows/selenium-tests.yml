@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     # Set the type of machine to run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       # TESTS
@@ -27,9 +27,7 @@ jobs:
       - name: Install Chrome web driver
         run: |
           google-chrome --version
-          # wget https://chromedriver.storage.googleapis.com/85.0.4183.87/chromedriver_linux64.zip
-          # wget https://chromedriver.storage.googleapis.com/87.0.4280.88/chromedriver_linux64.zip
-          wget https://chromedriver.storage.googleapis.com/90.0.4430.24/chromedriver_linux64.zip
+          wget https://chromedriver.storage.googleapis.com/96.0.4664.45/chromedriver_linux64.zip
           unzip chromedriver_linux64.zip
           rm chromedriver_linux64.zip
           export PATH=$PATH:/home/runner/work/slate-portal/slate-portal/ >> ~/.profile
