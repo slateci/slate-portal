@@ -38,6 +38,7 @@ jobs:
         run: |
           git clone https://github.com/slateci/minislate.git
           cd minislate/
+          ./minislate build
           ./minislate init --selenium
           # cat docker-compose.yml
           cd ..
