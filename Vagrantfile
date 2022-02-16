@@ -22,9 +22,7 @@ Vagrant.configure("2") do |config|
 
   # Specify the Vagrant Box, version, and update check:
   config.vm.box = "centos/7"
-#   config.vm.box = "rockylinux/8"
-#   config.vm.box_version = "2004.01"
-#   config.vm.box_version = "4.0.0"
+  config.vm.box_version = "2004.01"
   config.vm.box_check_update = "false"
 
   # Customize the hostname:
