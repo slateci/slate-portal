@@ -61,6 +61,9 @@ coverage.xml
 *,cover
 .hypothesis/
 
+# Vagrant
+.vagrant
+
 # Translations
 *.mo
 *.pot
