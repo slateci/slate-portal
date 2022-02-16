@@ -21,3 +21,22 @@
       - uwsgi
       - uwsgi-plugin-python2
     state: present
+- name: Add systemd uwsgi configuration
+  template:
+    src: "templates/uwsgi.service.j2"
+    dest: "/etc/systemd/system/uwsgi.service"
+    owner: root
+    group: root
+    mode: 0644
+- name: Add uwsgi configuration
+  template:
+    src: "templates/uwsgi.ini.j2"
+    dest: "/etc/uwsgi.ini"
+    owner: root
+    group: root
+    mode: 0644
+- name: Start and enable the uwsgi service
+  service:
+    name: "uwsgi"
+    state: started
+    enabled: true
