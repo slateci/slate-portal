@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/globus/globus-sample-data-portal.svg?branch=master)](https://travis-ci.org/globus/globus-sample-data-portal)
-
 # SLATE Portal
 Web portal to the SLATE [platform](https://www.portal.slateci.io/).
 
