@@ -1,0 +1,23 @@
+---
+- name: Create group for running uwsgi
+  group:
+    name: uwsgi
+    state: present
+- name: Create user for running uwsgi
+  user:
+    name: uwsgi
+    state: present
+    shell: /sbin/nologin
+    group: uwsgi
+    home: /var/run/uwsgi
+    system: true
+- name: Install epel-release via system package manager
+  package:
+    name: epel-release
+    state: present
+- name: Install uwsgi packages/dependencies via system package manager
+  package:
+    name:
+      - uwsgi
+      - uwsgi-plugin-python2
+    state: present
