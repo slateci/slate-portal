@@ -1,9 +1,0 @@
----
-- become: yes
-  hosts: all
-  remote_user: root
-
-  - include_tasks: "./tasks/os.yml"
-  - include_tasks: "./tasks/slate.yml"
-  - include_tasks: "./tasks/nginx.yml"
-  - include_tasks: "./tasks/uwsgi.yml"

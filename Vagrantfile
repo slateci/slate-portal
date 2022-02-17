@@ -52,7 +52,7 @@ Vagrant.configure("2") do |config|
   # Run Ansible from the Vagrant host:
   config.vm.provision "ansible", run:"always" do |ansible|
     ansible.host_key_checking = false
-    ansible.playbook = "./ansible/playbook.yml"
+    ansible.playbook = "./playbook.yml"
     ansible.verbose = "v"
   end
 

@@ -1,5 +1,7 @@
 ---
-slate_root_directory:
+ansible_python_interpreter: "/bin/python3"
+slate_root:
   path: "/etc/slate"
 slate_portal_repo:
   repo: "https://github.com/slateci/slate-portal.git"
+  path: "/etc/slate/slate-website-python"

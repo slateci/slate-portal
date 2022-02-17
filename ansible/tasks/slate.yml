@@ -1,15 +1,15 @@
 ---
 - name: Checking SLATE root directory
   stat:
-    path: "{{ slate_root_directory[path] }}"
+    path: "{{ slate_root.path }}"
   register: slate_root_directory
 - name: Checking SLATE git directory
   stat:
-    path: "/etc/slate/slate-website-python"
+    path: "{{ slate_portal_repo.path }}"
   register: slate_git_directory
 - name: Creating SLATE root directory
   file:
-    path: "/etc/slate"
+    path: "{{ slate_root.path }}"
     state: directory
     owner: root
     group: root
@@ -24,15 +24,15 @@
     mode: 0644
 - name: Clone the SLATE Portal Git repository
   git:
-    repo: "{{ slate_portal_repo[repo] }}"
-    dest: "/etc/slate/slate-website-python"
+    repo: "{{ slate_portal_repo.repo }}"
+    dest: "{{ slate_portal_repo.path }}"
     depth: 1
     single_branch: yes
     version: master
     update: no
 - name: Changing ownership of SLATE Portal Git repository to uwsgi:uwsgi
   file:
-    path: "/etc/slate/slate-website-python"
+    path: "{{ slate_portal_repo.path }}"
     state: directory
     recurse: yes
     owner: uwsgi
@@ -42,22 +42,19 @@
 - name: Install virtualenv python package
   pip:
     name: virtualenv
-    executable: "/bin/pip3"
-- name: Manually create venv
-  command:
-    cmd: virtualenv /etc/slate/venv -p python3.6
-    creates: "/etc/slate/venv"
 - name: Install pip requirements to venv
   pip:
     requirements: "/etc/slate/slate-website-python/requirements.txt"
     virtualenv: "/etc/slate/venv"
-- name: Changing ownership of SLATE Portal Git repository to uwsgi:uwsgi
+    virtualenv_command: "/usr/local/bin/virtualenv"
+    virtualenv_python: python3.6
+- name: Add SLATE Portal instance directory
   file:
     path: "/etc/slate/slate-website-python/instance"
     state: directory
     owner: uwsgi
     group: uwsgi
-    mode: 0755
+    mode: 0644
 - name: Add portal configuration
   template:
     src: "templates/portal.conf.j2"
@@ -66,3 +63,10 @@
     group: root
     mode: 0644
     force: no
+- name: Make run_portal.py executable
+  file:
+    path: "/etc/slate/slate-website-python/run_portal.py"
+    state: file
+    owner: uwsgi
+    group: uwsgi
+    mode: 0755
