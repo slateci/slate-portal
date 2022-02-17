@@ -42,6 +42,7 @@
 - name: Install virtualenv python package
   pip:
     name: virtualenv
+    executable: /bin/pip3
 - name: Install pip requirements to venv
   pip:
     requirements: "/etc/slate/slate-website-python/requirements.txt"
