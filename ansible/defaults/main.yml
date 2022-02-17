@@ -1,6 +1,6 @@
 ---
 slate_root:
   path: "/etc/slate"
-slate_portal_repo:
+slate_portal:
   repo: "https://github.com/slateci/slate-portal.git"
-  path: "/etc/slate/slate-website-python"
+  path: "{{ slate_root.path }}/slate-website-python"

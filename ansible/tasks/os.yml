@@ -11,6 +11,7 @@
       - git
       - python-setuptools
       - python3
+      - python3-devel
     state: present
 
 - name: Update pip
@@ -35,5 +36,6 @@
     state: present
     shell: "/sbin/nologin"
     group: uwsgi
+    groups: ''
     home: "/var/run/uwsgi"
     system: true
