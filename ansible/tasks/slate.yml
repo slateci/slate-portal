@@ -3,10 +3,12 @@
   stat:
     path: "{{ slate_root.path }}"
   register: slate_root_directory
+
 - name: Checking SLATE git directory
   stat:
     path: "{{ slate_portal_repo.path }}"
   register: slate_git_directory
+
 - name: Creating SLATE root directory
   file:
     path: "{{ slate_root.path }}"
@@ -15,6 +17,7 @@
     group: root
     mode: 0755
   when: slate_root_directory.stat.exists == false
+
 - name: Add SLATE configuration
   template:
     src: "templates/slate.ini.j2"
@@ -22,6 +25,7 @@
     owner: root
     group: root
     mode: 0644
+
 - name: Clone the SLATE Portal Git repository
   git:
     repo: "{{ slate_portal_repo.repo }}"
@@ -30,6 +34,7 @@
     single_branch: yes
     version: master
     update: no
+
 - name: Changing ownership of SLATE Portal Git repository to uwsgi:uwsgi
   file:
     path: "{{ slate_portal_repo.path }}"
@@ -39,12 +44,14 @@
     group: uwsgi
     mode: 0755
   when: slate_git_directory.stat.exists == false
+
 - name: Install pip requirements to venv
   pip:
     requirements: "/etc/slate/slate-website-python/requirements.txt"
     virtualenv: "/etc/slate/venv"
     virtualenv_command: "/usr/local/bin/virtualenv"
     virtualenv_python: python3.6
+
 - name: Add SLATE Portal instance directory
   file:
     path: "/etc/slate/slate-website-python/instance"
@@ -52,6 +59,7 @@
     owner: uwsgi
     group: uwsgi
     mode: 0644
+
 - name: Add portal configuration
   template:
     src: "templates/portal.conf.j2"
@@ -60,6 +68,7 @@
     group: root
     mode: 0644
     force: no
+
 - name: Make run_portal.py executable
   file:
     path: "/etc/slate/slate-website-python/run_portal.py"

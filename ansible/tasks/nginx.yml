@@ -4,6 +4,7 @@
     name:
       - nginx
     state: present
+
 - name: Add systemd nginx configuration
   template:
     src: "templates/nginx.service.j2"
@@ -11,6 +12,7 @@
     owner: root
     group: root
     mode: 0644
+
 - name: Add nginx configuration
   template:
     src: "templates/nginx.conf.j2"
@@ -18,6 +20,7 @@
     owner: root
     group: root
     mode: 0644
+
 - name: Start and enable the nginx service
   service:
     name: nginx
