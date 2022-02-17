@@ -11,10 +11,6 @@
     group: uwsgi
     home: /var/run/uwsgi
     system: true
-- name: Install epel-release via system package manager
-  package:
-    name: epel-release
-    state: present
 - name: Install uwsgi packages/dependencies via system package manager
   package:
     name:

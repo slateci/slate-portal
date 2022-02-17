@@ -3,4 +3,7 @@
   hosts: all
   remote_user: root
   roles:
-    - role: ./roles/uwsgi
+    - role: ./roles/os
+    - role: ./roles/slate
+#    - role: ./roles/uwsgi
+#    - role: ./roles/nginx

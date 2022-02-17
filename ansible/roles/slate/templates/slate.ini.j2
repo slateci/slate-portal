@@ -1,0 +1,12 @@
+[uwsgi]
+socket = :3031
+master = true
+processes = 32
+plugins = python36
+venv = /etc/slate/venv
+user = centos
+chdir = /etc/slate/slate-website-python
+module = run_portal
+callable = app
+wsgi_file = /etc/slate/slate-website-python/run_portal.py
+logto = /tmp/uwsgi.log

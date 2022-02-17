@@ -1,0 +1,10 @@
+---
+- name: Install general packages/dependencies via system package manager
+  package:
+    name:
+      - epel-release
+      - git
+      - python-devel
+      - python-pip
+      - python-setuptools
+    state: present

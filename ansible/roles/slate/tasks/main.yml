@@ -1,0 +1,36 @@
+---
+- name: Checking SLATE root directory
+  stat:
+    path: /etc/slate
+  register: slate_directory
+- name: Creating SLATE root directory
+  file:
+    path: /etc/slate
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  when: slate_directory.stat.exists == false
+- name: Add SLATE configuration
+  template:
+    src: "templates/slate.ini.j2"
+    dest: "/etc/slate/slate.ini"
+    owner: root
+    group: root
+    mode: 0644
+- name: Clone the SLATE Portal Git repository
+  git:
+    repo: 'https://github.com/slateci/slate-portal.git'
+    dest: /etc/slate/slate-website-python
+    depth: 1
+    single_branch: yes
+    version: master
+    update: no
+- name: Install virtualenv python package
+  pip:
+    name: virtualenv
+- name: Install requirements to /etc/slate/venv
+  pip:
+    requirements: /etc/slate/slate-website-python/requirements.txt
+    virtualenv: /etc/slate/venv
+    virtualenv_python: python3.6
