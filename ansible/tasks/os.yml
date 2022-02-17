@@ -24,18 +24,3 @@
   pip:
     name: virtualenv
     executable: pip3
-
-- name: Create group for running uwsgi
-  group:
-    name: uwsgi
-    state: present
-
-- name: Create user for running uwsgi
-  user:
-    name: uwsgi
-    state: present
-    shell: "/sbin/nologin"
-    group: uwsgi
-    groups: ''
-    home: "/var/run/uwsgi"
-    system: true

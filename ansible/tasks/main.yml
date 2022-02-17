@@ -1,5 +1,6 @@
 ---
 - include_tasks: "./os.yml"
+- include_tasks: "./users-groups.yml"
 - include_tasks: "./slate.yml"
 - include_tasks: "./nginx.yml"
 - include_tasks: "./uwsgi.yml"

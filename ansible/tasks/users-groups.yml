@@ -1,0 +1,38 @@
+---
+- name: Create group for running SLATE
+  group:
+    name: centos
+    state: present
+
+- name: Create user for running SLATE
+  user:
+    name: centos
+    password: test1234
+    expires: -1
+    state: present
+    shell: "/bin/bash"
+    group: centos
+    groups: 'centos,wheel,systemd-journal'
+    home: "/home/centos"
+
+- name: Create group for running uwsgi
+  group:
+    name: uwsgi
+    state: present
+
+- name: Create user for running uwsgi
+  user:
+    name: uwsgi
+    state: present
+    shell: "/sbin/nologin"
+    group: uwsgi
+    groups: ''
+    home: "/var/run/uwsgi"
+    system: true
+
+- name: Allow wheel group to run all commands without a password
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^# %wheel\s*ALL=\(ALL\)\s*NOPASSWD:\sALL$'
+    line: '%wheel ALL=(ALL) NOPASSWD: ALL'
