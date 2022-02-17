@@ -4,11 +4,6 @@
     path: "{{ slate_root.path }}"
   register: slate_root_directory
 
-- name: Checking SLATE git directory
-  stat:
-    path: "{{ slate_portal.path }}"
-  register: slate_git_directory
-
 - name: Creating SLATE root directory
   file:
     path: "{{ slate_root.path }}"
