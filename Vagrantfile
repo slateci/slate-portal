@@ -5,7 +5,7 @@ Vagrant.require_version ">= 2.0.0"
 
 # Environmental Variables:
 ENV['BRIDGED_ADAPTER'] = "enp7s0"
-ENV['HOSTNAME'] = 'portal.local'
+ENV['HOSTNAME'] = 'portal.banana.local'
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
@@ -51,6 +51,9 @@ Vagrant.configure("2") do |config|
 
   # Run Ansible from the Vagrant host:
   config.vm.provision "ansible", run:"always" do |ansible|
+    ansible.extra_vars = {
+      slate_hostname: ENV['HOSTNAME']
+    }
     ansible.host_key_checking = false
     ansible.playbook = "./playbook.yml"
     ansible.verbose = "v"
