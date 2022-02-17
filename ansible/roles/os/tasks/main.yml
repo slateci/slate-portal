@@ -1,10 +1,33 @@
 ---
-- name: Install general packages/dependencies via system package manager
+- name: Install extra repos via system package manager
   package:
     name:
       - epel-release
-      - git
-      - python-devel
-      - python-pip
-      - python-setuptools
     state: present
+- name: Install general packages/dependencies via system package manager
+  package:
+    name:
+      - git
+      - python3-devel
+      - python3-pip
+      - python3-setuptools
+    state: present
+- name: Create symbolic link for pip3
+  file:
+    src: "/bin/pip3"
+    dest: "/bin/pip"
+    state: link
+    owner: root
+    group: root
+- name: Create group for running uwsgi
+  group:
+    name: uwsgi
+    state: present
+- name: Create user for running uwsgi
+  user:
+    name: uwsgi
+    state: present
+    shell: "/sbin/nologin"
+    group: uwsgi
+    home: "/var/run/uwsgi"
+    system: true

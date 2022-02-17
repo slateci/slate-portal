@@ -1,16 +1,4 @@
 ---
-- name: Create group for running uwsgi
-  group:
-    name: uwsgi
-    state: present
-- name: Create user for running uwsgi
-  user:
-    name: uwsgi
-    state: present
-    shell: /sbin/nologin
-    group: uwsgi
-    home: /var/run/uwsgi
-    system: true
 - name: Install uwsgi packages/dependencies via system package manager
   package:
     name:
@@ -33,6 +21,6 @@
     mode: 0644
 - name: Start and enable the uwsgi service
   service:
-    name: "uwsgi"
+    name: uwsgi
     state: started
     enabled: true

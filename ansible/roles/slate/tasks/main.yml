@@ -1,16 +1,20 @@
 ---
 - name: Checking SLATE root directory
   stat:
-    path: /etc/slate
-  register: slate_directory
+    path: "/etc/slate"
+  register: slate_root_directory
+- name: Checking SLATE git directory
+  stat:
+    path: "/etc/slate/slate-website-python"
+  register: slate_git_directory
 - name: Creating SLATE root directory
   file:
-    path: /etc/slate
+    path: "/etc/slate"
     state: directory
     owner: root
     group: root
     mode: 0755
-  when: slate_directory.stat.exists == false
+  when: slate_root_directory.stat.exists == false
 - name: Add SLATE configuration
   template:
     src: "templates/slate.ini.j2"
@@ -20,17 +24,44 @@
     mode: 0644
 - name: Clone the SLATE Portal Git repository
   git:
-    repo: 'https://github.com/slateci/slate-portal.git'
-    dest: /etc/slate/slate-website-python
+    repo: "https://github.com/slateci/slate-portal.git"
+    dest: "/etc/slate/slate-website-python"
     depth: 1
     single_branch: yes
     version: master
     update: no
+- name: Changing ownership of SLATE Portal Git repository to uwsgi:uwsgi
+  file:
+    path: "/etc/slate/slate-website-python"
+    state: directory
+    recurse: yes
+    owner: uwsgi
+    group: uwsgi
+    mode: 0755
+  when: slate_git_directory.stat.exists == false
 - name: Install virtualenv python package
   pip:
     name: virtualenv
-- name: Install requirements to /etc/slate/venv
+- name: Manually create venv
+  command:
+    cmd: virtualenv /etc/slate/venv -p python3.6
+    creates: "/etc/slate/venv"
+- name: Install pip requirements to venv
   pip:
-    requirements: /etc/slate/slate-website-python/requirements.txt
-    virtualenv: /etc/slate/venv
-    virtualenv_python: python3.6
+    requirements: "/etc/slate/slate-website-python/requirements.txt"
+    virtualenv: "/etc/slate/venv"
+- name: Changing ownership of SLATE Portal Git repository to uwsgi:uwsgi
+  file:
+    path: "/etc/slate/slate-website-python/instance"
+    state: directory
+    owner: uwsgi
+    group: uwsgi
+    mode: 0755
+- name: Add portal configuration
+  template:
+    src: "templates/portal.conf.j2"
+    dest: "/etc/slate/slate-website-python/instance/portal.conf"
+    owner: root
+    group: root
+    mode: 0644
+    force: no

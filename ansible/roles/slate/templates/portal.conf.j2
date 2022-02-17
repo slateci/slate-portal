@@ -1,0 +1,27 @@
+#------------------------------------------------
+# Default MRDP application configuration settings
+#------------------------------------------------
+
+SERVER_NAME = 'localhost:5000'
+
+DEBUG = True
+SECRET_KEY = '=.DKwWzDd}!3}6yeAY+WTF#W:zt5msTI7]2`o}Y!ziU!#CYD+;T9JpW$ud|5C_3'
+
+SLATE_WEBSITE_LOGFILE = '/tmp/slate-logging.log'
+
+DATABASE = './portal/data/app.db'
+
+DATASETS= './portal/data/datasets.json'
+# 30ed71b0-fc1d-11e5-a700-22000bf2d559 previous
+DATASET_ENDPOINT_ID = '60a0c6af-3f73-453c-afbe-c8504fc428b6'
+DATASET_ENDPOINT_BASE = '/portal/catalog/'
+
+GRAPH_ENDPOINT_ID = '60a0c6af-3f73-453c-afbe-c8504fc428b6'
+GRAPH_ENDPOINT_BASE = '/portal/processed/'
+
+SERVICE_URL_BASE = 'https://localhost:5100'
+
+PORTAL_CLIENT_ID = '82d3ab26-f8da-42fa-9f19-bcd5e7abb668'
+PORTAL_CLIENT_SECRET = 'QmUvb1lZbzJ6W1UuS29aJHQ0UVYyPD0lOHtle0pSLUVDez5iZkIydUo9N3E8'
+
+GLOBUS_AUTH_LOGOUT_URI = 'https://auth.globus.org/v2/web/logout'
