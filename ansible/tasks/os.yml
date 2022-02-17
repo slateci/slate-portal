@@ -12,13 +12,6 @@
       - python3-pip
       - python3-setuptools
     state: present
-- name: Create symbolic link for pip3
-  file:
-    src: "/bin/pip3"
-    dest: "/bin/pip"
-    state: link
-    owner: root
-    group: root
 - name: Create group for running uwsgi
   group:
     name: uwsgi

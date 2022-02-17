@@ -1,0 +1,5 @@
+---
+slate_root_directory:
+  path: "/etc/slate"
+slate_portal_repo:
+  repo: "https://github.com/slateci/slate-portal.git"

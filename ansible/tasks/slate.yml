@@ -1,7 +1,7 @@
 ---
 - name: Checking SLATE root directory
   stat:
-    path: "/etc/slate"
+    path: "{{ slate_root_directory[path] }}"
   register: slate_root_directory
 - name: Checking SLATE git directory
   stat:
@@ -24,7 +24,7 @@
     mode: 0644
 - name: Clone the SLATE Portal Git repository
   git:
-    repo: "https://github.com/slateci/slate-portal.git"
+    repo: "{{ slate_portal_repo[repo] }}"
     dest: "/etc/slate/slate-website-python"
     depth: 1
     single_branch: yes
@@ -42,6 +42,7 @@
 - name: Install virtualenv python package
   pip:
     name: virtualenv
+    executable: "/bin/pip3"
 - name: Manually create venv
   command:
     cmd: virtualenv /etc/slate/venv -p python3.6

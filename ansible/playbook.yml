@@ -2,8 +2,8 @@
 - become: yes
   hosts: all
   remote_user: root
-  roles:
-    - role: ./roles/os
-    - role: ./roles/slate
-#    - role: ./roles/uwsgi
-#    - role: ./roles/nginx
+
+  - include_tasks: "./tasks/os.yml"
+  - include_tasks: "./tasks/slate.yml"
+  - include_tasks: "./tasks/nginx.yml"
+  - include_tasks: "./tasks/uwsgi.yml"
