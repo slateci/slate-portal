@@ -49,9 +49,6 @@ Vagrant.configure("2") do |config|
     vb.name = ENV['HOSTNAME']
   end
 
-  # Run bash on the guest:
-  config.vm.provision "shell", inline: "yum install python3 -y"
-
   # Run Ansible from the Vagrant host:
   config.vm.provision "ansible", run:"always" do |ansible|
     ansible.host_key_checking = false

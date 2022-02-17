@@ -39,10 +39,6 @@
     group: uwsgi
     mode: 0755
   when: slate_git_directory.stat.exists == false
-- name: Install virtualenv python package
-  pip:
-    name: virtualenv
-    executable: /bin/pip3
 - name: Install pip requirements to venv
   pip:
     requirements: "/etc/slate/slate-website-python/requirements.txt"

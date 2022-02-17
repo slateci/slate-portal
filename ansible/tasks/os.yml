@@ -8,10 +8,18 @@
   package:
     name:
       - git
-      - python3-devel
-      - python3-pip
-      - python3-setuptools
+      - python-setuptools
+      - python3
     state: present
+- name: Update pip
+  pip:
+    name: pip
+    executable: pip3
+    extra_args: --upgrade
+- name: Install virtualenv python package
+  pip:
+    name: virtualenv
+    executable: pip3
 - name: Create group for running uwsgi
   group:
     name: uwsgi

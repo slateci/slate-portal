@@ -1,5 +1,4 @@
 ---
-ansible_python_interpreter: "/bin/python3"
 slate_root:
   path: "/etc/slate"
 slate_portal_repo:
