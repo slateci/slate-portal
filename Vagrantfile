@@ -56,7 +56,7 @@ Vagrant.configure("2") do |config|
       slate_hostname: ENV['HOSTNAME']
     }
     ansible.host_key_checking = false
-    ansible.playbook = "./playbook.yml"
+    ansible.playbook = "./ansible/playbook.yml"
     ansible.verbose = "v"
   end
 

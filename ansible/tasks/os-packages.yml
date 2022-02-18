@@ -14,13 +14,3 @@
       - python3-devel
     state: present
 
-- name: Update pip
-  pip:
-    name: pip
-    executable: pip3
-    extra_args: --upgrade
-
-- name: Install virtualenv python package
-  pip:
-    name: virtualenv
-    executable: pip3

@@ -1,0 +1,12 @@
+---
+slate_certificate:
+  file: /tmp/cert.pem
+  key_file: /tmp/privkey.pem
+  chain_file: /tmp/chain.pem
+slate_debug: false
+slate_hostname: "portal.slateci.io"
+slate_portal:
+  repo: "https://github.com/slateci/slate-portal.git"
+  path: "{{ slate_root.path }}/slate-website-python"
+slate_root:
+  path: "/etc/slate"
