@@ -37,3 +37,4 @@
     state: present
     regexp: '^# %wheel\s*ALL=\(ALL\)\s*NOPASSWD:\sALL$'
     line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+    validate: /usr/sbin/visudo -cf %s
