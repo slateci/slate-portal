@@ -24,6 +24,10 @@
       when: slate_debug
 
   tasks:
+    - name: SELinux
+      include_tasks:
+        file: "./tasks/selinux.yml"
+
     - name: OS Packages and Python3
       include_tasks:
         file: "./tasks/os-packages.yml"
