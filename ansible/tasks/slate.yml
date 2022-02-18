@@ -25,28 +25,10 @@
   git:
     repo: "{{ slate_portal.repo }}"
     dest: "{{ slate_portal.path }}"
-    depth: 1
+    depth: 1 # Centos7's git cannot shallow clone but leaving for future OS compatibility.
     single_branch: yes
     version: master
     update: no
-
-- name: Changing ownership of SLATE Portal Git repository to uwsgi:uwsgi
-  file:
-    path: "{{ slate_portal.path }}"
-    state: directory
-    recurse: yes
-    owner: uwsgi
-    group: uwsgi
-    mode: 0644
-
-- name: Changing permissions of SLATE Portal Git repository top directory for centos/uwsgi
-  file:
-    path: "{{ slate_portal.path }}"
-    state: directory
-    recurse: no
-    owner: uwsgi
-    group: uwsgi
-    mode: 0755
 
 - name: Install pip requirements to venv
   pip:
@@ -55,10 +37,51 @@
     virtualenv_command: "/usr/local/bin/virtualenv"
     virtualenv_python: python3.6
 
+- name: Changing ownership of SLATE Portal Git repository to uwsgi:uwsgi 0644
+  file:
+    path: "{{ slate_portal.path }}"
+    state: directory
+    recurse: yes
+    owner: uwsgi
+    group: uwsgi
+    mode: 0644
+
+- name: Changing permissions of SLATE Portal Git repository top directory to 0755
+  file:
+    path: "{{ slate_portal.path }}"
+    state: directory
+    recurse: no
+    mode: 0755
+
+- name: Finding all subdirectories in SLATE Portal Git repository
+  find:
+    paths:
+      - "{{ slate_portal.path }}"
+    recurse: true
+    file_type: directory
+  register: slate_portal_subdirs
+
+- name: Changing permissions of SLATE Portal Git repository subdirectories to 0755
+  file:
+    path: "{{ item.path }}"
+    mode: 0755
+  loop: "{{ slate_portal_subdirs.files }}"
+  loop_control:
+    label: "{{ item.path }}"
+
+
 - name: Add SLATE Portal instance directory
   file:
     path: "{{ slate_portal.path }}/instance"
     state: directory
+    owner: uwsgi
+    group: uwsgi
+    mode: 0755
+
+- name: Add portal configuration
+  template:
+    src: "templates/portal.conf.j2"
+    dest: "{{ slate_portal.path }}/instance/portal.conf"
     owner: uwsgi
     group: uwsgi
     mode: 0644
@@ -70,11 +93,3 @@
     owner: uwsgi
     group: uwsgi
     mode: 0755
-
-- name: Add portal configuration
-  template:
-    src: "templates/portal.conf.j2"
-    dest: "{{ slate_portal.path }}/instance/portal.conf"
-    owner: root
-    group: root
-    mode: 0644
