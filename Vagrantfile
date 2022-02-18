@@ -4,8 +4,7 @@
 Vagrant.require_version ">= 2.0.0"
 
 # Environmental Variables:
-ENV['BRIDGED_ADAPTER'] = "enp7s0"
-ENV['HOSTNAME'] = 'portal.slateci.local'
+ENV['HOSTNAME'] = 'portal.vagrant.test'
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
@@ -16,6 +15,18 @@ Vagrant.configure("2") do |config|
   # The most common configuration options are documented and commented below.
   # For a complete reference, please see the online documentation at
   # https://docs.vagrantup.com.
+
+  # Check for vagrant-vbguest plugin
+  if !Vagrant.has_plugin?('vagrant-vbguest')
+    puts 'vagrant-vbguest plugin required. To install simply do `vagrant plugin install vagrant-vbguest`'
+    abort
+  end
+
+  # Check for vagrant-hostsupdater plugin
+  if !Vagrant.has_plugin?('vagrant-hostsupdater')
+    puts 'vagrant-hostsupdater plugin required. To install simply do `vagrant plugin install vagrant-hostsupdater`'
+    abort
+  end
 
   # Necessary for mounts (see https://www.puppeteers.net/blog/fixing-vagrant-vbguest-for-the-centos-7-base-box/).
   config.vbguest.installer_options = { allow_kernel_upgrade: true }
@@ -28,8 +39,8 @@ Vagrant.configure("2") do |config|
   # Customize the hostname:
   config.vm.hostname = ENV['HOSTNAME']
 
-  # Create a bridged network adaptor.
-  config.vm.network "public_network", bridge: ENV['BRIDGED_ADAPTER']
+  # Create a network adaptor.
+  config.vm.network :private_network, ip: '192.168.56.2'
 
   # VirtualBox Provider
   config.vm.provider "virtualbox" do |vb|
