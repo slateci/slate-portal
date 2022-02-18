@@ -7,7 +7,8 @@
 - name: Create user for running SLATE
   user:
     name: centos
-    password: test1234
+    # silly password: test1234
+    password: $6$qUE49Jptgv9pQQeL$9XaaMm2HRbSsxFlGpaElESnjje/mFIszYge87Pys5rrSIALA5wj12g7Nu59njiKBkspas1.E3.2x7JuUrpM6S1
     expires: -1
     state: present
     shell: "/bin/bash"

@@ -1,4 +1,18 @@
 ---
+- name: Checking SLATE cert directory
+  stat:
+    path: "/etc/ssl/{{ slate_hostname }}"
+  register: slate_cert_directory
+
+- name: Creating SLATE cert directory
+  file:
+    path: "/etc/ssl/{{ slate_hostname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  when: slate_cert_directory.stat.exists == false
+
 - name: Create key pair for the server
   openssl_privatekey:
     path: "{{ slate_certificate.key_file }}"
