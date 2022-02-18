@@ -39,6 +39,15 @@
     group: uwsgi
     mode: 0644
 
+- name: Changing permissions of SLATE Portal Git repository top directory for centos/uwsgi
+  file:
+    path: "{{ slate_portal.path }}"
+    state: directory
+    recurse: no
+    owner: uwsgi
+    group: uwsgi
+    mode: 0755
+
 - name: Install pip requirements to venv
   pip:
     requirements: "{{ slate_portal.path }}/requirements.txt"
@@ -69,4 +78,3 @@
     owner: root
     group: root
     mode: 0644
-    force: no
