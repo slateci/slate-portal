@@ -1,8 +1,4 @@
 ---
-slate_certificate:
-  file: /tmp/cert.pem
-  key_file: /tmp/privkey.pem
-  chain_file: /tmp/chain.pem
 slate_debug: false
 slate_hostname: "portal.slateci.io"
 slate_portal:

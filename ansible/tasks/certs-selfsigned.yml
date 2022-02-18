@@ -1,7 +1,7 @@
 ---
 - name: Create key pair for the server
   openssl_privatekey:
-    path: "/etc/ssl/server.rsa"
+    path: "{{ slate_certificate.key_file }}"
     size: 2048
 
 - name: Create certificate signing request
@@ -11,15 +11,15 @@
     email_address: "slate@slateci.io"
     locality_name: "Salt Lake City"
     organization_name: "University of Utah"
-    path: "/etc/ssl/server.csr"
+    path: "{{ slate_certificate.chain_file }}"
     subject_alt_name:
       - "DNS:*.{{ slate_hostname }}"
       - "DNS:{{ slate_hostname }}"
-    privatekey_path: "/etc/ssl/server.rsa"
+    privatekey_path: "{{ slate_certificate.key_file }}"
 
 - name: Create self-signed certificate
   openssl_certificate:
-    csr_path: "/etc/ssl/server.csr"
-    path: "/etc/ssl/server.crt"
+    csr_path: "{{ slate_certificate.chain_file }}"
+    path: "{{ slate_certificate.file }}"
     provider: selfsigned
-    privatekey_path: "/etc/ssl/server.rsa"
+    privatekey_path: "{{ slate_certificate.key_file }}"

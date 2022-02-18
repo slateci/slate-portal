@@ -9,16 +9,18 @@
   pre_tasks:
     - name: Set SSL certs path
       set_fact:
-        slate_certificate_file: "/etc/letsencrypt/live/{{ slate_hostname }}/cert.pem"
-        slate_certificate_key_file: "/etc/letsencrypt/live/{{ slate_hostname }}/privkey.pem"
-        slate_certificate_chain_file: "/etc/letsencrypt/live/{{ slate_hostname }}/chain.pem"
+        slate_certificate:
+          file: "/etc/letsencrypt/live/{{ slate_hostname }}/cert.pem"
+          key_file: "/etc/letsencrypt/live/{{ slate_hostname }}/privkey.pem"
+          chain_file: "/etc/letsencrypt/live/{{ slate_hostname }}/chain.pem"
       when: not slate_debug
 
     - name: Set SSL certs path
       set_fact:
-        slate_certificate_file: "/etc/ssl/{{ slate_hostname }}/{{ slate_hostname }}.crt"
-        slate_certificate_key_file: "/etc/ssl/{{slate_hostname}}/{{ slate_hostname }}.key"
-        slate_certificate_chain_file: "/etc/ssl/{{ slate_hostname }}/{{ slate_hostname }}.csr"
+        slate_certificate:
+          file: "/etc/ssl/{{ slate_hostname }}/{{ slate_hostname }}.pem"
+          key_file: "/etc/ssl/{{slate_hostname}}/{{ slate_hostname }}.key"
+          chain_file: "/etc/ssl/{{ slate_hostname }}/{{ slate_hostname }}.csr"
       when: slate_debug
 
   tasks:
