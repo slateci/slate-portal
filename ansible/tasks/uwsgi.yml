@@ -1,11 +1,4 @@
 ---
-- name: Install uwsgi packages/dependencies via system package manager
-  package:
-    name:
-      - uwsgi
-      - uwsgi-plugin-python2
-    state: present
-
 - name: Add systemd uwsgi configuration
   template:
     src: "templates/uwsgi.service.j2"

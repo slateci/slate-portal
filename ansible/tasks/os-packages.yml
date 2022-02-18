@@ -9,8 +9,11 @@
   package:
     name:
       - git
+      - nginx
       - python-setuptools
       - python3
       - python3-devel
+      - uwsgi
+      - uwsgi-plugin-python3
     state: present
 

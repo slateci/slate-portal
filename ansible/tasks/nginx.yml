@@ -1,10 +1,4 @@
 ---
-- name: Install nginx packages/dependencies via system package manager
-  package:
-    name:
-      - nginx
-    state: present
-
 - name: Add systemd nginx configuration
   template:
     src: "templates/nginx.service.j2"
