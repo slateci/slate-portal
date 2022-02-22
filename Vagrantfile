@@ -3,9 +3,17 @@
 
 Vagrant.require_version ">= 2.0.0"
 
+# Load Ruby Gems:
+require 'yaml'
+
 # Environmental Variables:
 ENV['GIT_BRANCH'] = `git branch --show-current`
 ENV['HOSTNAME'] = 'portal.vagrant.test'
+ENV['SECRETS_PATH'] = "./ansible/secrets.yml"
+ENV['VERBOSITY'] = 'v'
+
+# Load secrets from file:
+secrets = YAML.load_file(ENV['SECRETS_PATH'])
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
 # configures the configuration version (we support older styles for
@@ -64,13 +72,17 @@ Vagrant.configure("2") do |config|
   # Run Ansible from the Vagrant host:
   config.vm.provision "ansible", run:"always" do |ansible|
     ansible.extra_vars = {
+      slate_api_endpoint: 'https://api-dev.slateci.io:18080',
+      slate_api_token: secrets['slate_api_token'],
       slate_debug: true,
       slate_git_version: ENV['GIT_BRANCH'].delete(" \t\r\n\ "),
-      slate_hostname: ENV['HOSTNAME']
+      slate_hostname: ENV['HOSTNAME'],
+      slate_portal_client_id: secrets['slate_portal_client_id'],
+      slate_portal_client_secret: secrets['slate_portal_client_secret']
     }
     ansible.host_key_checking = false
     ansible.playbook = "./ansible/playbook.yml"
-    ansible.verbose = "v"
+    ansible.verbose = ENV['VERBOSITY']
   end
 
 

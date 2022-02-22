@@ -4,6 +4,11 @@ slate_debug: false
 slate_hostname: "portal.slateci.io"
 
 slate_install_dest: "/etc/slate"
-
 slate_git_dest: "{{ slate_install_dest }}/slate-website-python"
 slate_git_version: master
+
+slate_portal_client_id: "XXXX"
+slate_portal_client_secret: "XXXX"
+
+slate_api_token: "XXXX"
+slate_api_endpoint: "https://api.slateci.io:443"
