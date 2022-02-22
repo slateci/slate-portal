@@ -4,6 +4,7 @@
 Vagrant.require_version ">= 2.0.0"
 
 # Environmental Variables:
+ENV['GIT_BRANCH'] = `git branch --show-current`
 ENV['HOSTNAME'] = 'portal.vagrant.test'
 
 # All Vagrant configuration is done below. The "2" in Vagrant.configure
@@ -64,6 +65,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision "ansible", run:"always" do |ansible|
     ansible.extra_vars = {
       slate_debug: true,
+      slate_git_version: ENV['GIT_BRANCH'].delete(" \t\r\n\ "),
       slate_hostname: ENV['HOSTNAME']
     }
     ansible.host_key_checking = false

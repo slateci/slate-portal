@@ -3,10 +3,7 @@ slate_debug: false
 
 slate_hostname: "portal.slateci.io"
 
-slate_git:
-  repo: "https://github.com/slateci/slate-portal.git"
-  dest: "{{ slate_install.dest }}/slate-website-python"
-  version: master
+slate_install_dest: "/etc/slate"
 
-slate_install:
-  dest: "/etc/slate"
+slate_git_dest: "{{ slate_install_dest }}/slate-website-python"
+slate_git_version: master
