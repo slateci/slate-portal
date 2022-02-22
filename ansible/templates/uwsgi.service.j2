@@ -5,7 +5,7 @@ After=syslog.target network.target
 [Service]
 Type=simple
 User=centos
-ExecStart=/usr/sbin/uwsgi --ini {{ slate_root.path }}/slate.ini --die-on-term
+ExecStart=/usr/sbin/uwsgi --ini {{ slate_install.dest }}/slate.ini --die-on-term
 Restart=always
 
 [Install]
