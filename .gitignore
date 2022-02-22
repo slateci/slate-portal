@@ -1,5 +1,6 @@
 # IDE Metadata
 .vs/
+.vscode/
 .idea/
 
 # Byte-compiled / optimized / DLL files
@@ -88,6 +89,4 @@ target/
 rebates/uploads
 
 # portal.conf file and keys
-portal.conf
-instance
-secrets
+instance/
