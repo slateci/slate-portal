@@ -1,0 +1,11 @@
+---
+- name: Restart uwsgi.service
+  service:
+    name: uwsgi
+    state: restarted
+    enabled: true
+- name: Restart nginx.service
+  service:
+    name: nginx
+    state: restarted
+    enabled: true

@@ -52,10 +52,16 @@
       include_tasks:
         file: "./tasks/slate.yml"
 
-    - name: NGINX
+    - name: NGINX Configuration
       include_tasks:
         file: "./tasks/nginx.yml"
 
-    - name: uWSGI
+    - name: uWSGI Configuration
       include_tasks:
         file: "./tasks/uwsgi.yml"
+
+  handlers:
+    - name: Systemd
+      include_tasks:
+        file: "./tasks/systemd-services.yml"
+      listen: "restart portal services"

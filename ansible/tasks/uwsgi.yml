@@ -6,6 +6,7 @@
     owner: root
     group: root
     mode: 0644
+  notify: "restart portal services"
 
 - name: Add uwsgi configuration
   template:
@@ -14,9 +15,4 @@
     owner: root
     group: root
     mode: 0644
-
-- name: Start and enable the uwsgi service
-  service:
-    name: uwsgi
-    state: started
-    enabled: true
+  notify: "restart portal services"
