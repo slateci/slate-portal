@@ -48,6 +48,11 @@
         file: "./tasks/certs-selfsigned.yml"
       when: slate_debug
 
+    - name: Certificates
+      include_tasks:
+        file: "./tasks/certs-letsencrypt.yml"
+      when: not slate_debug
+
     - name: SLATE Portal
       include_tasks:
         file: "./tasks/slate.yml"
