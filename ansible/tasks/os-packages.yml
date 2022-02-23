@@ -22,6 +22,6 @@
   package:
     name:
       - certbot
-      - crontab
+      - cronie
     state: present
   when: not slate_debug

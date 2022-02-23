@@ -14,16 +14,14 @@ slate_api_token: "XXXX"
 slate_api_endpoint: "https://api.slateci.io:443"
 
 certbot_admin_email: "slateci-ops@googlegroups.com"
-certbot_create_standalone_stop_services:
-  - nginx
+certbot_webroot: "{{ slate_install_dest }}/.well-known"
 certbot_create_command: >-
-  certbot certonly --package
+  certbot certonly --webroot
   {{ '--test-cert' if certbot_testmode else '' }}
   --noninteractive --agree-tos
   --email {{ certbot_admin_email }}
+  --webroot-path {{ certbot_webroot }}
   -d {{ slate_hostname }}
-  --pre-hook /etc/letsencrypt/renewal-hooks/pre/stop_services
-  --post-hook /etc/letsencrypt/renewal-hooks/post/start_services
 
 certbot_auto_renew: true
 certbot_auto_renew_user: "{{ ansible_user | default(lookup('env', 'USER')) }}"
