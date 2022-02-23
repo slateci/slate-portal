@@ -4,8 +4,13 @@
     name: uwsgi
     state: restarted
     enabled: true
+  listen:
+    - portal_restart_services
+
 - name: Restart nginx.service
   service:
     name: nginx
     state: restarted
     enabled: true
+  listen:
+    - portal_restart_services

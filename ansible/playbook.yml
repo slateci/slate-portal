@@ -64,4 +64,3 @@
     - name: Systemd
       include_tasks:
         file: "./tasks/systemd-services.yml"
-      listen: "restart portal services"

@@ -6,7 +6,7 @@
     owner: root
     group: root
     mode: 0644
-  notify: "restart portal services"
+  notify: portal_restart_services
 
 - name: Add uwsgi configuration
   template:
@@ -15,4 +15,4 @@
     owner: root
     group: root
     mode: 0644
-  notify: "restart portal services"
+  notify: portal_restart_services

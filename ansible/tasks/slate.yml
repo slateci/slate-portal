@@ -20,7 +20,7 @@
     owner: root
     group: root
     mode: 0644
-  notify: "restart portal services"
+  notify: portal_restart_services
 
 - name: Clone the SLATE Portal Git repository
   git:
@@ -87,7 +87,7 @@
     owner: uwsgi
     group: uwsgi
     mode: 0644
-  notify: "restart portal services"
+  notify: portal_restart_services
 
 - name: Make run_portal.py executable
   file:
@@ -96,4 +96,4 @@
     owner: uwsgi
     group: uwsgi
     mode: 0755
-  notify: "restart portal services"
+  notify: portal_restart_services
