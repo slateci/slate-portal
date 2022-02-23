@@ -27,13 +27,13 @@ Vagrant.configure("2") do |config|
 
   # Check for vagrant-vbguest plugin
   if !Vagrant.has_plugin?('vagrant-vbguest')
-    puts 'vagrant-vbguest plugin required. To install simply do `vagrant plugin install vagrant-vbguest`'
+    puts 'ERROR: vagrant-vbguest plugin required. To install run `vagrant plugin install vagrant-vbguest`'
     abort
   end
 
   # Check for vagrant-hostsupdater plugin
   if !Vagrant.has_plugin?('vagrant-hostsupdater')
-    puts 'vagrant-hostsupdater plugin required. To install simply do `vagrant plugin install vagrant-hostsupdater`'
+    puts 'ERROR: vagrant-hostsupdater plugin required. To install run `vagrant plugin install vagrant-hostsupdater`'
     abort
   end
 
