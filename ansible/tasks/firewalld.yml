@@ -1,0 +1,21 @@
+---
+
+- name: Enable firewalld.service
+  service:
+    name: firewalld
+    state: started
+    enabled: true
+
+- name: Permit traffic in default zone for http service
+  ansible.posix.firewalld:
+    service: http
+    permanent: yes
+    state: enabled
+    immediate: yes
+
+- name: Permit traffic in default zone for https service
+  ansible.posix.firewalld:
+    service: https
+    permanent: yes
+    state: enabled
+    immediate: yes

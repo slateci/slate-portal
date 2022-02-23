@@ -24,6 +24,10 @@
       when: slate_debug
 
   tasks:
+    - name: Firewall
+      include_tasks:
+        file: "./tasks/firewalld.yml"
+
     - name: SELinux
       include_tasks:
         file: "./tasks/selinux.yml"
