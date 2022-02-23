@@ -1,10 +1,10 @@
 ---
-- name: Checking SLATE cert directory
+- name: Checking if SLATE cert directory already exists
   stat:
     path: "/etc/ssl/{{ slate_hostname }}"
   register: slate_cert_directory
 
-- name: Creating SLATE cert directory
+- name: Ensure SLATE cert directory exists
   file:
     path: "/etc/ssl/{{ slate_hostname }}"
     state: directory

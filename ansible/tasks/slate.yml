@@ -1,10 +1,10 @@
 ---
-- name: Checking SLATE install directory
+- name: Checking if SLATE install directory already exists
   stat:
     path: "{{ slate_install_dest }}"
   register: slate_install_path
 
-- name: Creating SLATE install directory
+- name: Ensure SLATE install directory exists
   file:
     path: "{{ slate_install_dest }}"
     state: directory
@@ -72,7 +72,7 @@
     label: "{{ item.path }}"
 
 
-- name: Add SLATE Portal instance directory
+- name: Ensure SLATE Portal instance directory exists
   file:
     path: "{{ slate_git_dest }}/instance"
     state: directory

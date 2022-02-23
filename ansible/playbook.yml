@@ -52,7 +52,7 @@
       include_tasks:
         file: "./tasks/slate.yml"
 
-    - name: NGINX Configuration
+    - name: Nginx Configuration
       include_tasks:
         file: "./tasks/nginx.yml"
 
