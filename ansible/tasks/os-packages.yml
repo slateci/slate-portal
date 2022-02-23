@@ -15,5 +15,12 @@
       - python3-devel
       - uwsgi
       - uwsgi-plugin-python3
+      - which
     state: present
 
+- name: Install general packages/dependencies via system package manager (live)
+  package:
+    name:
+      - certbot
+    state: present
+  when: not slate_debug
