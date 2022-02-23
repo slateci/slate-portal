@@ -26,10 +26,10 @@
     - certbot_create_standalone_stop_services is defined
     - certbot_create_standalone_stop_services
 
-- name : Create certbot pre hook to start services
+- name : Create certbot post hook to start services
   template:
     src: "templates/certbot-start-services.j2"
-    dest: "/etc/letsencrypt/renewal-hooks/pre/start_services"
+    dest: "/etc/letsencrypt/renewal-hooks/post/start_services"
     owner: root
     group: root
     mode: 0750
