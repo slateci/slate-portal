@@ -11,7 +11,7 @@
     owner: root
     group: root
     mode: 0755
-  when: slate_install_path.stat.exists == false
+  when: not slate_install_path.stat.exists
 
 - name: Add SLATE configuration
   template:

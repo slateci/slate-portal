@@ -11,7 +11,7 @@
     owner: root
     group: root
     mode: 0755
-  when: slate_cert_directory.stat.exists == false
+  when: not slate_cert_directory.stat.exists
 
 - name: Create key pair for the server
   openssl_privatekey:
