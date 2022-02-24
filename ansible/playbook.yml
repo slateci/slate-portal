@@ -52,7 +52,7 @@
         file: "./tasks/certs-selfsigned.yml"
       when: slate_debug
 
-    - name: Certificates
+    - name: Certificates (live)
       include_tasks:
         file: "./tasks/certs-letsencrypt.yml"
       when: not slate_debug
@@ -70,7 +70,14 @@
         file: "./tasks/uwsgi.yml"
 
   handlers:
-    - name: Systemd
-      include_tasks:
-        file: "./tasks/systemd-services.yml"
+    - name: Restart uwsgi.service
+      service:
+        name: uwsgi
+        state: restarted
+      listen: portal_restart_services
+
+    - name: Restart nginx.service
+      service:
+        name: nginx
+        state: restarted
       listen: portal_restart_services

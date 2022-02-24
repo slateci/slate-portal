@@ -16,3 +16,9 @@
     group: root
     mode: 0644
   notify: portal_restart_services
+
+- name: Start uwsgi.service
+  service:
+    name: uwsgi
+    state: started
+    enabled: true

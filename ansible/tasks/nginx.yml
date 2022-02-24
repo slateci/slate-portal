@@ -16,3 +16,9 @@
     group: root
     mode: 0644
   notify: portal_restart_services
+
+- name: Start nginx.service
+  service:
+    name: nginx
+    state: started
+    enabled: true
