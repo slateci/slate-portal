@@ -17,8 +17,8 @@
 
 - name : Create certbot pre hook to stop services
   template:
-    src: "templates/certbot-stop-services.j2"
-    dest: "/etc/letsencrypt/renewal-hooks/pre/stop_services"
+    src: "templates/certbot-stop-services.sh.j2"
+    dest: "/etc/letsencrypt/renewal-hooks/pre/stop_services.sh"
     owner: root
     group: root
     mode: 0750
@@ -28,8 +28,8 @@
 
 - name : Create certbot post hook to start services
   template:
-    src: "templates/certbot-start-services.j2"
-    dest: "/etc/letsencrypt/renewal-hooks/post/start_services"
+    src: "templates/certbot-start-services.sh.j2"
+    dest: "/etc/letsencrypt/renewal-hooks/post/start_services.sh"
     owner: root
     group: root
     mode: 0750
