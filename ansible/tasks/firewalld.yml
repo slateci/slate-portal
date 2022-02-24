@@ -19,3 +19,11 @@
     permanent: yes
     state: enabled
     immediate: yes
+
+- name: Permit traffic in default zone on port 3031/tcp
+  ansible.posix.firewalld:
+    port: 3031/tcp
+    permanent: yes
+    state: enabled
+    immediate: yes
+  when: slate_debug
