@@ -37,3 +37,4 @@
     path: "{{ slate_certificate.file }}"
     provider: selfsigned
     privatekey_path: "{{ slate_certificate.key_file }}"
+  notify: portal_restart_services

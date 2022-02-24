@@ -40,6 +40,7 @@
 - name: Generate new certificate if one doesn't exist.
   command: "{{ certbot_create_command }}"
   when: not slate_cert_file.stat.exists
+  notify: portal_restart_services
 
 - name: Add cron job for certbot renewal
   cron:
