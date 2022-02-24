@@ -37,11 +37,6 @@
     - certbot_create_standalone_stop_services is defined
     - certbot_create_standalone_stop_services
 
-- name: Generate new certificate if one doesn't exist.
-  command: "{{ certbot_create_command }}"
-  when: not slate_cert_file.stat.exists
-  notify: portal_restart_services
-
 - name: Add cron job for certbot renewal
   cron:
     name: Certbot automatic renewal
@@ -49,3 +44,20 @@
     minute: "{{ certbot_auto_renew_minute }}"
     hour: "{{ certbot_auto_renew_hour }}"
     user: "{{ certbot_auto_renew_user }}"
+
+- name: Disabling and mask certbot new timer
+  systemd:
+    name: certbot-renew.timer
+    enabled: no
+    masked: yes
+
+- name: Disabling and mask certbot renew service
+  systemd:
+    name: certbot-renew.service
+    enabled: no
+    masked: yes
+
+- name: Generate new certificate if one doesn't exist.
+  command: "{{ certbot_create_command }}"
+  when: not slate_cert_file.stat.exists
+  notify: portal_restart_services
