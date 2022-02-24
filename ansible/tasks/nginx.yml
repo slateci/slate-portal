@@ -1,12 +1,14 @@
 ---
-- name: Add systemd nginx configuration
+- name: Add systemd nginx.service
   template:
     src: "templates/nginx.service.j2"
     dest: "/etc/systemd/system/nginx.service"
     owner: root
     group: root
     mode: 0644
-  notify: portal_restart_services
+  notify:
+    - systemd_daemon_reload
+    - portal_restart_services
 
 - name: Add nginx configuration
   template:

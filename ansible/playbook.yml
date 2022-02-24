@@ -70,6 +70,11 @@
         file: "./tasks/uwsgi.yml"
 
   handlers:
+    - name: Force systemd to re-read configs
+      systemd:
+        daemon_reload: yes
+      listen: systemd_daemon_reload
+
     - name: Restart uwsgi.service
       service:
         name: uwsgi
