@@ -1,40 +1,20 @@
 ---
-- name: Create group for running SLATE
+- name: Create group for running SLATE Portal
   group:
-    name: centos
+    name: slate-portal
     state: present
 
-- name: Create user for running SLATE
+- name: Create user for running SLATE Portal
   user:
-    name: centos
-    # silly password: test1234
-    password: $6$qUE49Jptgv9pQQeL$9XaaMm2HRbSsxFlGpaElESnjje/mFIszYge87Pys5rrSIALA5wj12g7Nu59njiKBkspas1.E3.2x7JuUrpM6S1
-    expires: -1
-    state: present
-    shell: "/bin/bash"
-    group: centos
-    groups: 'centos,wheel,systemd-journal'
-    home: "/home/centos"
-
-- name: Create group for running uwsgi
-  group:
-    name: uwsgi
-    state: present
-
-- name: Create user for running uwsgi
-  user:
-    name: uwsgi
+    name: slate-portal
     state: present
     shell: "/sbin/nologin"
-    group: uwsgi
-    groups: ''
-    home: "/var/run/uwsgi"
+    group: slate-portal
+    groups: ""
+    home: "/var/run/slate-portal"
     system: true
 
-- name: Allow wheel group to run all commands without a password
-  lineinfile:
-    dest: /etc/sudoers
-    state: present
-    regexp: '^# %wheel\s*ALL=\(ALL\)\s*NOPASSWD:\sALL$'
-    line: '%wheel ALL=(ALL) NOPASSWD: ALL'
-    validate: /usr/sbin/visudo -cf %s
+- name: Add uwsgi to slate-portal group
+  user:
+    name: uwsgi
+    groups: "uwsgi,slate-portal"
