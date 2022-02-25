@@ -17,8 +17,8 @@
   template:
     src: "templates/slate.ini.j2"
     dest: "{{ slate_install_dest }}/slate.ini"
-    owner: portalrunner
-    group: slate-portal
+    owner: uwsgi
+    group: uwsgi
     mode: 0644
   notify: portal_restart_services
 
@@ -39,22 +39,13 @@
     virtualenv_command: "/usr/local/bin/virtualenv"
     virtualenv_python: python3.6
 
-- name: Changing permissions of venv directory to portalrunner:slate-portal 0755
-  file:
-    path: "{{ slate_install_dest }}/venv"
-    state: directory
-    recurse: yes
-    owner: portalrunner
-    group: slate-portal
-    mode: 0755
-
-- name: Changing permissions of SLATE Portal Git repository to portalrunner:slate-portal 0644
+- name: Changing ownership of SLATE Portal Git repository to uwsgi:uwsgi 0644
   file:
     path: "{{ slate_git_dest }}"
     state: directory
     recurse: yes
-    owner: portalrunner
-    group: slate-portal
+    owner: uwsgi
+    group: uwsgi
     mode: 0644
 
 - name: Changing permissions of SLATE Portal Git repository top directory to 0755
@@ -85,16 +76,16 @@
   file:
     path: "{{ slate_git_dest }}/instance"
     state: directory
-    owner: portalrunner
-    group: slate-portal
+    owner: uwsgi
+    group: uwsgi
     mode: 0755
 
 - name: Add portal configuration
   template:
     src: "templates/portal.conf.j2"
     dest: "{{ slate_git_dest }}/instance/portal.conf"
-    owner: portalrunner
-    group: slate-portal
+    owner: uwsgi
+    group: uwsgi
     mode: 0644
   notify: portal_restart_services
 
@@ -102,7 +93,7 @@
   file:
     path: "{{ slate_git_dest }}/run_portal.py"
     state: file
-    owner: portalrunner
-    group: slate-portal
+    owner: uwsgi
+    group: uwsgi
     mode: 0755
   notify: portal_restart_services

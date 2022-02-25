@@ -1,4 +1,18 @@
 ---
+- name: Checking if uWSGI log directory already exists
+  stat:
+    path: "/var/log/uwsgi"
+  register: uwsgi_log_path
+
+- name: Ensure uWSGI log directory exists
+  file:
+    path: "/var/log/uwsgi"
+    state: directory
+    owner: uwsgi
+    group: uwsgi
+    mode: 0755
+  when: not uwsgi_log_path.stat.exists
+
 - name: Add systemd uwsgi.service
   template:
     src: "templates/uwsgi.service.j2"

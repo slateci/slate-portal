@@ -39,10 +39,6 @@
     - set_fact:
         ansible_python_interpreter: "/bin/python3"
 
-    - name: Users and Groups
-      include_tasks:
-        file: "./tasks/users-groups.yml"
-
     - name: Pip
       include_tasks:
         file: "./tasks/pip.yml"
