@@ -6,7 +6,7 @@ After=syslog.target network.target
 
 [Service]
 Type=simple
-User=slate-portal
+User=portalrunner
 ExecStart=/usr/sbin/uwsgi --ini {{ slate_install_dest }}/slate.ini --die-on-term
 Restart=always
 

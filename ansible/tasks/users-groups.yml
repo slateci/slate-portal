@@ -6,12 +6,12 @@
 
 - name: Create user for running SLATE Portal
   user:
-    name: slate-portal
+    name: portalrunner
     state: present
     shell: "/sbin/nologin"
     group: slate-portal
     groups: ""
-    home: "/var/run/slate-portal"
+    home: "/var/run/portalrunner"
     system: true
 
 - name: Add uwsgi to slate-portal group

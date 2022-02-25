@@ -10,16 +10,16 @@
     state: directory
     owner: root
     group: root
-    mode: 0750
+    mode: 0755
   when: not slate_install_path.stat.exists
 
 - name: Add SLATE configuration
   template:
     src: "templates/slate.ini.j2"
     dest: "{{ slate_install_dest }}/slate.ini"
-    owner: root
+    owner: portalrunner
     group: slate-portal
-    mode: 0640
+    mode: 0644
   notify: portal_restart_services
 
 - name: Clone the SLATE Portal Git repository
@@ -39,30 +39,30 @@
     virtualenv_command: "/usr/local/bin/virtualenv"
     virtualenv_python: python3.6
 
-- name: Changing permissions of venv directory to root:slate-portal 0750
+- name: Changing permissions of venv directory to portalrunner:slate-portal 0755
   file:
     path: "{{ slate_install_dest }}/venv"
     state: directory
     recurse: yes
-    owner: root
+    owner: portalrunner
     group: slate-portal
-    mode: 0750
+    mode: 0755
 
-- name: Changing permissions of SLATE Portal Git repository to uwsgi:slate-portal 0640
+- name: Changing permissions of SLATE Portal Git repository to portalrunner:slate-portal 0644
   file:
     path: "{{ slate_git_dest }}"
     state: directory
     recurse: yes
-    owner: uwsgi
+    owner: portalrunner
     group: slate-portal
-    mode: 0640
+    mode: 0644
 
-- name: Changing permissions of SLATE Portal Git repository top directory to uwsgi:slate-portal 0750
+- name: Changing permissions of SLATE Portal Git repository top directory to 0755
   file:
     path: "{{ slate_git_dest }}"
     state: directory
     recurse: no
-    mode: 0750
+    mode: 0755
 
 - name: Finding all subdirectories in SLATE Portal Git repository
   find:
@@ -72,10 +72,10 @@
     file_type: directory
   register: slate_portal_subdirs
 
-- name: Changing permissions of SLATE Portal Git repository subdirectories to 0750
+- name: Changing permissions of SLATE Portal Git repository subdirectories to 0755
   file:
     path: "{{ item.path }}"
-    mode: 0750
+    mode: 0755
   loop: "{{ slate_portal_subdirs.files }}"
   loop_control:
     label: "{{ item.path }}"
@@ -85,24 +85,24 @@
   file:
     path: "{{ slate_git_dest }}/instance"
     state: directory
-    owner: uwsgi
+    owner: portalrunner
     group: slate-portal
-    mode: 0750
+    mode: 0755
 
 - name: Add portal configuration
   template:
     src: "templates/portal.conf.j2"
     dest: "{{ slate_git_dest }}/instance/portal.conf"
-    owner: uwsgi
+    owner: portalrunner
     group: slate-portal
-    mode: 0640
+    mode: 0644
   notify: portal_restart_services
 
 - name: Make run_portal.py executable
   file:
     path: "{{ slate_git_dest }}/run_portal.py"
     state: file
-    owner: uwsgi
+    owner: portalrunner
     group: slate-portal
-    mode: 0750
+    mode: 0755
   notify: portal_restart_services
