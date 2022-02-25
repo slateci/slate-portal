@@ -88,8 +88,5 @@ target/
 # UPC temp app/data files
 rebates/uploads
 
-# portal.conf file
-instance/
-
 # Ansible playbook local secrets
 ansible/secrets.yml
