@@ -71,15 +71,6 @@
   loop_control:
     label: "{{ item.path }}"
 
-
-- name: Ensure SLATE Portal instance directory exists
-  file:
-    path: "{{ slate_git_dest }}/instance"
-    state: directory
-    owner: uwsgi
-    group: uwsgi
-    mode: 0755
-
 - name: Add portal configuration
   template:
     src: "templates/portal.conf.j2"
