@@ -103,18 +103,28 @@ Running the image will create a new tagged container and start Portal:
 
 Point your browser to `http://localhost:5000`, make changes, and enjoy a live-preview experience.
 
+### Teardown
+
+Stop the container and prune to clear system resources:
+
+```shell
+docker container prune
+```
+
+For more information on pruning stopped containers see [docker container prune](https://docs.docker.com/engine/reference/commandline/container_prune/)
+
 ## Local Ansible Playbook Development with Vagrant
 
-A local Oracle VirtualBox VM-hosted Portal will provide a near production developer experience as well as the ability to test the Ansible playbook used to deploy actual servers.
+A local Oracle VirtualBox VM-hosted Portal will provide a near production developer experience as well as the ability to test the Ansible playbook used for server deployments.
 
 ### Requirements
 
 #### Install Ansible
 
-This project uses Miniconda3 (or Conda) to create a Python interpreter with Ansible and other necessary dependencies pre-installed.
+This project uses Miniconda3 (or Conda) to create a Python interpreter with Ansible and other necessary dependencies.
 
 1. Navigate to the [Miniconda3 downloads page]() to download and install Conda on your system.
-2. Execute the following to create the `chpc-ansible` Conda environment:
+2. Execute the following to create the `chpc-ansible` Conda environment on your system:
 
    ```shell
    conda env create -f ansible/environment.yml
@@ -136,7 +146,7 @@ This project uses Miniconda3 (or Conda) to create a Python interpreter with Ansi
      libyaml = True
    ```
 
-4. While we will not cover Ansible concepts here please refer to the following resources:
+4. Use the following resources as references for any Ansible-related questions:
    * [Ansible Quickstart Guide](https://docs.ansible.com/ansible/2.9/user_guide/quickstart.html)
    * [Ansible Concepts](https://docs.ansible.com/ansible/2.9/user_guide/basic_concepts.html)
    * [Ansible: Module Index](https://docs.ansible.com/ansible/2.9/modules/modules_by_category.html)
@@ -163,7 +173,7 @@ Download and install Vagrant using the instructions provided on the [Vagrant dow
   vagrant plugin install vagrant-hostsupdater
   ```
 
-Optionally and for Linux users install the Vagrant `bash` autocompletion (recommended):
+Optionally install the Vagrant `bash` autocompletion (recommended for Linux users):
 
 ```shell
 vagrant autocomplete install --bash
@@ -256,13 +266,95 @@ Point your browser to `https://portal.vagrant.test`, make changes, and enjoy a n
 * Rudimentary name resolution is provided by changes to your system's hosts file via the `vagrant-hostsupdater` plugin.
 * Vagrant creates its own Ansible inventory file (see [Ansible and Vagrant](https://www.vagrantup.com/docs/provisioning/ansible_intro) for more information).
 
-#### Additional Commands
+### Teardown
 
 The [Vagrant CLI](https://www.vagrantup.com/docs/cli) is documented at great length but here are some of the highlights:
 
-| Command | Description |
-| --- | --- |
-| `vagrant halt` | This command shuts down the running machine Vagrant is managing. |
+| Command           | Description                                                                                                                                                                                                                                                                           |
+|-------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `vagrant halt`    | This command shuts down the running machine Vagrant is managing and allowing `vagrant up` to start the machine again.                                                                                                                                                                 |
 | `vagrant destroy` | This command stops the running machine Vagrant is managing and destroys all resources that were created during the machine creation process. After running this command, your computer should be left at a clean state, as if you never created the guest machine in the first place. |
 
+Finally, deactivate the Conda environment:
+
+```shell
+(chpc-ansible) [your@localmachine ~]$ conda deactivate
+[your@localmachine ~]$
+```
+
 ## Deployment with Ansible Playbook
+
+The Ansible playbook and an appropriate inventory file are used for server deployments.
+
+### Requirements
+
+Use the installation instructions found in [Local Ansible Playbook Development with Vagrant](#local-ansible-playbook-development-with-vagrant) to install:
+* Ansible
+* Vagrant
+* Miniconda3
+
+### Create Ansible Inventory File
+
+Each environment should have a separate inventory file to prevent unexpected deployments. Use the appropriate template below to create your inventory file.
+
+For more information on Ansible inventories see:
+* [How to build your inventory](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html)
+* [ansible.builtin.yaml – Uses a specific YAML file as an inventory source.](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/yaml_inventory.html)
+
+#### Development
+
+Create in this project at `ansible/inventory/dev/hosts.yml` and replace the placeholder text with actual values.
+
+```yaml
+all:
+  hosts:
+    portal-dev.slate.io
+  vars:
+    # If a SSH Bastion server is involved modify and use:
+    #ansible_ssh_common_args: '-J you@bastion.slateci.net -i /path/to/id_rsa_slate'
+    slate_api_endpoint: 'https://api-dev.slateci.io:18080'
+    slate_api_token: 'XXXX'
+    slate_hostname: 'portal-dev.slate.io'
+    slate_portal_client_id: 'XXXX'
+    slate_portal_client_secret: 'XXXX'
+```
+
+#### Production
+
+Create in this project at `ansible/inventory/prod/hosts.yml` and replace the placeholder text with actual values.
+
+```yaml
+all:
+  hosts:
+    portal.slate.io
+  vars:
+    # If a SSH Bastion server is involved modify and use:
+    #ansible_ssh_common_args: '-J you@bastion.slateci.net -i /path/to/id_rsa_slate'
+    slate_api_endpoint: 'https://api.slateci.io:443'
+    slate_api_token: 'XXXX'
+    slate_hostname: 'portal.slate.io'
+    slate_portal_client_id: 'XXXX'
+    slate_portal_client_secret: 'XXXX'
+```
+
+### Build and Run Portal
+
+Activate the Conda environment and run the Ansible playbook specifying a user with sudo privileges on the host(s).
+
+```shell
+[your@localmachine ~]$ conda activate chpc-ansible
+(chpc-ansible) [your@localmachine ~]$ ansible-playbook -i ./ansible/inventory/<dev|prod>/hosts.yml -u <you> ./ansible/playbook.yml
+...
+...
+```
+
+### Teardown
+
+Currently, this is a manual process. At some point the playbook will be expanded to help uninstall Portal and return the host to a clean state.
+
+On your local machine deactivate the Conda environment:
+
+```shell
+(chpc-ansible) [your@localmachine ~]$ conda deactivate
+[your@localmachine ~]$
+```
