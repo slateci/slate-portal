@@ -2,7 +2,12 @@
 
 This repository contains the online Portal to the [SLATE platform](https://slateci.io/) and uses [globus](https://docs.globus.org/) in order to authenticate users with the [Auth API](https://docs.globus.org/api/auth/).
 
+* [Local Development with Containers](#local-development-with-containers)
+* [Local Development with Vagrant](#local-development-with-vagrant)
+
 ## Local Development with Containers
+
+A containerized Portal will provide a near live-preview developer experience.
 
 ### Requirements
 
@@ -26,8 +31,8 @@ Create a blank file in the following place of this project: `instance/portal.con
 Create your own App registration for use in the Portal.
 
 * Visit the [Globus Developer Pages](https://developers.globus.org) to register an App.
-* If this is your first time visiting the Developer Pages you'll be asked to create a Project. A Project is a way to group Apps together.
-* When registering the App you'll be asked for some information, including the redirect URL and any scopes you will be requesting.
+* If this is your first time visiting the Developer Pages you will be asked to create a Project. A Project is a way to group Apps together.
+* When registering the App you will be asked for some information, including the redirect URL and any scopes you will be requesting.
   * Redirect URL: `http://localhost:5000/authcallback`
 * After creating your App the **Client ID** and **Client Secret** can be copied into this project in the following place:
     * `instance/portal.conf` in the `PORTAL_CLIENT_ID` and `PORTAL_CLIENT_SECRET` properties.
@@ -53,7 +58,7 @@ Add these remaining properties to `instance/portal.conf` in this project:
 * `SLATE_WEBSITE_LOGFILE = '/var/log/uwsgi/portal.log'`
 
 At this point `instance/portal.conf` should resemble:
-
+hard-codes the development SLATE API server
 ```properties
 DEBUG = True
 GLOBUS_AUTH_LOGOUT_URI = 'https://auth.globus.org/v2/web/logout'
@@ -91,46 +96,148 @@ Running the image will create a new tagged container and start Portal:
  * Debugger PIN: 123-456-789
 ```
 
-Point your browser to `http://localhost:5000`.
+Point your browser to `http://localhost:5000`, make changes, and enjoy a live-preview experience.
 
+## Local Development with Vagrant
 
+A local Oracle VirtualBox VM-hosted Portal will provide a near production developer experience as well as the ability to test the Ansible playbook used to deploy actual servers.
 
+### Requirements
 
+#### Install Ansible
 
+This project uses Miniconda3 (or Conda) to create a Python interpreter with Ansible and other necessary dependencies pre-installed.
 
+1. Navigate to the [Miniconda3 downloads page]() to download and install Conda on your system.
+2. Execute the following to create the `chpc-ansible` Conda environment:
 
-#### Set up your environment.
-* [OS X](#os-x)
+   ```shell
+   conda env create -f ansible/environment.yml
+   ```
+   
+3. Activate the Conda environment and check that Ansible is properly installed:
 
-#### Create your own App registration for use in the Portal. 
+   ```shell
+   [your@localmachine ~]$ conda activate chpc-ansible
+   (chpc-ansible) [your@localmachine ~]$ ansible --version
+     ansible [core 2.12.1]
+     config file = None
+     configured module search path = ['/home/you/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+     ansible python module location = /home/you/miniconda3/envs/chpc-ansible/lib/python3.10/site-packages/ansible
+     ansible collection location = /home/you/.ansible/collections:/usr/share/ansible/collections
+     executable location = /home/you/miniconda3/envs/chpc-ansible/bin/ansible
+     python version = 3.10.2 | packaged by conda-forge | (main, Jan 14 2022, 08:02:09) [GCC 9.4.0]
+     jinja version = 3.0.3
+     libyaml = True
+   ```
+
+4. While we will not cover Ansible concepts here please refer to the following resources:
+   * [Ansible Quickstart Guide](https://docs.ansible.com/ansible/2.9/user_guide/quickstart.html)
+   * [Ansible Concepts](https://docs.ansible.com/ansible/2.9/user_guide/basic_concepts.html)
+   * [Ansible: Module Index](https://docs.ansible.com/ansible/2.9/modules/modules_by_category.html)
+
+#### Install Oracle VirtualBox
+
+Oracle VirtualBox is the virtualization provider-of-choice for this project. Download and install VirtualBox using the instructions provided on the [VirtualBox downloads page](https://www.virtualbox.org/wiki/Downloads).
+
+#### Install Vagrant
+
+[Hashicorp Vagrant](https://www.vagrantup.com/) is a tool that "leverages a declarative configuration file which describes all your software requirements, packages, operating system configuration, users, and more". The configuration for this project is described in the `Vagrantfile`.
+
+Download and install Vagrant using the instructions provided on the [Vagrant downloads page](https://www.vagrantup.com/downloads). Once Vagrant is installed execute the following commands on your system to install plugins necessary for this project:
+
+* VirtualBox Guest Additions Plugin:
+
+  ```shell
+  vagrant plugin install vagrant-vbguest
+  ```
+
+* Hosts Updater Plugin:
+
+  ```shell
+  vagrant plugin install vagrant-hostsupdater
+  ```
+
+Optionally install the `bash` autocompletion (recommended):
+
+```shell
+vagrant autocomplete install --bash
+```
+
+#### Create `secrets.yml`
+
+Create a blank file in the following place of this project: `ansible/secrets.yml`. Complete the steps described below to add key-value pairs and finalize this file.
+
+#### Register a globus Application
+
+> **_IMPORTANT:_** Before proceeding ask the team about existing globus registrations as some localdev, development, and production projects and applications already exist.
+
+Create your own App registration for use in the Portal.
+
 * Visit the [Globus Developer Pages](https://developers.globus.org) to register an App.
-* If this is your first time visiting the Developer Pages you'll be asked to create a Project. A Project is a way to group Apps together.
-* When registering the App you'll be asked for some information, including the redirect URL and any scopes you will be requesting.
-    * Redirect URL: `https://localhost:5000/authcallback` (note: if using EC2 `localhost` should be replaced with the IP address of your instance).
-    * Scopes: `urn:globus:auth:scope:transfer.api.globus.org:all`, `openid`, `profile`, `email`
-* After creating your App the client id and secret can be copied into this project in the following two places:
-    * `portal/portal.conf` in the `PORTAL_CLIENT_ID` and `PORTAL_CLIENT_SECRET` properties.
-    * `service/service.conf` where the `PORTAL_CLIENT_ID` is used to validate the access token that the Portal sends to the Service.
+* If this is your first time visiting the Developer Pages you will be asked to create a Project. A Project is a way to group Apps together.
+* When registering the App you will be asked for some information, including the redirect URL and any scopes you will be requesting.
+    * Redirect URL: `https://portal.vagrant.test/authcallback`
+* After creating your App the **Client ID** and **Client Secret** can be copied into this project in the following place:
+    * `ansible/secrets.yml` in the `slate_portal_client_id` and `slate_portal_client_secret` key values.
 
-### OS X
+#### Select a SLATE API Admin Account
 
-##### Environment Setup
+Portal communicates with a SLATE API server via an admin account.
 
-* `sudo easy_install pip`
-* `sudo pip install virtualenv`
-* `sudo mkdir ~/projects`
-* `cd ~/projects`
-* `git clone https://github.com/slateci/slate-portal.git`
-* `cd slate-portal`
-* `virtualenv venv`
-* `source venv/bin/activate`
-* `pip install -r requirements.txt`
-* `mkdir instance`
-* `touch instance/portal.conf`
-* Note that current `portal.conf` file located in `slate-portal/portal/portal.conf` is the default .conf file from the Globus Developer Portal. SLATE Portal will real from the new `instance/portal.conf` file.
-* New `instance/portal.conf` file should be updated with new/correct API keys.
+* The `Vagrantfile` will always lock the SLATE API server to development:
+    
+  ```text
+  ...
+  ansible.extra_vars = {
+    ...
+    slate_api_endpoint: 'https://api-dev.slateci.io:18080',
+    ...
+  }
+  ```
 
-##### Running the Portal App
+  This will prevent unwanted changes from making their way unexpectedly to Production.
 
-* `./run_portal.py`
-* point your browser to `https://localhost:5000`
+* Ask the team for the API token of an appropriate admin account.
+* Once in hand the token can be copied into this project in the following place:
+    * `ansible/secrets.yml` in the `slate_api_token` key value.
+
+### Finalize `secrets.yml`
+
+At this point `ansible/secrets.yml` should resemble:
+
+```yaml
+---
+slate_api_token: "<your-value>"
+slate_portal_client_id: "<your-value>"
+slate_portal_client_secret: "<your-value>"
+```
+
+### Build and Run Portal
+
+Activate the Conda environment, create the virtual machine, and run Ansible:
+
+```shell
+[your@localmachine ~]$ conda activate chpc-ansible
+(chpc-ansible) [your@localmachine ~]$ vagrant up
+...
+...
+PLAY RECAP *********************************************************************
+default                    : ok=43   changed=8    unreachable=0    failed=0    skipped=6    rescued=0    ignored=0
+```
+
+Point your browser to `https://portal.vagrant.test`, make changes, and enjoy a near-production experience.
+
+#### The Details
+
+* Test any local changes made to the Ansible playbook on a currently running VM by executing `vagrant provision`.
+* Unfortunately any local changes made to the Python source requires an extra step and must be committed to the current branch before executing `vagrant provision`.
+
+#### Additional Commands
+
+The [Vagrant CLI](https://www.vagrantup.com/docs/cli) is documented at great length but here are some of the highlights:
+
+| Command | Description |
+| --- | --- |
+| `vagrant halt` | This command shuts down the running machine Vagrant is managing. |
+| `vagrant destroy` | This command stops the running machine Vagrant is managing and destroys all resources that were created during the machine creation process. After running this command, your computer should be left at a clean state, as if you never created the guest machine in the first place. |
