@@ -63,7 +63,7 @@ Add these remaining properties to `instance/portal.conf` in this project:
 * `SLATE_WEBSITE_LOGFILE = '/var/log/uwsgi/portal.log'`
 
 At this point `instance/portal.conf` should resemble:
-hard-codes the development SLATE API server
+
 ```properties
 DEBUG = True
 GLOBUS_AUTH_LOGOUT_URI = 'https://auth.globus.org/v2/web/logout'
