@@ -1,6 +1,6 @@
 ---
-- become: yes
-  hosts: all
+- hosts: all
+  become: yes
   remote_user: root
 
   vars_files:
