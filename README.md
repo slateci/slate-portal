@@ -1,9 +1,14 @@
 # SLATE Portal
 
-This repository contains the online Portal to the [SLATE platform](https://slateci.io/) and uses [globus](https://docs.globus.org/) in order to authenticate users with the [Auth API](https://docs.globus.org/api/auth/).
+This repository contains:
+* The web Portal to the [SLATE platform](https://slateci.io/) and uses [globus](https://docs.globus.org/) in order to authenticate users with the [Auth API](https://docs.globus.org/api/auth/).
+* The [Ansible playbook](https://docs.ansible.com/ansible/latest/user_guide/playbooks_intro.html) used for server deployments.
+
+## Table of Contents
 
 * [Local Development with Containers](#local-development-with-containers)
-* [Local Development with Vagrant](#local-development-with-vagrant)
+* [Local Ansible Playbook Development with Vagrant](#local-ansible-playbook-development-with-vagrant)
+* [Deployment with Ansible Playbook](#deployment-with-ansible-playbook)
 
 ## Local Development with Containers
 
@@ -98,7 +103,7 @@ Running the image will create a new tagged container and start Portal:
 
 Point your browser to `http://localhost:5000`, make changes, and enjoy a live-preview experience.
 
-## Local Development with Vagrant
+## Local Ansible Playbook Development with Vagrant
 
 A local Oracle VirtualBox VM-hosted Portal will provide a near production developer experience as well as the ability to test the Ansible playbook used to deploy actual servers.
 
@@ -158,7 +163,7 @@ Download and install Vagrant using the instructions provided on the [Vagrant dow
   vagrant plugin install vagrant-hostsupdater
   ```
 
-Optionally install the `bash` autocompletion (recommended):
+Optionally and for Linux users install the Vagrant `bash` autocompletion (recommended):
 
 ```shell
 vagrant autocomplete install --bash
@@ -215,12 +220,27 @@ slate_portal_client_secret: "<your-value>"
 
 ### Build and Run Portal
 
-Activate the Conda environment, create the virtual machine, and run Ansible:
+Activate the Conda environment, create the virtual machine, and run Ansible providing sudo credentials when prompted:
 
 ```shell
 [your@localmachine ~]$ conda activate chpc-ansible
 (chpc-ansible) [your@localmachine ~]$ vagrant up
+==> default: [vagrant-hostsupdater] Checking for host entries
+[sudo] password for you: []
 ...
+==> default: Running provisioner: ansible...
+    default: Running ansible-playbook...
+PYTHONUNBUFFERED=1 ANSIBLE_FORCE_COLOR=true ANSIBLE_HOST_KEY_CHECKING=false
+ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o ControlMaster=auto -o ControlPersist=60s'
+ansible-playbook --connection=ssh --timeout=30 --limit="default"
+--inventory-file=/home/you/path/.vagrant/provisioners/ansible/inventory
+--extra-vars=\{\"slate_api_endpoint\":\"https://api-dev.slateci.io:18080\",
+\"slate_api_token\":\"<your-value>\",\"slate_debug\":true,\"slate_git_version\":\"<git-branch-name>\",
+\"slate_hostname\":\"portal.vagrant.test\",\"slate_portal_client_id\":\"<your-value\",
+\"slate_portal_client_secret\":\"<your-value>"\} -v ./ansible/playbook.yml
+No config file found; using defaults
+
+PLAY [all] *********************************************************************
 ...
 PLAY RECAP *********************************************************************
 default                    : ok=43   changed=8    unreachable=0    failed=0    skipped=6    rescued=0    ignored=0
@@ -230,8 +250,11 @@ Point your browser to `https://portal.vagrant.test`, make changes, and enjoy a n
 
 #### The Details
 
-* Test any local changes made to the Ansible playbook on a currently running VM by executing `vagrant provision`.
-* Unfortunately any local changes made to the Python source requires an extra step and must be committed to the current branch before executing `vagrant provision`.
+* Test any local changes made to the Ansible playbook on a currently running VM by executing `vagrant provision` one or more times.
+* However any local changes made to the Python source itself requires an extra step and must be committed to the currently checked out branch before executing `vagrant provision`.
+  * If this is confusing refer to  
+* Rudimentary name resolution is provided by changes to your system's hosts file via the `vagrant-hostsupdater` plugin.
+* Vagrant creates its own Ansible inventory file (see [Ansible and Vagrant](https://www.vagrantup.com/docs/provisioning/ansible_intro) for more information).
 
 #### Additional Commands
 
@@ -241,3 +264,5 @@ The [Vagrant CLI](https://www.vagrantup.com/docs/cli) is documented at great len
 | --- | --- |
 | `vagrant halt` | This command shuts down the running machine Vagrant is managing. |
 | `vagrant destroy` | This command stops the running machine Vagrant is managing and destroys all resources that were created during the machine creation process. After running this command, your computer should be left at a clean state, as if you never created the guest machine in the first place. |
+
+## Deployment with Ansible Playbook
