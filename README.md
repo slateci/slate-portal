@@ -16,14 +16,9 @@ A containerized Portal will provide a near live-preview developer experience.
 
 ### Requirements
 
-#### Choose a Container Engine
+#### Install Docker
 
-Install **ONE** of the following for developing, managing, and running OCI containers on your system:
-
-* [Docker](https://docs.docker.com/get-docker/)
-* [Podman](https://podman.io/)
-
-For the sake of simplicity this page will focus on Docker (see [the podman docs](https://docs.podman.io/en/latest/Commands.html) for alternate syntax).
+Install [Docker](https://docs.docker.com/get-docker/) for developing, managing, and running OCI containers on your system:
 
 #### Create `portal.conf`
 
