@@ -261,8 +261,7 @@ Point your browser to `https://portal.vagrant.test`, make changes, and enjoy a n
 #### The Details
 
 * Test any local changes made to the Ansible playbook on a currently running VM by executing `vagrant provision` one or more times.
-* However any local changes made to the Python source itself requires an extra step and must be committed to the currently checked out branch before executing `vagrant provision`.
-  * If this is confusing refer to  
+* Any local changes made to the Python source itself requires an extra step and must be committed to the currently checked out branch before executing `vagrant provision`.
 * Rudimentary name resolution is provided by changes to your system's hosts file via the `vagrant-hostsupdater` plugin.
 * Vagrant creates its own Ansible inventory file (see [Ansible and Vagrant](https://www.vagrantup.com/docs/provisioning/ansible_intro) for more information).
 
