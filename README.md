@@ -27,7 +27,7 @@ For the sake of simplicity this page will focus on Docker (see [the podman docs]
 
 #### Create `portal.conf`
 
-Create a blank file in the following place of this project: `instance/portal.conf`. Complete the steps described below to add properties and finalize this file.
+Copy `ansible/templates/portal.conf.j2` to the following place of this project: `instance/portal.conf`. Complete the steps described below to modify properties and finalize this file.
 
 #### Register a globus Application
 
@@ -54,26 +54,27 @@ Portal communicates with a SLATE API server via an admin account.
 
 ### Finalize `portal.conf`
 
-Add these remaining properties to `instance/portal.conf` in this project:
-
-* `DEBUG = True`
-* `GLOBUS_AUTH_LOGOUT_URI = 'https://auth.globus.org/v2/web/logout'`
-* ``SECRET_KEY = '=.DKwWzDd}!3}6yeAY+WTF#W:zt5msTI7]2`o}Y!ziU!#CYD+;T9JpW$ud|5C_3'``
-* `SERVER_NAME = 'localhost:5000'`
-* `SLATE_WEBSITE_LOGFILE = '/var/log/uwsgi/portal.log'`
-
 At this point `instance/portal.conf` should resemble:
 
 ```properties
+#------------------------------------------------
+# Default MRDP application configuration settings
+#------------------------------------------------
+
+SERVER_NAME = '<your-value>'
 DEBUG = True
-GLOBUS_AUTH_LOGOUT_URI = 'https://auth.globus.org/v2/web/logout'
+SLATE_WEBSITE_LOGFILE = '/var/log/uwsgi/portal.log'
+
+SECRET_KEY = '=.DKwWzDd}!3}6yeAY+WTF#W:zt5msTI7]2`o}Y!ziU!#CYD+;T9JpW$ud|5C_3'
+
+# globus:
 PORTAL_CLIENT_ID = '<your-value>'
 PORTAL_CLIENT_SECRET = '<your-value>'
-SECRET_KEY = '=.DKwWzDd}!3}6yeAY+WTF#W:zt5msTI7]2`o}Y!ziU!#CYD+;T9JpW$ud|5C_3'
-SERVER_NAME = 'localhost:5000'
+GLOBUS_AUTH_LOGOUT_URI = 'https://auth.globus.org/v2/web/logout'
+
+# SLATE API:
 SLATE_API_TOKEN = '<your-value>'
-SLATE_API_ENDPOINT = 'https://api-dev.slateci.io:18080'
-SLATE_WEBSITE_LOGFILE = '/var/log/uwsgi/portal.log'
+SLATE_API_ENDPOINT = '<your-value>'
 ```
 
 ### Build and Run Portal
@@ -105,7 +106,7 @@ Point your browser to `http://localhost:5000`, make changes, and enjoy a live-pr
 
 ### Teardown
 
-Stop the container and prune to clear system resources:
+Quit the Flask app (`CTRL + C`) and prune the now-stopped Docker container to release system resources:
 
 ```shell
 docker container prune
@@ -181,7 +182,7 @@ vagrant autocomplete install --bash
 
 #### Create `secrets.yml`
 
-Copy `ansible/secrets.yml.tmpl` to the following place of this project: `ansible/secrets.yml`. Complete the steps described below to replace placeholder key-value pairs and finalize this file.
+Copy `ansible/secrets.yml.tmpl` to the following place of this project: `ansible/secrets.yml`. Complete the steps described below to modify placeholder key-value pairs and finalize this file.
 
 #### Register a globus Application
 
