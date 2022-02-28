@@ -27,7 +27,7 @@ For the sake of simplicity this page will focus on Docker (see [the podman docs]
 
 #### Create `portal.conf`
 
-Copy `ansible/templates/portal.conf.j2` to the following place of this project: `instance/portal.conf`. Complete the steps described below to modify properties and finalize this file.
+Copy `instance/portal.conf.tmpl` to the following place of this project: `instance/portal.conf`. Complete the steps described below to modify properties and finalize this file.
 
 #### Register a globus Application
 
