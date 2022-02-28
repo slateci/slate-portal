@@ -23,7 +23,7 @@ Install **ONE** of the following for developing, managing, and running OCI conta
 * [Docker](https://docs.docker.com/get-docker/)
 * [Podman](https://podman.io/)
 
-For the sake of simplicity this guide will focus on Docker (see [the podman docs](https://docs.podman.io/en/latest/Commands.html) for alternate syntax).
+For the sake of simplicity this page will focus on Docker (see [the podman docs](https://docs.podman.io/en/latest/Commands.html) for alternate syntax).
 
 #### Create `portal.conf`
 
@@ -46,7 +46,7 @@ Create your own App registration for use in the Portal.
 
 Portal communicates with a SLATE API server via an admin account.
 
-* Specify the SLATE API server in the following place:
+* Specify the SLATE API server in the following place of this project:
   * `instance/portal.conf` in the `SLATE_API_ENDPOINT` property.
 * Ask the team for the API token of an appropriate admin account.
 * Once in hand the token can be copied into this project in the following place:
@@ -181,7 +181,7 @@ vagrant autocomplete install --bash
 
 #### Create `secrets.yml`
 
-Create a blank file in the following place of this project: `ansible/secrets.yml`. Complete the steps described below to add key-value pairs and finalize this file.
+Copy `ansible/secrets.yml.tmpl` to the following place of this project: `ansible/secrets.yml`. Complete the steps described below to replace placeholder key-value pairs and finalize this file.
 
 #### Register a globus Application
 
@@ -214,7 +214,7 @@ Portal communicates with a SLATE API server via an admin account.
   This will prevent unwanted changes from making their way unexpectedly to Production.
 
 * Ask the team for the API token of an appropriate admin account.
-* Once in hand the token can be copied into this project in the following place:
+* Once in hand the token can be copied to the following place of this project:
     * `ansible/secrets.yml` in the `slate_api_token` key value.
 
 ### Finalize `secrets.yml`
@@ -262,6 +262,7 @@ Point your browser to `https://portal.vagrant.test`, make changes, and enjoy a n
 
 * Test any local changes made to the Ansible playbook on a currently running VM by executing `vagrant provision` one or more times.
 * Any local changes made to the Python source itself requires an extra step and must be committed to the currently checked out branch before executing `vagrant provision`.
+  * Reasoning: One of the Ansible tasks defined in the playbook requires a source branch to clone. 
 * Rudimentary name resolution is provided by changes to your system's hosts file via the `vagrant-hostsupdater` plugin.
 * Vagrant creates its own Ansible inventory file (see [Ansible and Vagrant](https://www.vagrantup.com/docs/provisioning/ansible_intro) for more information).
 
@@ -302,12 +303,13 @@ For more information on Ansible inventories see:
 
 #### Development
 
-Create in this project at `ansible/inventory/dev/hosts.yml` and replace the placeholder text with actual values.
+Create `hosts.yml` in the following place of this project `ansible/inventory/dev/hosts.yml` and replace the placeholder text with actual values.
 
 ```yaml
 all:
   hosts:
-    portal-dev.slate.io
+    portal:
+      ansible_host: <public-ipv4>
   vars:
     # If a SSH Bastion server is involved modify and use:
     #ansible_ssh_common_args: '-J you@bastion.slateci.net -i /path/to/id_rsa_slate'
@@ -320,12 +322,13 @@ all:
 
 #### Production
 
-Create in this project at `ansible/inventory/prod/hosts.yml` and replace the placeholder text with actual values.
+Create `hosts.yml` in the following place of this project `ansible/inventory/prod/hosts.yml` and replace the placeholder text with actual values.
 
 ```yaml
 all:
   hosts:
-    portal.slate.io
+    portal:
+      ansible_host: <public-ipv4>
   vars:
     # If a SSH Bastion server is involved modify and use:
     #ansible_ssh_common_args: '-J you@bastion.slateci.net -i /path/to/id_rsa_slate'
@@ -342,7 +345,7 @@ Activate the Conda environment and run the Ansible playbook specifying a user wi
 
 ```shell
 [your@localmachine]$ conda activate chpc-ansible
-(chpc-ansible) [your@localmachine]$ ansible-playbook -i ./ansible/inventory/<dev|prod>/hosts.yml -u <you> ./ansible/playbook.yml
+(chpc-ansible) [your@localmachine]$ ansible-playbook -i ./ansible/inventory/<dev|prod>/hosts.yml -u <sudo-user> ./ansible/playbook.yml
 ...
 ...
 ```
