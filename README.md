@@ -87,7 +87,7 @@ docker build -f Dockerfile -t slate-portal:local .
 Running the image will create a new tagged container and start Portal:
 
 ```shell
-[your@localmachine ~]$ docker run -it -v ${PWD}:/etc/slate/slate-website-python -p 5000:5000 slate-portal:local
+[your@localmachine]$ docker run -it -v ${PWD}:/etc/slate/slate-website-python -p 5000:5000 slate-portal:local
  * Serving Flask app 'portal' (lazy loading)
  * Environment: production
    WARNING: This is a development server. Do not use it in a production deployment.
@@ -133,8 +133,8 @@ This project uses Miniconda3 (or Conda) to create a Python interpreter with Ansi
 3. Activate the Conda environment and check that Ansible is properly installed:
 
    ```shell
-   [your@localmachine ~]$ conda activate chpc-ansible
-   (chpc-ansible) [your@localmachine ~]$ ansible --version
+   [your@localmachine]$ conda activate chpc-ansible
+   (chpc-ansible) [your@localmachine]$ ansible --version
      ansible [core 2.12.1]
      config file = None
      configured module search path = ['/home/you/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
@@ -233,8 +233,8 @@ slate_portal_client_secret: "<your-value>"
 Activate the Conda environment, create the virtual machine, and run Ansible providing sudo credentials when prompted:
 
 ```shell
-[your@localmachine ~]$ conda activate chpc-ansible
-(chpc-ansible) [your@localmachine ~]$ vagrant up
+[your@localmachine]$ conda activate chpc-ansible
+(chpc-ansible) [your@localmachine]$ vagrant up
 ==> default: [vagrant-hostsupdater] Checking for host entries
 [sudo] password for you: []
 ...
@@ -278,8 +278,8 @@ The [Vagrant CLI](https://www.vagrantup.com/docs/cli) is documented at great len
 Finally, deactivate the Conda environment:
 
 ```shell
-(chpc-ansible) [your@localmachine ~]$ conda deactivate
-[your@localmachine ~]$
+(chpc-ansible) [your@localmachine]$ conda deactivate
+[your@localmachine]$
 ```
 
 ## Deployment with Ansible Playbook
@@ -342,8 +342,8 @@ all:
 Activate the Conda environment and run the Ansible playbook specifying a user with sudo privileges on the host(s).
 
 ```shell
-[your@localmachine ~]$ conda activate chpc-ansible
-(chpc-ansible) [your@localmachine ~]$ ansible-playbook -i ./ansible/inventory/<dev|prod>/hosts.yml -u <you> ./ansible/playbook.yml
+[your@localmachine]$ conda activate chpc-ansible
+(chpc-ansible) [your@localmachine]$ ansible-playbook -i ./ansible/inventory/<dev|prod>/hosts.yml -u <you> ./ansible/playbook.yml
 ...
 ...
 ```
@@ -355,6 +355,6 @@ Currently, this is a manual process. At some point the playbook will be expanded
 On your local machine deactivate the Conda environment:
 
 ```shell
-(chpc-ansible) [your@localmachine ~]$ conda deactivate
-[your@localmachine ~]$
+(chpc-ansible) [your@localmachine]$ conda deactivate
+[your@localmachine]$
 ```
