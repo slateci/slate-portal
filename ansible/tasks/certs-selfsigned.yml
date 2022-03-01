@@ -38,3 +38,6 @@
     provider: selfsigned
     privatekey_path: "{{ slate_certificate.key_file }}"
   notify: portal_restart_services
+
+# Resources:
+# * https://leftasexercise.com/2020/01/30/understanding-tls-certificates-with-nginx-and-ansible-part-i/

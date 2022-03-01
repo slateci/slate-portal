@@ -4,38 +4,10 @@
     path: "{{ slate_certificate.file }}"
   register: slate_cert_file
 
-- name: Ensure certbot pre/post hook directories exist
+- name: Checking if certbot webroot already exists
   file:
-    path: "/etc/letsencrypt/renewal-hooks/{{ item }}"
+    path: "{{ certbot_webroot }}"
     state: directory
-    owner: root
-    group: root
-    mode: 0755
-  with_items:
-    - pre
-    - post
-
-- name : Create certbot pre hook to stop services
-  template:
-    src: "templates/certbot-stop-services.sh.j2"
-    dest: "/etc/letsencrypt/renewal-hooks/pre/stop_services.sh"
-    owner: root
-    group: root
-    mode: 0750
-  when:
-    - certbot_create_standalone_stop_services is defined
-    - certbot_create_standalone_stop_services
-
-- name : Create certbot post hook to start services
-  template:
-    src: "templates/certbot-start-services.sh.j2"
-    dest: "/etc/letsencrypt/renewal-hooks/post/start_services.sh"
-    owner: root
-    group: root
-    mode: 0750
-  when:
-    - certbot_create_standalone_stop_services is defined
-    - certbot_create_standalone_stop_services
 
 - name: Add cron job for certbot renewal
   cron:
@@ -45,13 +17,13 @@
     hour: "{{ certbot_auto_renew_hour }}"
     user: "{{ certbot_auto_renew_user }}"
 
-- name: Disabling and mask certbot new timer
+- name: Disabling and masking certbot new timer
   systemd:
     name: certbot-renew.timer
     enabled: no
     masked: yes
 
-- name: Disabling and mask certbot renew service
+- name: Disabling and masking certbot renew service
   systemd:
     name: certbot-renew.service
     enabled: no
@@ -61,3 +33,6 @@
   command: "{{ certbot_create_command }}"
   when: not slate_cert_file.stat.exists
   notify: portal_restart_services
+
+# Resources:
+# * https://github.com/geerlingguy/ansible-role-certbot/
