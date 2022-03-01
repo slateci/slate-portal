@@ -41,15 +41,7 @@ http {
         listen       80 default_server;
         listen       [::]:80 default_server;
         server_name  _;
-
-        location '/.well-known/acme-challenge' {
-            default_type "text/plain";
-            alias {{ certbot_webroot }}/.well-known/acme-challenge;
-        }
-
-        location / {
-            return 301 https://$host$request_uri;
-        }
+        return 301 https://$host$request_uri;
     }
 
 # Settings for a TLS enabled server.
