@@ -44,7 +44,7 @@ http {
 
         location '/.well-known/acme-challenge' {
             default_type "text/plain";
-            alias {{ certbot_webroot }};
+            alias {{ certbot_webroot }}/.well-known/acme-challenge;
         }
 
         location / {
