@@ -43,6 +43,10 @@
       include_tasks:
         file: "./tasks/pip.yml"
 
+    - name: Nginx HTTP Configuration
+      include_tasks:
+        file: "./tasks/nginx-http.yml"
+
     - name: Certificates
       include_tasks:
         file: "./tasks/certs-selfsigned.yml"
@@ -53,13 +57,13 @@
         file: "./tasks/certs-letsencrypt.yml"
       when: not slate_debug
 
+    - name: Nginx HTTPS Configuration
+      include_tasks:
+        file: "./tasks/nginx-https.yml"
+
     - name: SLATE Portal
       include_tasks:
         file: "./tasks/slate.yml"
-
-    - name: Nginx Configuration
-      include_tasks:
-        file: "./tasks/nginx.yml"
 
     - name: uWSGI Configuration
       include_tasks:
