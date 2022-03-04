@@ -22,7 +22,7 @@ Install [Docker](https://docs.docker.com/get-docker/) for developing, managing, 
 
 #### Create `portal.conf`
 
-Copy `instance/portal.conf.tmpl` to the following place of this project: `instance/portal.conf`. Complete the steps described below to modify properties and finalize this file.
+Copy `instance/portal.conf.tmpl` to the following place in this project: `instance/portal.conf`. Complete the steps described below to modify properties and finalize this file.
 
 #### Register a globus Application
 
@@ -177,7 +177,7 @@ vagrant autocomplete install --bash
 
 #### Create `secrets.yml`
 
-Copy `ansible/secrets.yml.tmpl` to the following place of this project: `ansible/secrets.yml`. Complete the steps described below to modify placeholder key-value pairs and finalize this file.
+Copy `ansible/secrets.yml.tmpl` to the following place in this project: `ansible/secrets.yml`. Complete the steps described below to modify placeholder key-value pairs and finalize this file.
 
 #### Register a globus Application
 
@@ -210,7 +210,7 @@ Portal communicates with a SLATE API server via an admin account.
   This will prevent unwanted changes from making their way unexpectedly to Production.
 
 * Ask the team for the API token of an appropriate admin account.
-* Once in hand the token can be copied to the following place of this project:
+* Once in hand the token can be copied to the following place in this project:
     * `ansible/secrets.yml` in the `slate_api_token` key value.
 
 ### Finalize `secrets.yml`
