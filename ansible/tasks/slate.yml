@@ -32,6 +32,53 @@
     force: yes
     update: yes
 
+- name: Housekeeping on Git clone artifacts
+  block:
+    - name: Remove .github directory
+      file:
+        state: absent
+        path: "{{ slate_git_dest }}/.github/"
+    - name: Remove ansible directory
+      file:
+        state: absent
+        path: "{{ slate_git_dest }}/ansible/"
+    - name: Remove notebook directory
+      file:
+        state: absent
+        path: "{{ slate_git_dest }}/notebook/"
+    - name: Remove .dockerignore
+      file:
+        state: absent
+        path: "{{ slate_git_dest }}/.dockerignore"
+    - name: Remove .editorconfig
+      file:
+        state: absent
+        path: "{{ slate_git_dest }}/.editorconfig"
+    - name: Remove docker-entrypoint.sh
+      file:
+        state: absent
+        path: "{{ slate_git_dest }}/docker-entrypoint.sh"
+    - name: Remove Dockerfile
+      file:
+        state: absent
+        path: "{{ slate_git_dest }}/Dockerfile"
+    - name: Remove LICENSE
+      file:
+        state: absent
+        path: "{{ slate_git_dest }}/LICENSE"
+    - name: Remove README.md
+      file:
+        state: absent
+        path: "{{ slate_git_dest }}/README.md"
+    - name: Remove run_portal_docker.py
+      file:
+        state: absent
+        path: "{{ slate_git_dest }}/run_portal_docker.py"
+    - name: Remove Vagrantfile
+      file:
+        state: absent
+        path: "{{ slate_git_dest }}/Vagrantfile"
+
 - name: Install pip requirements to venv
   pip:
     requirements: "{{ slate_git_dest }}/requirements.txt"
@@ -46,6 +93,15 @@
     recurse: yes
     owner: uwsgi
     group: uwsgi
+    mode: 0644
+
+- name: Changing ownership of SLATE Portal Git repository .git directory to root:root 0644
+  file:
+    path: "{{ slate_git_dest }}/.git/"
+    state: directory
+    recurse: yes
+    owner: root
+    group: root
     mode: 0644
 
 - name: Changing permissions of SLATE Portal Git repository top directory to 0755
