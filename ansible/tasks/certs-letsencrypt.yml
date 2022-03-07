@@ -4,7 +4,7 @@
     path: "{{ slate_certificate.file }}"
   register: slate_cert_file
 
-- name: Checking if certbot webroot already exists
+- name: Ensure certbot webroot already exists
   file:
     path: "{{ certbot_webroot }}"
     state: directory
@@ -32,6 +32,24 @@
 - name: Generate new certificate if one doesn't exist.
   command: "{{ certbot_create_command }}"
   when: not slate_cert_file.stat.exists
+  notify: portal_restart_services
+
+- name: Update nginx.conf with new certificate
+  lineinfile:
+    dest: "/etc/nginx/nginx.conf"
+    state: present
+    regexp: "^\s*ssl_certificate\s.*;$"
+    line: "ssl_certificate \"{{ slate_certificate.file }}\";"
+    validate: "/usr/sbin/nginx -c %s -t"
+  notify: portal_restart_services
+
+- name: Update nginx.conf with new certificate key
+  lineinfile:
+    dest: "/etc/nginx/nginx.conf"
+    state: present
+    regexp: "^\s*ssl_certificate_key\s.*;$"
+    line: "ssl_certificate_key \"{{ slate_certificate.key_file }}\";"
+    validate: "/usr/sbin/nginx -c %s -t"
   notify: portal_restart_services
 
 # Resources:

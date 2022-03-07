@@ -10,17 +10,16 @@
     - systemd_daemon_reload
     - portal_restart_services
 
-- name: Add nginx HTTP configuration
+- name: Add nginx configuration
   template:
-    src: "templates/nginx-http.conf.j2"
+    src: "templates/nginx.conf.j2"
     dest: "/etc/nginx/nginx.conf"
     owner: root
     group: root
     mode: 0644
-    force: yes
 
-- name: Restart nginx.service
+- name: Enable nginx.service
   service:
     name: nginx
-    state: restarted
+    state: started
     enabled: true

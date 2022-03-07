@@ -10,18 +10,9 @@
     - name: Set SSL certs path
       set_fact:
         slate_certificate:
-          file: "/etc/letsencrypt/live/{{ slate_hostname }}/cert.pem"
-          key_file: "/etc/letsencrypt/live/{{ slate_hostname }}/privkey.pem"
-          chain_file: "/etc/letsencrypt/live/{{ slate_hostname }}/chain.pem"
-      when: not slate_debug
-
-    - name: Set SSL certs path
-      set_fact:
-        slate_certificate:
           file: "/etc/ssl/{{ slate_hostname }}/{{ slate_hostname }}.pem"
           key_file: "/etc/ssl/{{slate_hostname}}/{{ slate_hostname }}.key"
           chain_file: "/etc/ssl/{{ slate_hostname }}/{{ slate_hostname }}.csr"
-      when: slate_debug
 
   tasks:
     - name: Firewall
@@ -36,30 +27,34 @@
       include_tasks:
         file: "./tasks/os-packages.yml"
 
-    - set_fact:
+    - name: Setting Ansible Python Interpreter to Python3
+      set_fact:
         ansible_python_interpreter: "/bin/python3"
 
     - name: Pip
       include_tasks:
         file: "./tasks/pip.yml"
 
-    - name: Nginx HTTP Configuration
-      include_tasks:
-        file: "./tasks/nginx-http.yml"
-
-    - name: Certificates
+    - name: Self-signed Certificates
       include_tasks:
         file: "./tasks/certs-selfsigned.yml"
-      when: slate_debug
 
-    - name: Certificates (live)
+    - name: Nginx Configuration
       include_tasks:
-        file: "./tasks/certs-letsencrypt.yml"
+        file: "./tasks/nginx.yml"
+
+    - name: Set up LetsEncrypt Certs
+      block:
+        - name: Set SSL certs path
+          set_fact:
+            slate_certificate:
+              file: "/etc/letsencrypt/live/{{ slate_hostname }}/cert.pem"
+              key_file: "/etc/letsencrypt/live/{{ slate_hostname }}/privkey.pem"
+              chain_file: "/etc/letsencrypt/live/{{ slate_hostname }}/chain.pem"
+        - name: LetsEncrypt Certificates
+          include_tasks:
+            file: "./tasks/certs-letsencrypt.yml"
       when: not slate_debug
-
-    - name: Nginx HTTPS Configuration
-      include_tasks:
-        file: "./tasks/nginx-https.yml"
 
     - name: SLATE Portal
       include_tasks:
