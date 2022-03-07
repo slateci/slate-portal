@@ -4,7 +4,7 @@ This repository contains the web Portal to the [SLATE platform](https://slateci.
 
 ## Application Framework
 
-Portal is written using the Flask framework and makes use of uWSGI on the development and production environments.
+Portal is written with the Flask framework and makes use of uWSGI on the development and production environments.
 * [Flask](https://flask.palletsprojects.com/en/2.0.x/) is a micro framework for web applications written in Python.
 * [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/) is a software app providing a Web Server Gateway Interface.
 
