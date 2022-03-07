@@ -42,6 +42,10 @@
       file:
         state: absent
         path: "{{ slate_git_dest }}/ansible/"
+    - name: Remove docs directory
+      file:
+        state: absent
+        path: "{{ slate_git_dest }}/docs/"
     - name: Remove notebook directory
       file:
         state: absent
