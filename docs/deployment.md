@@ -1,6 +1,6 @@
 # Deployment with Ansible Playbook
 
-The Ansible playbook and an appropriate inventory file are used for server deployments.
+The Ansible playbook, an SSH configuration file, and a `hosts.yml` inventory file are used for server deployments.
 
 ## Requirements
 
@@ -9,7 +9,15 @@ Use the installation instructions found in [Local Ansible Playbook Development w
 * Vagrant
 * Miniconda3
 
-## Create Ansible Inventory File
+Your SLATE project private RSA key file (e.g. `id_rsa_slate`) will also be required to interact with the Portal servers. If you have not set this up yet contact the team via Slack.
+
+### Create `ssh-config`
+
+Both the development and production Portal servers are not internet-accessible via SSH and require a jump through a [Bastion server](https://www.learningjournal.guru/article/public-cloud-infrastructure/what-is-bastion-host-server/) (or Jump Box). The easiest way to configure SSH for Ansible is through a configuration file.
+
+Copy `ansible/inventory/ssh-config.tmpl` to the following place in this project `ansible/inventory/<dev|prod>/ssh-config`. Complete the steps described below to modify placeholder settings values and finalize this file.
+
+### Create `hosts.yml`
 
 Each environment should have a separate inventory file to prevent unexpected deployments. Use the appropriate template below to create your inventory file.
 
@@ -17,51 +25,111 @@ For more information on Ansible inventories see:
 * [How to build your inventory](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html)
 * [ansible.builtin.yaml – Uses a specific YAML file as an inventory source.](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/yaml_inventory.html)
 
-### Development
+Copy `ansible/inventory/hosts.yml.tmpl` to the following place in this project `ansible/inventory/<dev|prod>/hosts.yml`. Complete the steps described below to modify placeholder key-value pairs and finalize this file.
 
-Create `hosts.yml` in the following place of this project `ansible/inventory/dev/hosts.yml` and replace the placeholder text with actual values.
+### Register a globus Application
 
-```yaml
-all:
-  hosts:
-    portal:
-      ansible_host: <public-ipv4>
-  vars:
-    # If a SSH Bastion server is involved modify and use:
-    #ansible_ssh_common_args: '-J you@bastion.slateci.net -i /path/to/id_rsa_slate'
-    slate_api_endpoint: 'https://api-dev.slateci.io:18080'
-    slate_api_token: 'XXXX'
-    slate_hostname: 'portal-dev.slate.io'
-    slate_portal_client_id: 'XXXX'
-    slate_portal_client_secret: 'XXXX'
+> **_IMPORTANT:_** Before proceeding ask the team about existing globus registrations as development, and production projects and applications should already exist.
+
+Create your own App registration for use in the Portal.
+
+* Visit the [Globus Developer Pages](https://developers.globus.org) to register an App.
+* If this is your first time visiting the Developer Pages you will be asked to create a Project. A Project is a way to group Apps together.
+* When registering the App you will be asked for some information, including the redirect URL and any scopes you will be requesting.
+    * Redirect URL (if development): `https://portal-dev.slateci.io/authcallback`
+    * Redirect URL (if production): `https://portal.slateci.io/authcallback`
+* After creating your App the **Client ID** and **Client Secret** can be copied into this project in the following place:
+    * `ansible/inventory/<dev|prod>/hosts.yml` in the `slate_portal_client_id` and `slate_portal_client_secret` key values.
+
+### Select a SLATE API Admin Account
+
+* Ask the team for the API token of an appropriate admin account.
+* Once in hand the token can be copied to the following place in this project:
+    * `ansible/inventory/<dev|prod>/hosts.yml` in the `slate_api_token` key value.
+
+## Finalize `ssh-config`
+
+Add the remaining setting values to `ansible/inventory/<dev|prod>/ssh-config.yml` in this project.
+* Both `IdentityFile` setting values: `/path/to/id_rsa_slate`
+* `slate-portal-host`'s `HostName` setting value:
+  * Development: `portal-dev.slateci.io`
+  * Production: `portal.slateci.io`
+* Both `User` setting values: `yourslateuser`
+
+At this point `ansible/inventory/<dev|prod>/ssh-config.yml` should resemble:
+
+```text
+## Global Settings
+StrictHostKeyChecking no
+UserKnownHostsFile /dev/null
+
+### The External SLATE Bastion host
+Host slate-bastion-host
+  HostName bastion.slateci.net
+  IdentitiesOnly yes
+  IdentityFile <your-value>
+  Port 22
+  User <your-value>
+
+### The internal SLATE Portal host
+Host slate-portal-host
+  HostName <your-value>
+  IdentityFile <your-value>
+  Port 22
+  ProxyJump slate-bastion-host
+  User <your-value>
 ```
 
-### Production
+## Finalize `hosts.yml`
 
-Create `hosts.yml` in the following place of this project `ansible/inventory/prod/hosts.yml` and replace the placeholder text with actual values.
+Add the remaining key-values to `ansible/inventory/<dev|prod>/hosts.yml` in this project.
+
+Development:
+* `ansible_ssh_common_args: '-F /project-path/ansible/inventory/dev/ssh-config'`
+* `slate_api_endpoint: 'https://api-dev.slateci.io:18080'`
+
+Production:
+* `ansible_ssh_common_args: '-F /project-path/ansible/inventory/prod/ssh-config'`
+* `slate_api_endpoint: 'https://api.slateci.io:443'`
+
+At this point `ansible/inventory/<dev|prod>/hosts.yml` should resemble:
 
 ```yaml
 all:
   hosts:
     portal:
-      ansible_host: <public-ipv4>
+      ansible_host: slate-portal-host
   vars:
-    # If a SSH Bastion server is involved modify and use:
-    #ansible_ssh_common_args: '-J you@bastion.slateci.net -i /path/to/id_rsa_slate'
-    slate_api_endpoint: 'https://api.slateci.io:443'
-    slate_api_token: 'XXXX'
-    slate_hostname: 'portal.slate.io'
-    slate_portal_client_id: 'XXXX'
-    slate_portal_client_secret: 'XXXX'
+    ansible_ssh_common_args: '-F <your-value>'
+    slate_api_endpoint: '<your-value>'
+    slate_api_token: "<your-value>"
+    slate_hostname: '<your-value>'
+    slate_portal_client_id: '<your-value>'
+    slate_portal_client_secret: '<your-value>'
 ```
 
 ## Build and Run Portal
 
-Activate the Conda environment and run the Ansible playbook specifying a user with sudo privileges on the host(s).
+Activate the Conda environment and verify Ansible can `ssh` to the host(s):
 
 ```shell
 [your@localmachine]$ conda activate chpc-ansible
-(chpc-ansible) [your@localmachine]$ ansible-playbook -i ./ansible/inventory/<dev|prod>/hosts.yml -u <sudo-user> ./ansible/playbook.yml
+(chpc-ansible) [your@localmachine]$ ansible all -m ping -i ./ansible/inventory/dev/hosts.yml
+portal | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+```
+
+**Note:** If you receive an error, double-check the contents of your `ssh-config` file, paying special attention to the `IdentityFile`, `User`, and `HostName` setting values.
+
+Finally, run the Ansible playbook itself:
+
+```shell
+(chpc-ansible) [your@localmachine]$ ansible-playbook -i ./ansible/inventory/<dev|prod>/hosts.yml ./ansible/playbook.yml
 ...
 ...
 ```

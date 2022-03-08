@@ -1,0 +1,19 @@
+## Global Settings
+StrictHostKeyChecking no
+UserKnownHostsFile /dev/null
+
+### The External SLATE Bastion host
+Host slate-bastion-host
+  HostName bastion.slateci.net
+  IdentitiesOnly yes
+  IdentityFile XXXX
+  Port 22
+  User XXXX
+
+### The internal SLATE Portal host
+Host slate-portal-host
+  HostName XXXX
+  IdentityFile XXXX
+  Port 22
+  ProxyJump slate-bastion-host
+  User XXXX
