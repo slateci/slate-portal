@@ -3,6 +3,7 @@ FROM centos:7
 
 # Docker container environmental variables:
 ENV DEBUG=False
+ENV FLASK_PORT=5050
 
 # Package installs/updates:
 RUN yum install -y epel-release
@@ -27,7 +28,7 @@ RUN bash -c 'virtualenv --python=/usr/bin/python3 venv && source venv/bin/activa
 WORKDIR /etc/slate/slate-website-python
 
 # Ports:
-EXPOSE 5000
+EXPOSE ${FLASK_PORT}
 
 # Volumes
 VOLUME [ "/etc/slate/slate-website-python/" ]

@@ -21,7 +21,7 @@ Create your own App registration for use in the Portal.
 * Visit the [Globus Developer Pages](https://developers.globus.org) to register an App.
 * If this is your first time visiting the Developer Pages you will be asked to create a Project. A Project is a way to group Apps together.
 * When registering the App you will be asked for some information, including the redirect URL and any scopes you will be requesting.
-    * Redirect URL: `http://localhost:5000/authcallback`
+    * Redirect URL: `http://localhost:5050/authcallback`
 * After creating your App the **Client ID** and **Client Secret** can be copied into this project in the following place:
     * `instance/portal.conf` in the `PORTAL_CLIENT_ID` and `PORTAL_CLIENT_SECRET` properties.
 
@@ -71,7 +71,7 @@ docker build -f Dockerfile -t slate-portal:local .
 Running the image will create a new tagged container and start Portal:
 
 ```shell
-[your@localmachine]$ docker run -it -v ${PWD}:/etc/slate/slate-website-python -p 5000:5000 slate-portal:local
+[your@localmachine]$ docker run -it -v ${PWD}:/etc/slate/slate-website-python -p 5050:5050 slate-portal:local
  * Serving Flask app 'portal' (lazy loading)
  * Environment: production
    WARNING: This is a development server. Do not use it in a production deployment.
@@ -79,13 +79,13 @@ Running the image will create a new tagged container and start Portal:
  * Debug mode: on
  * Running on all addresses.
    WARNING: This is a development server. Do not use it in a production deployment.
- * Running on http://172.17.0.2:5000/ (Press CTRL+C to quit)
+ * Running on http://172.17.0.2:5050/ (Press CTRL+C to quit)
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 123-456-789
 ```
 
-Point your browser to `http://localhost:5000`, make changes, and enjoy a live-preview experience.
+Point your browser to `http://localhost:5050`, make changes, and enjoy a live-preview experience.
 
 ## Teardown
 
