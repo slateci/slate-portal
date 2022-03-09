@@ -138,10 +138,10 @@ dr-xr-xr-x. 17 root root  224 Jul  3  2017 ..
 
 **Note:** If you receive an error during these steps, double-check the contents of your `ssh-config` file, paying special attention to the `IdentityFile`, `User`, and `HostName` setting values.
 
-Finally, run the Ansible playbook itself:
+Finally, verbosely run the Ansible playbook itself:
 
 ```shell
-(chpc-ansible) [your@localmachine]$ ansible-playbook -i ./ansible/inventory/<dev|prod>/hosts.yml ./ansible/playbook.yml
+(chpc-ansible) [your@localmachine]$ ansible-playbook -i ./ansible/inventory/<dev|prod>/hosts.yml -v ./ansible/playbook.yml
 ...
 ...
 ```
