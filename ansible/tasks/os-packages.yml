@@ -24,6 +24,7 @@
     name:
       - certbot
       - cronie
+      - firewalld
       - git
       - nginx
       - python-setuptools
