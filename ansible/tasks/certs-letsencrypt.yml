@@ -38,8 +38,8 @@
   lineinfile:
     dest: "/etc/nginx/nginx.conf"
     state: present
-    regexp: "^\s*ssl_certificate\s.*;$"
-    line: "ssl_certificate \"{{ slate_certificate.file }}\";"
+    regexp: '^\s*ssl_certificate\s.*;$'
+    line: '        ssl_certificate "{{ slate_certificate.file }}";'
     validate: "/usr/sbin/nginx -c %s -t"
   notify: portal_restart_services
 
@@ -47,8 +47,8 @@
   lineinfile:
     dest: "/etc/nginx/nginx.conf"
     state: present
-    regexp: "^\s*ssl_certificate_key\s.*;$"
-    line: "ssl_certificate_key \"{{ slate_certificate.key_file }}\";"
+    regexp: '^\s*ssl_certificate_key\s.*;$'
+    line: '        ssl_certificate_key "{{ slate_certificate.key_file }}";'
     validate: "/usr/sbin/nginx -c %s -t"
   notify: portal_restart_services
 

@@ -74,7 +74,7 @@ Vagrant.configure("2") do |config|
     ansible.extra_vars = {
       slate_api_endpoint: 'https://api-dev.slateci.io:18080',
       slate_api_token: secrets['slate_api_token'],
-      slate_debug: true,
+      slate_debug: false,
       slate_git_version: ENV['GIT_BRANCH'].delete(" \t\r\n\ "),
       slate_hostname: ENV['HOSTNAME'],
       slate_portal_client_id: secrets['slate_portal_client_id'],
