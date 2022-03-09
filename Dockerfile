@@ -3,7 +3,7 @@ FROM centos:7
 
 # Docker container environmental variables:
 ENV DEBUG=False
-ENV FLASK_PORT=5050
+ENV FLASK_PORT=5000
 
 # Package installs/updates:
 RUN yum install -y epel-release
