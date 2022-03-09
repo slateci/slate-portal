@@ -110,7 +110,7 @@ all:
 
 ## Build and Run Portal
 
-Activate the Conda environment and verify Ansible can `ssh` to the host(s):
+Activate the Conda environment and verify Ansible can see the host(s):
 
 ```shell
 [your@localmachine]$ conda activate chpc-ansible
@@ -124,7 +124,19 @@ portal | SUCCESS => {
 }
 ```
 
-**Note:** If you receive an error, double-check the contents of your `ssh-config` file, paying special attention to the `IdentityFile`, `User`, and `HostName` setting values.
+Test permission escalation on the host(s):
+
+```shell
+(chpc-ansible) [your@localmachine]$ ansible all -a "/bin/ls -al /root" -i ./ansible/inventory/dev/hosts.yml -u <yourslateuser> --become --become-user root
+portal | CHANGED | rc=0 >>
+total 40
+dr-xr-x---.  3 root root  170 Feb 28 22:27 .
+dr-xr-xr-x. 17 root root  224 Jul  3  2017 ..
+-rw-------.  1 root root 6913 Jul  3  2017 file.ext
+...
+```
+
+**Note:** If you receive an error during these steps, double-check the contents of your `ssh-config` file, paying special attention to the `IdentityFile`, `User`, and `HostName` setting values.
 
 Finally, run the Ansible playbook itself:
 
