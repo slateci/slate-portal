@@ -1,11 +1,10 @@
 all:
-  hosts:
-    portal:
-      ansible_host: slate-portal-host
-  vars:
-    ansible_ssh_common_args: '-F XXXX'
-    slate_api_endpoint: 'XXXX'
-    slate_api_token: 'XXXX'
-    slate_hostname: 'XXXX'
-    slate_portal_client_id: 'XXXX'
-    slate_portal_client_secret: 'XXXX'
+  children:
+    dev:
+      hosts:
+        portal:
+          ansible_host: portal-dev.slateci.io
+    prod:
+      hosts:
+        portal:
+          ansible_host: portal.slateci.io
