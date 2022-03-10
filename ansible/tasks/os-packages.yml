@@ -22,6 +22,7 @@
 - name: Install general packages/dependencies via system package manager (live)
   package:
     name:
+      - "@development"
       - certbot
       - cronie
       - firewalld
