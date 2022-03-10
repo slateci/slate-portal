@@ -1,5 +1,3 @@
 ---
-certbot_admin_email: "slateci-ops@googlegroups.com"
-certbot_testmode: true
+certbot_testmode: false
 slate_debug: false
-slate_hostname: "portal-dev.slateci.io"
