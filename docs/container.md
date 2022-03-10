@@ -44,20 +44,20 @@ At this point `instance/portal.conf` should resemble:
 # Default MRDP application configuration settings
 #------------------------------------------------
 
-SERVER_NAME = '<your-value>'
-DEBUG = True
-SLATE_WEBSITE_LOGFILE = '/var/log/uwsgi/portal.log'
+SERVER_NAME = 'localhost:5050'
 
+DEBUG = True
 SECRET_KEY = '=.DKwWzDd}!3}6yeAY+WTF#W:zt5msTI7]2`o}Y!ziU!#CYD+;T9JpW$ud|5C_3'
 
-# globus:
-PORTAL_CLIENT_ID = '<your-value>'
-PORTAL_CLIENT_SECRET = '<your-value>'
-GLOBUS_AUTH_LOGOUT_URI = 'https://auth.globus.org/v2/web/logout'
+SLATE_WEBSITE_LOGFILE = '/var/log/uwsgi/portal.log'
 
-# SLATE API:
-SLATE_API_TOKEN = '<your-value>'
-SLATE_API_ENDPOINT = '<your-value>'
+PORTAL_CLIENT_ID = 'SAMPLE'
+PORTAL_CLIENT_SECRET = 'SAMPLE'
+
+SLATE_API_TOKEN = 'SAMPLE'
+SLATE_API_ENDPOINT = 'SAMPLE'
+
+GLOBUS_AUTH_LOGOUT_URI = 'https://auth.globus.org/v2/web/logout'
 ```
 
 ## Build and Run Portal

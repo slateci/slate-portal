@@ -71,7 +71,7 @@ Copy `ansible/secrets.yml.tmpl` to the following place in this project: `ansible
 
 ### Register a globus Application
 
-> **_IMPORTANT:_** Before proceeding ask the team about existing globus registrations as some localdev, development, and production projects and applications already exist.
+> **_IMPORTANT:_** Before proceeding ask the team about existing globus registrations as some localdev projects and applications already exist.
 
 Create your own App registration for use in the Portal.
 
@@ -86,19 +86,7 @@ Create your own App registration for use in the Portal.
 
 Portal communicates with a SLATE API server via an admin account.
 
-* The `Vagrantfile` will always lock the SLATE API server to development:
-
-  ```text
-  ...
-  ansible.extra_vars = {
-    ...
-    slate_api_endpoint: 'https://api-dev.slateci.io:18080',
-    ...
-  }
-  ```
-
-  This will prevent unwanted changes from making their way unexpectedly to Production.
-
+* Vagrant will always lock the SLATE API server to `https://api-dev.slateci.io:18080` (see ["All" Ansible Group variables](ansible/group_vars/all.yml)). This will prevent unwanted changes from making their way unexpectedly to Production.
 * Ask the team for the API token of an appropriate admin account.
 * Once in hand the token can be copied to the following place in this project:
     * `ansible/secrets.yml` in the `slate_api_token` key value.
@@ -109,14 +97,14 @@ At this point `ansible/secrets.yml` should resemble:
 
 ```yaml
 ---
-slate_api_token: "<your-value>"
-slate_portal_client_id: "<your-value>"
-slate_portal_client_secret: "<your-value>"
+slate_api_token: "SAMPLE"
+slate_portal_client_id: "SAMPLE"
+slate_portal_client_secret: "SAMPLE"
 ```
 
 ## Build and Run Portal
 
-Activate the Conda environment, create the virtual machine, and run Ansible providing sudo credentials when prompted:
+Activate the Conda environment, create the virtual machine, and run Vagrant providing sudo credentials when prompted:
 
 ```shell
 [your@localmachine]$ conda activate chpc-ansible
@@ -146,11 +134,11 @@ Point your browser to `https://portal.vagrant.test`, make changes, and enjoy a n
 
 ### The Details
 
-* Test any local changes made to the Ansible playbook on a currently running VM by executing `vagrant provision` one or more times.
-* Any local changes made to the Python source itself requires an extra step and must be committed to the currently checked out branch before executing `vagrant provision`.
-    * Reasoning: One of the Ansible tasks defined in the playbook requires a source branch to clone.
-* Rudimentary name resolution is provided by changes to your system's hosts file via the `vagrant-hostsupdater` plugin.
-* Vagrant creates its own Ansible inventory file (see [Ansible and Vagrant](https://www.vagrantup.com/docs/provisioning/ansible_intro) for more information).
+* Test any local changes made to the Ansible playbook source on a currently running VM by executing `vagrant provision` one or more times.
+* Any local changes made to the Python source instead requires an extra step and must be committed to the currently checked out branch before executing `vagrant provision`.
+    * **Reasoning:** One of the Ansible tasks defined in the playbook requires a source branch to clone.
+* Rudimentary name resolution is provided by changes to your system's `hosts` file via the `vagrant-hostsupdater` plugin.
+* Vagrant creates its own Ansible inventory file and makes use of `ansible/group_vars/all.yml` (see [Ansible and Vagrant](https://www.vagrantup.com/docs/provisioning/ansible_intro) for more information).
 
 ## Teardown
 

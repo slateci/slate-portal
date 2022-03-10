@@ -11,25 +11,21 @@ Use the installation instructions found in [Local Ansible Playbook Development w
 
 Your SLATE project private RSA key file (e.g. `id_rsa_slate`) will also be required to interact with the Portal servers. If you have not set this up yet contact the team via Slack.
 
-### Create `ssh-config`
+### Create `secrets.yml`
 
-Both the development and production Portal servers are not internet-accessible via SSH and require a jump through a [Bastion server](https://www.learningjournal.guru/article/public-cloud-infrastructure/what-is-bastion-host-server/) (or Jump Box). The easiest way to configure SSH for Ansible is through a configuration file.
-
-Copy `ansible/inventory/ssh-config.tmpl` to the following place in this project `ansible/inventory/<dev|prod>/ssh-config`. Complete the steps described below to modify placeholder settings values and finalize this file.
+Copy `ansible/secrets.yml.tmpl` to the following place in this project: `ansible/secrets.yml`. Complete the steps described below to modify placeholder key-value pairs and finalize this file.
 
 ### Create `hosts.yml`
 
-Each environment should have a separate inventory file to prevent unexpected deployments. Use the appropriate template below to create your inventory file.
+Copy `ansible/inventory/hosts.yml.tmpl` to the following place in this project `ansible/inventory/hosts.yml`. Remove the unrelated host groups from the file (e.g. remove `prod:` if pushing to development) and complete the steps described below to modify placeholder key-value pairs and finalize this file.
 
 For more information on Ansible inventories see:
 * [How to build your inventory](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html)
 * [ansible.builtin.yaml – Uses a specific YAML file as an inventory source.](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/yaml_inventory.html)
 
-Copy `ansible/inventory/hosts.yml.tmpl` to the following place in this project `ansible/inventory/<dev|prod>/hosts.yml`. Complete the steps described below to modify placeholder key-value pairs and finalize this file.
-
 ### Register a globus Application
 
-> **_IMPORTANT:_** Before proceeding ask the team about existing globus registrations as development, and production projects and applications should already exist.
+> **_IMPORTANT:_** Before proceeding ask the team about existing globus registrations as some development and production projects and applications already exist.
 
 Create your own App registration for use in the Portal.
 
@@ -39,82 +35,55 @@ Create your own App registration for use in the Portal.
     * Redirect URL (if development): `https://portal-dev.slateci.io/authcallback`
     * Redirect URL (if production): `https://portal.slateci.io/authcallback`
 * After creating your App the **Client ID** and **Client Secret** can be copied into this project in the following place:
-    * `ansible/inventory/<dev|prod>/hosts.yml` in the `slate_portal_client_id` and `slate_portal_client_secret` key values.
+    * `ansible/secrets.yml` in the `slate_portal_client_id` and `slate_portal_client_secret` key values.
 
 ### Select a SLATE API Admin Account
 
 * Ask the team for the API token of an appropriate admin account.
 * Once in hand the token can be copied to the following place in this project:
-    * `ansible/inventory/<dev|prod>/hosts.yml` in the `slate_api_token` key value.
-
-## Finalize `ssh-config`
-
-Add the remaining setting values to `ansible/inventory/<dev|prod>/ssh-config.yml` in this project.
-* Both `IdentityFile` setting values: `/path/to/id_rsa_slate`
-* `slate-portal-host`'s `HostName` setting value:
-  * Development: `portal-dev.slateci.io`
-  * Production: `portal.slateci.io`
-* Both `User` setting values: `yourslateuser`
-
-At this point `ansible/inventory/<dev|prod>/ssh-config.yml` should resemble:
-
-```text
-## Global Settings
-StrictHostKeyChecking no
-UserKnownHostsFile /dev/null
-
-### The External SLATE Bastion host
-Host slate-bastion-host
-  HostName bastion.slateci.net
-  IdentitiesOnly yes
-  IdentityFile <your-value>
-  Port 22
-  User <your-value>
-
-### The internal SLATE Portal host
-Host slate-portal-host
-  HostName <your-value>
-  IdentityFile <your-value>
-  Port 22
-  ProxyJump slate-bastion-host
-  User <your-value>
-```
+    * `ansible/secrets.yml` in the `slate_api_token` key value.
 
 ## Finalize `hosts.yml`
 
-Add the remaining key-values to `ansible/inventory/<dev|prod>/hosts.yml` in this project.
+Add actual values in place of `<slate-user>` and `<priv-key-path>` to `ansible/inventory/hosts.yml` in this project. At this point the file should resemble:
 
-Development:
-* `ansible_ssh_common_args: '-F /project-path/ansible/inventory/dev/ssh-config'`
-* `slate_api_endpoint: 'https://api-dev.slateci.io:18080'`
-
-Production:
-* `ansible_ssh_common_args: '-F /project-path/ansible/inventory/prod/ssh-config'`
-* `slate_api_endpoint: 'https://api.slateci.io:443'`
-
-At this point `ansible/inventory/<dev|prod>/hosts.yml` should resemble:
+For development:
 
 ```yaml
 all:
-  hosts:
-    portal:
-      ansible_host: slate-portal-host
+  children:
+    dev:
+      hosts:
+        portal:
+          ansible_host: portal-dev.slateci.io
   vars:
-    ansible_ssh_common_args: '-F <your-value>'
-    slate_api_endpoint: '<your-value>'
-    slate_api_token: "<your-value>"
-    slate_hostname: '<your-value>'
-    slate_portal_client_id: '<your-value>'
-    slate_portal_client_secret: '<your-value>'
+    ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p -q SAMPLE@bastion.slateci.net -i /path/to/id_rsa_slate"'
+    ansible_ssh_private_key_file: '/path/to/id_rsa_slate'
+    ansible_user: 'SAMPLE'
+```
+
+For production:
+```yaml
+all:
+  children:
+    prod:
+      hosts:
+        portal:
+          ansible_host: portal.slateci.io
+  vars:
+    ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p -q SAMPLE@bastion.slateci.net -i /path/to/id_rsa_slate"'
+    ansible_ssh_private_key_file: '/path/to/id_rsa_slate'
+    ansible_user: 'SAMPLE'
 ```
 
 ## Build and Run Portal
 
-Activate the Conda environment and verify Ansible can see the host(s):
+Activate the Conda environment, change directories, and verify Ansible can see the host(s):
 
 ```shell
 [your@localmachine]$ conda activate chpc-ansible
-(chpc-ansible) [your@localmachine]$ ansible all -m ping -i ./ansible/inventory/dev/hosts.yml
+[your@localmachine]$ cd ./ansible
+(chpc-ansible) [your@localmachine]$ ansible all -m ping -i ./inventory/hosts.yml
 portal | SUCCESS => {
     "ansible_facts": {
         "discovered_interpreter_python": "/usr/bin/python"
@@ -127,7 +96,7 @@ portal | SUCCESS => {
 Test permission escalation on the host(s):
 
 ```shell
-(chpc-ansible) [your@localmachine]$ ansible all -a "/bin/ls -al /root" -i ./ansible/inventory/dev/hosts.yml -u <yourslateuser> --become --become-user root
+(chpc-ansible) [your@localmachine]$ ansible all -a "/bin/ls -al /root" -i ./inventory/hosts.yml -u <slate-user> --become --become-user root
 portal | CHANGED | rc=0 >>
 total 40
 dr-xr-x---.  3 root root  170 Feb 28 22:27 .
@@ -136,12 +105,17 @@ dr-xr-xr-x. 17 root root  224 Jul  3  2017 ..
 ...
 ```
 
-**Note:** If you receive an error during these steps, double-check the contents of your `ssh-config` file, paying special attention to the `IdentityFile`, `User`, and `HostName` setting values.
+**Note:** If you receive an error during these steps, double-check the contents of your `hosts.yml` file, paying special attention to the Ansible variables.
 
 Finally, verbosely run the Ansible playbook itself:
 
 ```shell
-(chpc-ansible) [your@localmachine]$ ansible-playbook -v -i ./ansible/inventory/<dev|prod>/hosts.yml --extra-vars "@./ansible/secrets.yml" ./ansible/playbook.yml
+(chpc-ansible) [your@localmachine]$ ansible-playbook -v -i ./inventory/hosts.yml --extra-vars "@./secrets.yml" ./playbook.yml
+Using /project-path/ansible/ansible.cfg as config file
+
+PLAY [all] ******************************************************************************************************************
+
+TASK [Gathering Facts] ******************************************************************************************************
 ...
 ...
 ```
