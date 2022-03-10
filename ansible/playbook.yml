@@ -27,7 +27,6 @@
       include_tasks:
         file: "./tasks/selinux.yml"
 
-
     - name: Setting Ansible Python Interpreter to Python3
       set_fact:
         ansible_python_interpreter: "/bin/python3"
@@ -44,6 +43,14 @@
       include_tasks:
         file: "./tasks/nginx.yml"
 
+    - name: SLATE Portal
+      include_tasks:
+        file: "./tasks/slate.yml"
+
+    - name: uWSGI Configuration
+      include_tasks:
+        file: "./tasks/uwsgi.yml"
+
     - name: Set up LetsEncrypt Certs
       block:
         - name: Set SSL certs path
@@ -56,14 +63,6 @@
           include_tasks:
             file: "./tasks/certs-letsencrypt.yml"
       when: not slate_debug
-
-    - name: SLATE Portal
-      include_tasks:
-        file: "./tasks/slate.yml"
-
-    - name: uWSGI Configuration
-      include_tasks:
-        file: "./tasks/uwsgi.yml"
 
   handlers:
     - name: Force systemd to re-read configs
