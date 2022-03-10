@@ -3,9 +3,6 @@
   become: yes
   become_user: root
 
-  vars_files:
-    - defaults.yml
-
   pre_tasks:
     - name: Set SSL certs path
       set_fact:

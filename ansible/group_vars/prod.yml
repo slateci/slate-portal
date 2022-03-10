@@ -1,0 +1,6 @@
+---
+certbot_admin_email: "slateci-ops@googlegroups.com"
+certbot_testmode: false
+slate_api_endpoint: "https://api.slateci.io:443"
+slate_debug: false
+slate_hostname: "portal.slateci.io"

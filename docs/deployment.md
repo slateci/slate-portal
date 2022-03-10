@@ -141,7 +141,7 @@ dr-xr-xr-x. 17 root root  224 Jul  3  2017 ..
 Finally, verbosely run the Ansible playbook itself:
 
 ```shell
-(chpc-ansible) [your@localmachine]$ ansible-playbook -i ./ansible/inventory/<dev|prod>/hosts.yml -v ./ansible/playbook.yml
+(chpc-ansible) [your@localmachine]$ ansible-playbook -v -i ./ansible/inventory/<dev|prod>/hosts.yml --extra-vars "@./ansible/secrets.yml" ./ansible/playbook.yml
 ...
 ...
 ```
