@@ -18,7 +18,7 @@ certbot_auto_renew: true
 certbot_auto_renew_hour: "3"
 certbot_auto_renew_minute: "30"
 certbot_auto_renew_options: "--quiet --no-self-upgrade"
-certbot_auto_renew_user: "{{ ansible_become_user }}"
+certbot_auto_renew_user: "root"
 certbot_create_command: >-
   certbot certonly --webroot
   --webroot-path {{ certbot_webroot }}
