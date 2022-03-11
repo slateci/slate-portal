@@ -86,7 +86,7 @@ Create your own App registration for use in the Portal.
 
 Portal communicates with a SLATE API server via an admin account.
 
-* Vagrant will always lock the SLATE API server to `https://api-dev.slateci.io:18080` (see ["All" Ansible Group variables](ansible/group_vars/all.yml)). This will prevent unwanted changes from making their way unexpectedly to Production.
+* Vagrant will always lock the SLATE API server to `https://api-dev.slateci.io:18080` (see ["All" Ansible Group variables](/ansible/group_vars/all.yml)). This will prevent unwanted changes from making their way unexpectedly to Production.
 * Ask the team for the API token of an appropriate admin account.
 * Once in hand the token can be copied to the following place in this project:
     * `ansible/secrets.yml` in the `slate_api_token` key value.
