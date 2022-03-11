@@ -6,7 +6,7 @@ A containerized Portal will provide a near live-preview developer experience.
 
 ### Install Docker
 
-Install [Docker](https://docs.docker.com/get-docker/) for developing, managing, and running OCI containers on your system:
+Install [Docker](https://docs.docker.com/get-docker/) for developing, managing, and running OCI containers on your system.
 
 ### Create `portal.conf`
 
