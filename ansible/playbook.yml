@@ -8,45 +8,37 @@
       set_fact:
         slate_certificate:
           file: "/etc/ssl/{{ slate_hostname }}/{{ slate_hostname }}.pem"
-          key_file: "/etc/ssl/{{slate_hostname}}/{{ slate_hostname }}.key"
+          key_file: "/etc/ssl/{{ slate_hostname }}/{{ slate_hostname }}.key"
           chain_file: "/etc/ssl/{{ slate_hostname }}/{{ slate_hostname }}.csr"
 
   tasks:
     - name: OS Packages
-      include_tasks:
-        file: "./tasks/os-packages.yml"
+      include_tasks: "./tasks/os-packages.yml"
 
     - name: Firewall
-      include_tasks:
-        file: "./tasks/firewalld.yml"
+      include_tasks: "./tasks/firewalld.yml"
 
     - name: SELinux
-      include_tasks:
-        file: "./tasks/selinux.yml"
+      include_tasks: "./tasks/selinux.yml"
 
     - name: Setting Ansible Python Interpreter to Python3
       set_fact:
         ansible_python_interpreter: "/bin/python3"
 
     - name: Pip
-      include_tasks:
-        file: "./tasks/pip.yml"
+      include_tasks: "./tasks/pip.yml"
 
     - name: Self-signed Certificates
-      include_tasks:
-        file: "./tasks/certs-selfsigned.yml"
+      include_tasks: "./tasks/certs-selfsigned.yml"
 
     - name: Nginx Configuration
-      include_tasks:
-        file: "./tasks/nginx.yml"
+      include_tasks: "./tasks/nginx.yml"
 
     - name: SLATE Portal
-      include_tasks:
-        file: "./tasks/slate.yml"
+      include_tasks: "./tasks/slate.yml"
 
     - name: uWSGI Configuration
-      include_tasks:
-        file: "./tasks/uwsgi.yml"
+      include_tasks: "./tasks/uwsgi.yml"
 
     - name: Set up LetsEncrypt Certs
       block:
@@ -57,8 +49,7 @@
               key_file: "/etc/letsencrypt/live/{{ slate_hostname }}/privkey.pem"
               chain_file: "/etc/letsencrypt/live/{{ slate_hostname }}/chain.pem"
         - name: LetsEncrypt Certificates
-          include_tasks:
-            file: "./tasks/certs-letsencrypt.yml"
+          include_tasks: "./tasks/certs-letsencrypt.yml"
       when: not slate_debug
 
   handlers:

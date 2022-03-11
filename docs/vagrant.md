@@ -134,11 +134,34 @@ Point your browser to `https://portal.vagrant.test`, make changes, and enjoy a n
 
 ### The Details
 
-* Test any local changes made to the Ansible playbook source on a currently running VM by executing `vagrant provision` one or more times.
-* Any local changes made to the Python source instead requires an extra step and must be committed to the currently checked out branch before executing `vagrant provision`.
+* Develop and test the Ansible playbook source on a currently running VM by executing `vagrant provision` one or more times.
+* Remember to also lint any local changes made to the Ansible playbook source (see [Ansible Linting](#ansible-linting))
+* Any local changes made to the Python source will require an extra step and must be committed to the currently checked out branch before executing `vagrant provision`.
     * **Reasoning:** One of the Ansible tasks defined in the playbook requires a source branch to clone.
 * Rudimentary name resolution is provided by changes to your system's `hosts` file via the `vagrant-hostsupdater` plugin.
 * Vagrant creates its own Ansible inventory file and makes use of `ansible/group_vars/all.yml` (see [Ansible and Vagrant](https://www.vagrantup.com/docs/provisioning/ansible_intro) for more information).
+
+### Ansible Linting
+
+Any changes made to the Ansible playbook source should be linted before making its way beyond local development.
+* Linting for this project is configured using the `ansible/.ansible-lint` file.
+* Run by executing `ansible-lint -p` in the `ansible` directory.
+
+For example, a fatal violation will occur when a variable name does not adhere to variable naming standards:
+
+```shell
+(chpc-ansible) [your@localmachine]$ ansible-lint -p
+WARNING  Listing 1 violation(s) that are fatal
+tasks/slate.yml:2: var-naming Task registers a variable that violates variable naming standards
+You can skip specific rules or tags by adding them to your configuration file:
+# .ansible-lint
+warn_list:  # or 'skip_list' to silence them completely
+  - experimental  # all rules tagged as experimental
+
+Finished with 0 failure(s), 1 warning(s) on 25 files.
+```
+
+See [Ansible Lint Documentation: Usage](https://ansible-lint.readthedocs.io/en/latest/usage.html) for additional information on this subject.
 
 ## Teardown
 

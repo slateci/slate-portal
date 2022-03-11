@@ -8,6 +8,9 @@
   file:
     path: "{{ certbot_webroot }}"
     state: directory
+    owner: root
+    group: root
+    mode: 0755
 
 - name: Add cron job for certbot renewal
   cron:

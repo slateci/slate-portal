@@ -88,5 +88,6 @@ target/
 # UPC temp app/data files
 rebates/uploads
 
-# Ansible playbook local secrets
+# Ansible
+.cache/
 ansible/secrets.yml
