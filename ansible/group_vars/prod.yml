@@ -1,0 +1,4 @@
+---
+certbot_testmode: false
+slate_api_endpoint: "https://api.slateci.io:443"
+slate_debug: false

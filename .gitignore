@@ -1,5 +1,6 @@
 # IDE Metadata
 .vs/
+.vscode/
 .idea/
 
 # Byte-compiled / optimized / DLL files
@@ -61,6 +62,9 @@ coverage.xml
 *,cover
 .hypothesis/
 
+# Vagrant
+.vagrant
+
 # Translations
 *.mo
 *.pot
@@ -84,7 +88,6 @@ target/
 # UPC temp app/data files
 rebates/uploads
 
-# portal.conf file and keys
-portal.conf
-instance
-secrets
+# Ansible
+.cache/
+ansible/secrets.yml

@@ -1,0 +1,59 @@
+---
+- name: Checking if SLATE cert already exists
+  stat:
+    path: "{{ slate_certificate.file }}"
+  register: slate_cert_file
+
+- name: Ensure certbot webroot already exists
+  file:
+    path: "{{ certbot_webroot }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Add cron job for certbot renewal
+  cron:
+    name: Certbot automatic renewal
+    job: "certbot renew {{ certbot_auto_renew_options }}"
+    minute: "{{ certbot_auto_renew_minute }}"
+    hour: "{{ certbot_auto_renew_hour }}"
+    user: "{{ certbot_auto_renew_user }}"
+
+- name: Disabling and masking certbot new timer
+  systemd:
+    name: certbot-renew.timer
+    enabled: no
+    masked: yes
+
+- name: Disabling and masking certbot renew service
+  systemd:
+    name: certbot-renew.service
+    enabled: no
+    masked: yes
+
+- name: Generate new certificate if one doesn't exist.
+  command: "{{ certbot_create_command }}"
+  when: not slate_cert_file.stat.exists
+  notify: portal_restart_services
+
+- name: Update nginx.conf with new certificate
+  lineinfile:
+    dest: "/etc/nginx/nginx.conf"
+    state: present
+    regexp: '^\s*ssl_certificate\s.*;$'
+    line: '        ssl_certificate "{{ slate_certificate.file }}";'
+#    validate: "/usr/sbin/nginx -c %s -t"
+  notify: portal_restart_services
+
+- name: Update nginx.conf with new certificate key
+  lineinfile:
+    dest: "/etc/nginx/nginx.conf"
+    state: present
+    regexp: '^\s*ssl_certificate_key\s.*;$'
+    line: '        ssl_certificate_key "{{ slate_certificate.key_file }}";'
+#    validate: "/usr/sbin/nginx -c %s -t"
+  notify: portal_restart_services
+
+# Resources:
+# * https://github.com/geerlingguy/ansible-role-certbot/

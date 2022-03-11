@@ -1,0 +1,14 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=uWSGI
+After=syslog.target network.target
+
+[Service]
+Type=simple
+User=uwsgi
+ExecStart=/usr/sbin/uwsgi --ini {{ slate_install_dest }}/slate.ini --die-on-term
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

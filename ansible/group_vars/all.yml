@@ -1,0 +1,33 @@
+---
+#- Secrets (declare with --extra-vars option):
+#slate_api_token: "<<SECRET-VALUE>>"
+#slate_portal_client_id: "<<SECRET-VALUE>>"
+#slate_portal_client_secret: "<<SECRET-VALUE>>"
+
+#- SLATE Portal installation options:
+slate_api_endpoint: "https://api-dev.slateci.io:18080"
+slate_debug: true
+slate_git_dest: "{{ slate_install_dest }}/slate-website-python"
+slate_git_version: master
+slate_hostname: "{{ ansible_host }}"
+slate_install_dest: "/etc/slate"
+
+#- Certbot options for LetsEncrypt:
+certbot_admin_email: "slateci-ops@googlegroups.com"
+certbot_auto_renew: true
+certbot_auto_renew_hour: "3"
+certbot_auto_renew_minute: "30"
+certbot_auto_renew_options: "--quiet --no-self-upgrade"
+certbot_auto_renew_user: "{{ ansible_become_user }}"
+certbot_create_command: >-
+  certbot certonly --webroot
+  --webroot-path {{ certbot_webroot }}
+  {{ '--test-cert' if certbot_testmode else '' }}
+  --noninteractive --agree-tos
+  --rsa-key-size {{ certbot_rsa_keysize }}
+  --preferred-challenges http
+  --email {{ certbot_admin_email }}
+  -d {{ slate_hostname }}
+certbot_rsa_keysize: 4096
+certbot_testmode: true
+certbot_webroot: "/usr/share/nginx/html/letsencrypt"

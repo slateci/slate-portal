@@ -1,42 +1,22 @@
 # SLATE Portal
-Web portal to the SLATE [platform](https://www.portal.slateci.io/).
 
-## Overview
-This repository contains the SLATE portal applications. The "Portal," utilizes Globus in order to to authenticate users with [Auth](https://docs.globus.org/api/auth/). All of the Portal code can be found in the `portal/` directory.
+This repository contains the web Portal to the [SLATE platform](https://slateci.io/) and the associated Ansible playbook used for server deployments.
 
-## Getting Started
-#### Set up your environment.
-* [OS X](#os-x)
+## Application Framework
 
-#### Create your own App registration for use in the Portal. 
-* Visit the [Globus Developer Pages](https://developers.globus.org) to register an App.
-* If this is your first time visiting the Developer Pages you'll be asked to create a Project. A Project is a way to group Apps together.
-* When registering the App you'll be asked for some information, including the redirect URL and any scopes you will be requesting.
-    * Redirect URL: `https://localhost:5000/authcallback` (note: if using EC2 `localhost` should be replaced with the IP address of your instance).
-    * Scopes: `urn:globus:auth:scope:transfer.api.globus.org:all`, `openid`, `profile`, `email`
-* After creating your App the client id and secret can be copied into this project in the following two places:
-    * `portal/portal.conf` in the `PORTAL_CLIENT_ID` and `PORTAL_CLIENT_SECRET` properties.
-    * `service/service.conf` where the `PORTAL_CLIENT_ID` is used to validate the access token that the Portal sends to the Service.
+Portal is written with the Flask framework and makes use of uWSGI on the development and production environments.
+* [Flask](https://flask.palletsprojects.com/en/2.0.x/) is a micro framework for web applications written in Python.
+* [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/) is a software app providing a Web Server Gateway Interface.
 
-### OS X
+## Authentication Layer
 
-##### Environment Setup
+[globus](https://docs.globus.org/) is used to authenticate users with the [Auth API](https://docs.globus.org/api/auth/) (see [notebook/README.md](notebook/README.md) for additional information).
 
-* `sudo easy_install pip`
-* `sudo pip install virtualenv`
-* `sudo mkdir ~/projects`
-* `cd ~/projects`
-* `git clone https://github.com/slateci/slate-portal.git`
-* `cd slate-portal`
-* `virtualenv venv`
-* `source venv/bin/activate`
-* `pip install -r requirements.txt`
-* `mkdir instance`
-* `touch instance/portal.conf`
-* Note that current `portal.conf` file located in `slate-portal/portal/portal.conf` is the default .conf file from the Globus Developer Portal. SLATE Portal will real from the new `instance/portal.conf` file.
-* New `instance/portal.conf` file should be updated with new/correct API keys.
+## Development/Deployment
 
-##### Running the Portal App
+Several methods for application development and Ansible playbook deployment exist and are described at length in the [related documentation](docs/index.md).
 
-* `./run_portal.py`
-* point your browser to `https://localhost:5000`
+## Resources
+
+* [Flask: Quickstart](https://flask.palletsprojects.com/en/2.0.x/quickstart/)
+* [Quickstart for Python/WSGI applications](https://uwsgi-docs.readthedocs.io/en/latest/WSGIquickstart.html)
