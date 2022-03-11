@@ -90,16 +90,15 @@
     virtualenv_command: "/usr/local/bin/virtualenv"
     virtualenv_python: python3.6
 
-- name: Changing ownership of SLATE Portal Git repository to uwsgi:uwsgi 0644
+- name: Changing ownership of SLATE Portal Git repository to uwsgi:uwsgi
   file:
     path: "{{ slate_git_dest }}"
     state: directory
     recurse: yes
     owner: uwsgi
     group: uwsgi
-    mode: 0644
 
-- name: Changing ownership of SLATE Portal Git repository .git directory to root:root 0644
+- name: Changing ownership of SLATE Portal Git repository .git directory to root:root
   file:
     path: "{{ slate_git_dest }}/.git/"
     state: directory
@@ -107,29 +106,6 @@
     owner: root
     group: root
     mode: 0644
-
-- name: Changing permissions of SLATE Portal Git repository top directory to 0755
-  file:
-    path: "{{ slate_git_dest }}"
-    state: directory
-    recurse: no
-    mode: 0755
-
-- name: Finding all subdirectories in SLATE Portal Git repository
-  find:
-    paths:
-      - "{{ slate_git_dest }}"
-    recurse: true
-    file_type: directory
-  register: slate_portal_subdirs
-
-- name: Changing permissions of SLATE Portal Git repository subdirectories to 0755
-  file:
-    path: "{{ item.path }}"
-    mode: 0755
-  loop: "{{ slate_portal_subdirs.files }}"
-  loop_control:
-    label: "{{ item.path }}"
 
 - name: Add portal configuration
   template:
