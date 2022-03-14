@@ -82,7 +82,7 @@ Activate the Conda environment, change directories, and verify Ansible can see t
 
 ```shell
 [your@localmachine]$ conda activate chpc-ansible
-[your@localmachine]$ cd ./ansible
+(chpc-ansible) [your@localmachine]$ cd ./ansible
 (chpc-ansible) [your@localmachine]$ ansible all -m ping -i ./inventory/hosts.yml
 portal | SUCCESS => {
     "ansible_facts": {
