@@ -8,6 +8,7 @@
 - name: Install general packages/dependencies via system package manager
   package:
     name:
+      - firewalld
       - git
       - nginx
       - python-setuptools
