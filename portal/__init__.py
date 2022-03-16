@@ -47,9 +47,11 @@ handler.setFormatter(formatter)
 if minislate_user:
     slate_api_token = minislate_user[5]
     slate_api_endpoint = "http://localhost:18080"
+    mailgun_api_token = None
 else:
     slate_api_token = app.config['SLATE_API_TOKEN']
     slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
+    mailgun_api_token = app.config['MAILGUN_API_TOKEN']
 
 def format_datetime(value, format="%b %d %Y %I:%M %p"):
     """Format a date time to (Default): d Mon YYYY HH:MM P"""

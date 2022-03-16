@@ -91,12 +91,20 @@ Portal communicates with a SLATE API server via an admin account.
 * Once in hand the token can be copied to the following place in this project:
     * `ansible/secrets.yml` in the `slate_api_token` key value.
 
+### Select a mailgun API Token
+
+Portal communicates with users via email with [mailgun](https://www.mailgun.com/).
+* Ask the team for an appropriate API token.
+* Once in hand the token can be copied to the following place in this project:
+    * `ansible/secrets.yml` in the `mailgun_api_token` key value.
+
 ## Finalize `secrets.yml`
 
 At this point `ansible/secrets.yml` should resemble:
 
 ```yaml
 ---
+mailgun_api_token: "SAMPLE"
 slate_api_token: "SAMPLE"
 slate_portal_client_id: "SAMPLE"
 slate_portal_client_secret: "SAMPLE"

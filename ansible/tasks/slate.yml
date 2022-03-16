@@ -33,55 +33,22 @@
     update: yes
 
 - name: Housekeeping on Git clone artifacts
-  block:
-    - name: Remove .github directory
-      file:
-        state: absent
-        path: "{{ slate_git_dest }}/.github/"
-    - name: Remove ansible directory
-      file:
-        state: absent
-        path: "{{ slate_git_dest }}/ansible/"
-    - name: Remove docs directory
-      file:
-        state: absent
-        path: "{{ slate_git_dest }}/docs/"
-    - name: Remove notebook directory
-      file:
-        state: absent
-        path: "{{ slate_git_dest }}/notebook/"
-    - name: Remove .dockerignore
-      file:
-        state: absent
-        path: "{{ slate_git_dest }}/.dockerignore"
-    - name: Remove .editorconfig
-      file:
-        state: absent
-        path: "{{ slate_git_dest }}/.editorconfig"
-    - name: Remove docker-entrypoint.sh
-      file:
-        state: absent
-        path: "{{ slate_git_dest }}/docker-entrypoint.sh"
-    - name: Remove Dockerfile
-      file:
-        state: absent
-        path: "{{ slate_git_dest }}/Dockerfile"
-    - name: Remove LICENSE
-      file:
-        state: absent
-        path: "{{ slate_git_dest }}/LICENSE"
-    - name: Remove README.md
-      file:
-        state: absent
-        path: "{{ slate_git_dest }}/README.md"
-    - name: Remove run_portal_docker.py
-      file:
-        state: absent
-        path: "{{ slate_git_dest }}/run_portal_docker.py"
-    - name: Remove Vagrantfile
-      file:
-        state: absent
-        path: "{{ slate_git_dest }}/Vagrantfile"
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ slate_git_dest }}/.dockerignore"
+    - "{{ slate_git_dest }}/.editorconfig"
+    - "{{ slate_git_dest }}/.github/"
+    - "{{ slate_git_dest }}/ansible/"
+    - "{{ slate_git_dest }}/Dockerfile"
+    - "{{ slate_git_dest }}/docker-entrypoint.sh"
+    - "{{ slate_git_dest }}/docs/"
+    - "{{ slate_git_dest }}/LICENSE"
+    - "{{ slate_git_dest }}/notebook/"
+    - "{{ slate_git_dest }}/README.md"
+    - "{{ slate_git_dest }}/run_portal_docker.py"
+    - "{{ slate_git_dest }}/Vagrantfile"
 
 - name: Install pip requirements to venv
   pip:

@@ -32,8 +32,15 @@ Portal communicates with a SLATE API server via an admin account.
 * Specify the SLATE API server in the following place of this project:
     * `instance/portal.conf` in the `SLATE_API_ENDPOINT` property.
 * Ask the team for the API token of an appropriate admin account.
-* Once in hand the token can be copied into this project in the following place:
+* Once in hand the token can be copied to the following place in this project:
     * `instance/portal.conf` in the `SLATE_API_TOKEN` property.
+
+### Select a mailgun API Token
+
+Portal communicates with users via email with [mailgun](https://www.mailgun.com/).
+* Ask the team for an appropriate API token.
+* Once in hand the token can be copied to the following place in this project:
+  * `instance/portal.conf` in the `MAILGUN_API_TOKEN` property. 
 
 ## Finalize `portal.conf`
 
@@ -45,19 +52,21 @@ At this point `instance/portal.conf` should resemble:
 #------------------------------------------------
 
 SERVER_NAME = 'localhost:5050'
-
 DEBUG = True
-SECRET_KEY = '=.DKwWzDd}!3}6yeAY+WTF#W:zt5msTI7]2`o}Y!ziU!#CYD+;T9JpW$ud|5C_3'
-
 SLATE_WEBSITE_LOGFILE = '/var/log/uwsgi/portal.log'
 
+# globus:
 PORTAL_CLIENT_ID = 'SAMPLE'
 PORTAL_CLIENT_SECRET = 'SAMPLE'
+GLOBUS_AUTH_LOGOUT_URI = 'https://auth.globus.org/v2/web/logout'
+SECRET_KEY = '=.DKwWzDd}!3}6yeAY+WTF#W:zt5msTI7]2`o}Y!ziU!#CYD+;T9JpW$ud|5C_3'
 
+# SLATE API:
 SLATE_API_TOKEN = 'SAMPLE'
 SLATE_API_ENDPOINT = 'SAMPLE'
 
-GLOBUS_AUTH_LOGOUT_URI = 'https://auth.globus.org/v2/web/logout'
+# Mailgun
+MAILGUN_API_TOKEN = 'SAMPLE'
 ```
 
 ## Build and Run Portal
