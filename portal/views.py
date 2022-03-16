@@ -1,7 +1,7 @@
 from portal.utils import (
     load_portal_client, get_safe_redirect)
 from portal.decorators import authenticated, group_authenticated
-from portal import app, slate_api_token, slate_api_endpoint, minislate_user
+from portal import app, slate_api_token, slate_api_endpoint, minislate_user, mailgun_api_token
 from datetime import datetime
 import json
 import requests
@@ -21,7 +21,6 @@ from portal.connect_api import (list_applications_request,
                         get_user_info, delete_user)
 import sys
 import os
-sys.path.insert(0, '/etc/slate/secrets')
 # Set sys path and import view routes
 sys.path.insert(1, 'portal/views')
 import portal.views
@@ -32,13 +31,6 @@ import views_instances
 import views_error_handling
 import views_groups
 
-try:
-    # Read endpoint and token from VM
-    j = open("/etc/slate/secrets/mailgun_api_token.txt", "r")
-    mailgun_api_token = j.read().split()[0]
-except:
-    # Do not want mailgun spam on local/mini-slate
-    mailgun_api_token = None
 
 try:
     # Python 2
