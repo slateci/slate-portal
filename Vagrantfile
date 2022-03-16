@@ -72,6 +72,7 @@ Vagrant.configure("2") do |config|
   # Run Ansible from the Vagrant host:
   config.vm.provision "ansible", run:"always" do |ansible|
     ansible.extra_vars = {
+      mailgun_api_token: secrets['mailgun_api_token'],
       slate_api_token: secrets['slate_api_token'],
       slate_git_version: ENV['GIT_BRANCH'].delete(" \t\r\n\ "),
       slate_hostname: ENV['HOSTNAME'],
