@@ -13,8 +13,16 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   build:
+    # Name of the job
+    name: Build the thingie
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
+    # The environment for the job
+    environment: development
+    # All steps will run in the same shell.
+    defaults:
+      run:
+        shell: bash -l {0}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -22,7 +30,6 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v2
 
-      # Set up Ansible via Conda
       - name: Set up Ansible
         uses: conda-incubator/setup-miniconda@v2
         with:
@@ -30,7 +37,16 @@ jobs:
           auto-activate-base: false
           environment-file: ./ansible/environment.yml
 
-      # Print out stuff
-      - name: Debugging info
+      - name: Lint Ansible Playbook
         run: |
-          ansible --version
+          cd ./ansible
+          ansible-lint --force-color -p
+
+      - name: Build pretend-secrets.yml
+        run: |
+          mv ./ansible/secrets.yml.tmpl ./ansible/pretend-secrets.yml
+          sed -i 's/mailgun_api_token:.*/mailgun_api_token: "banana"/g' ./ansible/pretend-secrets.yml
+          sed -i 's/slate_api_token:.*/slate_api_token: "banana"/g' ./ansible/pretend-secrets.yml
+          sed -i 's/slate_portal_client_id:.*/slate_portal_client_id: "banana"/g' ./ansible/pretend-secrets.yml
+          sed -i 's/slate_portal_client_secret:.*/slate_portal_client_secret: "banana"/g' ./ansible/pretend-secrets.yml
+          cat ./ansible/pretend-secrets.yml
