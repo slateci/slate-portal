@@ -33,5 +33,4 @@ jobs:
       # Print out stuff
       - name: Debugging info
         run: |
-          conda info
-          conda list
+          ansible --version
