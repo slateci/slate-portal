@@ -663,8 +663,14 @@ def create_secret(name):
         key_contents = request.form['key_contents']
         # Add secret contents key-value to dict
         for key_name, key_contents in zip (request.form.getlist('key_name'), request.form.getlist('key_contents')):
-            contents[key_name] = base64.b64encode(key_contents)
-        # contents[key_name] = base64.b64encode(key_contents)
+            # base64 is expecting bytes (utf-8), but json cannot encode bytes.
+            # 1. convert string to utf-8
+            # 2. base64 encode (results in bytes)
+            # 3. Decode utf-8 so it can be jsonified.
+            bytes_string = key_contents.encode('utf-8')
+            base64_encoded_bytes = base64.b64encode(bytes_string)
+            base64_string = base64_encoded_bytes.decode('utf-8')
+            contents[key_name] = base64_string
 
         add_secret = {"apiVersion": 'v1alpha3',
                     'metadata': {'name': secret_name, 'group': name, 'cluster': cluster},
