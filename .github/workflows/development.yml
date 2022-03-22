@@ -1,54 +1,58 @@
-name: Development
+name: Development deployment workflow
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the specified branch
+  # Triggers the workflow on push events but only for the specified branch
   push:
     branches: [ 117-automate-development-pipeline ]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+env:
+  HOST: portal-dev.slateci.io
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # Name of the job
-    name: Build the thingie
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
-    # The environment for the job
+  portal:
+    name: Portal
+    runs-on: ubuntu-20.04
     environment:
       name: development
-      url: https://portal-dev.slateci.io
-    # All steps will run in the same shell.
+      url: https://${{ env.HOST }}
     defaults:
       run:
+        # All steps will run in the same shell.
         shell: bash -l {0}
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - name: Check out repo
+      - name: Checking out repo...
         uses: actions/checkout@v2
 
-      - name: Set up Ansible
+      - name: Setting up Ansible...
         uses: conda-incubator/setup-miniconda@v2
         with:
           activate-environment: chpc-ansible
           auto-activate-base: false
           environment-file: ./ansible/environment.yml
 
-      - name: Lint Ansible Playbook
+      - name: Linting Ansible Playbook...
         run: |
           cd ./ansible
           ansible-lint --force-color -p
 
-      - name: Build pretend-secrets.yml
+      - name: Building secrets.yml...
         run: |
-          mv ./ansible/secrets.yml.tmpl ./ansible/pretend-secrets.yml
-          sed -i 's/mailgun_api_token:.*/mailgun_api_token: "${{ secrets.MONEY_BANANA_STAND }}"/g' ./ansible/pretend-secrets.yml
-          sed -i 's/slate_api_token:.*/slate_api_token: "banana"/g' ./ansible/pretend-secrets.yml
-          sed -i 's/slate_portal_client_id:.*/slate_portal_client_id: "banana"/g' ./ansible/pretend-secrets.yml
-          sed -i 's/slate_portal_client_secret:.*/slate_portal_client_secret: "banana"/g' ./ansible/pretend-secrets.yml
-          cat ./ansible/pretend-secrets.yml
+          secrets_path="./ansible/secrets.yml"
+          mv ${secrets_path}.tmpl ${secrets_path}
+          sed -i 's@mailgun_api_token:.*@mailgun_api_token: "${{ secrets.MAILGUN_API_TOKEN }}"@g' ${secrets_path}
+          sed -i 's@slate_api_token:.*@slate_api_token: "${{ secrets.SLATE_API_TOKEN }}"@g' ${secrets_path}
+          sed -i 's@slate_portal_client_id:.*@slate_portal_client_id: "${{ secrets.PORTAL_CLIENT_ID }}"@g' ${secrets_path}
+          sed -i 's@slate_portal_client_secret:.*@slate_portal_client_secret: "${{ secrets.PORTAL_CLIENT_SECRET }}"@g' ${secrets_path}
+
+      - name: Building hosts.yml...
+        run: |
+          hosts_path="./ansible/inventory/hosts.yml"
+          mv ${hosts_path}.tmpl ${hosts_path}
+          sed -i 's@<env>@${{ env.HOST }}@g' ${hosts_path}
+          sed -i 's@<priv-key-path>@${{ env.GITHUB_WORKSPACE }}/id_rsa_slate@g' ${hosts_path}
+          sed -i 's@<slate-user>@bob@g' ${hosts_path}
+          cat ${hosts_path}
