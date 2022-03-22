@@ -1,8 +1,9 @@
 ---
-#- Secrets (declare with --extra-vars option):
-#slate_api_token: "<<SECRET-VALUE>>"
-#slate_portal_client_id: "<<SECRET-VALUE>>"
-#slate_portal_client_secret: "<<SECRET-VALUE>>"
+# Secrets (declare with --extra-vars option):
+# mailgun_api_token: "<<SECRET-VALUE>>"
+# slate_api_token: "<<SECRET-VALUE>>"
+# slate_portal_client_id: "<<SECRET-VALUE>>"
+# slate_portal_client_secret: "<<SECRET-VALUE>>"
 
 #- SLATE Portal installation options:
 slate_api_endpoint: "https://api-dev.slateci.io:18080"
