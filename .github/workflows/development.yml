@@ -7,7 +7,8 @@ on:
     branches: [ 117-automate-development-pipeline ]
 
 env:
-  HOST: portal-dev.slateci.io
+  ANSIBLE_HOST: portal-dev.slateci.io
+  ANSIBLE_HOST_GROUP: dev
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -16,7 +17,7 @@ jobs:
     runs-on: ubuntu-20.04
     environment:
       name: development
-      url: https://${{ env.HOST }}
+      url: https://${{ env.ANSIBLE_HOST }}
     defaults:
       run:
         # All steps will run in the same shell.
@@ -34,6 +35,10 @@ jobs:
           auto-activate-base: false
           environment-file: ./ansible/environment.yml
 
+#      - name: Saving ANSIBLE_SSH_PRIVATE_KEY_FILE to file...
+#        run: |
+#          echo ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY_FILE }} > ${{ env.GITHUB_WORKSPACE }}/id_rsa_slate
+
       - name: Linting Ansible Playbook...
         run: |
           cd ./ansible
@@ -47,12 +52,20 @@ jobs:
           sed -i 's@slate_api_token:.*@slate_api_token: "${{ secrets.SLATE_API_TOKEN }}"@g' ${secrets_path}
           sed -i 's@slate_portal_client_id:.*@slate_portal_client_id: "${{ secrets.PORTAL_CLIENT_ID }}"@g' ${secrets_path}
           sed -i 's@slate_portal_client_secret:.*@slate_portal_client_secret: "${{ secrets.PORTAL_CLIENT_SECRET }}"@g' ${secrets_path}
+          cat ${secrets_path}
 
-      - name: Building hosts.yml...
+      - name: Building Ansible inventory...
         run: |
           hosts_path="./ansible/inventory/hosts.yml"
           mv ${hosts_path}.tmpl ${hosts_path}
-          sed -i 's@<env>@${{ env.HOST }}@g' ${hosts_path}
+          sed -i 's@<env>@${{ env.ANSIBLE_HOST_GROUP }}@g' ${hosts_path}
+          sed -i 's@<host>@${{ env.ANSIBLE_HOST }}@g' ${hosts_path}
           sed -i 's@<priv-key-path>@${{ env.GITHUB_WORKSPACE }}/id_rsa_slate@g' ${hosts_path}
-          sed -i 's@<slate-user>@bob@g' ${hosts_path}
+          sed -i 's@<slate-user>@${{ secrets.ANSIBLE_USER }}@g' ${hosts_path}
           cat ${hosts_path}
+
+      - name: Verify Ansible permission escalation on host(s)...
+        run: ansible all -a "/bin/ls /root" -i ./ansible/inventory/hosts.yml -u ${{ secrets.ANSIBLE_USER }} --become --become-user root
+
+      - name: Execute Ansible playbook...
+        run: ansible-playbook -v -i ./ansible/inventory/hosts.yml --extra-vars "@./ansible/secrets.yml" ./ansible/playbook.yml
