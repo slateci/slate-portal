@@ -9,7 +9,6 @@ on:
 env:
   ANSIBLE_HOST: portal-dev.slateci.io
   ANSIBLE_HOST_GROUP: dev
-  ANSIBLE_SSH_PRIVATE_KEY_FILE: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY_FILE }}
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -36,10 +35,6 @@ jobs:
           auto-activate-base: false
           environment-file: ./ansible/environment.yml
 
-      - name: Saving ANSIBLE_SSH_PRIVATE_KEY_FILE to file...
-        run: |
-          echo ${{ env.ANSIBLE_SSH_PRIVATE_KEY_FILE }} > ${{ env.GITHUB_WORKSPACE }}/id_rsa_slate
-
       - name: Linting Ansible Playbook...
         run: |
           cd ./ansible
@@ -65,8 +60,17 @@ jobs:
           sed -i 's@<slate-user>@${{ secrets.ANSIBLE_USER }}@g' ${hosts_path}
           cat ${hosts_path}
 
+      - name: Setting up ssh-agent...
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.ANSIBLE_SSH_PRIVATE_KEY_FILE }}
+
       - name: Verify Ansible permission escalation on host(s)...
-        run: ansible all -a "/bin/ls /root" -i ./ansible/inventory/hosts.yml -u ${{ secrets.ANSIBLE_USER }} --become --become-user root
+        run: |
+          cd ./ansible
+          ansible all -vv -a "/bin/ls /root" -i ./inventory/hosts.yml -u ${{ secrets.ANSIBLE_USER }} --become --become-user root
 
       - name: Execute Ansible playbook...
-        run: ansible-playbook -v -i ./ansible/inventory/hosts.yml --extra-vars "@./ansible/secrets.yml" ./ansible/playbook.yml
+        run: |
+          cd ./ansible
+          ansible-playbook -v -i ./inventory/hosts.yml --extra-vars "@./secrets.yml" ./playbook.yml

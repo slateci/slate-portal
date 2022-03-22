@@ -5,6 +5,5 @@ all:
         portal:
           ansible_host: <host>
   vars:
-    ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p -q <slate-user>@bastion.slateci.net -i <priv-key-path>"'
-    ansible_ssh_private_key_file: '<priv-key-path>'
+    ansible_ssh_common_args: '-o ProxyCommand="ssh -W %h:%p -q <slate-user>@bastion.slateci.net"'
     ansible_user: '<slate-user>'

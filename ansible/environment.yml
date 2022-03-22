@@ -7,4 +7,3 @@ dependencies:
   - python=3.10
   - ansible
   - ansible-lint
-
