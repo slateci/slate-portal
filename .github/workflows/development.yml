@@ -18,7 +18,9 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
     # The environment for the job
-    environment: development
+    environment:
+      name: development
+      url: https://portal-dev.slateci.io
     # All steps will run in the same shell.
     defaults:
       run:
@@ -45,7 +47,7 @@ jobs:
       - name: Build pretend-secrets.yml
         run: |
           mv ./ansible/secrets.yml.tmpl ./ansible/pretend-secrets.yml
-          sed -i 's/mailgun_api_token:.*/mailgun_api_token: "banana"/g' ./ansible/pretend-secrets.yml
+          sed -i 's/mailgun_api_token:.*/mailgun_api_token: "${{ secrets.MONEY_BANANA_STAND }}"/g' ./ansible/pretend-secrets.yml
           sed -i 's/slate_api_token:.*/slate_api_token: "banana"/g' ./ansible/pretend-secrets.yml
           sed -i 's/slate_portal_client_id:.*/slate_portal_client_id: "banana"/g' ./ansible/pretend-secrets.yml
           sed -i 's/slate_portal_client_secret:.*/slate_portal_client_secret: "banana"/g' ./ansible/pretend-secrets.yml
