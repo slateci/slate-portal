@@ -9,7 +9,7 @@
 slate_api_endpoint: "https://api-dev.slateci.io:18080"
 slate_debug: true
 slate_git_dest: "{{ slate_install_dest }}/slate-website-python"
-slate_git_version: master
+slate_git_version: develop
 slate_hostname: "{{ ansible_host }}"
 slate_install_dest: "/etc/slate"
 
