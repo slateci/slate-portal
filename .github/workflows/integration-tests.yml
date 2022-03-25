@@ -25,6 +25,9 @@ jobs:
       - name: Install Selenium Python Bindings...
         run: pip install -U selenium
 
+      - name: Docker compose
+        run: docker-compose --version
+
       - name: Initialize MiniSLATE...
         run: |
           set -euo pipefail
@@ -38,6 +41,7 @@ jobs:
           # end config
           EOF
           cat config.py
+          ./minislate build
           ./minislate init --selenium
 
       - name: Download Selenium tests...
