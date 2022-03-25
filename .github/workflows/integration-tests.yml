@@ -42,7 +42,7 @@ jobs:
           cat config.py
           ./minislate build
           ./minislate init --selenium
-          ./minslate slate cluster list
+          ./minislate slate cluster list
 
       - name: Download Selenium tests...
         run: git clone https://github.com/slateci/portal-unit-test.git
