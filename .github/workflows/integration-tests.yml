@@ -3,9 +3,8 @@ name: Integration Tests
 on:
   push:
     branches:
-      - feature/119_update-regression-tests-to
-#      - develop
-#      - master
+      - develop
+      - master
 
 jobs:
   selenium:
@@ -43,24 +42,19 @@ jobs:
           ./minislate init --selenium
 
       - name: Download Selenium tests...
-        run: |
-          git clone https://github.com/slateci/portal-unit-test.git
+        run: git clone https://github.com/slateci/portal-unit-test.git
 
       - name: Run Selenium tests...
         run: python portal-unit-test/main.py
 
-#      - name: Run Selenium Tests
-#        run:
-#          python portal-unit-test/main.py
-
       # Return result to Slack if tests failed
-#      - name: Notify Slack Fail
-#        if: failure()
-#        id: slack # IMPORTANT: reference this step ID value in future Slack steps
-#        env:
-#          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-#        uses: voxmedia/github-action-slack-notify-build@v1
-#        with:
-#          channel_id: CLRGHCWG3
-#          status: FAILED
-#          color: danger
+      - name: Notify Slack Fail
+        if: failure()
+        id: slack # IMPORTANT: reference this step ID value in future Slack steps
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: voxmedia/github-action-slack-notify-build@v1
+        with:
+          channel_id: CLRGHCWG3
+          status: FAILED
+          color: danger
