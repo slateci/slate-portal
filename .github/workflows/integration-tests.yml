@@ -38,7 +38,7 @@ jobs:
           # end config
           EOF
           cat config.py
-          ./minislate build
+#          ./minislate build
           ./minislate init --selenium
 
       - name: Download Selenium tests...
