@@ -12,8 +12,21 @@ jobs:
     name: Selenium Tests
     runs-on: ubuntu-20.04
 
+    services:
+      chrome:
+        image: selenium/standalone-chrome:latest
+
     steps:
-      - name: Set up MiniSLATE...
+      - name: Set up Python...
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9.7'
+          architecture: 'x64'
+
+      - name: Install Selenium Python Bindings...
+        run: pip install -U selenium
+
+      - name: Initialize MiniSLATE...
         run: |
           set -euo pipefail
           git clone --branch master https://github.com/slateci/minislate.git
@@ -34,10 +47,7 @@ jobs:
           git clone https://github.com/slateci/portal-unit-test.git
 
       - name: Run Selenium tests...
-        uses: docker://hub.opensciencegrid.org/slate/python-chromedriver-selenium:3.9-alpine
-        with:
-          entrypoint: python
-          args: /github/workspace/portal-unit-test/main.py
+        run: python portal-unit-test/main.py
 
 #      - name: Run Selenium Tests
 #        run:
