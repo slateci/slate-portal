@@ -8,11 +8,9 @@ on:
 #      - master
 
 jobs:
-  test:
+  selenium:
     name: Selenium Tests
     runs-on: ubuntu-20.04
-    container:
-      image: hub.opensciencegrid.org/slate/python-chromedriver-selenium:3.9-alpine
 
     steps:
       - name: Set up MiniSLATE...
@@ -24,13 +22,17 @@ jobs:
           ./minislate build
           ./minislate init --selenium
 
-      - name: Download Selenium tests...
-        run: |
-          git clone https://github.com/slateci/portal-unit-test.git
+      - name: Run Selenium tests...
+        uses: docker://hub.opensciencegrid.org/slate/python-chromedriver-selenium:3.9-alpine
+        with:
+          entrypoint: /bin/sh
+          args: |
+            git clone https://github.com/slateci/portal-unit-test.git
+            python portal-unit-test/main.py
 
-      - name: Run Selenium Tests
-        run:
-          python portal-unit-test/main.py
+#      - name: Run Selenium Tests
+#        run:
+#          python portal-unit-test/main.py
 
       # Return result to Slack if tests failed
 #      - name: Notify Slack Fail
