@@ -14,9 +14,10 @@ Portal is written with the Flask framework and makes use of uWSGI on the develop
 
 ## Development/Deployment
 
-Several methods for application development and Ansible playbook deployment exist and are described at length in the [related documentation](docs/index.md).
+Several methods for local application development and deployment via Ansible playbook exist and are described at length in the [related documentation](docs/index.md).
 
 ## Resources
 
 * [Flask: Quickstart](https://flask.palletsprojects.com/en/2.0.x/quickstart/)
 * [Quickstart for Python/WSGI applications](https://uwsgi-docs.readthedocs.io/en/latest/WSGIquickstart.html)
+ 
