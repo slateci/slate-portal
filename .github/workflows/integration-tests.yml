@@ -15,6 +15,7 @@ jobs:
     steps:
       - name: Set up MiniSLATE...
         run: |
+          set -euo pipefail
           git clone --branch master https://github.com/slateci/minislate.git
           cd minislate/
           rm config.py
@@ -27,11 +28,6 @@ jobs:
           cat config.py
           ./minislate build
           ./minislate init --selenium
-          wget -q --spider http://localhost:5050
-          if [ $? -ne 0 ] ; then
-            echo "MiniSLATE is not up!"
-            exit 1
-          fi
 
       - name: Download Selenium tests...
         run: |
