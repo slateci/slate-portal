@@ -24,7 +24,6 @@ jobs:
         shell: bash -l {0}
 
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checking out repo...
         uses: actions/checkout@v2
 
@@ -56,7 +55,7 @@ jobs:
           mv ${hosts_path}.tmpl ${hosts_path}
           sed -i 's@<group>@${{ env.ANSIBLE_HOST_GROUP }}@g' ${hosts_path}
           sed -i 's@<host>@${{ env.ANSIBLE_HOST }}@g' ${hosts_path}
-          sed -i 's@<priv-key-path>@${{ env.GITHUB_WORKSPACE }}/id_rsa_slate@g' ${hosts_path}
+          sed -i 's@<priv-key-path>@${{ github.workspace }}/id_rsa_slate@g' ${hosts_path}
           sed -i 's@<slate-user>@${{ secrets.ANSIBLE_USER }}@g' ${hosts_path}
           cat ${hosts_path}
 
