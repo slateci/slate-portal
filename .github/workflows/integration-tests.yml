@@ -41,7 +41,7 @@ jobs:
           EOF
           cat config.py
           ./minislate build
-          ./minislate init --selenium
+          ./minislate init
           ./minislate slate cluster list
 
       - name: Download Selenium tests...
