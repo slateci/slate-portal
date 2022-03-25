@@ -27,7 +27,7 @@ jobs:
           EOF
           cat config.py
           ./minislate build
-          ./minislate init
+          sudo ./minislate init --selenium
 
       - name: Download Selenium tests...
         run: |
