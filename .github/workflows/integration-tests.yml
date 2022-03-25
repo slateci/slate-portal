@@ -17,18 +17,31 @@ jobs:
         run: |
           git clone --branch master https://github.com/slateci/minislate.git
           cd minislate/
-          sed -i 's@portalbranch =.*@portalbranch = "${{ github.ref.name }}"@g' config.py
+          rm config.py
+          cat > config.py <<EOF
+          # start config
+          dockerimage = 'hub.opensciencegrid.org/slate/minislate:1.0.4'
+          portalbranch = '$GITHUB_REF_NAME'
+          # end config
+          EOF
           cat config.py
           ./minislate build
           ./minislate init --selenium
+          wget -q --spider http://localhost:5050
+          if [ $? -ne 0 ] ; then
+            echo "MiniSLATE is not up!"
+            exit 1
+          fi
+
+      - name: Download Selenium tests...
+        run: |
+          git clone https://github.com/slateci/portal-unit-test.git
 
       - name: Run Selenium tests...
         uses: docker://hub.opensciencegrid.org/slate/python-chromedriver-selenium:3.9-alpine
         with:
-          entrypoint: /bin/sh
-          args: |
-            git clone https://github.com/slateci/portal-unit-test.git
-            python portal-unit-test/main.py
+          entrypoint: python
+          args: /github/workspace/portal-unit-test/main.py
 
 #      - name: Run Selenium Tests
 #        run:
