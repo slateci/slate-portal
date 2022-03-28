@@ -1,0 +1,63 @@
+name: Integration Tests
+
+on:
+  push:
+    branches:
+      - develop
+      - master
+
+jobs:
+  selenium:
+    name: Selenium Tests
+    runs-on: ubuntu-20.04
+
+    services:
+      chrome:
+        image: selenium/standalone-chrome:latest
+
+    steps:
+      - name: Set up Python...
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.9.7'
+          architecture: 'x64'
+
+      - name: Install Selenium Python Bindings...
+        run: pip install -U selenium
+
+      - name: Docker compose
+        run: docker-compose --version
+
+      - name: Initialize MiniSLATE...
+        run: |
+          git clone --branch develop https://github.com/slateci/minislate.git
+          cd minislate/
+          rm config.py
+          cat > config.py <<EOF
+          # start config
+          dockerimage = 'hub.opensciencegrid.org/slate/minislate:1.0.4'
+          portalbranch = '$GITHUB_REF_NAME'
+          # end config
+          EOF
+          cat config.py
+          ./minislate build
+          ./minislate init
+          ./minislate slate cluster list
+
+      - name: Download Selenium tests...
+        run: git clone https://github.com/slateci/portal-unit-test.git
+
+      - name: Run Selenium tests...
+        run: python portal-unit-test/main.py
+
+      # Return result to Slack if tests failed
+#      - name: Notify Slack Fail
+#        if: failure()
+#        id: slack # IMPORTANT: reference this step ID value in future Slack steps
+#        env:
+#          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+#        uses: voxmedia/github-action-slack-notify-build@v1
+#        with:
+#          channel_id: CLRGHCWG3
+#          status: FAILED
+#          color: danger
