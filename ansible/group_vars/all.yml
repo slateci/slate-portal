@@ -1,5 +1,6 @@
 ---
 #- Secrets (declare with --extra-vars option):
+#mailgun_api_token: "<<SECRET-VALUE>>"
 #slate_api_token: "<<SECRET-VALUE>>"
 #slate_portal_client_id: "<<SECRET-VALUE>>"
 #slate_portal_client_secret: "<<SECRET-VALUE>>"
