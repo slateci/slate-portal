@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
 from portal import app
+import os
 
 if __name__ == '__main__':
-    app.run(host='localhost',
+    app.run(host='0.0.0.0',
+            port=os.environ.get('FLASK_PORT'),
             ssl_context=('./ssl/server.crt', './ssl/server.key'))
