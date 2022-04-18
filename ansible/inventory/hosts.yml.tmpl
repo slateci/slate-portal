@@ -1,9 +1,0 @@
-all:
-  children:
-    <group>:
-      hosts:
-        portal:
-          ansible_host: <host>
-  vars:
-    ansible_ssh_common_args: '-J <slate-user>@bastion.slateci.net'
-    ansible_user: '<slate-user>'
