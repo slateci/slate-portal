@@ -17,7 +17,7 @@ Copy `ansible/secrets.yml.tmpl` to the following place in this project: `ansible
 
 ### Create `hosts.yml`
 
-Copy `ansible/inventory/hosts.yml.tmpl` to the following place in this project `ansible/inventory/hosts.yml`. Remove the unrelated host groups from the file (e.g. remove `prod:` if pushing to development) and complete the steps described below to modify placeholder key-value pairs and finalize this file.
+Copy `ansible/inventory/hosts.yml.tmpl` to the following place in this project `ansible/inventory/hosts.yml`. Complete the steps described below to modify placeholder key-value pairs and finalize this file.
 
 For more information on Ansible inventories see:
 * [How to build your inventory](https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html)
@@ -64,9 +64,9 @@ slate_portal_client_secret: "SAMPLE"
 
 ## Finalize `hosts.yml`
 
-Add actual values in place of `<slate-user>` and `<priv-key-path>` to `ansible/inventory/hosts.yml` in this project. At this point the file should resemble:
+Add actual values in place of `<group>`, `<host>`, `<slate-user>`, and `<priv-key-path>` to `ansible/inventory/hosts.yml` in this project. At this point the file should resemble:
 
-For development:
+Development:
 
 ```yaml
 all:
@@ -81,7 +81,8 @@ all:
     ansible_user: 'SAMPLE'
 ```
 
-For production:
+Production:
+
 ```yaml
 all:
   children:
