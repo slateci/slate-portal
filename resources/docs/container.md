@@ -21,7 +21,7 @@ Create your own App registration for use in the Portal.
 * Visit the [Globus Developer Pages](https://developers.globus.org) to register an App.
 * If this is your first time visiting the Developer Pages you will be asked to create a Project. A Project is a way to group Apps together.
 * When registering the App you will be asked for some information, including the redirect URL and any scopes you will be requesting.
-    * Redirect URL: `http://localhost:5050/authcallback`
+    * Redirect URL: `https://localhost:5050/authcallback`
 * After creating your App the **Client ID** and **Client Secret** can be copied into this project in the following place:
     * `instance/portal.conf` in the `PORTAL_CLIENT_ID` and `PORTAL_CLIENT_SECRET` properties.
 
@@ -53,7 +53,7 @@ At this point `instance/portal.conf` should resemble:
 
 SERVER_NAME = 'localhost:5050'
 DEBUG = True
-SLATE_WEBSITE_LOGFILE = '/var/log/uwsgi/portal.log'
+SLATE_WEBSITE_LOGFILE = '/slate/portal.log'
 
 # globus:
 PORTAL_CLIENT_ID = 'SAMPLE'
