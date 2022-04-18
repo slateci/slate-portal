@@ -1,15 +1,15 @@
 ---
-#- Secrets (declare with --extra-vars option):
-#mailgun_api_token: "<<SECRET-VALUE>>"
-#slate_api_token: "<<SECRET-VALUE>>"
-#slate_portal_client_id: "<<SECRET-VALUE>>"
-#slate_portal_client_secret: "<<SECRET-VALUE>>"
+# Secrets (declare with --extra-vars option):
+# mailgun_api_token: "<<SECRET-VALUE>>"
+# slate_api_token: "<<SECRET-VALUE>>"
+# slate_portal_client_id: "<<SECRET-VALUE>>"
+# slate_portal_client_secret: "<<SECRET-VALUE>>"
 
 #- SLATE Portal installation options:
 slate_api_endpoint: "https://api-dev.slateci.io:18080"
 slate_debug: true
 slate_git_dest: "{{ slate_install_dest }}/slate-website-python"
-slate_git_version: master
+slate_git_version: develop
 slate_hostname: "{{ ansible_host }}"
 slate_install_dest: "/etc/slate"
 
