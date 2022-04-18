@@ -15,7 +15,7 @@
 
 - name: Add SLATE configuration
   template:
-    src: "templates/slate.ini.j2"
+    src: "templates/ini/slate.ini.j2"
     dest: "{{ slate_install_dest }}/slate.ini"
     owner: uwsgi
     group: uwsgi
@@ -76,7 +76,7 @@
 
 - name: Add portal configuration
   template:
-    src: "templates/portal.conf.j2"
+    src: "templates/conf/portal.conf.j2"
     dest: "{{ slate_git_dest }}/instance/portal.conf"
     owner: uwsgi
     group: uwsgi
