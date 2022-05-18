@@ -53,7 +53,7 @@ At this point `instance/portal.conf` should resemble:
 
 SERVER_NAME = 'localhost:5050'
 DEBUG = True
-SLATE_WEBSITE_LOGFILE = '/var/log/uwsgi/portal.log'
+SLATE_WEBSITE_LOGFILE = '/slate/portal.log'
 
 # globus:
 PORTAL_CLIENT_ID = 'SAMPLE'
