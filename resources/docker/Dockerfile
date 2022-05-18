@@ -83,7 +83,6 @@ WORKDIR /slate
 
 # Copy in relevant source material:
 COPY ./portal ./portal
-COPY ./ssl ./ssl
 COPY ./run_portal.py ./run_portal.py
 
 # Create instance directory:
