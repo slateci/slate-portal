@@ -3,12 +3,5 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Ansible
-.cache/
-ansible/secrets.yml
-
 # Logs
 *.log
-
-# Vagrant
-.vagrant
