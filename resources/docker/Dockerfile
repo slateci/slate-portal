@@ -88,11 +88,15 @@ COPY ./run_portal.py ./run_portal.py
 # Create instance directory:
 RUN mkdir ./instance
 
+# Change working directory:
+WORKDIR /
+
+# Prepare entrypoint:
+COPY ./resources/docker/scripts/docker-entrypoint.sh ./
+RUN chmod +x ./docker-entrypoint.sh
+
 # Ports:
 EXPOSE ${port}
 
-# Volumes:
-VOLUME [ "/slate/instance" ]
-
 # Run once the container has started:
-ENTRYPOINT [ "python /slate/run_portal.py" ]
+ENTRYPOINT [ "/docker-entrypoint.sh" ]
