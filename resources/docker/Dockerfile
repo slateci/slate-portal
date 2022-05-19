@@ -66,17 +66,25 @@ RUN yum install -y epel-release
 RUN yum install -y boost \
     gcc \
     libcurl \
-    libffi \
+    libffi-devel \
     net-tools \
     openssl \
-    python3 \
+    python3-devel \
     which \
     zlib
 RUN yum clean all && rm -rf /var/cache/yum
 
+# Prepare entrypoint:
+COPY ./resources/docker/scripts/docker-entrypoint.sh ./
+RUN chmod +x ./docker-entrypoint.sh
+
+# Change working directory:
+WORKDIR /python3
+
 # Configure a modern Python interpreter:
 RUN pip3 install virtualenv
-COPY --from=local-stage /python3 /python3
+COPY ./resources/docker/requirements.txt ./requirements.txt
+RUN bash -c "virtualenv --python=/usr/bin/python3 venv && source ${virtualenv}/bin/activate && pip install --no-cache-dir -r ./requirements.txt"
 
 # Change working directory:
 WORKDIR /slate
@@ -87,13 +95,6 @@ COPY ./run_portal.py ./run_portal.py
 
 # Create instance directory:
 RUN mkdir ./instance
-
-# Change working directory:
-WORKDIR /
-
-# Prepare entrypoint:
-COPY ./resources/docker/scripts/docker-entrypoint.sh ./
-RUN chmod +x ./docker-entrypoint.sh
 
 # Ports:
 EXPOSE ${port}
