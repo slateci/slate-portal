@@ -1264,7 +1264,7 @@ def authcallback():
         return redirect(url_for('home'))
 
     # Set up our Globus Auth/OAuth2 state
-    redirect_uri = url_for('authcallback', _external=True)
+    redirect_uri = url_for('authcallback', _external=True, _scheme=app.config['GLOBUS_REDIRECT_URI_SCHEME'])
     app.logger.info(redirect_uri)
 
     client = load_portal_client()
