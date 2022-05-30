@@ -53,7 +53,7 @@ At this point `instance/portal.conf` should resemble:
 
 SERVER_NAME = 'localhost:5050'
 DEBUG = True
-SLATE_WEBSITE_LOGFILE = '/var/log/uwsgi/portal.log'
+SLATE_WEBSITE_LOGFILE = '/slate/portal.log'
 
 # globus:
 PORTAL_CLIENT_ID = 'SAMPLE'
@@ -74,14 +74,14 @@ MAILGUN_API_TOKEN = 'SAMPLE'
 Build the Docker image:
 
 ```shell
-docker build -f Dockerfile -t slate-portal:local .
+docker build -f ./resources/docker/Dockerfile -t slate-portal:local .
 ```
 
 Running the image will create a new tagged container and start Portal.
 * Below we use port `5050` due to port `5000` being reserved on MacOSX.
 
 ```shell
-[your@localmachine]$ docker run -it -v ${PWD}:/etc/slate/slate-website-python -p 5050:5000 slate-portal:local
+[your@localmachine]$ docker run -it -v ${PWD}:/slate -p 5050:5050 slate-portal:local
  * Serving Flask app 'portal' (lazy loading)
  * Environment: production
    WARNING: This is a development server. Do not use it in a production deployment.

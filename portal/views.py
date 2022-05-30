@@ -24,6 +24,7 @@ import os
 # Set sys path and import view routes
 sys.path.insert(1, 'portal/views')
 import portal.views
+import views_about
 import views_applications
 import views_clusters
 import views_instances
@@ -1264,7 +1265,8 @@ def authcallback():
         return redirect(url_for('home'))
 
     # Set up our Globus Auth/OAuth2 state
-    redirect_uri = url_for('authcallback', _external=True)
+    redirect_uri = url_for('authcallback', _external=True, _scheme=app.config['GLOBUS_REDIRECT_URI_SCHEME'])
+    app.logger.info(redirect_uri)
 
     client = load_portal_client()
     client.oauth2_start_flow(redirect_uri, refresh_tokens=True)
