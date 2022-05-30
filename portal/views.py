@@ -24,6 +24,7 @@ import os
 # Set sys path and import view routes
 sys.path.insert(1, 'portal/views')
 import portal.views
+import views_about
 import views_applications
 import views_clusters
 import views_instances
