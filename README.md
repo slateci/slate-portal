@@ -10,11 +10,11 @@ Portal is written with the Flask framework and makes use of uWSGI on the develop
 
 ## Authentication Layer
 
-[globus](https://docs.globus.org/) is used to authenticate users with the [Auth API](https://docs.globus.org/api/auth/) (see [notebook/README.md](notebook/README.md) for additional information).
+[globus](https://docs.globus.org/) is used to authenticate users with the [Auth API](https://docs.globus.org/api/auth/) (see [notebook/README.md](resources/notebook/README.md) for additional information).
 
 ## Development/Deployment
 
-Several methods for local application development and deployment via Ansible playbook exist and are described at length in the [related documentation](docs/index.md).
+Several methods for local application development and deployment via Ansible playbook exist and are described at length in the [related documentation](resources/docs/index.md).
 
 ## Resources
 

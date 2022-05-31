@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  slate_portal:
+    container_name: slate_portal
+    image: slate_portal:local
+    command: "python /slate/run_portal.py"
+    build:
+      context: .
+      dockerfile: ./resources/docker/Dockerfile
+      args:
+        port: 5050
+      target: local-stage
+    volumes:
+      - ./:/slate
+    ports:
+      - "5050:5050"
+    networks:
+      - slateNetwork
+
+networks:
+  slateNetwork:

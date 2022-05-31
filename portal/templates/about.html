@@ -1,0 +1,39 @@
+{%extends "base.html"%}
+
+{%block title%}About{%endblock%}
+
+{%block body%}
+
+<section id="about" class="bg-light">
+  <div class="container col-lg-12 mx-auto">
+
+    <div class='row'>
+      <div class="col-lg-12 mx-auto">
+        {%include 'messages.html' %}
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% if session.get('is_authenticated') %}{{url_for('dashboard')}}{%else%}{{url_for('home')}}{% endif %}">Home</a></li>
+          <li class="breadcrumb-item active">About</li>
+        </ol>
+        <h2>About SLATE Portal</h2>
+        <p class="lead">SLATE (Service Layer At The Edge) is a system to enable sites to delegate service deployment and configuration to selected application administrators (<a href="https://slateci.io/about/">learn more</a>).</p>
+        <div class="row">
+          <div class="col-sm-12 col-md-4">
+            <div class="card h-100 btn-box-shadow">
+              <div class="card-header">
+                Application Version <i class="fas fa-code-fork float-right"></i>
+              </div>
+              <div class="card-body" id='instances-card'>
+                <p>{{ config.PORTAL_VERSION }}</p>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{%endblock%}
