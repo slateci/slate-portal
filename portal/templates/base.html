@@ -195,7 +195,7 @@
       {% endif %}
 
       <div id="content" class="col py-3">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top nav-bar-shadow">
+        <nav id="topnav" class="navbar navbar-expand-lg navbar-dark fixed-top nav-bar-shadow">
           <div class="container-fluid">
             <form class="form-inline">
               {% if session.get('is_authenticated') and session.get('user_id') %}
