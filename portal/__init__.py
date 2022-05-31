@@ -28,12 +28,15 @@ if not minislate_user:
 
 app.config.from_pyfile('portal.conf')
 app.url_map.strict_slashes = False
-app.config['DEBUG'] = True
 app.permanent_session_lifetime = timedelta(minutes=1440)
 app.config.update(SESSION_COOKIE_SECURE=True, SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE='Lax')
 # set up Markdown Rendering
 md = Misaka()
 md.__init__(app, tables=True, autolink=True, fenced_code=True, smartypants=True, quote=True, math=True, math_explicit=True)
+
+# set up jinja2 livehtml for localdev
+if app.config['DEBUG']:
+    app.jinja_env.auto_reload = True
 
 # set up logging
 handler = logging.handlers.RotatingFileHandler(
