@@ -1,36 +1,27 @@
 {%extends "base.html"%}
 
-{%block title%}
-  CLI Access
-{%endblock%}
+{%block title%}CLI Access{%endblock%}
 
 {%block body%}
+
 <section id="cli-access" class="bg-light">
-  <div class="container">
-    <div class="page-header">
-      <!-- <h1>CLI Access</h1> -->
-    </div>
-
-    <div class="row">
-      <div class="col-lg-8 mx-auto">
+  <div class="container col-lg-12 mx-auto">
+    <div class='row'>
+      <div class="col-lg-12 mx-auto">
+        {%include 'messages.html' %}
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% if session.get('is_authenticated') %}{{url_for('dashboard')}}{%else%}{{url_for('home')}}{% endif %}">Home</a></li>
+          <li class="breadcrumb-item active">CLI Access</li>
+        </ol>
         <h2>CLI Access</h2>
-        <p class="lead">
-          <ul>
-            <li>Run the following script to install your SLATE access token on a computer where you want to use the client program (Click button below to copy script to clipboard)
-              <div id="accordion">
-                <div class="card">
-                  <div class="card-header" id="headingOne">
-                    <h5 class="mb-0">
-                      <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                        Run this script to install your access token
-                      </button>
-                    </h5>
-                  </div>
-
-                  <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
-                    <div class="card-body">
-                      <!-- <textarea id="pubtoken" readonly disabled font-size="16"></textarea> -->
-                      <textarea type="text" id="cli_access">
+        <p class="lead">The SLATE Remote Client is the command-line program used to communicate with the SLATE API server. Below are the installation steps necessary to get the client up and running on your system.</p>
+        <h3 class="h5">Set Up the Access Token</h3>
+        <p>Run the following script to install your SLATE Access Token on your system:</p>
+        <div class="row">
+          <div class="col-sm-12">
+            <div class="card h-100 btn-box-shadow">
+              <div class="card-body" id='instances-card'>
+                <textarea type="text" id="cli_access">
 #!/bin/sh
 mkdir -p -m 0700 "$HOME/.slate"
 if [ "$?" -ne 0 ] ; then
@@ -48,52 +39,26 @@ echo '{{slate_api_endpoint}}' > ~/.slate/endpoint
 
 echo "SLATE access token successfully stored"
                       </textarea>
-                      <button class="btn btn-primary" onclick="myFunction()">Copy Script to Clipboard</button>
-
-                    </div>
-                  </div>
-                </div>
+                <button class="btn btn-primary" onclick="myFunction()">Copy Script to Clipboard</button>
               </div>
-            </li>
-            <br>
-            <li>Download the client executable binary suitable for your system:
-              <a href="https://jenkins.slateci.io/artifacts/client/slate-linux.tar.gz" target="">Linux</a>
-              (<a href="https://jenkins.slateci.io/artifacts/client/slate-linux.sha256" target="">checksum</a>) or
-              <a href="https://jenkins.slateci.io/artifacts/client/slate-macos.tar.gz" target="">MacOS (version 10.9+)</a>
-              (<a href="https://jenkins.slateci.io/artifacts/client/slate-macos.sha256" target="">checksum</a>)
-              <ul>
-                <li>From the command line on Linux you can download, verify, and install the client as follows:
-                  <code><pre>
-# Download the client program tarball
-curl -LO https://jenkins.slateci.io/artifacts/client/slate-linux.tar.gz
-# Download the client checksum
-curl -LO https://jenkins.slateci.io/artifacts/client/slate-linux.sha256
-# Verify the tarball: This should report that the checksum is OK
-sha256sum -c slate-linux.sha256
-# Unpack the tarball
-tar xzvf slate-linux.tar.gz
-# At this point you can move the slate binary where ever you want
-                  </pre></code>
-                </li>
-                <li>From the command line on MacOS you can download, verify, and install the client as follows:
-                  <code><pre>
-# Download the client program tarball
-curl -LO https://jenkins.slateci.io/artifacts/client/slate-macos.tar.gz
-# Download the client checksum
-curl -LO https://jenkins.slateci.io/artifacts/client/slate-macos.sha256
-# Verify the tarball: This should report that the checksum is OK
-shasum -a256 -c slate-macos.sha256
-# Unpack the tarball
-tar xzvf slate-macos.tar.gz
-# At this point you can move the slate binary where ever you want
-                  </pre></code>
-                </li>
-              </ul>
-            </li>
-          </ul>
-        </p>
+            </div>
+          </div>
+        </div>
+        <h3 class="h5 pt-4">Install the SLATE Remote Client</h3>
+        <div class="row">
+          <div class="col-sm-12">
+            <ol>
+              <li>Navigate to the <a href="https://github.com/slateci/slate-client-server/releases/latest">GitHub Releases page</a></li>
+              <li>Download the tarball and checksum file for your system</li>
+              <li>Verify the tarball: <code>sha256sum -c slate-&lt;platform&gt;.sha256</code></li>
+              <li>Unpack the tarball: <code>tar xzvf slate-&lt;platform&gt;.tar.gz</code></li>
+              <li>Copy the binary to the desired location on your system (e.g. <code>/usr/bin</code>)</li>
+            </ol>
+          </div>
+        </div>
+        <h3 class="h5">Basic Use</h3>
+        <p>Check out the <a href="https://slateci.io/docs/tools">SLATE website</a> for instructions on using the SLATE Remote Client.</p>
       </div>
-
     </div>
   </div>
 </section>
