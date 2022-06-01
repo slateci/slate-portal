@@ -109,6 +109,15 @@ nav a {
   padding: 4px 3px 0 3px;
   text-align: center;
 }
+
+#topnav {
+  background: #466BB0 linear-gradient(to right, #466BB0, #286AC7) no-repeat center/cover;
+}
+
+#topnav a:hover {
+  color: #c4c4c4;
+}
+
 #content {
   /* margin-left: 200px; /* Same as the width of the sidebar */
   min-height: 100vh;
