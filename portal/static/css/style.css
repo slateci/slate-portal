@@ -114,7 +114,7 @@ nav a {
   background: #466BB0 linear-gradient(to right, #466BB0, #286AC7) no-repeat center/cover;
 }
 
-#topnav a:hover {
+#topnav a:not(.dropdown-item):hover {
   color: #c4c4c4;
 }
 
