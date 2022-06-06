@@ -12,3 +12,31 @@ jobs:
     uses: slateci/github-actions/.github/workflows/image-lint-scan.yml@master
     with:
       file: ./resources/docker/Dockerfile
+
+  analyze:
+    name: Analyze with CodeQL
+    runs-on: ubuntu-20.04
+
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language:
+          - javascript
+          - python
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
