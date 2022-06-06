@@ -12,12 +12,6 @@ on:
     - cron: '43 1 * * 0'
 
 jobs:
-  lint-scan:
-    name: Lint/scan image
-    uses: slateci/github-actions/.github/workflows/image-lint-scan.yml@master
-    with:
-      file: ./resources/docker/Dockerfile
-
   analyze:
     name: Analyze with CodeQL
     runs-on: ubuntu-20.04
