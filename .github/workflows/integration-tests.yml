@@ -35,7 +35,7 @@ jobs:
           rm config.py
           cat > config.py <<EOF
           # start config
-          dockerimage = 'hub.opensciencegrid.org/slate/minislate:1.0.4'
+          dockerimage = 'hub.opensciencegrid.org/slate/minislate:1.0.5'
           portalbranch = '$GITHUB_REF_NAME'
           # end config
           EOF
