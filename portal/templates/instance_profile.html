@@ -64,7 +64,7 @@
                     <tr>
                       {% set addr = 'http://' +service['externalIP'] + ':' + service['ports'].split(':')[1].split('/')[0] %}
                       <td>{{service['name']}}</td>
-                      <td><a href="{{addr}}" target="_blank">{{service['externalIP']}}</a></td>
+                      <td><a href="{{addr}}" target="_blank" rel="noopener">{{service['externalIP']}}</a></td>
                       <td>{{service['clusterIP']}}</td>
                       <td>{{service['ports']}}</td>
                       <td>{{service['url']}}</td>
