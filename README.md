@@ -20,4 +20,3 @@ Several methods for local application development and deployment via Ansible pla
 
 * [Flask: Quickstart](https://flask.palletsprojects.com/en/2.0.x/quickstart/)
 * [Quickstart for Python/WSGI applications](https://uwsgi-docs.readthedocs.io/en/latest/WSGIquickstart.html)
- 
