@@ -20,10 +20,28 @@ jobs:
         image: selenium/standalone-chrome:latest
 
     steps:
+      - name: Check out repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          path: .
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Portal image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./resources/docker/Dockerfile
+          target: release-stage
+          push: false
+          tags: "slate_portal:local"
+
       - name: Create K8s Kind Cluster
         uses: helm/kind-action@v1.3.0
         with:
-          cluster_name: test-cluster
+          config: ./.github/resources/kind/config.yml
           kubectl_version: ${{ env.KUBECTL_VERSION }}
           version: ${{ env.KIND_VERSION }}
 
@@ -38,36 +56,14 @@ jobs:
           packages: |
             selenium
 
-      - name: Initialize MiniSLATE
-        run: |
-          git clone --branch develop https://github.com/slateci/minislate.git
-          cd minislate/
-          rm config.py
-          cat > config.py <<EOF
-          # start config
-          dockerimage = 'hub.opensciencegrid.org/slate/minislate:1.0.5'
-          portalbranch = '$GITHUB_REF_NAME'
-          # end config
-          EOF
-          cat config.py
-          ./minislate build
-          ./minislate init
-          ./minislate slate cluster list
-
-      - name: Download Selenium tests
-        run: git clone https://github.com/slateci/portal-unit-test.git
+      - name: Check out Selenium tests
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          path: ./tests
+          ref: refs/heads/master
+          repository: slateci/portal-unit-test
 
       - name: Run Selenium tests
-        run: python portal-unit-test/main.py
-
-      # Return result to Slack if tests failed
-#      - name: Notify Slack Fail
-#        if: failure()
-#        id: slack # IMPORTANT: reference this step ID value in future Slack steps
-#        env:
-#          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-#        uses: voxmedia/github-action-slack-notify-build@v1
-#        with:
-#          channel_id: CLRGHCWG3
-#          status: FAILED
-#          color: danger
+        working-directory: ./tests
+        run: python main.py

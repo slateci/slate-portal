@@ -1,0 +1,59 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: test-cluster
+
+nodes:
+  - role: control-plane
+  - role: worker
+
+---
+
+kind: Pod
+apiVersion: v1
+metadata:
+  name: database
+spec:
+  containers:
+    - name: database
+      image: amazon/dynamodb-local:1.18.0
+      imagePullPolicy: IfNotPresent
+      workingDir: /home/dynamodblocal
+      command:
+        - "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
+  restartPolicy: OnFailure
+
+---
+
+kind: Pod
+apiVersion: v1
+metadata:
+  name: api
+spec:
+  containers:
+    - name: api
+      image: hub.opensciencegrid.org/slate/slate-api:1.0.4
+      imagePullPolicy: IfNotPresent
+      ports:
+        - containerPort: 18080
+          protocol: TCP
+
+---
+
+kind: Pod
+apiVersion: v1
+metadata:
+  name: portal
+spec:
+  containers:
+    - name: portal
+      image: slate_portal:local
+      imagePullPolicy: IfNotPresent
+      command:
+        - "python /slate/run_portal.py"
+      ports:
+        - containerPort: 5050
+          protocol: TCP
+      volumeMounts:
+        - name: portal-conf
+          mountPath: /slate/instance
+          readOnly: true
