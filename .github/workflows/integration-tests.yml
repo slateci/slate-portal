@@ -3,8 +3,12 @@ name: Integration Tests
 on:
   push:
     branches:
-      - develop
-      - master
+      - feature/153_integration-tests-cannot-run-on-github-runner
+
+env:
+  KIND_VERSION: v0.14.0
+  KUBECTL_VERSION: v1.22.10
+  PYTHON_VERSION: 3.9.7
 
 jobs:
   selenium:
@@ -16,19 +20,25 @@ jobs:
         image: selenium/standalone-chrome:latest
 
     steps:
-      - name: Set up Python...
-        uses: actions/setup-python@v3
+      - name: Create K8s Kind Cluster
+        uses: helm/kind-action@v1.3.0
         with:
-          python-version: '3.9.7'
-          architecture: 'x64'
+          cluster_name: test-cluster
+          kubectl_version: ${{ env.KUBECTL_VERSION }}
+          version: ${{ env.KIND_VERSION }}
 
-      - name: Install Selenium Python Bindings...
-        run: pip install -U selenium
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Docker compose
-        run: docker-compose --version
+      - name: Install Python packages
+        uses: BSFishy/pip-action@v1
+        with:
+          packages: |
+            selenium
 
-      - name: Initialize MiniSLATE...
+      - name: Initialize MiniSLATE
         run: |
           git clone --branch develop https://github.com/slateci/minislate.git
           cd minislate/
@@ -44,10 +54,10 @@ jobs:
           ./minislate init
           ./minislate slate cluster list
 
-      - name: Download Selenium tests...
+      - name: Download Selenium tests
         run: git clone https://github.com/slateci/portal-unit-test.git
 
-      - name: Run Selenium tests...
+      - name: Run Selenium tests
         run: python portal-unit-test/main.py
 
       # Return result to Slack if tests failed
