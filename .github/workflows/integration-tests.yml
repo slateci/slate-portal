@@ -77,12 +77,15 @@ jobs:
           services:
             db:
               image: dwmkerr/dynamodb
+              network_mode: "host"
               restart: always
             slate:
               depends_on:
                 - db
               image: {IMAGE}
               command: /usr/bin/supervisord -c /etc/supervisord.conf
+              network_mode: "host"
+              restart: always
               stdin_open: true
               tty: true
               volumes:
