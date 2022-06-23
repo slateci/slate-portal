@@ -35,7 +35,7 @@ jobs:
           node_image: kindest/node:${{ env.KUBECTL_VERSION }}
           version: ${{ env.KIND_VERSION }}
 
-      - name: Get Kind Kubeconfig
+      - name: Store Kind Kubeconfig
         run: |-
           mkdir -p k8s
           kind get kubeconfig --name=sandbox > ./k8s/kubeconfig.yml
@@ -85,7 +85,7 @@ jobs:
               stdin_open: true
               tty: true
               volumes:
-                - ./k8s:/etc/k8s
+                - ../k8s:/etc/k8s
               ports:
                 - 5050:5050
                 - 5100:5100
@@ -98,16 +98,16 @@ jobs:
           ./minislate build
           ./minislate init
           ./minislate slate cluster list
-
-      - name: Check out tests
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          path: ./tests
-          ref: refs/heads/master
-          repository: slateci/portal-unit-test
-
-      - name: Run tests
-        working-directory: ./tests
-        run: |-
-          python main.py
+#
+#      - name: Check out tests
+#        uses: actions/checkout@v3
+#        with:
+#          fetch-depth: 1
+#          path: ./tests
+#          ref: refs/heads/master
+#          repository: slateci/portal-unit-test
+#
+#      - name: Run tests
+#        working-directory: ./tests
+#        run: |-
+#          python main.py
