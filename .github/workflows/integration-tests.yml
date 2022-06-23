@@ -20,8 +20,8 @@ jobs:
         image: selenium/standalone-chrome:latest
 
     steps:
-      - name: Check out repo
-        uses: actions/checkout@v3
+      - name: Set up Python...
+        uses: actions/setup-python@v4
         with:
           fetch-depth: 0
           path: .
