@@ -20,11 +20,11 @@ jobs:
         image: selenium/standalone-chrome:latest
 
     steps:
-      - name: Set up Python...
-        uses: actions/setup-python@v4
+      - name: Check out repo
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          path: .
+          path: ./checkout
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -32,8 +32,8 @@ jobs:
       - name: Build Portal image
         uses: docker/build-push-action@v3
         with:
-          context: .
-          file: ./resources/docker/Dockerfile
+          context: ./checkout
+          file: ./checkout/resources/docker/Dockerfile
           target: release-stage
           push: false
           tags: "slate_portal:local"
@@ -41,7 +41,7 @@ jobs:
       - name: Create K8s Kind Cluster
         uses: helm/kind-action@v1.3.0
         with:
-          config: ./.github/resources/kind/config.yml
+          config: ./checkout/.github/resources/kind/config.yml
           kubectl_version: ${{ env.KUBECTL_VERSION }}
           version: ${{ env.KIND_VERSION }}
 

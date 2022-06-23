@@ -16,7 +16,7 @@ spec:
   containers:
     - name: database
       image: amazon/dynamodb-local:1.18.0
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: Always
       workingDir: /home/dynamodblocal
       command:
         - "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
@@ -31,8 +31,8 @@ metadata:
 spec:
   containers:
     - name: api
-      image: hub.opensciencegrid.org/slate/slate-api:1.0.4
-      imagePullPolicy: IfNotPresent
+      image: hub.opensciencegrid.org/slate/slate-api:1.0.5
+      imagePullPolicy: Always
       ports:
         - containerPort: 18080
           protocol: TCP
@@ -47,7 +47,7 @@ spec:
   containers:
     - name: portal
       image: slate_portal:local
-      imagePullPolicy: IfNotPresent
+      imagePullPolicy: Always
       command:
         - "python /slate/run_portal.py"
       ports:
