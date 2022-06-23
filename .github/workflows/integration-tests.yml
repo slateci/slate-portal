@@ -73,18 +73,18 @@ jobs:
           rm docker-compose.yml.tmpl
           echo "Removing Rancher K3s from Docker Compose file..."
           cat > docker-compose.yml.tmpl <<EOF
-          version: '3.1'
+          version: "3.9"
           services:
             db:
               image: dwmkerr/dynamodb
-              network_mode: "host"
+              network_mode: "bridge"
               restart: always
             slate:
               depends_on:
                 - db
               image: {IMAGE}
               command: /usr/bin/supervisord -c /etc/supervisord.conf
-              network_mode: "host"
+              network_mode: "bridge"
               restart: always
               stdin_open: true
               tty: true
