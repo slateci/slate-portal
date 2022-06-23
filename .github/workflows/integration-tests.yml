@@ -45,6 +45,46 @@ jobs:
           dockerimage = "minislate:local"
           portalbranch = "${{ github.ref_name }}"
           EOF
+
+          rm docker-compose.yml.tmpl
+          cat > docker-compose.yml.tmpl <<EOF
+          version: '3.1'
+          services:
+            db:
+              image: dwmkerr/dynamodb
+              restart: always
+            kube:
+              image: rancher/k3s:v1.19.5-k3s1-amd64
+              restart: always
+              privileged: true
+              command: server --https-listen-port 6443 --kube-apiserver-arg service-node-port-range=30000-30100
+              volumes:
+                - kubernetes:/etc/rancher
+              ports:
+                - 30000-30100:30000-30100
+            # {PORTS}
+            slate:
+              depends_on:
+                - db
+                - kube
+              image: {IMAGE}
+              command: /usr/bin/supervisord -c /etc/supervisord.conf
+              environment:
+                KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+              stdin_open: true
+              tty: true
+              volumes:
+                - kubernetes:/etc/rancher
+              # {VOLUMES}
+              ports:
+                - 5050:5050
+                - 5100:5100
+                - 18080:18080
+          volumes:
+            kubernetes:
+            nfsdata:
+          EOF
+          cat docker-compose.yml.tmpl
           ./minislate build
           ./minislate init
           ./minislate slate cluster list
