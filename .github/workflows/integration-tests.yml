@@ -37,8 +37,9 @@ jobs:
 
       - name: Store Kind Kubeconfig
         run: |-
-          mkdir -p k8s
-          kind get kubeconfig --name=sandbox > ./k8s/kubeconfig.yml
+          mkdir -p rancher/k3s
+          echo "Pretending Kind KUBECONFIG is Rancher K3s for backwards compatibility..."
+          kind get kubeconfig --name=sandbox > ./rancher/k3s/k3s.yaml
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -63,12 +64,14 @@ jobs:
         working-directory: ./minislate
         run: |-
           rm config.py
+          echo "Configuring MiniSLATE to use ${{ github.ref_name }}..."
           cat > config.py <<EOF
           dockerimage = "minislate:local"
           portalbranch = "${{ github.ref_name }}"
           EOF
 
           rm docker-compose.yml.tmpl
+          echo "Removing Rancher K3s from Docker Compose file..."
           cat > docker-compose.yml.tmpl <<EOF
           version: '3.1'
           services:
@@ -80,12 +83,10 @@ jobs:
                 - db
               image: {IMAGE}
               command: /usr/bin/supervisord -c /etc/supervisord.conf
-              environment:
-                KUBECONFIG: /etc/k8s/kubeconfig.yml
               stdin_open: true
               tty: true
               volumes:
-                - ../k8s:/etc/k8s
+                - ../rancher:/etc/rancher
               ports:
                 - 5050:5050
                 - 5100:5100
