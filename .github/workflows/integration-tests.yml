@@ -9,6 +9,7 @@ env:
   KIND_VERSION: v0.14.0
   KUBECTL_VERSION: v1.21.10
   PYTHON_VERSION: 3.9.7
+  SELENIUM_VERSION: 4.2.0
 
 jobs:
   selenium:
@@ -23,7 +24,7 @@ jobs:
       - name: Check out repo
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           path: ./checkout
 
       - name: Create K8s Kind Cluster
@@ -48,12 +49,12 @@ jobs:
         uses: BSFishy/pip-action@v1
         with:
           packages: |
-            selenium
+            selenium==${{ env.SELENIUM_VERSION }}
 
       - name: Check out MiniSLATE
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           path: ./minislate
           ref: refs/heads/master
           repository: slateci/minislate
@@ -77,7 +78,6 @@ jobs:
             slate:
               depends_on:
                 - db
-                - kube
               image: {IMAGE}
               command: /usr/bin/supervisord -c /etc/supervisord.conf
               environment:
