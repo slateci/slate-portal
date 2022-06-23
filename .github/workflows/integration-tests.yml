@@ -114,3 +114,7 @@ jobs:
 #        working-directory: ./tests
 #        run: |-
 #          python main.py
+
+      - name: Check Docker containers
+        run: |-
+          docker container ls --all
