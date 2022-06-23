@@ -31,6 +31,7 @@ jobs:
         uses: helm/kind-action@v1.3.0
         with:
           cluster_name: sandbox
+          config: ./checkout/.github/resources/kind/config.yml
           kubectl_version: ${{ env.KUBECTL_VERSION }}
           node_image: kindest/node:${{ env.KUBECTL_VERSION }}
           version: ${{ env.KIND_VERSION }}
