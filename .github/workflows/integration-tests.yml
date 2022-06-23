@@ -101,20 +101,20 @@ jobs:
           ./minislate build
           ./minislate init
           ./minislate slate cluster list
-#
-#      - name: Check out tests
-#        uses: actions/checkout@v3
-#        with:
-#          fetch-depth: 1
-#          path: ./tests
-#          ref: refs/heads/master
-#          repository: slateci/portal-unit-test
-#
-#      - name: Run tests
-#        working-directory: ./tests
-#        run: |-
-#          python main.py
 
       - name: Check Docker containers
         run: |-
           docker container ls --all
+
+      - name: Check out tests
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          path: ./tests
+          ref: refs/heads/master
+          repository: slateci/portal-unit-test
+
+      - name: Run tests
+        working-directory: ./tests
+        run: |-
+          python main.py
