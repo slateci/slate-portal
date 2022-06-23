@@ -15,9 +15,9 @@ jobs:
     name: Selenium Tests
     runs-on: ubuntu-20.04
 
-    services:
-      chrome:
-        image: selenium/standalone-chrome:latest
+#    services:
+#      chrome:
+#        image: selenium/standalone-chrome:latest
 
     steps:
       - name: Check out repo
@@ -29,13 +29,13 @@ jobs:
       - name: Create K8s Kind Cluster
         uses: helm/kind-action@v1.3.0
         with:
-          config: ./checkout/.github/resources/kind/config.yml
+          cluster_name: sandbox
           kubectl_version: ${{ env.KUBECTL_VERSION }}
           version: ${{ env.KIND_VERSION }}
 
       - name: Get Kubeconfig
         run: |-
-          kind get kubeconfig --name=test-cluster
+          kind get kubeconfig --name=sandbox
 
 #      - name: Set up Python
 #        uses: actions/setup-python@v4
