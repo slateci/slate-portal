@@ -15,9 +15,9 @@ jobs:
     name: Selenium Tests
     runs-on: ubuntu-20.04
 
-#    services:
-#      chrome:
-#        image: selenium/standalone-chrome:latest
+    services:
+      chrome:
+        image: selenium/standalone-chrome:latest
 
     steps:
       - name: Check out repo
@@ -31,92 +31,83 @@ jobs:
         with:
           cluster_name: sandbox
           kubectl_version: ${{ env.KUBECTL_VERSION }}
+          node_image: kindest/node:${{ env.KUBECTL_VERSION }}
           version: ${{ env.KIND_VERSION }}
 
-      - name: Get Kubeconfig
+      - name: Get Kind Kubeconfig
         run: |-
-          kind get kubeconfig --name=sandbox
+          mkdir -p k8s
+          kind get kubeconfig --name=sandbox > ./k8s/kubeconfig.yml
 
-#      - name: Set up Python
-#        uses: actions/setup-python@v4
-#        with:
-#          python-version: ${{ env.PYTHON_VERSION }}
-#
-#      - name: Install Python packages
-#        uses: BSFishy/pip-action@v1
-#        with:
-#          packages: |
-#            selenium
-#
-#      - name: Check out MiniSLATE
-#        uses: actions/checkout@v3
-#        with:
-#          fetch-depth: 0
-#          path: ./minislate
-#          ref: refs/heads/master
-#          repository: slateci/minislate
-#
-#      - name: Initialize MiniSLATE
-#        working-directory: ./minislate
-#        run: |-
-#          rm config.py
-#          cat > config.py <<EOF
-#          dockerimage = "minislate:local"
-#          portalbranch = "${{ github.ref_name }}"
-#          EOF
-#
-#          rm docker-compose.yml.tmpl
-#          cat > docker-compose.yml.tmpl <<EOF
-#          version: '3.1'
-#          services:
-#            db:
-#              image: dwmkerr/dynamodb
-#              restart: always
-#            kube:
-#              image: rancher/k3s:v1.19.5-k3s1-amd64
-#              restart: always
-#              privileged: true
-#              command: server --https-listen-port 6443 --kube-apiserver-arg service-node-port-range=30000-30100
-#              volumes:
-#                - kubernetes:/etc/rancher
-#              ports:
-#                - 30000-30100:30000-30100
-#            # {PORTS}
-#            slate:
-#              depends_on:
-#                - db
-#                - kube
-#              image: {IMAGE}
-#              command: /usr/bin/supervisord -c /etc/supervisord.conf
-#              environment:
-#                KUBECONFIG: /etc/rancher/k3s/k3s.yaml
-#              stdin_open: true
-#              tty: true
-#              volumes:
-#                - kubernetes:/etc/rancher
-#              # {VOLUMES}
-#              ports:
-#                - 5050:5050
-#                - 5100:5100
-#                - 18080:18080
-#          volumes:
-#            kubernetes:
-#            nfsdata:
-#          EOF
-#          cat docker-compose.yml.tmpl
-#          ./minislate build
-#          ./minislate init
-#          ./minislate slate cluster list
-#
-#      - name: Check out tests
-#        uses: actions/checkout@v3
-#        with:
-#          fetch-depth: 0
-#          path: ./tests
-#          ref: refs/heads/master
-#          repository: slateci/portal-unit-test
-#
-#      - name: Run tests
-#        working-directory: ./tests
-#        run: |-
-#          python main.py
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Python packages
+        uses: BSFishy/pip-action@v1
+        with:
+          packages: |
+            selenium
+
+      - name: Check out MiniSLATE
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          path: ./minislate
+          ref: refs/heads/master
+          repository: slateci/minislate
+
+      - name: Initialize MiniSLATE
+        working-directory: ./minislate
+        run: |-
+          rm config.py
+          cat > config.py <<EOF
+          dockerimage = "minislate:local"
+          portalbranch = "${{ github.ref_name }}"
+          EOF
+
+          rm docker-compose.yml.tmpl
+          cat > docker-compose.yml.tmpl <<EOF
+          version: '3.1'
+          services:
+            db:
+              image: dwmkerr/dynamodb
+              restart: always
+            slate:
+              depends_on:
+                - db
+                - kube
+              image: {IMAGE}
+              command: /usr/bin/supervisord -c /etc/supervisord.conf
+              environment:
+                KUBECONFIG: /etc/k8s/kubeconfig.yml
+              stdin_open: true
+              tty: true
+              volumes:
+                - ./k8s:/etc/k8s
+              ports:
+                - 5050:5050
+                - 5100:5100
+                - 18080:18080
+          volumes:
+            nfsdata:
+          EOF
+          cat docker-compose.yml.tmpl
+
+          ./minislate build
+          ./minislate init
+          ./minislate slate cluster list
+
+      - name: Check out tests
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          path: ./tests
+          ref: refs/heads/master
+          repository: slateci/portal-unit-test
+
+      - name: Run tests
+        working-directory: ./tests
+        run: |-
+          python main.py
