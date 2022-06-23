@@ -6,8 +6,6 @@ on:
       - feature/153_integration-tests-cannot-run-on-github-runner
 
 env:
-  KIND_VERSION: v0.14.0
-  KUBECTL_VERSION: v1.22.10
   PYTHON_VERSION: 3.9.7
 
 jobs:
@@ -20,31 +18,6 @@ jobs:
         image: selenium/standalone-chrome:latest
 
     steps:
-      - name: Check out repo
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          path: ./checkout
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Build Portal image
-        uses: docker/build-push-action@v3
-        with:
-          context: ./checkout
-          file: ./checkout/resources/docker/Dockerfile
-          target: release-stage
-          push: false
-          tags: "slate_portal:local"
-
-      - name: Create K8s Kind Cluster
-        uses: helm/kind-action@v1.3.0
-        with:
-          config: ./checkout/.github/resources/kind/config.yml
-          kubectl_version: ${{ env.KUBECTL_VERSION }}
-          version: ${{ env.KIND_VERSION }}
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -56,7 +29,27 @@ jobs:
           packages: |
             selenium
 
-      - name: Check out Selenium tests
+      - name: Check out MiniSLATE
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          path: ./minislate
+          ref: refs/heads/master
+          repository: slateci/minislate
+
+      - name: Initialize MiniSLATE
+        working-directory: ./minislate
+        run: |-
+          rm config.py
+          cat > config.py <<EOF
+          dockerimage = "minislate:local"
+          portalbranch = "${{ github.ref_name }}"
+          EOF
+          ./minislate build
+          ./minislate init
+          ./minislate slate cluster list
+
+      - name: Check out tests
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -64,6 +57,7 @@ jobs:
           ref: refs/heads/master
           repository: slateci/portal-unit-test
 
-      - name: Run Selenium tests
+      - name: Run tests
         working-directory: ./tests
-        run: python main.py
+        run: |-
+          python main.py
