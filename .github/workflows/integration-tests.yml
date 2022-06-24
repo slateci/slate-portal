@@ -61,7 +61,7 @@ jobs:
           ref: refs/heads/master
           repository: slateci/minislate
 
-      - name: Initialize MiniSLATE
+      - name: Customize MiniSLATE
         working-directory: ./minislate
         run: |-
           rm config.py
@@ -98,7 +98,14 @@ jobs:
           EOF
           cat docker-compose.yml.tmpl
 
+      - name: Build MiniSLATE
+        working-directory: ./minislate
+        run: |-
           ./minislate build
+
+      - name: Initialize MiniSLATE
+        working-directory: ./minislate
+        run: |-
           ./minislate init
           ./minislate slate cluster list
 
