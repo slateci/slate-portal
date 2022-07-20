@@ -1,5 +1,8 @@
 # SLATE Portal
 
+[![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)
+[![Integration Tests](https://github.com/slateci/slate-portal/actions/workflows/integration-tests.yml/badge.svg)](https://github.com/slateci/slate-portal/actions/workflows/integration-tests.yml)
+
 This repository contains the web Portal to the [SLATE platform](https://slateci.io/) and the associated Ansible playbook used for server deployments.
 
 ## Application Framework
@@ -20,4 +23,3 @@ Several methods for local application development and deployment via Ansible pla
 
 * [Flask: Quickstart](https://flask.palletsprojects.com/en/2.0.x/quickstart/)
 * [Quickstart for Python/WSGI applications](https://uwsgi-docs.readthedocs.io/en/latest/WSGIquickstart.html)
- 

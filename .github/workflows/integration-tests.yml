@@ -17,7 +17,7 @@ jobs:
 
     steps:
       - name: Set up Python...
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4
         with:
           python-version: '3.9.7'
           architecture: 'x64'
@@ -35,7 +35,7 @@ jobs:
           rm config.py
           cat > config.py <<EOF
           # start config
-          dockerimage = 'hub.opensciencegrid.org/slate/minislate:1.0.4'
+          dockerimage = 'hub.opensciencegrid.org/slate/minislate:1.0.5'
           portalbranch = '$GITHUB_REF_NAME'
           # end config
           EOF
