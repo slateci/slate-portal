@@ -147,6 +147,10 @@ def faq():
     """FAQs page"""
     return render_template('faq.html')
 
+@app.route('/healthz', methods=['GET'])
+def healthz():
+    """Healthz page"""
+    return render_template('healthz.html')
 
 @app.route('/signup', methods=['GET'])
 def signup():
