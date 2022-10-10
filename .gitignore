@@ -5,3 +5,13 @@ __pycache__/
 
 # Logs
 *.log
+
+# Google
+gcloud-key.json
+
+# Helm
+*.diff
+*.yml.dec
+
+# Other
+.env

@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-deployment" (include "helm-slate-portal.fullname" .) }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "helm-slate-portal.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.portalReplicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      {{- include "helm-slate-portal.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/secret_portal-conf: {{ include (print $.Template.BasePath "/secrets/portal-conf.yml") . | sha256sum }}
+      labels:
+        {{- include "helm-slate-portal.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: slate-portal
+          image: "{{ .Values.harbor.hostname }}/{{ .Values.harbor.projectID }}/slate-portal:{{ .Chart.AppVersion }}"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ .Values.portalPort }}
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.portalPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              port: {{ .Values.portalPort }}
+              path: /healthz
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+          volumeMounts:
+            - name: portal-conf
+              mountPath: /slate/instance
+              readOnly: true
+#          securityContext:
+#            allowPrivilegeEscalation: false
+#            privileged: false
+#            runAsGroup: 1000
+#            runAsUser: 1000
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                topologyKey: kubernetes.io/hostname
+                labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                        - {{ include "helm-slate-portal.name" . }}
+                    - key: app.kubernetes.io/instance
+                      operator: In
+                      values:
+                        - {{ .Release.Name }}
+              weight: 100
+      restartPolicy: Always
+      nodeSelector:
+        cloud.google.com/gke-nodepool: primus-other
+#      securityContext: XXXX
+      volumes:
+        - name: portal-conf
+          secret:
+            secretName: {{ printf "%s-conf-secret" (include "helm-slate-portal.fullname" .) }}
+            items:
+              - key: content
+                path: portal.conf
