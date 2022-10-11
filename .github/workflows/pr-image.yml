@@ -13,7 +13,7 @@ on:
     branches:
       - feature/163-consolidate-helm-chart-into-this-repo
     paths:
-      - "resources/chart/**"
+      - "resources/docker/**"
 
 jobs:
   lint-scan:
