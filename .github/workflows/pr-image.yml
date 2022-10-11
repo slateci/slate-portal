@@ -9,6 +9,11 @@ on:
       - master
     paths:
       - "resources/docker/**"
+  push:
+    branches:
+      - feature/163-consolidate-helm-chart-into-this-repo
+    paths:
+      - "resources/chart/**"
 
 jobs:
   lint-scan:

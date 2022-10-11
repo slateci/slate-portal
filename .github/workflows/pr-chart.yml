@@ -5,7 +5,13 @@ concurrency:
 on:
   pull_request:
     branches:
+      - develop
       - master
+    paths:
+      - "resources/chart/**"
+  push:
+    branches:
+      - feature/163-consolidate-helm-chart-into-this-repo
     paths:
       - "resources/chart/**"
 
