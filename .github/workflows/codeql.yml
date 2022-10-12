@@ -5,9 +5,13 @@ on:
     branches:
       - develop
       - master
+    paths:
+      - portal/**
   pull_request:
     branches:
       - develop
+    paths:
+      - portal/**
   schedule:
     - cron: '43 1 * * 0'
 
