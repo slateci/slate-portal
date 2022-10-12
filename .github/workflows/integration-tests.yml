@@ -1,3 +1,5 @@
+# TODO: MiniSLATE doesn't work in GitHub and needs re-writing (use https://github.com/slateci/slate-client-server/blob/develop/.github/workflows/unit-tests.yml as inspiration).
+
 name: Integration Tests
 
 on:
