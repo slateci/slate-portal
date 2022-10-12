@@ -18,10 +18,9 @@ on:
 jobs:
   chart:
     name: Check Helm Chart
-    uses: slateci/github-actions/.github/workflows/chart-diff-lint.yml@v7
+    uses: slateci/github-actions/.github/workflows/chart-diff-lint.yml@feature/77-next-iteration-assorted-changes
     with:
       helm_release_prefix: slate-portal
-      helm_working_directory: "./resources/chart"
     secrets:
       gc_compute_zone: ${{ secrets.GCLOUD_COMPUTE_ZONE }}
       gc_gke_cluster: ${{ secrets.GCLOUD_GKE_CLUSTER }}
