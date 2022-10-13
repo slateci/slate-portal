@@ -18,7 +18,7 @@ on:
 jobs:
   chart:
     name: Check Helm Chart
-    uses: slateci/github-actions/.github/workflows/chart-diff-lint.yml@feature/77-next-iteration-assorted-changes
+    uses: slateci/github-actions/.github/workflows/chart-diff-lint.yml@v8
     with:
       helm_release_prefix: slate-portal
     secrets:

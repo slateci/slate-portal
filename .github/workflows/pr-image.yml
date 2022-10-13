@@ -18,6 +18,6 @@ on:
 jobs:
   lint-scan:
     name: Lint/scan image
-    uses: slateci/github-actions/.github/workflows/image-lint-scan.yml@feature/77-next-iteration-assorted-changes
+    uses: slateci/github-actions/.github/workflows/image-lint-scan.yml@v8
     with:
       file: ./resources/docker/Dockerfile
