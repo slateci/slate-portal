@@ -5,3 +5,14 @@ __pycache__/
 
 # Logs
 *.log
+
+# Google
+gcloud-key.json
+
+# Helm
+*.diff
+*.yml.dec
+
+# Other
+.DS_Store
+.env
