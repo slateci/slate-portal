@@ -14,4 +14,5 @@ gcloud-key.json
 *.yml.dec
 
 # Other
+.DS_Store
 .env
