@@ -35,7 +35,7 @@ jobs:
   bump-appversion:
     name: Bump appVersion
     if: ${{ github.event.inputs.confirm == 'CONFIRM' }}
-    uses: slateci/github-actions/.github/workflows/chart-bump-appversion.yml@feature/82-modify-chart-bump-appversion-to-tag-pre-releases
+    uses: slateci/github-actions/.github/workflows/chart-bump-appversion.yml@v8
     with:
       helm_release_namespace: ${{ github.event.inputs.helm-release-namespace }}
       helm_release_prefix: slate-portal
