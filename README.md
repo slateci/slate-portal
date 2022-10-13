@@ -2,8 +2,9 @@
 
 [![License: Unlicense](https://img.shields.io/badge/license-Unlicense-blue.svg)](http://unlicense.org/)
 [![Integration Tests](https://github.com/slateci/slate-portal/actions/workflows/integration-tests.yml/badge.svg)](https://github.com/slateci/slate-portal/actions/workflows/integration-tests.yml)
+[![Deploy: PROD](https://github.com/slateci/slate-portal/actions/workflows/deploy-prod.yml/badge.svg?branch=master)](https://github.com/slateci/slate-portal/actions/workflows/deploy-prod.yml)
 
-This repository contains the web Portal to the [SLATE platform](https://slateci.io/) and the associated Ansible playbook used for server deployments.
+This repository contains the web Portal to the [SLATE platform](https://slateci.io/) and the Helm Chart used for the Google Cloud Platform deployments.
 
 ## Application Framework
 
@@ -13,11 +14,15 @@ Portal is written with the Flask framework and makes use of uWSGI on the develop
 
 ## Authentication Layer
 
-[globus](https://docs.globus.org/) is used to authenticate users with the [Auth API](https://docs.globus.org/api/auth/) (see [notebook/README.md](resources/notebook/README.md) for additional information).
+[globus](https://docs.globus.org/) is used to authenticate users with the [Auth API](https://docs.globus.org/api/auth/). Read more at [notebook/README.md](resources/notebook/README.md).
 
-## Development/Deployment
+## Local Development
 
-Several methods for local application development and deployment via Ansible playbook exist and are described at length in the [related documentation](resources/docs/index.md).
+See [Local Development with Containers](resources/docs/containers.md) for more details.
+
+## Deployment
+
+See [Deployment Steps](https://docs.google.com/document/d/1WBrVPhvCGxAWbXaxDbaKQ2J73K6amF4fbXRxzvtGwSo/edit#heading=h.6rq3vs2f6vdu) for more details.
 
 ## Resources
 
