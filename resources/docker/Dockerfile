@@ -1,9 +1,8 @@
 # syntax=docker/dockerfile:1
 
 # Docker image build arguments:
-ARG baseimage=centos:7
+ARG baseimage=rockylinux:9
 ARG port=5050
-ARG virtualenv=/python3/venv
 
 #######################################
 ## Local Stage                        #
@@ -12,15 +11,14 @@ FROM ${baseimage} as local-stage
 
 # Docker image build arguments:
 ARG port
-ARG virtualenv
 
 # Docker container environmental variables:
 ENV FLASK_PORT=${port}
-ENV PATH=${virtualenv}/bin:$PATH
 
 # Package installs/updates:
-RUN yum install -y epel-release
-RUN yum install -y boost \
+RUN dnf install -y epel-release
+RUN dnf install -y \
+    boost \
     gcc \
     libcurl \
     libffi-devel \
@@ -31,12 +29,12 @@ RUN yum install -y boost \
     zlib
 
 # Change working directory:
-WORKDIR /python3
+WORKDIR /tmp
 
-# Configure a modern Python interpreter:
-RUN pip3 install virtualenv
+# Install Python packages:
 COPY ./resources/docker/requirements.txt ./requirements.txt
-RUN bash -c "virtualenv --python=/usr/bin/python3 venv && source ${virtualenv}/bin/activate && pip install --no-cache-dir -r ./requirements.txt"
+RUN pip install --no-cache-dir -r ./requirements.txt && \
+    rm ./requirements.txt
 
 # Change working directory:
 WORKDIR /slate
@@ -55,36 +53,35 @@ FROM ${baseimage} as release-stage
 
 # Docker image build arguments:
 ARG port
-ARG virtualenv
 
 # Docker container environmental variables:
 ENV FLASK_PORT=${port}
-ENV PATH=${virtualenv}/bin:$PATH
 
 # Package installs/updates:
-RUN yum install -y epel-release
-RUN yum install -y boost \
+RUN dnf install -y epel-release
+RUN dnf install -y \
+    boost \
     gcc \
     libcurl \
     libffi-devel \
     net-tools \
     openssl \
-    python3-devel \
     which \
     zlib
-RUN yum clean all && rm -rf /var/cache/yum
+RUN dnf clean all && \
+    rm -rf /var/cache/yum
 
 # Prepare entrypoint:
 COPY ./resources/docker/scripts/docker-entrypoint.sh ./
 RUN chmod +x ./docker-entrypoint.sh
 
 # Change working directory:
-WORKDIR /python3
+WORKDIR /tmp
 
-# Configure a modern Python interpreter:
-RUN pip3 install virtualenv
+# Install Python packages:
 COPY ./resources/docker/requirements.txt ./requirements.txt
-RUN bash -c "virtualenv --python=/usr/bin/python3 venv && source ${virtualenv}/bin/activate && pip install --no-cache-dir -r ./requirements.txt"
+RUN pip install --no-cache-dir -r ./requirements.txt && \
+    rm ./requirements.txt
 
 # Change working directory:
 WORKDIR /slate
