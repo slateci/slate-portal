@@ -3,7 +3,7 @@ services:
   slate_portal:
     container_name: slate_portal
     image: slate_portal:local
-    command: "python /slate/run_portal.py"
+    command: "python3 /slate/run_portal.py"
     build:
       context: .
       dockerfile: ./resources/docker/Dockerfile
