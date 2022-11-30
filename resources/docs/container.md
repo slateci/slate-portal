@@ -4,9 +4,10 @@ A containerized Portal will provide a near live-preview developer experience.
 
 ## Requirements
 
-### Install Docker
+### Install Docker or Podman
 
-Install [Docker](https://docs.docker.com/get-docker/) for developing, managing, and running OCI containers on your system.
+* Install [Docker](https://docs.docker.com/get-docker/) to make use of the simpler `docker-compose` commands (if desired).
+* For those that prefer Podman, install [Podman](https://podman.io/) and refer to the `podman` commands described below.
 
 ### Create `portal.conf`
 
@@ -71,17 +72,43 @@ MAILGUN_API_TOKEN = 'SAMPLE'
 
 ## Build and Run Portal
 
-Build the Docker image:
-
-```shell
-docker build -f ./resources/docker/Dockerfile -t slate-portal:local .
-```
-
 Running the image will create a new tagged container and start Portal.
 * Below we use port `5050` due to port `5000` being reserved on MacOSX.
 
 ```shell
-[your@localmachine]$ docker run -it -v ${PWD}:/slate -p 5050:5050 slate-portal:local
+[your@localmachine]$ docker-compose up
+ * Serving Flask app 'portal' (lazy loading)
+ * Environment: production
+   WARNING: This is a development server. Do not use it in a production deployment.
+   Use a production WSGI server instead.
+ * Debug mode: on
+ * Running on all addresses.
+   WARNING: This is a development server. Do not use it in a production deployment.
+ * Running on http://172.17.0.2:5050/ (Press CTRL+C to quit)
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 123-456-789
+```
+
+Point your browser to `http://localhost:5050`, make changes, and enjoy a live-preview experience.
+
+### Podman Support
+
+Build the image:
+
+```shell
+[your@localmachine]$ podman build --file ./resources/docker/Dockerfile --target local-stage --tag slate-portal:local .
+[1/2] STEP 1/13: FROM rockylinux:9 AS base-stage
+[1/2] STEP 2/13: ARG port
+...
+Successfully tagged localhost/slate-portal:local
+6b0369b42beb01468615cbb17b2793bf2bc86e99e0b5dfd1fc2018eb3bde993a
+```
+
+Run the container:
+
+```shell
+[your@localmachine]$ podman run -it -v ${PWD}:/slate -p 5050:5050 slate-portal:local
  * Serving Flask app 'portal' (lazy loading)
  * Environment: production
    WARNING: This is a development server. Do not use it in a production deployment.
@@ -99,10 +126,16 @@ Point your browser to `http://localhost:5050`, make changes, and enjoy a live-pr
 
 ## Teardown
 
-Quit the Flask app (`CTRL + C`) and prune the now-stopped Docker container to release system resources:
+1. Quit the Flask app (`CTRL + C`).
+2. If you are using `docker`, refer to the [docker compose docs](https://docs.docker.com/compose/reference/) for appropriate commands.
+3. Prune the now-stopped container to release system resources:
 
-```shell
-docker container prune
-```
+   ```shell
+   [your@localmachine]$ docker container prune
+   ```
+   
+   or:
 
-For more information on pruning stopped containers see [docker container prune](https://docs.docker.com/engine/reference/commandline/container_prune/)
+   ```shell
+   [your@localmachine]$ podman container prune
+   ```
