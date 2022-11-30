@@ -1,4 +1,4 @@
 #!/bin/bash
 
 # Run the Flask app:
-python /slate/run_portal.py
+python3 /slate/run_portal.py
