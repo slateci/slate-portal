@@ -7,8 +7,11 @@ on:
     branches:
       - develop
       - master
-    paths:
-      - "resources/docker/**"
+    paths-ignore:
+      - ".github/**"
+      - "resources/chart/**"
+      - "resources/docs/**"
+      - "resources/notebook/**"
 
 jobs:
   lint-scan:
