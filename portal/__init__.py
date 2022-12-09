@@ -1,4 +1,3 @@
-import sys
 
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
@@ -9,6 +8,7 @@ import datetime
 from flask_misaka import markdown
 from flask_misaka import Misaka
 import logging
+import sys
 
 __author__ = 'Jeremy Van'
 # set up Flask App
