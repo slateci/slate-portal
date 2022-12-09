@@ -6,7 +6,7 @@
 apiEndpoint: 'api.staging.slateci.io'
 
 # portalDebug is whether Flask powering SLATE Portal is in debug mode
-portalDebug: 'True'
+portalDebug: 'False'
 # portalEndpoint is the domain for the SLATE Portal
 portalEndpoint: 'portal.staging.slateci.io'
 # portalReplicaCount is the replica count for the Portal deployment
