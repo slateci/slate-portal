@@ -1,3 +1,4 @@
+from portal import app
 from flask import redirect, request, session, url_for, flash
 from functools import wraps
 from portal.connect_api import get_user_id, get_instance_details, get_group_members
@@ -10,11 +11,11 @@ def authenticated(fn):
         if minislate_user:
             check_minislate_user()
             return fn(*args, **kwargs)
-            
-        print("SESSION INSIDE AUTH DECORATOR: {}".format(session))
+
+        app.logger.info("SESSION INSIDE AUTH DECORATOR: {}".format(session))
 
         if not session.get('is_authenticated'):
-            print("Authenticated decorator could not verify session")
+            app.logger.info("Authenticated decorator could not verify session")
             return redirect(url_for('login', next=request.url))
 
         if request.path == '/logout':
@@ -23,7 +24,7 @@ def authenticated(fn):
         if (not session.get('name') or
                 not session.get('email')) and request.path != '/profile':
             return redirect(url_for('create_profile', next=request.url))
-        
+
         # if (not session.get('user_id') and request.path != '/profile/new'):
         #     try:
         #         user_id = get_user_id(session)
@@ -58,7 +59,7 @@ def instance_authenticated(fn):
 
         for group_member in group_members:
             group_user_ids.append(group_member['metadata']['id'])
-        
+
         if (not session.get('user_id') in group_user_ids):
             flash('You do not have permission to access this instance', 'warning')
             return redirect(url_for('list_instances'))
@@ -73,7 +74,7 @@ def group_authenticated(fn):
     def decorated_function(*args, **kwargs):
         if minislate_user:
             return fn(*args, **kwargs)
-            
+
         group_name = request.path.split('/')[2]
 
         group_members = get_group_members(group_name)
@@ -83,15 +84,15 @@ def group_authenticated(fn):
                 flash('{}'.format(message), 'warning')
                 return redirect(url_for('list_groups'))
         except:
-            print("Finished querying group members")
-        
+            app.logger.info("Finished querying group members")
+
         try:
             group_members = group_members['items']
         except:
             if group_members['message'] == 'Not authorized':
                 flash('You do not have permission to access this group', 'warning')
                 return redirect(url_for('list_groups'))
-        
+
         group_user_ids = []
 
         for group_member in group_members:
