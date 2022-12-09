@@ -26,7 +26,7 @@ def get_user_info(session):
         slate_api_endpoint + '/v1alpha3/find_user', params=query)
 
     profile = profile.json()
-    app.logger.info('Trying to get user info from method: {}'.format(profile))
+    app.logger.debug('Trying to get user info from method: {}'.format(profile))
     if minislate_user:
         access_token = session['access_token']
         user_id = session['user_id']
@@ -59,12 +59,12 @@ def get_user_access_token(session):
 
     query = {'token': slate_api_token,
              'globus_id': session['primary_identity']}
-    app.logger.info("Querying user information using: {}".format(query))
+    app.logger.debug("Querying user information using: {}".format(query))
     profile = requests.get(
         slate_api_endpoint + '/v1alpha3/find_user', params=query)
-    app.logger.info("RESPONSE from getting user profile: {}".format(profile))
+    app.logger.debug("RESPONSE from getting user profile: {}".format(profile))
     profile = profile.json()
-    app.logger.info("JSONIFY Response: {}".format(profile))
+    app.logger.debug("JSONIFY Response: {}".format(profile))
     if minislate_user:
         access_token = session['access_token']
     else:
@@ -85,9 +85,9 @@ def get_user_details(user_id):
 
 def delete_user(userID, query):
     res = requests.delete(slate_api_endpoint + '/v1alpha3/' + userID, params=query)
-    app.logger.info(res)
+    app.logger.debug(res)
     res = res.json()
-    app.logger.info(res)
+    app.logger.debug(res)
     return res
 
 def coordsConversion(lat, lon):
@@ -225,13 +225,13 @@ def list_public_groups_request():
     access_token = get_user_access_token(session)
     query = {'token': access_token}
 
-    app.logger.info("Querying to get public groups...")
+    app.logger.debug("Querying to get public groups...")
     public_groups = requests.get(
         slate_api_endpoint + '/v1alpha3/groups', params=query)
-    app.logger.info("Response: {}".format(public_groups))
+    app.logger.debug("Response: {}".format(public_groups))
 
     public_groups = public_groups.json()['items']
-    app.logger.info("Public Group items: {}".format(public_groups))
+    app.logger.debug("Public Group items: {}".format(public_groups))
     return public_groups
 
 
@@ -315,13 +315,13 @@ def list_user_groups(session):
     query = {'token': access_token}
     # Get groups to which the user belongs
     slate_user_id = get_user_id(session)
-    app.logger.info("Querying to get user groups with user id: {}".format(slate_user_id))
+    app.logger.debug("Querying to get user groups with user id: {}".format(slate_user_id))
     user_groups = requests.get(
         slate_api_endpoint + '/v1alpha3/users/'
         + slate_user_id + '/groups', params=query)
-    app.logger.info("Response: {}".format(user_groups))
+    app.logger.debug("Response: {}".format(user_groups))
     user_groups = user_groups.json()['items']
-    app.logger.info("User group items: {}".format(user_groups))
+    app.logger.debug("User group items: {}".format(user_groups))
     return user_groups
 
 
@@ -373,45 +373,45 @@ def get_cluster_info(cluster_name, nodes=False):
     else:
         query = {'token': access_token}
     # try:
-    app.logger.info("Querying cluster info...")
+    app.logger.debug("Querying cluster info...")
     try:
         cluster = requests.get(slate_api_endpoint + '/v1alpha3/clusters/' + cluster_name, params=query, timeout=10)
     except:
-        app.logger.info("Got past query...")
+        app.logger.debug("Got past query...")
         cluster = 504
     # except Exception as ex:
     #     print("Timedout: {}".format(ex.__dict__))
-    app.logger.info("Response from querying cluter info: {}".format(cluster))
+    app.logger.debug("Response from querying cluster info: {}".format(cluster))
 
     if cluster == 504:
-        app.logger.info("At least we found the error response: {}".format(cluster))
+        app.logger.debug("At least we found the error response: {}".format(cluster))
         return 504
     else:
         cluster = cluster.json()
-        app.logger.info("Response JSON: {}".format(cluster))
+        app.logger.debug("Response JSON: {}".format(cluster))
         return cluster
 
 def cluster_exists(cluster_name):
-    app.logger.info("Querying list of existing clusters...")
+    app.logger.debug("Querying list of existing clusters...")
     clusters = list_clusters_request()
-    app.logger.info("Checking if cluster {} exists in current clusters...".format(cluster_name))
+    app.logger.debug("Checking if cluster {} exists in current clusters...".format(cluster_name))
     cluster_names = []
     for cluster in clusters:
         cluster_names.append(cluster['metadata']['name'])
     if cluster_name not in cluster_names:
-        app.logger.info("Returning False because did not find {} in {}".format(cluster_name, cluster_names))
+        app.logger.debug("Returning False because did not find {} in {}".format(cluster_name, cluster_names))
         return False
     else:
-        app.logger.info("Found {} in current exisint clusters".format(cluster_name))
+        app.logger.debug("Found {} in current existing clusters".format(cluster_name))
         return True
 
 def get_instance_details(instance_id):
     access_token = get_user_access_token(session)
     query = {'token': access_token, 'detailed': True}
 
-    app.logger.info("Querying instance details...")
+    app.logger.debug("Querying instance details...")
     response = requests.get(slate_api_endpoint + '/v1alpha3/instances/' + instance_id, params=query)
-    app.logger.info("Query response: {}".format(response))
+    app.logger.debug("Query response: {}".format(response))
 
     if response.status_code == 504:
         return 504
@@ -424,9 +424,9 @@ def get_instance_details(instance_id):
 def get_instance_logs(instance_id):
     access_token = get_user_access_token(session)
     query = {'token': access_token}
-    app.logger.info("Querying instance logs...")
+    app.logger.debug("Querying instance logs...")
     response = requests.get(slate_api_endpoint + '/v1alpha3/instances/' + instance_id + '/logs', params=query)
-    app.logger.info("Query response: {}".format(response))
+    app.logger.debug("Query response: {}".format(response))
     if response.status_code == 500:
         return 500
     elif response.status_code == requests.codes.ok:

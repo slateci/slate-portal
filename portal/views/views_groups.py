@@ -36,7 +36,7 @@ def view_user_groups():
 def get_group_info_xhr(group_name):
     if request.method == 'GET':
         group_info = get_group_info(group_name)
-        app.logger.info(group_info)
+        app.logger.debug(group_info)
         return jsonify(group_info)
 
 

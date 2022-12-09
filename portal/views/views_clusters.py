@@ -67,7 +67,7 @@ def view_public_cluster(name):
     if request.method == 'GET':
         # Check if cluster exists
         if cluster_exists(name):
-            app.logger.info("Found cluster: {}".format(name))
+            app.logger.debug("Found cluster: {}".format(name))
             # cluster_info = get_cluster_info(name)
             # print("Response from querying cluster info: {}".format(cluster_info))
             # if cluster_info == 504:
@@ -76,7 +76,7 @@ def view_public_cluster(name):
             # else:
             return render_template('cluster_public_profile.html', name=name)
         else:
-            message = "Could not find that cluster"
+            message = "Could not find cluster: {}".format(name)
             app.logger.error(message)
             flash('{}'.format(message), 'warning')
             return redirect(url_for('list_clusters'))
@@ -100,14 +100,14 @@ def list_public_clusters_request(session, name):
     access_token = get_user_access_token(session)
     query = {'token': access_token}
     # Get cluster whitelist and parse allowed groups
-    app.logger.info("Querying cluster whitelist...")
+    app.logger.debug("Querying cluster whitelist...")
     whitelist = list_cluster_whitelist(name)
-    app.logger.info("Query Results: {}".format(whitelist))
+    app.logger.debug("Query Results: {}".format(whitelist))
     allowed_groups = [item for item in whitelist['items']]
 
     # Get cluster info and parse below
     cluster = get_cluster_info(name, nodes=True)
-    app.logger.info("Query Results: {}".format(cluster))
+    app.logger.debug("Query Results: {}".format(cluster))
     if cluster == 504:
         cluster = {}
         storageClasses = {}
@@ -117,12 +117,12 @@ def list_public_clusters_request(session, name):
         timeout = "true"
     else:
         # Get owning group information for contact info
-        app.logger.info("Setting owning group...")
+        app.logger.debug("Setting owning group...")
         owningGroupName = cluster['metadata']['owningGroup']
-        app.logger.info("Querying owning group info for email info...")
+        app.logger.debug("Querying owning group info for email info...")
         owningGroup = requests.get(
             slate_api_endpoint + '/v1alpha3/groups/' + owningGroupName, params=query)
-        app.logger.info("Query Response: {}".format(owningGroup))
+        app.logger.debug("Query Response: {}".format(owningGroup))
         owningGroup = owningGroup.json()
         owningGroupEmail = owningGroup['metadata']['email']
 
@@ -131,11 +131,11 @@ def list_public_clusters_request(session, name):
         timeout = "false"
 
     # Get Cluster status and return as string for flask template
-    app.logger.info("Querying for cluster status")
+    app.logger.debug("Querying for cluster status")
     cluster_status = get_cluster_status(name)
-    app.logger.info("Cluster Status Response: {}".format(cluster_status))
+    app.logger.debug("Cluster Status Response: {}".format(cluster_status))
     cluster_status = str(cluster_status)
-    app.logger.info("Timeout Status: {}".format(timeout))
+    app.logger.debug("Timeout Status: {}".format(timeout))
 
     return cluster, owningGroupEmail, allowed_groups, cluster_status, storageClasses, priorityClasses, timeout
 

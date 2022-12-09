@@ -12,10 +12,10 @@ def authenticated(fn):
             check_minislate_user()
             return fn(*args, **kwargs)
 
-        app.logger.info("SESSION INSIDE AUTH DECORATOR: {}".format(session))
+        app.logger.debug("SESSION INSIDE AUTH DECORATOR: {}".format(session))
 
         if not session.get('is_authenticated'):
-            app.logger.info("Authenticated decorator could not verify session")
+            app.logger.debug("Authenticated decorator could not verify session")
             return redirect(url_for('login', next=request.url))
 
         if request.path == '/logout':
@@ -84,7 +84,7 @@ def group_authenticated(fn):
                 flash('{}'.format(message), 'warning')
                 return redirect(url_for('list_groups'))
         except:
-            app.logger.info("Finished querying group members")
+            app.logger.debug("Finished querying group members")
 
         try:
             group_members = group_members['items']

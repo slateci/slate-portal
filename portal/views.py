@@ -225,7 +225,7 @@ def dashboard():
         session['slate_portal_user'] = False
 
     if request.method == 'GET':
-        app.logger.info("Session from dashboard: {}".format(session))
+        app.logger.debug("Session from dashboard: {}".format(session))
         if session["slate_portal_user"]:
             # single-user mode
             clusters = ["my-cluster"]
@@ -930,7 +930,7 @@ def remove_group_from_cluster(project_name, name):
     if request.method == 'POST':
         """Members of group may revoke other groups access to this cluster"""
         group_id = request.form['remove_group']
-        app.logger.info(group_id)
+        app.logger.debug(group_id)
         cluster_id = name
         access_token = get_user_access_token(session)
         query = {'token': access_token}
@@ -938,7 +938,7 @@ def remove_group_from_cluster(project_name, name):
         # delete group from cluster whitelist
         r=requests.delete(
             slate_api_endpoint + '/v1alpha3/clusters/' + cluster_id + '/allowed_groups/' + group_id, params=query)
-        app.logger.info("Remove from Whitelist: ", r)
+        app.logger.debug("Remove from Whitelist: ", r)
         return redirect(url_for('view_cluster', project_name=project_name, name=name))
 
 
@@ -1006,12 +1006,12 @@ def delete_group(name):
         # group_id = name
 
         try:
-            app.logger.info("Querying deletion of group: {}".format(name))
+            app.logger.debug("Querying deletion of group: {}".format(name))
             r = requests.delete(
                 slate_api_endpoint + '/v1alpha3/groups/' + name, params=query, timeout=1)
-            app.logger.info("Query to delete group {} RESPONSE: {}".format(name, r))
+            app.logger.debug("Query to delete group {} RESPONSE: {}".format(name, r))
         except requests.exceptions.ReadTimeout:
-            app.logger.info("Timedout, but force to next page")
+            app.logger.error("Timed out deleting group {}, but force to next page".format(name))
 
         flash("Successfully deleted group", 'success')
         return redirect(url_for('list_groups'))
@@ -1175,21 +1175,21 @@ def edit_profile():
         access_token = get_user_access_token(session)
         query = {'token': slate_api_token,
                  'globus_id': identity_id}
-        app.logger.info("Querying for user profile...")
+        app.logger.debug("Querying for user profile...")
         profile = requests.get(
             slate_api_endpoint + '/v1alpha3/find_user', params=query)
-        app.logger.info("Response from querying profile: {}".format(profile.json()))
+        app.logger.debug("Response from querying profile: {}".format(profile.json()))
 
         if profile:
-            app.logger.info("Found profile: {}".format(profile))
+            app.logger.debug("Found profile: {}".format(profile))
             query = {'token': access_token,
                      'globus_id': identity_id}
             slate_user_id = get_user_id(session)
 
-            app.logger.info("Querying profile details...")
+            app.logger.debug("Querying profile details...")
             profile = requests.get(slate_api_endpoint + '/v1alpha3/users/' + slate_user_id, params=query)
 
-            app.logger.info("Response from querying profile details: {}".format(profile))
+            app.logger.debug("Response from querying profile details: {}".format(profile))
             profile = profile.json()['metadata']
         else:
             flash('Please complete any missing profile fields and press Save.')
@@ -1225,18 +1225,18 @@ def edit_profile():
 @app.route('/authcallback', methods=['GET'])
 def authcallback():
     """Handles the interaction with Globus Auth."""
-    app.logger.info("Entering Authcallback Route")
+    app.logger.debug("Entering Authcallback Route")
     # Check if single user instance on minislate
     try:
         # Change to location of slate_portal_user file
-        app.logger.info("Trying to read slate portal user file")
+        app.logger.debug("Trying to read slate portal user file")
         f = open("/slate_portal_user", "r")
         slate_portal_user = f.read().split()
     except:
         slate_portal_user = None
-    app.logger.info("Slate Portal User: {}".format(slate_portal_user))
+    app.logger.debug("Slate Portal User: {}".format(slate_portal_user))
     if slate_portal_user:
-        app.logger.info("Found slate portal user on minislate")
+        app.logger.debug("Found slate portal user on minislate")
         user_id = session['user_id'] = slate_portal_user[0]
         name = session['name'] = slate_portal_user[1]
         email = session['email'] = slate_portal_user[2]
@@ -1254,11 +1254,11 @@ def authcallback():
                                   'phone': phone, 'institution': institution, 'admin': admin}}
 
         query = {'token': slate_api_token}
-        app.logger.info("Query to post new user")
+        app.logger.debug("Query to post new user")
         r = requests.post(slate_api_endpoint + '/v1alpha3/users', params=query, json=post_user)
-        app.logger.info("Response: {}".format(r))
+        app.logger.debug("Response: {}".format(r))
 
-        app.logger.info("Redirecting to dashboard in single user mode with the following session {}".format(session))
+        app.logger.debug("Redirecting to dashboard in single user mode with the following session {}".format(session))
         return redirect(url_for('dashboard'))
 
     # If we're coming back from Globus Auth in an error state, the error
@@ -1270,7 +1270,7 @@ def authcallback():
 
     # Set up our Globus Auth/OAuth2 state
     redirect_uri = url_for('authcallback', _external=True, _scheme=app.config['GLOBUS_REDIRECT_URI_SCHEME'])
-    app.logger.info(redirect_uri)
+    app.logger.debug(redirect_uri)
 
     client = load_portal_client()
     client.oauth2_start_flow(redirect_uri, refresh_tokens=True)
@@ -1325,9 +1325,9 @@ def authcallback():
                     slate_api_endpoint + '/v1alpha3/find_user', params=query)
                 if r.status_code == requests.codes.ok:
                     # Set profile and check for admin status
-                    app.logger.info('Found profile with globus_id: {}'.format(identity))
+                    app.logger.debug('Found profile with globus_id: {}'.format(identity))
                     profile = r.json()
-                    app.logger.info('Profile Information: {}'.format(profile))
+                    app.logger.debug('Profile Information: {}'.format(profile))
 
                     slate_user_id = profile['metadata']['id']
                     session['user_id'] = slate_user_id
@@ -1337,7 +1337,7 @@ def authcallback():
                     if user_info['admin']:
                         session['admin'] = True
             except:
-                app.logger.info("User identity not found: {}".format(identity))
+                app.logger.debug("User identity not found: {}".format(identity))
 
         try:
             referrer = urlparse(request.referrer)
@@ -1351,7 +1351,7 @@ def authcallback():
             next_url = '/'
 
         if profile:
-            app.logger.info('Logging in with profile: {}'.format(profile))
+            app.logger.debug('Logging in with profile: {}'.format(profile))
             # Check for admin status
             slate_user_id = profile['metadata']['id']
             session['user_id'] = slate_user_id
@@ -1479,9 +1479,9 @@ def volume_info(volume_id):
     if request.method == 'GET':
         access_token, slate_user_id = get_user_info(session)
         query = {'token': access_token}
-        app.logger.info("Querying VOLUME details...")
+        app.logger.debug("Querying VOLUME details...")
         response = requests.get(slate_api_endpoint + '/v1alpha3/volumes/' + volume_id, params=query)
-        app.logger.info("Query response: {}".format(response))
+        app.logger.debug("Query response: {}".format(response))
         if response.status_code == 504:
             flash('The connection to {} has timed out. Please try again later.'.format(name), 'warning')
             return redirect(url_for('list_volumes'))
@@ -1498,9 +1498,9 @@ def delete_volume(volume_id):
     """
     access_token = get_user_access_token(session)
     query = {'token': access_token}
-    app.logger.info("Querying VOLUME deletion...")
+    app.logger.debug("Querying VOLUME deletion...")
     r = requests.delete(slate_api_endpoint + '/v1alpha3/volumes/' + volume_id, params=query)
-    app.logger.info("Query response: {}".format(r))
+    app.logger.debug("Query response: {}".format(r))
     if r.status_code == requests.codes.ok:
         flash('Successfully deleted volume', 'success')
     else:

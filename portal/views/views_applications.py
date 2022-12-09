@@ -145,8 +145,8 @@ def create_application(name, group_name):
         app_install = requests.post(
             slate_api_endpoint + '/v1alpha3/apps/' + name, params=query, json=install_app)
 
-        app.logger.info("APP INSTALL STATUS: {}".format(app_install))
-        app.logger.info("APP NAME: {}".format(name))
+        app.logger.debug("APP INSTALL STATUS: {}".format(app_install))
+        app.logger.debug("APP NAME: {}".format(name))
 
         if app_install.status_code == 200:
             app_id = app_install.json()['metadata']['id']
