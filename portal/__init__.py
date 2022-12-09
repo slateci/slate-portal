@@ -35,30 +35,10 @@ app.config.update(SESSION_COOKIE_SECURE=True, SESSION_COOKIE_HTTPONLY=True, SESS
 md = Misaka()
 md.__init__(app, tables=True, autolink=True, fenced_code=True, smartypants=True, quote=True, math=True, math_explicit=True)
 
-# Set up logging:
-
-# create handler:
-streamHandler = logging.StreamHandler(sys.stdout)
-
-# create formatter and add to handler:
-formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-streamHandler.setFormatter(formatter)
-
 # set up debugger behavior:
 if app.debug:
     # set up jinja2 livehtml for localdev
     app.jinja_env.auto_reload = True
-
-    # set log & handler levels:
-    streamHandler.setLevel(logging.DEBUG)
-    app.logger.setLevel(logging.DEBUG)
-else:
-    # set log & handler levels:
-    streamHandler.setLevel(logging.INFO)
-    app.logger.setLevel(logging.INFO)
-
-# add handler to app.logger:
-app.logger.addHandler(streamHandler)
 
 if minislate_user:
     slate_api_token = minislate_user[5]
