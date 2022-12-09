@@ -44,14 +44,16 @@ streamHandler = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 streamHandler.setFormatter(formatter)
 
-# set log & handler levels:
-if app.config['DEBUG']:
+# set up debugger behavior:
+if app.debug:
     # set up jinja2 livehtml for localdev
     app.jinja_env.auto_reload = True
 
+    # set log & handler levels:
     streamHandler.setLevel(logging.DEBUG)
     app.logger.setLevel(logging.DEBUG)
 else:
+    # set log & handler levels:
     streamHandler.setLevel(logging.INFO)
     app.logger.setLevel(logging.INFO)
 
