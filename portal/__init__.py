@@ -1,3 +1,4 @@
+
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 from datetime import timedelta
@@ -6,8 +7,8 @@ import datetime
 # from flask import Markup
 from flask_misaka import markdown
 from flask_misaka import Misaka
-import logging.handlers
 import logging
+import sys
 
 __author__ = 'Jeremy Van'
 # set up Flask App
@@ -34,14 +35,18 @@ app.config.update(SESSION_COOKIE_SECURE=True, SESSION_COOKIE_HTTPONLY=True, SESS
 md = Misaka()
 md.__init__(app, tables=True, autolink=True, fenced_code=True, smartypants=True, quote=True, math=True, math_explicit=True)
 
-# set up jinja2 livehtml for localdev
-if app.config['DEBUG']:
-    app.jinja_env.auto_reload = True
-
 # set up logging
-handler = logging.handlers.RotatingFileHandler(
-    filename=app.config['SLATE_WEBSITE_LOGFILE'])
-handler.setLevel(logging.DEBUG)
+handler = logging.StreamHandler(sys.stdout)
+
+if app.config['DEBUG']:
+    # set up jinja2 livehtml for localdev
+    app.jinja_env.auto_reload = True
+    # set debug log level
+    handler.setLevel(logging.DEBUG)
+else:
+    # set info log level
+    handler.setLevel(logging.INFO)
+
 app.logger.addHandler(handler)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s: %(message)s')
 handler.setFormatter(formatter)
@@ -61,7 +66,7 @@ def format_datetime(value, format="%b %d %Y %I:%M %p"):
 
     if value is None:
         return ""
-    
+
     date_time_obj = datetime.datetime.strptime(value, '%Y-%m-%dT%H:%M:%SZ')
     date_time_pretty_format = date_time_obj.strftime(format)
 
