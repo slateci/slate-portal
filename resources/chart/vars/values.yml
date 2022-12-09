@@ -16,7 +16,5 @@ globusAuthLogoutURI: 'https://auth.globus.org/v2/web/logout'
 # globusRedirectURIScheme is the scheme for redirecting to Globus
 globusRedirectURIScheme: 'https'
 
-# portalLogFilePath is the file path for the SLATE Portal log
-portalLogFilePath: '/slate/portal.log'
 # portalPort is the port for the SLATE Portal
 portalPort: '5050'
