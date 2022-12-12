@@ -14,6 +14,10 @@ __author__ = 'Jeremy Van'
 # set up Flask App
 app = Flask(__name__, instance_relative_config=True)
 
+# Modify wrapped werkzeug library logging:
+logging.getLogger('werkzeug').setLevel(logging.INFO)
+
+
 try:
     # Change to location of slate_portal_user file
     f = open("/slate_portal_user", "r")
