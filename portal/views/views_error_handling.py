@@ -25,12 +25,12 @@ def errorpage(message):
 
 @app.errorhandler(404)
 def not_found(e):
-    app.logger.error(e)
+    app.logger.error("{}. URL: {}".format(e, request.path))
     return render_template("404.html", e=e)
 
 @app.errorhandler(504)
 def handle_gateway_timeout(e):
-    app.logger.error("GATEWAY TIMEOUT CAUGHT: {}".format(e))
+    app.logger.error("GATEWAY TIMEOUT CAUGHT: {}, URL: {}".format(e, request.path))
     return render_template("404.html", e=e)
 
 
