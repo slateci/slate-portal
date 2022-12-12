@@ -52,14 +52,14 @@ At this point `instance/portal.conf` should resemble:
 # Default MRDP application configuration settings
 #------------------------------------------------
 
+PORTAL_VERSION = 'localdev'
 SERVER_NAME = 'localhost:5050'
-DEBUG = True
-SLATE_WEBSITE_LOGFILE = '/slate/portal.log'
 
 # globus:
 PORTAL_CLIENT_ID = 'SAMPLE'
 PORTAL_CLIENT_SECRET = 'SAMPLE'
 GLOBUS_AUTH_LOGOUT_URI = 'https://auth.globus.org/v2/web/logout'
+GLOBUS_REDIRECT_URI_SCHEME = 'http'
 SECRET_KEY = '=.DKwWzDd}!3}6yeAY+WTF#W:zt5msTI7]2`o}Y!ziU!#CYD+;T9JpW$ud|5C_3'
 
 # SLATE API:

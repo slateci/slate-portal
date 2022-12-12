@@ -9,10 +9,10 @@ ARG port=5050
 #######################################
 FROM ${baseimage} as base-stage
 
-# Docker image build arguments:
+# Image build arguments:
 ARG port
 
-# Docker container environmental variables:
+# Container environmental variables:
 ENV FLASK_PORT=${port}
 
 # Package installs/updates:
@@ -54,6 +54,9 @@ ENTRYPOINT [ "/docker-entrypoint.sh" ]
 #######################################
 FROM base-stage as local-stage
 
+# Container environmental variables:
+ENV FLASK_ENV=development
+
 # Volumes:
 VOLUME [ "/slate" ]
 
@@ -61,6 +64,9 @@ VOLUME [ "/slate" ]
 ## Release Stage                      #
 #######################################
 FROM base-stage as release-stage
+
+# Container environmental variables:
+ENV FLASK_ENV=production
 
 # Package cache cleanup:
 RUN dnf clean all && \

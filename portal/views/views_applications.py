@@ -6,7 +6,7 @@ from flask import (flash, redirect, render_template,
                    request, session, url_for, jsonify)
 from portal.connect_api import (list_applications_request,
                         list_incubator_applications_request,
-                        list_instances_request, list_user_groups, 
+                        list_instances_request, list_user_groups,
                         get_user_access_token, list_clusters_request,
                         get_app_config, get_incubator_app_config,
                         cluster_allowed_groups)
@@ -145,8 +145,8 @@ def create_application(name, group_name):
         app_install = requests.post(
             slate_api_endpoint + '/v1alpha3/apps/' + name, params=query, json=install_app)
 
-        print("APP INSTALL STATUS: {}".format(app_install))
-        print("APP NAME: {}".format(name))
+        app.logger.debug("APP INSTALL STATUS: {}".format(app_install))
+        app.logger.debug("APP NAME: {}".format(name))
 
         if app_install.status_code == 200:
             app_id = app_install.json()['metadata']['id']

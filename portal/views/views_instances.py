@@ -96,7 +96,7 @@ def get_instance_container_log(name, container, lines):
     multiplex = multiplex.json()
     # Parse post return for instance, instance details, and instance logs
     instance_log = json.loads(multiplex[instance_log_query]['body'])
-    print("insTANCE LOGS FROM XHR: {}".format(instance_log))
+    app.logger.debug("insTANCE LOGS FROM XHR: {}".format(instance_log))
 
     return jsonify(instance_log['logs'])
 
@@ -127,6 +127,6 @@ def restart_instance(name):
         flash('Successfully restarted instance', 'success')
     else:
         flash('Failed to restart instance', 'warning')
-        print(r)
+        app.logger.error(r)
 
     return redirect(url_for('view_instance', name=name))
