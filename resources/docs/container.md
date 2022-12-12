@@ -54,6 +54,7 @@ At this point `instance/portal.conf` should resemble:
 
 PORTAL_VERSION = 'localdev'
 SERVER_NAME = 'localhost:5050'
+DEBUG = True
 
 # globus:
 PORTAL_CLIENT_ID = 'SAMPLE'

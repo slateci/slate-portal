@@ -54,9 +54,6 @@ ENTRYPOINT [ "/docker-entrypoint.sh" ]
 #######################################
 FROM base-stage as local-stage
 
-# Container environmental variables:
-ENV FLASK_DEBUG=true
-
 # Volumes:
 VOLUME [ "/slate" ]
 
@@ -64,9 +61,6 @@ VOLUME [ "/slate" ]
 ## Release Stage                      #
 #######################################
 FROM base-stage as release-stage
-
-# Container environmental variables:
-ENV FLASK_DEBUG=false
 
 # Package cache cleanup:
 RUN dnf clean all && \

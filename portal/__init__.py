@@ -14,13 +14,6 @@ __author__ = 'Jeremy Van'
 # set up Flask App
 app = Flask(__name__, instance_relative_config=True)
 
-# Modify wrapped werkzeug library logging:
-if app.debug:
-    logging.getLogger('werkzeug').setLevel(logging.DEBUG)
-else:
-    logging.getLogger('werkzeug').setLevel(logging.ERROR)
-
-
 try:
     # Change to location of slate_portal_user file
     f = open("/slate_portal_user", "r")
@@ -42,10 +35,15 @@ app.config.update(SESSION_COOKIE_SECURE=True, SESSION_COOKIE_HTTPONLY=True, SESS
 md = Misaka()
 md.__init__(app, tables=True, autolink=True, fenced_code=True, smartypants=True, quote=True, math=True, math_explicit=True)
 
-# set up debugger behavior:
+# Set up debugger behavior:
 if app.debug:
     # set up jinja2 livehtml for localdev
     app.jinja_env.auto_reload = True
+
+    # modify wrapped werkzeug library logging:
+    logging.getLogger('werkzeug').setLevel(logging.DEBUG)
+else:
+    logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 if minislate_user:
     slate_api_token = minislate_user[5]
