@@ -78,3 +78,6 @@ COPY ./run_portal.py ./run_portal.py
 
 # Create instance directory:
 RUN mkdir ./instance
+
+## IMPORTANT: When locally debugging this stage only:
+#COPY instance/portal.conf ./instance
