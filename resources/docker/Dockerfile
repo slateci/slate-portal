@@ -55,7 +55,7 @@ ENTRYPOINT [ "/docker-entrypoint.sh" ]
 FROM base-stage as local-stage
 
 # Container environmental variables:
-ENV FLASK_ENV=development
+ENV FLASK_DEBUG=true
 
 # Volumes:
 VOLUME [ "/slate" ]
@@ -66,7 +66,7 @@ VOLUME [ "/slate" ]
 FROM base-stage as release-stage
 
 # Container environmental variables:
-ENV FLASK_ENV=production
+ENV FLASK_DEBUG=false
 
 # Package cache cleanup:
 RUN dnf clean all && \
@@ -78,3 +78,6 @@ COPY ./run_portal.py ./run_portal.py
 
 # Create instance directory:
 RUN mkdir ./instance
+
+## IMPORTANT: When locally debugging this stage only:
+#COPY instance/portal.conf ./instance
