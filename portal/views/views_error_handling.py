@@ -14,8 +14,7 @@ def exception_occurred(e):
                      "{0}\nTraceback completed".format("n".join(trace)))
     trace = "<br>".join(trace)
     trace.replace('\n', '<br>')
-    return render_template('error.html', exception=trace,
-                           debug=app.config['DEBUG'])
+    return render_template('error.html', exception=trace)
 
 
 @app.route('/error/<message>', methods=['GET'])
