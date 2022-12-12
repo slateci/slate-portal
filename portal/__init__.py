@@ -15,7 +15,7 @@ __author__ = 'Jeremy Van'
 app = Flask(__name__, instance_relative_config=True)
 
 # Modify wrapped werkzeug library logging:
-logging.getLogger('werkzeug').setLevel(logging.INFO)
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 
 try:
