@@ -9,10 +9,10 @@ ARG port=5050
 #######################################
 FROM ${baseimage} as base-stage
 
-# Docker image build arguments:
+# Image build arguments:
 ARG port
 
-# Docker container environmental variables:
+# Container environmental variables:
 ENV FLASK_PORT=${port}
 
 # Package installs/updates:
@@ -72,3 +72,6 @@ COPY ./run_portal.py ./run_portal.py
 
 # Create instance directory:
 RUN mkdir ./instance
+
+## IMPORTANT: When locally debugging this stage only:
+#COPY instance/portal.conf ./instance

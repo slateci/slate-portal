@@ -35,22 +35,15 @@ app.config.update(SESSION_COOKIE_SECURE=True, SESSION_COOKIE_HTTPONLY=True, SESS
 md = Misaka()
 md.__init__(app, tables=True, autolink=True, fenced_code=True, smartypants=True, quote=True, math=True, math_explicit=True)
 
-# set up logging
-handler = logging.StreamHandler(sys.stdout)
-
-if app.config['DEBUG']:
+# Set up debugger behavior:
+if app.debug:
     # set up jinja2 livehtml for localdev
     app.jinja_env.auto_reload = True
-    # set debug log level
-    handler.setLevel(logging.DEBUG)
+
+    # modify wrapped werkzeug library logging:
+    logging.getLogger('werkzeug').setLevel(logging.DEBUG)
 else:
-    # set info log level
-    handler.setLevel(logging.INFO)
-
-app.logger.addHandler(handler)
-formatter = logging.Formatter('%(asctime)s - %(levelname)s: %(message)s')
-handler.setFormatter(formatter)
-
+    logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 if minislate_user:
     slate_api_token = minislate_user[5]

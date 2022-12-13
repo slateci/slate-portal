@@ -9,7 +9,7 @@ from portal.connect_api import (list_applications_request,
                         list_instances_request,
                         list_public_groups_request,
                         list_user_groups, get_group_info,
-                        get_group_clusters, 
+                        get_group_clusters,
                         list_users_instances_request,
                         list_clusters_request, coordsConversion,
                         get_user_access_token, get_user_id,
@@ -36,7 +36,7 @@ def view_user_groups():
 def get_group_info_xhr(group_name):
     if request.method == 'GET':
         group_info = get_group_info(group_name)
-        print(group_info)
+        app.logger.debug(group_info)
         return jsonify(group_info)
 
 
