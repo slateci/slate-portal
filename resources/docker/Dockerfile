@@ -17,7 +17,7 @@ ENV FLASK_PORT=${port}
 
 # Package installs/updates:
 RUN dnf install -y epel-release
-RUN dnf install -y \
+RUN dnf install -y --allowerasing \
     boost \
     gcc \
     libcurl \
