@@ -18,3 +18,6 @@ globusRedirectURIScheme: 'https'
 
 # portalPort is the port for the SLATE Portal
 portalPort: '5050'
+
+# opentelemetryCollector gives the uri for the opentelemetry collector
+opentelemetryCollector: "http://otel-collector.slateci.io:80/"
