@@ -19,6 +19,7 @@ spec:
     metadata:
       annotations:
         checksum/secret_portal-conf: {{ include (print $.Template.BasePath "/secrets/portal-conf.yml") . | sha256sum }}
+        instrumentation.opentelemetry.io/inject-python: "true"
       labels:
         {{- include "helm-slate-portal.labels" . | nindent 8 }}
     spec:
