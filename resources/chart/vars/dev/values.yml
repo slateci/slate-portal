@@ -11,3 +11,5 @@ portalDebug: 'True'
 portalEndpoint: 'portal.dev.slateci.io'
 # portalReplicaCount is the replica count for the Portal deployment
 portalReplicaCount: 2
+# opentelemetryCollector gives the uri for the opentelemetry collector
+opentelemetryCollector: "http://otel-collector.telemetry.slateci.io:80/"
