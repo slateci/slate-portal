@@ -1,16 +1,29 @@
 apiVersion: opentelemetry.io/v1alpha1
-kind: Instrumentation
+kind: OpenTelemetryCollector
 metadata:
-  name: slate-instrumentation
+  name: injection-collector
 spec:
-  exporter:
-    endpoint: {{ .Values.opentelemetryCollector }}
-  propagators:
-    - tracecontext
-    - baggage
-    - b3
-  sampler:
-    type: parentbased_traceidratio
-    argument: "0.25"
-  python:
-    image: ghcr.io/open-telemetry/opentelemetry-operator/autoinstrumentation-python:latest
+  config: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+          http:
+    processors:
+      memory_limiter:
+        check_interval: 1s
+        limit_percentage: 75
+        spike_limit_percentage: 15
+      batch:
+        send_batch_size: 10000
+        timeout: 10s
+    exporters:
+      logging:
+      otlphttp:
+        endpoint: {{ .Values.opentelemetryCollector }}
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: []
+          exporters: [logging, otlphttp]
