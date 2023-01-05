@@ -14,6 +14,7 @@ ARG port
 
 # Container environmental variables:
 ENV FLASK_PORT=${port}
+ENV PYTHONUNBUFFERED=1
 
 # Package installs/updates:
 RUN dnf install -y epel-release
