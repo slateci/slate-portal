@@ -33,6 +33,8 @@ kind: Instrumentation
 metadata:
   name: slate-instrumentation
 spec:
+  exporter:
+    endpoint: injection-collector.default.svc:4317
   propagators:
     - tracecontext
     - baggage
