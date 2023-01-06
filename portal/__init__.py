@@ -8,9 +8,28 @@ import datetime
 from flask_misaka import markdown
 from flask_misaka import Misaka
 import logging
+from logging.config import dictConfig
 import sys
 
 __author__ = 'Jeremy Van'
+
+# Set up logging behavior:
+dictConfig({
+    'version': 1,
+    'formatters': {'default': {
+        'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
+    }},
+    'handlers': {'wsgi': {
+        'class': 'logging.StreamHandler',
+        'stream': 'ext://sys.stdout',
+        'formatter': 'default'
+    }},
+    'root': {
+        'level': 'INFO',
+        'handlers': ['wsgi']
+    }
+})
+
 # set up Flask App
 app = Flask(__name__, instance_relative_config=True)
 
@@ -39,11 +58,6 @@ md.__init__(app, tables=True, autolink=True, fenced_code=True, smartypants=True,
 if app.debug:
     # set up jinja2 livehtml for localdev
     app.jinja_env.auto_reload = True
-
-    # modify wrapped werkzeug library logging:
-    logging.getLogger('werkzeug').setLevel(logging.DEBUG)
-else:
-    logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 if minislate_user:
     slate_api_token = minislate_user[5]

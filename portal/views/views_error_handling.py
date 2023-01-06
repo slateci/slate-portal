@@ -28,6 +28,7 @@ def not_found(e):
     if request.path.startswith('/healthz'):
         # K8s health checks are done against <pod_ipv4:port>, not <SERVER_NAME:port>.
         # As a work-around we do not create an error log and return the template.
+        app.logger.info("IGNORE: K8s health check. URL: {}".format(request.path))
         return render_template('healthz.html')
     else:
         app.logger.error("{}. URL: {}".format(e, request.path))
