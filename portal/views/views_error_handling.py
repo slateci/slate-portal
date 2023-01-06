@@ -29,6 +29,7 @@ def not_found(e):
         # K8s health checks are done against <pod_ipv4:port>, not <SERVER_NAME:port>.
         # As a work-around we create a custom log.
         app.logger.info("IGNORE: K8s health check. URL: {}".format(request.path))
+        return render_template('healthz.html')
     else:
         app.logger.error("{}. URL: {}".format(e, request.path))
     return render_template("404.html", e=e)
