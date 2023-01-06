@@ -7,28 +7,19 @@ import datetime
 # from flask import Markup
 from flask_misaka import markdown
 from flask_misaka import Misaka
+from portal.logtools import StackdriverJsonFormatter
 import logging
-from logging.config import dictConfig
 import sys
 
 __author__ = 'Jeremy Van'
 
 # Set up logging behavior:
-dictConfig({
-    'version': 1,
-    'formatters': {'default': {
-        'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
-    }},
-    'handlers': {'wsgi': {
-        'class': 'logging.StreamHandler',
-        'stream': 'ext://sys.stdout',
-        'formatter': 'default'
-    }},
-    'root': {
-        'level': 'INFO',
-        'handlers': ['wsgi']
-    }
-})
+handler = logging.StreamHandler(sys.stdout)
+formatter = StackdriverJsonFormatter()
+handler.setFormatter(formatter)
+
+root_logger = logging.getLogger()
+root_logger.addHandler(handler)
 
 # set up Flask App
 app = Flask(__name__, instance_relative_config=True)
