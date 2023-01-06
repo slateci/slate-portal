@@ -1,5 +1,6 @@
 
 from flask import Flask
+from flask_healthz import Healthz
 from flask_wtf.csrf import CSRFProtect
 from datetime import timedelta
 import json
@@ -44,6 +45,21 @@ if app.debug:
     logging.getLogger('werkzeug').setLevel(logging.DEBUG)
 else:
     logging.getLogger('werkzeug').setLevel(logging.ERROR)
+
+# Set up K8s Health check behavior:
+# * https://pypi.org/project/flask-healthz/
+def liveness():
+    # TODO: Update K8s liveness check to be meaningful.
+    pass
+
+
+def readiness():
+    # TODO: Update K8s readiness check to be meaningful.
+    pass
+
+
+Healthz(app, no_log=True)
+app.config.update(HEALTHZ={"live": readiness(), "ready": readiness()})
 
 if minislate_user:
     slate_api_token = minislate_user[5]
