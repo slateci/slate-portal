@@ -1,5 +1,4 @@
 Flask==2.2.2
-Flask-Healthz
 Flask-Markdown
 Flask-Misaka
 Flask-WTF
