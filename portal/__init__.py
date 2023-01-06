@@ -7,31 +7,23 @@ import datetime
 # from flask import Markup
 from flask_misaka import markdown
 from flask_misaka import Misaka
+from portal.logtools import StackdriverJsonFormatter
+from flask.logging import default_handler
 import logging
-from logging.config import dictConfig
 import sys
 
 __author__ = 'Jeremy Van'
-
-# Set up logging behavior:
-dictConfig({
-    'version': 1,
-    'formatters': {'default': {
-        'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
-    }},
-    'handlers': {'wsgi': {
-        'class': 'logging.StreamHandler',
-        'stream': 'ext://sys.stdout',
-        'formatter': 'default'
-    }},
-    'root': {
-        'level': 'INFO',
-        'handlers': ['wsgi']
-    }
-})
-
 # set up Flask App
 app = Flask(__name__, instance_relative_config=True)
+app.logger.removeHandler(default_handler)
+
+# Set up logging
+handler = logging.StreamHandler(sys.stdout)
+formatter = StackdriverJsonFormatter()
+handler.setFormatter(formatter)
+
+root_logger = logging.getLogger()
+root_logger.addHandler(handler)
 
 try:
     # Change to location of slate_portal_user file
