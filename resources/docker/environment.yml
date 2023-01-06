@@ -7,6 +7,7 @@ dependencies:
   - python=3.9.15
   - pip:
       - Flask==2.2.2
+      - Flask-Healthz
       - Flask-Markdown
       - Flask-Misaka
       - Flask-WTF
