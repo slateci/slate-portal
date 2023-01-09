@@ -34,7 +34,7 @@ metadata:
   name: slate-instrumentation
 spec:
   exporter:
-    endpoint: injection-collector-collector.development.svc.cluster.local:4318
+    endpoint: http://injection-collector-collector.development.svc.cluster.local:4318
   propagators:
     - tracecontext
     - baggage
