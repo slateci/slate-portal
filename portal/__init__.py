@@ -7,10 +7,20 @@ import datetime
 # from flask import Markup
 from flask_misaka import markdown
 from flask_misaka import Misaka
+from portal.logtools import StackdriverJsonFormatter
 import logging
 import sys
 
 __author__ = 'Jeremy Van'
+
+# Set up logging behavior:
+handler = logging.StreamHandler(sys.stdout)
+formatter = StackdriverJsonFormatter()
+handler.setFormatter(formatter)
+
+root_logger = logging.getLogger()
+root_logger.addHandler(handler)
+
 # set up Flask App
 app = Flask(__name__, instance_relative_config=True)
 
@@ -39,11 +49,6 @@ md.__init__(app, tables=True, autolink=True, fenced_code=True, smartypants=True,
 if app.debug:
     # set up jinja2 livehtml for localdev
     app.jinja_env.auto_reload = True
-
-    # modify wrapped werkzeug library logging:
-    logging.getLogger('werkzeug').setLevel(logging.DEBUG)
-else:
-    logging.getLogger('werkzeug').setLevel(logging.ERROR)
 
 if minislate_user:
     slate_api_token = minislate_user[5]

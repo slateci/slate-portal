@@ -1,4 +1,9 @@
 #!/bin/bash
 
 # Run the Flask app:
-python3 /slate/run_portal.py
+if [[ "${UWSGI_FRAMEWORK}" == "werkzeug" ]]
+then
+    python3 /slate/main.py
+else
+    gunicorn -w 2 -b 0.0.0.0:$FLASK_PORT main:app
+fi

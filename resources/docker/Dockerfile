@@ -15,6 +15,7 @@ ARG port
 # Container environmental variables:
 ENV FLASK_PORT=${port}
 ENV PYTHONUNBUFFERED=1
+ENV UWSGI_FRAMEWORK="werkzeug"
 
 # Package installs/updates:
 RUN dnf install -y epel-release
@@ -28,6 +29,10 @@ RUN dnf install -y --allowerasing \
     python3-devel \
     which \
     zlib
+
+# Package cache cleanup:
+RUN dnf clean all && \
+    rm -rf /var/cache/yum
 
 # Prepare entrypoint:
 COPY ./resources/docker/scripts/docker-entrypoint.sh ./
@@ -63,13 +68,12 @@ VOLUME [ "/slate" ]
 #######################################
 FROM base-stage as release-stage
 
-# Package cache cleanup:
-RUN dnf clean all && \
-    rm -rf /var/cache/yum
+# Container environmental variables:
+ENV UWSGI_FRAMEWORK="gunicorn"
 
 # Copy in relevant source material:
 COPY ./portal ./portal
-COPY ./run_portal.py ./run_portal.py
+COPY ./main.py ./main.py
 
 # Create instance directory:
 RUN mkdir ./instance
