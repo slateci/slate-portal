@@ -20,4 +20,4 @@ globusRedirectURIScheme: 'https'
 portalPort: '5050'
 
 # opentelemetryCollector gives the uri for the opentelemetry collector
-opentelemetryCollector: "https://otel-collector.telemetry.slateci.io:4318/"
+opentelemetryCollector: "https://otel-collector.telemetry.slateci.io:443/"
