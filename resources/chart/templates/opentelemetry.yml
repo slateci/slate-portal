@@ -39,8 +39,5 @@ spec:
     - tracecontext
     - baggage
     - b3
-  sampler:
-    type: parentbased_traceidratio
-    argument: "0.25"
   python:
     image: ghcr.io/open-telemetry/opentelemetry-operator/autoinstrumentation-python:latest
