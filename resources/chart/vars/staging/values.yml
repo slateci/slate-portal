@@ -11,3 +11,7 @@ portalDebug: 'False'
 portalEndpoint: 'portal.staging.slateci.io'
 # portalReplicaCount is the replica count for the Portal deployment
 portalReplicaCount: 2
+
+# opentelemetryLocalEndpoint gives the uri for the local opentelemetry collector
+# in the same namespace
+opentelemetryCollector: "http://injection-collector-collector.staging.svc.cluster.local:4318"
