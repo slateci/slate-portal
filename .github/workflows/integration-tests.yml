@@ -117,6 +117,8 @@ jobs:
           -f ./vars/local/values.yml \
           -f ./vars/secrets.yml \
           -f ./vars/values.yml \
+          --set-string awsEndpoint=host.minikube.internal:8000 \
+          --set-string apiEndpoint=host.minikube.internal \
           -n local
 
       - name: Deploy the Slate Portal Helm chart
