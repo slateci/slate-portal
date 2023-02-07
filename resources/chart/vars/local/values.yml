@@ -1,0 +1,17 @@
+# Default values for slate-portal.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# apiEndpoint is the domain for the SLATE API server
+apiEndpoint: 'api.dev.slateci.io'
+
+# portalDebug is whether Flask powering SLATE Portal is in debug mode
+portalDebug: 'True'
+# portalEndpoint is the domain for the SLATE Portal
+portalEndpoint: 'portal.dev.slateci.io'
+# portalReplicaCount is the replica count for the Portal deployment
+portalReplicaCount: 2
+
+# opentelemetryLocalEndpoint gives the uri for the local opentelemetry collector
+# in the same namespace
+opentelemetryCollector: ""
