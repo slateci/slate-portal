@@ -3,9 +3,10 @@ concurrency:
   group: inttests-${{ github.repository }}
 
 on:
-#  push:
-#    branches:
+  push:
+    branches:
 #      - master
+      - 231-re-implement-integration-tests-github-workflow
 #  schedule:
 #    - cron: '1 22 * * 1-5'
   workflow_dispatch:
