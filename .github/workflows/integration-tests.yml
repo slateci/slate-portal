@@ -113,7 +113,7 @@ jobs:
           port: 8000
           cors: '*'
 
-      - name: Deploy the Slate Client Server Helm chart
+      - name: Install the Slate Client Server Helm chart
         working-directory: ./slate-client-server
         run: |-
           helm secrets install slate-api-local . \
@@ -123,7 +123,7 @@ jobs:
           -f ./vars/local/values.yml \
           -n local
 
-      - name: Deploy the Slate Portal Helm chart
+      - name: Install the Slate Portal Helm chart
         working-directory: ./slate-portal
         run: |-
           helm secrets install slate-portal-local . \
