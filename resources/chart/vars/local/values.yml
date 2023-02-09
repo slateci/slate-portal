@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 # apiEndpoint is the domain for the SLATE API server
-apiEndpoint: 'host.minikube.internal:30007'
+apiEndpoint: 'slate-api-local-service.local.svc.cluster.local:8081'
 
 # globusRedirectURIScheme is the scheme for redirecting to Globus
 globusRedirectURIScheme: 'http'
@@ -11,7 +11,7 @@ globusRedirectURIScheme: 'http'
 # portalDebug is whether Flask powering SLATE Portal is in debug mode
 portalDebug: 'True'
 # portalEndpoint is the domain for the SLATE Portal
-portalEndpoint: 'host.minikube.internal:30008'
+portalEndpoint: 'portal.minikube.test:30008'
 # portalReplicaCount is the replica count for the Portal deployment
 portalReplicaCount: 1
 
