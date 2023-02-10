@@ -1,0 +1,190 @@
+name: Integration Tests
+concurrency:
+  group: inttests-${{ github.repository }}
+
+on:
+#  push:
+#    branches:
+#      - master
+#  schedule:
+#    - cron: '1 22 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      slate-client-server-branch:
+        description: 'Branch under test (slate-client-server)'
+        required: false
+        default: develop
+        type: string
+      slate-portal-branch:
+        description: 'Branch under test (slate-portal):'
+        required: false
+        default: develop
+        type: string
+
+env:
+  KUBERNETES_VERSION: "1.24.3"
+  HELM_SECRETS_BACKEND: vals
+  MINIKUBE_VERSION: "1.26.1"
+  PYTHON_VERSION: '3.9.7'
+
+jobs:
+  workflow-inputs:
+    name: Display Workflow Inputs
+    runs-on: macos-12
+    if: github.event.inputs != ''
+
+    steps:
+      - name: Output inputs
+        run: |-
+          echo "## Workflow inputs" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "${{ toJSON(github.event.inputs) }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+  test:
+    name: Test
+    runs-on: ubuntu-22.04
+
+    services:
+      chrome:
+        image: selenium/standalone-chrome:latest
+
+    steps:
+      - name: Check out slate-client-server repo
+        if: ${{ github.event.inputs.slate-client-server-branch == '' }}
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          path: ./slate-client-server
+          ref: ${{ github.ref }}
+          repository: slateci/slate-client-server
+
+      - name: Check out specific branch of slate-client-server repo
+        if: ${{ github.event.inputs.slate-client-server-branch != '' }}
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          path: ./slate-client-server
+          ref: ${{ github.event.inputs.slate-client-server-branch }}
+          repository: slateci/slate-client-server
+
+      - name: Check out slate-portal repo
+        if: ${{ github.event.inputs.slate-portal-branch == '' }}
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          path: ./slate-portal
+          ref: ${{ github.ref }}
+          repository: slateci/slate-portal
+
+      - name: Check out specific branch of slate-portal repo
+        if: ${{ github.event.inputs.slate-portal-branch != '' }}
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          path: ./slate-portal
+          ref: ${{ github.event.inputs.slate-portal-branch }}
+          repository: slateci/slate-portal
+
+      - name: Set Up Tools
+        uses: slateci/github-actions/.github/actions/gcloud-helm-setup-lite@v14
+        with:
+          service_account: ${{ secrets.GCLOUD_SERVICE_ACCOUNT }}
+          workload_identity_provider: ${{ secrets.GCLOUD_WORKLOAD_IDENTITY_PROVIDER }}
+
+      - id: minikube
+        name: Create Minikube Cluster
+        uses: medyagh/setup-minikube@master
+        with:
+          minikube-version: ${{ env.MINIKUBE_VERSION }}
+          driver: virtualbox
+          container-runtime: containerd
+          kubernetes-version: "v${{ env.KUBERNETES_VERSION }}"
+          addons: ingress,ingress-dns,metrics-server
+          cni: calico
+
+      - name: Set up local namespace
+        working-directory: .
+        run: |-
+          kubectl create namespace local
+
+      - name: Configure Minikube as DNS server for test domain
+        working-directory: .
+        run: |-
+          cat <<EOF > /etc/resolver/minikube-test
+          domain test
+          nameserver $(minikube ip)
+          search_order 1
+          timeout 5
+          EOF
+
+      - name: Install the local Slate Client Server Helm chart
+        working-directory: ./slate-client-server
+        run: |-
+          helm secrets install slate-api-local . \
+          -f ./vars/secrets.yml \
+          -f ./vars/values.yml \
+          -f ./vars/local/secrets.yml \
+          -f ./vars/local/values.yml \
+          -n local
+
+      - name: Install the local Slate Portal Helm chart
+        working-directory: ./slate-portal
+        run: |-
+          helm secrets install slate-portal-local . \
+          -f ./vars/secrets.yml \
+          -f ./vars/values.yml \
+          -f ./vars/local/secrets.yml \
+          -f ./vars/local/values.yml \
+          -n local
+
+      - name: Check out portal-unit-test repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          path: ./portal-unit-test
+          ref: refs/heads/master
+          repository: slateci/portal-unit-test
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9.7'
+          architecture: 'x64'
+
+      - name: Install Selenium Python Bindings
+        working-directory: .
+        run: pip install -U selenium
+
+      - name: (DEBUG) Response code for Portal landing page
+        working-directory: .
+        run: |-
+          curl -so /dev/null -w '%{response_code}\n' http://portal.minikube.test:30008/slate_portal
+
+#      - name: Seed test data
+#        working-directory: ./scripts
+#        run: |-
+#          curl -LO https://raw.githubusercontent.com/slateci/slateci-localdev-cli/master/scripts/install-slate.sh
+#          sudo chmod +x ./install-slate.sh
+#          sudo ./install-slate.sh latest
+#
+#          slate group create my-group --field 'Resource Provider'
+#          slate cluster create my-cluster --group my-group --org SLATE --no-ingress -y
+
+#      - name: Run Selenium tests
+#        working-directory: ./portal-unit-test
+#        run: |-
+#          python main.py http://portal.minikube.test:30008/
+
+#  notifications:
+#    name: Notifications
+#    runs-on: ubuntu-20.04
+#    needs:
+#      - test
+#    if: ${{ always() && (needs.test.result == 'failure') }}
+#
+#    steps:
+#      - name: Notify Slack of Failure
+#        uses: slateci/github-actions/.github/actions/slack-notify-failure@v13
+#        with:
+#          slack_bot_token: '${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}'

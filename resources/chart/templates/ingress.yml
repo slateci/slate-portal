@@ -10,8 +10,22 @@ metadata:
     networking.gke.io/managed-certificates: {{ printf "%s-certificate" (include "helm-slate-portal.fullname" .) }}
     networking.gke.io/v1beta1.FrontendConfig: {{ printf "%s-frontendconfig" (include "helm-slate-portal.fullname" .) }}
 spec:
+  {{- if ne .Release.Namespace "local"}}
   defaultBackend:
     service:
       name: {{ printf "%s-service" (include "helm-slate-portal.fullname" .) }}
       port:
         number: 8080
+  {{- else }}
+  rules:
+    - host: portal.minikube.test
+      http:
+        paths:
+          - path: /
+            backend:
+              service:
+                name: {{ printf "%s-service" (include "helm-slate-portal.fullname" .) }}
+                port:
+                  number: 8080
+            pathType: ImplementationSpecific
+  {{- end }}
