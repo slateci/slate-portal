@@ -156,6 +156,11 @@ jobs:
         working-directory: .
         run: pip install -U selenium
 
+      - name: (DEBUG) Response code for Portal landing page
+        working-directory: .
+        run: |-
+          curl -so /dev/null -w '%{response_code}\n' http://portal.minikube.test:30008/slate_portal
+
 #      - name: Seed test data
 #        working-directory: ./scripts
 #        run: |-
