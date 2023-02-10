@@ -30,7 +30,7 @@ env:
 jobs:
   workflow-inputs:
     name: Display Workflow Inputs
-    runs-on: ubuntu-20.04
+    runs-on: macos-12
     if: github.event.inputs != ''
 
     steps:
@@ -97,9 +97,10 @@ jobs:
         uses: medyagh/setup-minikube@master
         with:
           minikube-version: ${{ env.MINIKUBE_VERSION }}
-          driver: docker
+          driver: virtualbox
           container-runtime: containerd
           kubernetes-version: "v${{ env.KUBERNETES_VERSION }}"
+          addons: ingress,ingress-dns,metrics-server
           cni: calico
 
       - name: Set up local namespace
@@ -107,13 +108,17 @@ jobs:
         run: |-
           kubectl create namespace local
 
-      - name: Setup local DynamoDB
-        uses: rrainn/dynamodb-action@v2.0.1
-        with:
-          port: 8000
-          cors: '*'
+      - name: Configure Minikube as DNS server for test domain
+        working-directory: .
+        run: |-
+          cat <<EOF > /etc/resolver/minikube-test
+          domain test
+          nameserver $(minikube ip)
+          search_order 1
+          timeout 5
+          EOF
 
-      - name: Install the Slate Client Server Helm chart
+      - name: Install the local Slate Client Server Helm chart
         working-directory: ./slate-client-server
         run: |-
           helm secrets install slate-api-local . \
@@ -123,7 +128,7 @@ jobs:
           -f ./vars/local/values.yml \
           -n local
 
-      - name: Install the Slate Portal Helm chart
+      - name: Install the local Slate Portal Helm chart
         working-directory: ./slate-portal
         run: |-
           helm secrets install slate-portal-local . \
@@ -154,7 +159,7 @@ jobs:
       - name: Run Selenium tests
         working-directory: ./portal-unit-test
         run: |-
-          python main.py http://localhost:30008
+          python main.py http://portal.minikube.test:30008/
 
 #  notifications:
 #    name: Notifications
