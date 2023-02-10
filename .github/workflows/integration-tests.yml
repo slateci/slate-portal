@@ -156,10 +156,20 @@ jobs:
         working-directory: .
         run: pip install -U selenium
 
-      - name: Run Selenium tests
-        working-directory: ./portal-unit-test
-        run: |-
-          python main.py http://portal.minikube.test:30008/
+#      - name: Seed test data
+#        working-directory: ./scripts
+#        run: |-
+#          curl -LO https://raw.githubusercontent.com/slateci/slateci-localdev-cli/master/scripts/install-slate.sh
+#          sudo chmod +x ./install-slate.sh
+#          sudo ./install-slate.sh latest
+#
+#          slate group create my-group --field 'Resource Provider'
+#          slate cluster create my-cluster --group my-group --org SLATE --no-ingress -y
+
+#      - name: Run Selenium tests
+#        working-directory: ./portal-unit-test
+#        run: |-
+#          python main.py http://portal.minikube.test:30008/
 
 #  notifications:
 #    name: Notifications
