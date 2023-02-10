@@ -52,8 +52,6 @@ if app.debug:
 
 if minislate_user:
     slate_api_token = minislate_user[5]
-    slate_api_endpoint = "http://localhost:18080"
-    mailgun_api_token = None
 else:
     slate_api_token = app.config['SLATE_API_TOKEN']
     slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
