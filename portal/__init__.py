@@ -26,7 +26,7 @@ app = Flask(__name__, instance_relative_config=True)
 
 try:
     # Change to location of slate_portal_user file
-    f = open("/slate_portal_user", "r")
+    f = open("/slate/users/slate_portal_user", "r")
     minislate_user = f.read().split()
 except:
     minislate_user = None
@@ -52,8 +52,6 @@ if app.debug:
 
 if minislate_user:
     slate_api_token = minislate_user[5]
-    slate_api_endpoint = "http://localhost:18080"
-    mailgun_api_token = None
 else:
     slate_api_token = app.config['SLATE_API_TOKEN']
     slate_api_endpoint = app.config['SLATE_API_ENDPOINT']
