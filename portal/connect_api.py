@@ -437,7 +437,7 @@ def get_instance_logs(instance_id):
 def check_minislate_user():
     try:
         # Check location of slate_portal_user file on minislate
-        f = open("/slate_portal_user", "r")
+        f = open("/slate/users/slate_portal_user", "r")
         slate_portal_user = f.read().split()
 
         session['user_id'] = slate_portal_user[0]
