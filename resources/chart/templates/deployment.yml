@@ -53,6 +53,11 @@ spec:
             - name: portal-conf
               mountPath: /slate/instance
               readOnly: true
+            {{- if eq .Release.Namespace "local"}}
+            - name: bootstrap-user
+              mountPath: /slate/users
+              readOnly: true
+            {{- end }}
 #          securityContext:
 #            allowPrivilegeEscalation: false
 #            privileged: false
@@ -87,3 +92,11 @@ spec:
             items:
               - key: content
                 path: portal.conf
+        {{- if eq .Release.Namespace "local"}}
+        - name: bootstrap-user
+          secret:
+            secretName: "slate-api-local-bootstrapuser-secret"
+            items:
+              - key: content
+                path: slate_portal_user
+        {{- end }}
