@@ -207,7 +207,7 @@ def dashboard():
     """Send the user to dashboard"""
     try:
         # Check location of slate_portal_user file on minislate
-        f = open("/slate_portal_user", "r")
+        f = open("/slate/users/slate_portal_user", "r")
         slate_portal_user = f.read().split()
 
         session['user_id'] = slate_portal_user[0]
@@ -1230,7 +1230,7 @@ def authcallback():
     try:
         # Change to location of slate_portal_user file
         app.logger.debug("Trying to read slate portal user file")
-        f = open("/slate_portal_user", "r")
+        f = open("/slate/users/slate_portal_user", "r")
         slate_portal_user = f.read().split()
     except:
         slate_portal_user = None
