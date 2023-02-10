@@ -26,7 +26,7 @@ app = Flask(__name__, instance_relative_config=True)
 
 try:
     # Change to location of slate_portal_user file
-    f = open("/slate_portal_user", "r")
+    f = open("/slate/users/slate_portal_user", "r")
     minislate_user = f.read().split()
 except:
     minislate_user = None
