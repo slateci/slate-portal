@@ -43,26 +43,17 @@ jobs:
 
   test:
     name: Test
-    runs-on: macos-12
+    runs-on: ubuntu-22.04
 
     permissions:
       contents: read
       id-token: write
 
-#    services:
-#      chrome:
-#        image: selenium/standalone-chrome:latest
+    services:
+      chrome:
+        image: selenium/standalone-chrome:latest
 
     steps:
-      - name: Install Docker
-        working-directory: .
-        run: |-
-          HOMEBREW_NO_AUTO_UPDATE=1 brew install --cask docker
-          sudo /Applications/Docker.app/Contents/MacOS/Docker --unattended --install-privileged-components
-          open -a /Applications/Docker.app --args --unattended --accept-license
-          echo "We are waiting for Docker to be up and running. It can take over 2 minutes..."
-          while ! /Applications/Docker.app/Contents/Resources/bin/docker info &>/dev/null; do sleep 1; done
-
       - name: Check out slate-client-server repo
         if: ${{ github.event.inputs.slate-client-server-branch == '' }}
         uses: actions/checkout@v3
@@ -105,17 +96,12 @@ jobs:
           service_account: ${{ secrets.GCLOUD_SERVICE_ACCOUNT }}
           workload_identity_provider: ${{ secrets.GCLOUD_WORKLOAD_IDENTITY_PROVIDER }}
 
-      - name: (Debug) Verify VirtualBox installed
-        working-directory: .
-        run: |-
-          VBoxManage list runningvms
-
       - id: minikube
         name: Create Minikube Cluster
         uses: medyagh/setup-minikube@master
         with:
           minikube-version: ${{ env.MINIKUBE_VERSION }}
-          driver: virtualbox
+          driver: docker
           container-runtime: containerd
           kubernetes-version: "v${{ env.KUBERNETES_VERSION }}"
           addons: ingress,ingress-dns,metrics-server
@@ -129,12 +115,7 @@ jobs:
       - name: Configure Minikube as DNS server for test domain
         working-directory: .
         run: |-
-          cat <<EOF > /etc/resolver/minikube-test
-          domain test
-          nameserver $(minikube ip)
-          search_order 1
-          timeout 5
-          EOF
+          echo "to be coded..."
 
       - name: Install the local Slate Client Server Helm chart
         working-directory: ./slate-client-server
@@ -174,10 +155,10 @@ jobs:
         working-directory: .
         run: pip install -U selenium
 
-      - name: (DEBUG) Response code for Portal landing page
-        working-directory: .
-        run: |-
-          curl -so /dev/null -w '%{response_code}\n' http://portal.minikube.test:30008/slate_portal
+#      - name: (DEBUG) Response code for Portal landing page
+#        working-directory: .
+#        run: |-
+#          curl -so /dev/null -w '%{response_code}\n' http://portal.minikube.test:30008/slate_portal
 
 #      - name: Seed test data
 #        working-directory: ./scripts
