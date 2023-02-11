@@ -149,7 +149,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9.7'
+          python-version: ${{ env.PYTHON_VERSION }}
           architecture: 'x64'
 
       - name: Install Selenium Python Bindings
