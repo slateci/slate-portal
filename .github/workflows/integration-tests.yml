@@ -30,7 +30,7 @@ env:
 jobs:
   workflow-inputs:
     name: Display Workflow Inputs
-    runs-on: macos-12
+    runs-on: ubuntu-22.04
     if: github.event.inputs != ''
 
     steps:
@@ -43,7 +43,7 @@ jobs:
 
   test:
     name: Test
-    runs-on: ubuntu-22.04
+    runs-on: macos-12
 
     permissions:
       contents: read
