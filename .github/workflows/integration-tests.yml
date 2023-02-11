@@ -96,6 +96,11 @@ jobs:
           service_account: ${{ secrets.GCLOUD_SERVICE_ACCOUNT }}
           workload_identity_provider: ${{ secrets.GCLOUD_WORKLOAD_IDENTITY_PROVIDER }}
 
+      - name: (Debug) Verify VirtualBox installed
+        working-directory: .
+        run: |-
+          VBoxManage list runningvms
+
       - id: minikube
         name: Create Minikube Cluster
         uses: medyagh/setup-minikube@master
