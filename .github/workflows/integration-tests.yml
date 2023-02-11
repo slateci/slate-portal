@@ -49,11 +49,20 @@ jobs:
       contents: read
       id-token: write
 
-    services:
-      chrome:
-        image: selenium/standalone-chrome:latest
+#    services:
+#      chrome:
+#        image: selenium/standalone-chrome:latest
 
     steps:
+      - name: Install Docker
+        working-directory: .
+        run: |-
+          HOMEBREW_NO_AUTO_UPDATE=1 brew install --cask docker
+          sudo /Applications/Docker.app/Contents/MacOS/Docker --unattended --install-privileged-components
+          open -a /Applications/Docker.app --args --unattended --accept-license
+          echo "We are waiting for Docker to be up and running. It can take over 2 minutes..."
+          while ! /Applications/Docker.app/Contents/Resources/bin/docker info &>/dev/null; do sleep 1; done
+
       - name: Check out slate-client-server repo
         if: ${{ github.event.inputs.slate-client-server-branch == '' }}
         uses: actions/checkout@v3
