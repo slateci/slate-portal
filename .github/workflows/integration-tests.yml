@@ -118,7 +118,7 @@ jobs:
           echo "to be coded..."
 
       - name: Install the local Slate Client Server Helm chart
-        working-directory: ./slate-client-server/resources/charts
+        working-directory: ./slate-client-server/resources/chart
         run: |-
           helm secrets install slate-api-local . \
           -f ./vars/secrets.yml \
@@ -128,7 +128,7 @@ jobs:
           -n local
 
       - name: Install the local Slate Portal Helm chart
-        working-directory: ./slate-portal/resources/charts
+        working-directory: ./slate-portal/resources/chart
         run: |-
           helm secrets install slate-portal-local . \
           -f ./vars/secrets.yml \
