@@ -129,6 +129,7 @@ jobs:
           -f ./vars/values.yml \
           -f ./vars/local/secrets.yml \
           -f ./vars/local/values.yml \
+          --set-string portalEndpoint=$(minikube ip):30008 \
           -n local
 
       - name: Configure Minikube services
@@ -155,10 +156,10 @@ jobs:
         working-directory: .
         run: pip install -U selenium
 
-#      - name: (DEBUG) Response code for Portal landing page
-#        working-directory: .
-#        run: |-
-#          curl -so /dev/null -w '%{response_code}\n' http://portal.minikube.test:30008/slate_portal
+      - name: (DEBUG) Response code for Portal landing page
+        working-directory: .
+        run: |-
+          curl -so /dev/null -w '%{response_code}\n' http://$(minikube ip):30008/slate_portal
 
 #      - name: Seed test data
 #        working-directory: ./scripts
