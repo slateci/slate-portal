@@ -25,7 +25,7 @@ env:
   KUBERNETES_VERSION: "1.24.3"
   HELM_SECRETS_BACKEND: vals
   MINIKUBE_VERSION: "1.26.1"
-  PYTHON_VERSION: '3.9.7'
+  PYTHON_VERSION: '3.10.7'
 
 jobs:
   workflow-inputs:
