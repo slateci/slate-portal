@@ -136,8 +136,8 @@ jobs:
       - name: Configure Minikube services
         working-directory: .
         run: |-
-          minikube service slate-api-local-service --url --namespace local
-          minikube service slate-portal-local-service --url --namespace local
+          echo "MINIKUBE_API_URL=$(minikube service slate-api-local-service --url --namespace local)" >> $GITHUB_ENV
+          echo "MINIKUBE_PORTAL_URL=$(minikube service slate-portal-local-service --url --namespace local)" >> $GITHUB_ENV
 
       - name: Check out portal-unit-test repo
         uses: actions/checkout@v3
@@ -160,7 +160,9 @@ jobs:
       - name: (DEBUG) Response code for Portal landing page
         working-directory: .
         run: |-
-          curl -so /dev/null -w '%{response_code}\n' http://${{ env.MINIKUBE_IP }}:30008/slate_portal
+          sleep 300
+          curl ${{ env.MINIKUBE_PORTAL_URL }}/slate_portal
+#          curl -so /dev/null -w '%{response_code}\n' http://${{ env.MINIKUBE_PORTAL_URL }}/slate_portal
 
 #      - name: Seed test data
 #        working-directory: ./scripts
