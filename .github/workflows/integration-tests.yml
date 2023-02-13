@@ -121,7 +121,7 @@ jobs:
           -f ./vars/values.yml \
           -f ./vars/local/secrets.yml \
           -f ./vars/local/values.yml \
-          --set-string apiToken=${{ SLATE_API_TOKEN }} \
+          --set-string apiToken=${{ env.SLATE_API_TOKEN }} \
           -n local
 
       - name: Install the local Slate Portal Helm chart
@@ -132,7 +132,7 @@ jobs:
           -f ./vars/values.yml \
           -f ./vars/local/secrets.yml \
           -f ./vars/local/values.yml \
-          --set-string apiToken=${{ SLATE_API_TOKEN }} \
+          --set-string apiToken=${{ env.SLATE_API_TOKEN }} \
           --set-string portalEndpoint=${{ env.MINIKUBE_IP }}:30008 \
           -n local
 
