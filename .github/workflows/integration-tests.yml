@@ -110,6 +110,7 @@ jobs:
         working-directory: .
         run: |-
           kubectl create namespace local
+          echo "MINIKUBE_IP=$(minikube ip)" >> $GITHUB_ENV
 
       - name: Install the local Slate Client Server Helm chart
         working-directory: ./slate-client-server/resources/chart
@@ -129,7 +130,7 @@ jobs:
           -f ./vars/values.yml \
           -f ./vars/local/secrets.yml \
           -f ./vars/local/values.yml \
-          --set-string portalEndpoint=$(minikube ip):30008 \
+          --set-string portalEndpoint=${{ env.MINIKUBE_IP }}:30008 \
           -n local
 
       - name: Configure Minikube services
@@ -159,7 +160,7 @@ jobs:
       - name: (DEBUG) Response code for Portal landing page
         working-directory: .
         run: |-
-          curl -so /dev/null -w '%{response_code}\n' http://$(minikube ip):30008/slate_portal
+          curl -so /dev/null -w '%{response_code}\n' http://${{ env.MINIKUBE_IP }}:30008/slate_portal
 
 #      - name: Seed test data
 #        working-directory: ./scripts
