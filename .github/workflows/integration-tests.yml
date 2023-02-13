@@ -20,6 +20,11 @@ on:
         required: false
         default: develop
         type: string
+      slate-client-version:
+        description: 'Version of the SLATE client to use (e.g. 1.2.3):'
+        required: false
+        default: latest
+        type: string
 
 env:
   KUBERNETES_VERSION: "1.24.3"
@@ -161,11 +166,30 @@ jobs:
         run: pip install -U selenium
 
       - name: Install the SLATE client
-        working-directory: ./slate-client
+        working-directory: .
         run: |-
-          curl -LO https://raw.githubusercontent.com/slateci/slateci-localdev-cli/master/scripts/install-slate.sh
-          sudo chmod +x ./install-slate.sh
-          sudo ./install-slate.sh latest
+          mkdir ./slate-client
+          cd ./slate-client
+
+          # Script variables:
+          GITHUB_RELEASES_URL="https://github.com/slateci/slate-client-server/releases"
+
+          echo "Downloading SLATE client version: \"${{ github.event.inputs.slate-client-version }}\"..."
+          if [[ ${{ github.event.inputs.slate-client-version }} == "latest" ]]
+          then
+            curl -fsSL "${GITHUB_RELEASES_URL}/latest/download/slate-linux.tar.gz" -o slate-linux.tar.gz
+            curl -fsSL "${GITHUB_RELEASES_URL}/latest/download/slate-linux.sha256" -o slate-linux.sha256
+          else
+            curl -fsSL "${GITHUB_RELEASES_URL}/download/v${{ github.event.inputs.slate-client-version }}/slate-linux.tar.gz" -o slate-linux.tar.gz
+            curl -fsSL "${GITHUB_RELEASES_URL}/download/v${{ github.event.inputs.slate-client-version }}/slate-linux.sha256" -o slate-linux.sha256
+          fi
+
+          echo "Verifying download..."
+          sha256sum -c slate-linux.sha256 || exit 1
+
+          echo "Adding SLATE client to path..."
+          tar xzvf slate-linux.tar.gz
+          echo "PATH=${{ github.workspace }}/slate-client/slate" >> $GITHUB_PATH
 
       - name: Verify Portal landing page is being served
         working-directory: .
@@ -188,15 +212,11 @@ jobs:
           echo ""
           echo ""
 
-#      - name: Seed test data
-#        working-directory: ./scripts
-#        run: |-
-#          curl -LO https://raw.githubusercontent.com/slateci/slateci-localdev-cli/master/scripts/install-slate.sh
-#          sudo chmod +x ./install-slate.sh
-#          sudo ./install-slate.sh latest
-#
-#          slate group create my-group --field 'Resource Provider'
-#          slate cluster create my-cluster --group my-group --org SLATE --no-ingress -y
+      - name: Seed test data
+        working-directory: ./scripts
+        run: |-
+          slate group create my-group --field 'Resource Provider'
+          slate cluster create my-cluster --group my-group --org SLATE --no-ingress -y
 
 #      - name: Run Selenium tests
 #        working-directory: ./portal-unit-test
