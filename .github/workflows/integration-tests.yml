@@ -45,13 +45,13 @@ jobs:
     name: Test
     runs-on: ubuntu-22.04
 
-    permissions:
-      contents: read
-      id-token: write
-
     services:
       chrome:
         image: selenium/standalone-chrome:latest
+
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Check out slate-client-server repo
@@ -110,7 +110,7 @@ jobs:
       - name: Set up local namespace
         working-directory: .
         run: |-
-          kubectl create namespace local
+          minikube kubectl create namespace local
 
       - name: Configure Minikube as DNS server for test domain
         working-directory: .
@@ -118,7 +118,7 @@ jobs:
           echo "to be coded..."
 
       - name: Install the local Slate Client Server Helm chart
-        working-directory: ./slate-client-server
+        working-directory: ./slate-client-server/resources/charts
         run: |-
           helm secrets install slate-api-local . \
           -f ./vars/secrets.yml \
@@ -128,7 +128,7 @@ jobs:
           -n local
 
       - name: Install the local Slate Portal Helm chart
-        working-directory: ./slate-portal
+        working-directory: ./slate-portal/resources/charts
         run: |-
           helm secrets install slate-portal-local . \
           -f ./vars/secrets.yml \
