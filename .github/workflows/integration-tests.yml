@@ -104,18 +104,12 @@ jobs:
           driver: docker
           container-runtime: containerd
           kubernetes-version: "v${{ env.KUBERNETES_VERSION }}"
-          addons: ingress,ingress-dns,metrics-server
           cni: calico
 
       - name: Set up local namespace
         working-directory: .
         run: |-
-          minikube kubectl create namespace local
-
-      - name: Configure Minikube as DNS server for test domain
-        working-directory: .
-        run: |-
-          echo "to be coded..."
+          kubectl create namespace local
 
       - name: Install the local Slate Client Server Helm chart
         working-directory: ./slate-client-server/resources/chart
@@ -136,6 +130,12 @@ jobs:
           -f ./vars/local/secrets.yml \
           -f ./vars/local/values.yml \
           -n local
+
+      - name: Configure Minikube services
+        working-directory: .
+        run: |-
+          minikube service slate-api-local-service --url
+          minikube service slate-portal-local-service --url
 
       - name: Check out portal-unit-test repo
         uses: actions/checkout@v3
