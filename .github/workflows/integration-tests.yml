@@ -141,7 +141,7 @@ jobs:
           --set-string portalEndpoint=${{ env.MINIKUBE_IP }}:30008 \
           -n local
 
-      - name: Configure Minikube services
+      - name: Gather details for Minikube services
         working-directory: .
         run: |-
           echo "SLATE_API_ENDPOINT=$(minikube service slate-api-local-service --url --namespace local)" >> $GITHUB_ENV
@@ -163,7 +163,8 @@ jobs:
 
       - name: Install Selenium Python Bindings
         working-directory: .
-        run: pip install -U selenium
+        run: |-
+          pip install -U selenium
 
       - name: Install the SLATE client
         working-directory: .
@@ -189,21 +190,24 @@ jobs:
 
           echo "Adding SLATE client to path..."
           tar xzvf slate-linux.tar.gz
-          echo "PATH=${{ github.workspace }}/slate-client/slate" >> $GITHUB_PATH
+          echo "${{ github.workspace }}/slate-client" >> $GITHUB_PATH
+
+      - name: Wait 3 minutes (for pods)
+        working-directory: .
+        run: |-
+          sleep 180
 
       - name: Verify Portal landing page is being served
         working-directory: .
         run: |-
-          echo "Waiting several more minutes for pods to become available..."
-          sleep 300
           curl ${{ env.SLATE_PORTAL_ENDPOINT }}/slate_portal
 
       - name: Test connection to the API server
         working-directory: .
         run: |-
-          echo "===================================================================================="
-          echo "= Connection Information                                                           ="
-          echo "===================================================================================="
+          echo "=================================="
+          echo "= Connection Information         ="
+          echo "=================================="
           echo Endpoint: $(echo "$SLATE_API_ENDPOINT")
           echo ""
           echo "$(slate whoami 2>&1 | head -n 2)"
