@@ -134,8 +134,8 @@ jobs:
       - name: Configure Minikube services
         working-directory: .
         run: |-
-          minikube service slate-api-local-service --url
-          minikube service slate-portal-local-service --url
+          minikube service slate-api-local-service --url --namespace local
+          minikube service slate-portal-local-service --url --namespace local
 
       - name: Check out portal-unit-test repo
         uses: actions/checkout@v3
