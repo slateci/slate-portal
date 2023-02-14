@@ -205,6 +205,9 @@ jobs:
       - name: Test connection to the API server
         working-directory: .
         run: |-
+          mkdir /home/runner/.slate
+          echo ${{ env.SLATE_API_TOKEN }} >> /home/runner/.slate/token
+          chmod 600 /home/runner/.slate/token
           echo "=================================="
           echo "= Connection Information         ="
           echo "=================================="
