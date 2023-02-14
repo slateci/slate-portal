@@ -127,6 +127,7 @@ jobs:
           -f ./vars/local/secrets.yml \
           -f ./vars/local/values.yml \
           --set-string apiToken=${{ env.SLATE_API_TOKEN }} \
+          --set-string bootstrapUserFileAccessToken=${{ env.SLATE_API_TOKEN }} \
           -n local
 
       - name: Install the local Slate Portal Helm chart
