@@ -27,9 +27,9 @@ on:
         type: string
 
 env:
-  KUBERNETES_VERSION: "1.24.3"
+  KUBERNETES_VERSION: "1.24.9"
   HELM_SECRETS_BACKEND: vals
-  MINIKUBE_VERSION: "1.26.1"
+  MINIKUBE_VERSION: "1.29.0"
   PYTHON_VERSION: '3.10.7'
   SLATE_API_TOKEN: "12345A6A-AAA2-1234-A1A1-123A123A1234"
 
@@ -115,7 +115,7 @@ jobs:
       - name: Set up local namespace
         working-directory: .
         run: |-
-          kubectl create namespace local
+          minikube kubectl create namespace local
           echo "MINIKUBE_IP=$(minikube ip)" >> $GITHUB_ENV
 
       - name: Install the local Slate Client Server Helm chart
