@@ -217,15 +217,15 @@ jobs:
           echo ""
 
       - name: Seed test data
-        working-directory: ./scripts
+        working-directory: .
         run: |-
           slate group create my-group --field 'Resource Provider'
           slate cluster create my-cluster --group my-group --org SLATE --no-ingress -y
 
-#      - name: Run Selenium tests
-#        working-directory: ./portal-unit-test
-#        run: |-
-#          python main.py http://portal.minikube.test:30008/
+      - name: Run Selenium tests
+        working-directory: ./portal-unit-test
+        run: |-
+          python main.py ${{ env.SLATE_PORTAL_ENDPOINT }}
 
 #  notifications:
 #    name: Notifications
