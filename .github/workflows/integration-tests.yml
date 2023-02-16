@@ -175,15 +175,21 @@ jobs:
 
           # Script variables:
           GITHUB_RELEASES_URL="https://github.com/slateci/slate-client-server/releases"
+          if [[ ${{ github.event.inputs.slate-client-version }} == "" ]]
+          then
+            SLATE_CLIENT_VERSION="latest"
+          else
+            SLATE_CLIENT_VERSION="${{ github.event.inputs.slate-client-version }}"
+          fi
 
-          echo "Downloading SLATE client version: \"${{ github.event.inputs.slate-client-version }}\"..."
-          if [[ ${{ github.event.inputs.slate-client-version }} == "latest" ]]
+          echo "Downloading SLATE client version: \"$SLATE_CLIENT_VERSION\"..."
+          if [[ $SLATE_CLIENT_VERSION == "latest" ]]
           then
             curl -fsSL "${GITHUB_RELEASES_URL}/latest/download/slate-linux.tar.gz" -o slate-linux.tar.gz
             curl -fsSL "${GITHUB_RELEASES_URL}/latest/download/slate-linux.sha256" -o slate-linux.sha256
           else
-            curl -fsSL "${GITHUB_RELEASES_URL}/download/v${{ github.event.inputs.slate-client-version }}/slate-linux.tar.gz" -o slate-linux.tar.gz
-            curl -fsSL "${GITHUB_RELEASES_URL}/download/v${{ github.event.inputs.slate-client-version }}/slate-linux.sha256" -o slate-linux.sha256
+            curl -fsSL "${GITHUB_RELEASES_URL}/download/v$SLATE_CLIENT_VERSION/slate-linux.tar.gz" -o slate-linux.tar.gz
+            curl -fsSL "${GITHUB_RELEASES_URL}/download/v$SLATE_CLIENT_VERSION/slate-linux.sha256" -o slate-linux.sha256
           fi
 
           echo "Verifying download..."
@@ -240,6 +246,6 @@ jobs:
 
     steps:
       - name: Notify Slack of Failure
-        uses: slateci/github-actions/.github/actions/slack-notify-failure@v13
+        uses: slateci/github-actions/.github/actions/slack-notify-failure@v14
         with:
           slack_bot_token: '${{ secrets.SLACK_NOTIFICATIONS_BOT_TOKEN }}'
