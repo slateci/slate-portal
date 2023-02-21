@@ -61,7 +61,7 @@ jobs:
 
     steps:
       - name: Check out slate-client-server repo
-        if: ${{ "github.event.inputs.slate-client-server-branch" == "" }}
+        if: ${{ github.event.inputs.slate-client-server-branch == "" }}
         uses: actions/checkout@v3
         with:
           fetch-depth: 1
