@@ -175,7 +175,7 @@ jobs:
 
           # Script variables:
           GITHUB_RELEASES_URL="https://github.com/slateci/slate-client-server/releases"
-          if [[ ${{ github.event.inputs.slate-client-version }} == "" ]]
+          if [[ "${{ github.event.inputs.slate-client-version }}" == "" ]]
           then
             SLATE_CLIENT_VERSION="latest"
           else
