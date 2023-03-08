@@ -105,8 +105,18 @@ def list_public_clusters_request(session, name):
     app.logger.debug("Query Results: {}".format(whitelist))
     allowed_groups = [item for item in whitelist['items']]
 
-    # Get cluster info and parse below
-    cluster = get_cluster_info(name, nodes=True)
+    # Get Cluster status and return as string for flask template
+    cluster_status = get_cluster_status(name)
+
+    # Query the cluster only if it is available, otherwise take the information from the cluster list
+    cluster = ''
+    if cluster_status == False:
+        slate_clusters = list_clusters_request()
+        cluster = [x for x in slate_clusters if x['metadata']['name'] == name][0]
+    else:
+        cluster = get_cluster_info(name, nodes=True)
+    
+    # Get remaining cluster info and parse below
     app.logger.debug("Query Results: {}".format(cluster))
     if cluster == 504:
         cluster = {}
@@ -126,8 +136,13 @@ def list_public_clusters_request(session, name):
         owningGroup = owningGroup.json()
         owningGroupEmail = owningGroup['metadata']['email']
 
-        storageClasses = cluster['metadata']['storageClasses']
-        priorityClasses = cluster['metadata']['priorityClasses']
+        if cluster_status!= False:
+            storageClasses = cluster['metadata']['storageClasses']
+            priorityClasses = cluster['metadata']['priorityClasses']
+        else:
+            storageClasses = {}
+            priorityClasses = {}
+            
         timeout = "false"
 
     # Get Cluster status and return as string for flask template
