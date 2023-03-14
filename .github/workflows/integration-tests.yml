@@ -199,10 +199,10 @@ jobs:
           tar xzvf slate-linux.tar.gz
           echo "${{ github.workspace }}/slate-client" >> $GITHUB_PATH
 
-      - name: Wait 3 minutes (for pods)
+      - name: Wait 5 minutes (for pods)
         working-directory: .
         run: |-
-          sleep 180
+          sleep 300
 
       - name: Verify Portal landing page is being served
         working-directory: .
