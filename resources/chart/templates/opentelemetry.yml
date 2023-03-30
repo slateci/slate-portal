@@ -1,52 +1,52 @@
 
-{{- if ne .Release.Namespace "local"}}
+{{/*{{- if ne .Release.Namespace "local"}}*/}}
 
----
+{{/*---*/}}
 
-apiVersion: opentelemetry.io/v1alpha1
-kind: OpenTelemetryCollector
-metadata:
-  name: injection-collector
-spec:
-  config: |
-    receivers:
-      otlp:
-        protocols:
-          grpc:
-          http:
-    processors:
-      memory_limiter:
-        check_interval: 1s
-        limit_percentage: 75
-        spike_limit_percentage: 15
-      batch:
-        send_batch_size: 10000
-        timeout: 10s
-    exporters:
-      logging:
-      otlphttp:
-        endpoint: {{ .Values.opentelemetryCollector }}
-    service:
-      pipelines:
-        traces:
-          receivers: [otlp]
-          processors: []
-          exporters: [logging, otlphttp]
+{{/*apiVersion: opentelemetry.io/v1alpha1*/}}
+{{/*kind: OpenTelemetryCollector*/}}
+{{/*metadata:*/}}
+{{/*  name: injection-collector*/}}
+{{/*spec:*/}}
+{{/*  config: |*/}}
+{{/*    receivers:*/}}
+{{/*      otlp:*/}}
+{{/*        protocols:*/}}
+{{/*          grpc:*/}}
+{{/*          http:*/}}
+{{/*    processors:*/}}
+{{/*      memory_limiter:*/}}
+{{/*        check_interval: 1s*/}}
+{{/*        limit_percentage: 75*/}}
+{{/*        spike_limit_percentage: 15*/}}
+{{/*      batch:*/}}
+{{/*        send_batch_size: 10000*/}}
+{{/*        timeout: 10s*/}}
+{{/*    exporters:*/}}
+{{/*      logging:*/}}
+{{/*      otlphttp:*/}}
+{{/*        endpoint: {{ .Values.opentelemetryCollector }}*/}}
+{{/*    service:*/}}
+{{/*      pipelines:*/}}
+{{/*        traces:*/}}
+{{/*          receivers: [otlp]*/}}
+{{/*          processors: []*/}}
+{{/*          exporters: [logging, otlphttp]*/}}
 
----
+{{/*---*/}}
 
-apiVersion: opentelemetry.io/v1alpha1
-kind: Instrumentation
-metadata:
-  name: slate-instrumentation
-spec:
-  exporter:
-    endpoint: http://injection-collector-collector.development.svc.cluster.local:4318
-  propagators:
-    - tracecontext
-    - baggage
-    - b3
-  python:
-    image: ghcr.io/open-telemetry/opentelemetry-operator/autoinstrumentation-python:latest
+{{/*apiVersion: opentelemetry.io/v1alpha1*/}}
+{{/*kind: Instrumentation*/}}
+{{/*metadata:*/}}
+{{/*  name: slate-instrumentation*/}}
+{{/*spec:*/}}
+{{/*  exporter:*/}}
+{{/*    endpoint: http://injection-collector-collector.development.svc.cluster.local:4318*/}}
+{{/*  propagators:*/}}
+{{/*    - tracecontext*/}}
+{{/*    - baggage*/}}
+{{/*    - b3*/}}
+{{/*  python:*/}}
+{{/*    image: ghcr.io/open-telemetry/opentelemetry-operator/autoinstrumentation-python:latest*/}}
 
-{{- end }}
+{{/*{{- end }}*/}}
