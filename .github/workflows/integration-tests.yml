@@ -25,9 +25,13 @@ on:
         required: false
         default: latest
         type: string
+      kubernetes-version:
+        description: 'Version of Kubernetes to use (e.g. 1.24.9):'
+        required: false
+        default: '1.24.9'
+        type: string
 
 env:
-  KUBERNETES_VERSION: "1.24.9"
   HELM_SECRETS_BACKEND: vals
   MINIKUBE_VERSION: "1.29.0"
   PYTHON_VERSION: '3.10.7'
@@ -109,7 +113,7 @@ jobs:
           minikube-version: ${{ env.MINIKUBE_VERSION }}
           driver: docker
           container-runtime: containerd
-          kubernetes-version: "v${{ env.KUBERNETES_VERSION }}"
+          kubernetes-version: "v${{ github.event.inputs.kubernetes-version }}"
           cni: calico
 
       - name: Set up local namespace
