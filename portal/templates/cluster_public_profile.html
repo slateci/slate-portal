@@ -59,6 +59,14 @@
                       <strong v-if="cluster.metadata.location[0]">Location: {[{cluster.metadata.location[0].desc}]}</strong>
                       <strong v-else>Location: {[{cluster.metadata.location[0]}]}</strong>
                     </p>
+                    <p class="lead" v-if="cluster.metadata.version">
+                      <strong>Kubernetes Version:</strong>
+                      {[{cluster.metadata.version}]}
+                    </p>
+                    <p class="lead" v-else>
+                      <strong>Kubernetes Version:</strong>
+                      Unknown
+                    </p>
                     <p class="lead" v-if="cluster.metadata.nodes">
                       <strong>Number of Nodes:</strong>
                       {[{cluster.metadata.nodes.length}]}
@@ -193,7 +201,7 @@
                   </div>
                 </div>
               </div>
-      
+
             </div>
 
             <br/>
@@ -232,8 +240,8 @@
               </div>
             </span>
           </div>
-        </span> 
-      
+        </span>
+
       </div>
     </div>
   </div>
