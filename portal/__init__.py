@@ -69,7 +69,7 @@ def format_datetime(value, format="%b %d %Y %I:%M %p"):
 
     return date_time_pretty_format
 
-# Register the template filter with the Jinja Environment
+# Register the template filter with the Jinja Environment.
 app.jinja_env.filters['formatdatetime'] = format_datetime
 
 import portal.views
