@@ -1,0 +1,42 @@
+name: "Pull Request Checks (Python)"
+concurrency:
+  group: prc-python-${{ github.repository }}-${{ github.ref }}
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - master
+    paths:
+      - "portal/**"
+
+env:
+  BLACK_VERSION: '23.3.0'
+  ISORT_VERSION: '5.12.0'
+
+jobs:
+  static-analysis:
+    name: Static Python analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          path: .
+
+      - name: Black static analysis
+        uses: psf/black@stable
+        with:
+          options: "--check --verbose"
+          src: "./portal"
+          jupyter: false
+          version: "${{ env.BLACK_VERSION }}"
+
+      - name: isort suggestions
+        uses: isort/isort-action@v1
+        with:
+          configuration: "--check-only --diff"
+          isort-version: "${{ env.ISORT_VERSION }}"
+          sort-paths: "./portal"
