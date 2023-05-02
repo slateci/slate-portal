@@ -6,7 +6,7 @@ dependencies:
   - pip=21.2.3
   - python=3.9.15
   - pip:
-      - Flask==2.2.2
+      - Flask==2.3.2
       - Flask-Markdown
       - Flask-Misaka
       - Flask-WTF
