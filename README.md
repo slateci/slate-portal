@@ -20,7 +20,7 @@ Portal is written with the Flask framework and makes use of a Web Server Gateway
 
 ## Local Development
 
-See [Local Development with Containers](resources/docs/container.md) for more details.
+See [the development documentation](resources/docs/index.md) for more details.
 
 ## Deployment
 
