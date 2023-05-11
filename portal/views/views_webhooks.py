@@ -1,10 +1,12 @@
-from portal import app, csrf
-import sys
-import subprocess
 import os
 import signal
+import subprocess
+import sys
 
-@app.route('/webhooks/github', methods=['GET', 'POST'])
+from portal import app, csrf
+
+
+@app.route("/webhooks/github", methods=["GET", "POST"])
 @csrf.exempt
 def webhooks():
     """Endpoint that acepts post requests from Github Webhooks"""
@@ -12,8 +14,13 @@ def webhooks():
     cmd = """
     git pull origin master
     """
-    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+    p = subprocess.Popen(
+        cmd,
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        stdin=subprocess.PIPE,
+    )
     out, err = p.communicate()
     app.logger.debug("Return code: {}".format(p.returncode))
     app.logger.error("Error message: {}".format(err))

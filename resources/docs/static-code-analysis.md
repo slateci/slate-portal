@@ -44,3 +44,9 @@ From the [isort documentation](https://pycqa.github.io/isort/), report on a dire
 ```shell
 isort --check-only --diff ./portal
 ```
+
+or enact changes against the source files:
+
+```shell
+isort ./portal
+```
