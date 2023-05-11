@@ -27,7 +27,6 @@ jobs:
           path: .
 
       - name: Black static analysis
-        continue-on-error: true
         uses: psf/black@stable
         with:
           options: "--check --verbose"
@@ -36,7 +35,6 @@ jobs:
           version: "${{ env.BLACK_VERSION }}"
 
       - name: isort suggestions
-        continue-on-error: true
         uses: isort/isort-action@v1
         with:
           configuration: "--check-only --diff"
