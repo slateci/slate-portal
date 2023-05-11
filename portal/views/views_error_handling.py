@@ -1,9 +1,11 @@
-from portal import app
-from werkzeug.exceptions import HTTPException
-import traceback
-import time
-from flask import render_template, request, session
 import sys
+import time
+import traceback
+
+from flask import render_template, request, session
+from werkzeug.exceptions import HTTPException
+
+from portal import app
 
 
 # Create a custom error handler for Exceptions

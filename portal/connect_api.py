@@ -1,9 +1,10 @@
-from portal import app
-from flask import session
-import requests
 import sys
+
+import requests
+from flask import session
 from geopy.geocoders import Nominatim
-from portal import slate_api_token, slate_api_endpoint, minislate_user
+
+from portal import app, minislate_user, slate_api_endpoint, slate_api_token
 
 
 #  Users

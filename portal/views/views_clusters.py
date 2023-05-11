@@ -1,18 +1,20 @@
-from portal.decorators import authenticated
-from portal import app, slate_api_token, slate_api_endpoint
 import json
-import requests
 import time
-from flask import render_template, request, session, jsonify, redirect, flash, url_for
+
+import requests
+from flask import flash, jsonify, redirect, render_template, request, session, url_for
+
+from portal import app, slate_api_endpoint, slate_api_token
 from portal.connect_api import (
-    list_clusters_request,
+    cluster_exists,
     coordsConversion,
-    get_user_access_token,
     get_cluster_info,
     get_group_members,
+    get_user_access_token,
     list_cluster_whitelist,
-    cluster_exists,
+    list_clusters_request,
 )
+from portal.decorators import authenticated
 
 
 @app.route("/clusters", methods=["GET"])

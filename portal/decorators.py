@@ -1,8 +1,9 @@
-from portal import app
-from flask import redirect, request, session, url_for, flash
 from functools import wraps
-from portal.connect_api import get_user_id, get_instance_details, get_group_members
-from portal import minislate_user
+
+from flask import flash, redirect, request, session, url_for
+
+from portal import app, minislate_user
+from portal.connect_api import get_group_members, get_instance_details, get_user_id
 
 
 def authenticated(fn):

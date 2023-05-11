@@ -1,16 +1,18 @@
-from portal.decorators import authenticated, instance_authenticated
-from portal import app, slate_api_token, slate_api_endpoint
 import json
+
 import requests
-from flask import flash, redirect, render_template, request, session, url_for, jsonify
+from flask import flash, jsonify, redirect, render_template, request, session, url_for
+
+from portal import app, slate_api_endpoint, slate_api_token
 from portal.connect_api import (
+    get_instance_details,
+    get_instance_logs,
+    get_user_access_token,
     list_instances_request,
     list_user_groups,
     list_users_instances_request,
-    get_user_access_token,
-    get_instance_details,
-    get_instance_logs,
 )
+from portal.decorators import authenticated, instance_authenticated
 
 
 @app.route("/instances_ajax", methods=["GET"])

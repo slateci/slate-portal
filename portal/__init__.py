@@ -1,15 +1,16 @@
-from flask import Flask
-from flask_wtf.csrf import CSRFProtect
-from datetime import timedelta
-import json
 import datetime
-
-# from flask import Markup
-from flask_misaka import markdown
-from flask_misaka import Misaka
-from portal.logtools import StackdriverJsonFormatter
+import json
 import logging
 import sys
+from datetime import timedelta
+
+from flask import Flask
+
+# from flask import Markup
+from flask_misaka import Misaka, markdown
+from flask_wtf.csrf import CSRFProtect
+
+from portal.logtools import StackdriverJsonFormatter
 
 __author__ = "Jeremy Van"
 

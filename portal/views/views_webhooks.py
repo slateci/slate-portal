@@ -1,8 +1,9 @@
-from portal import app, csrf
-import sys
-import subprocess
 import os
 import signal
+import subprocess
+import sys
+
+from portal import app, csrf
 
 
 @app.route("/webhooks/github", methods=["GET", "POST"])

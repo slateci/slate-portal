@@ -1,10 +1,10 @@
-from flask import request
 from threading import Lock
 
 import globus_sdk
+from flask import request
 
 try:
-    from urllib.parse import urlparse, urljoin
+    from urllib.parse import urljoin, urlparse
 except ImportError:
     from urlparse import urlparse, urljoin
 

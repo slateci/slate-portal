@@ -1,58 +1,61 @@
-from portal.utils import load_portal_client, get_safe_redirect
-from portal.decorators import authenticated, group_authenticated
+import base64
+import json
+import os
+import sys
+import time
+from datetime import datetime
+
+import requests
+from flask import flash, jsonify, redirect, render_template, request, session, url_for
+
 from portal import (
     app,
-    slate_api_token,
-    slate_api_endpoint,
-    minislate_user,
     mailgun_api_token,
+    minislate_user,
+    slate_api_endpoint,
+    slate_api_token,
 )
-from datetime import datetime
-import json
-import requests
-import time
-import base64
-from flask import flash, redirect, render_template, request, session, url_for, jsonify
 from portal.connect_api import (
+    cluster_allowed_groups,
+    coordsConversion,
+    delete_user,
+    get_user_access_token,
+    get_user_id,
+    get_user_info,
     list_applications_request,
+    list_clusters_request,
     list_incubator_applications_request,
     list_instances_request,
     list_public_groups_request,
     list_user_groups,
     list_users_instances_request,
-    list_clusters_request,
-    coordsConversion,
-    get_user_access_token,
-    get_user_id,
-    cluster_allowed_groups,
-    get_user_info,
-    delete_user,
 )
-import sys
-import os
+from portal.decorators import authenticated, group_authenticated
+from portal.utils import get_safe_redirect, load_portal_client
 
 # Set sys path and import view routes
 sys.path.insert(1, "portal/views")
-import portal.views
 import views_about
 import views_applications
 import views_clusters
-import views_instances
 
 # import views_webhooks
 import views_error_handling
 import views_groups
+import views_instances
 
+import portal.views
 
 try:
     # Python 2
-    from urllib.parse import urlparse, urlencode, parse_qs
+    from urllib.parse import parse_qs, urlencode, urlparse
 
     # print("Using Python 2")
 except ImportError:
     # Python 3
-    from urlparse import urlparse, parse_qs
     from urllib import urlencode
+
+    from urlparse import parse_qs, urlparse
 
     # print("Using Python 3")
 

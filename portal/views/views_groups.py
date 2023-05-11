@@ -1,25 +1,27 @@
-from portal.decorators import authenticated, group_authenticated
-from portal import app, slate_api_token, slate_api_endpoint, minislate_user
 import json
+
 import requests
-from flask import flash, redirect, render_template, request, session, url_for, jsonify
+from flask import flash, jsonify, redirect, render_template, request, session, url_for
+
+from portal import app, minislate_user, slate_api_endpoint, slate_api_token
 from portal.connect_api import (
+    coordsConversion,
+    delete_user,
+    get_group_clusters,
+    get_group_info,
+    get_group_members,
+    get_user_access_token,
+    get_user_id,
+    get_user_info,
     list_applications_request,
+    list_clusters_request,
     list_incubator_applications_request,
     list_instances_request,
     list_public_groups_request,
     list_user_groups,
-    get_group_info,
-    get_group_clusters,
     list_users_instances_request,
-    list_clusters_request,
-    coordsConversion,
-    get_user_access_token,
-    get_user_id,
-    get_user_info,
-    delete_user,
-    get_group_members,
 )
+from portal.decorators import authenticated, group_authenticated
 
 
 @app.route("/groups", methods=["GET", "POST"])
