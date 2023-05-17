@@ -6,12 +6,14 @@ dependencies:
   - pip=21.2.3
   - python=3.9.15
   - pip:
-      - Flask==2.2.2
+      - Flask==2.3.2
       - Flask-Markdown
       - Flask-Misaka
       - Flask-WTF
+      - black==23.3.0
       - globus-sdk==2.0.1
       - geopy
       - gunicorn==20.1.0
+      - isort==5.12.0
       - pygal==2.4.0
       - python-json-logger==2.0.4
