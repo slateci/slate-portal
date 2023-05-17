@@ -10,9 +10,6 @@ on:
         required: true
         type: string
 
-env:
-  SLATE_ENV: staging
-
 jobs:
   workflow-inputs:
     name: Display Workflow Inputs
@@ -32,7 +29,7 @@ jobs:
     if: ${{ github.event.inputs.confirm == 'CONFIRM' }}
     uses: slateci/github-actions/.github/workflows/chart-bump-appversion.yml@v15
     with:
-      helm_release_namespace: ${{ env.SLATE_ENV }}
+      helm_release_namespace: staging
       helm_release_prefix: slate-portal
     secrets:
       gc_compute_zone: ${{ secrets.GCLOUD_COMPUTE_ZONE }}
@@ -47,7 +44,7 @@ jobs:
       - bump-appversion
     uses: slateci/github-actions/.github/workflows/workflow-props.yml@v15
     with:
-      helm_release_namespace: ${{ env.SLATE_ENV }}
+      helm_release_namespace: staging
 
   checks:
     name: Checks
@@ -56,7 +53,7 @@ jobs:
       - workflow-props
     uses: slateci/github-actions/.github/workflows/chart-release-checks.yml@v15
     with:
-      helm_release_namespace: ${{ env.SLATE_ENV }}
+      helm_release_namespace: staging
       helm_release_prefix: slate-portal
     secrets:
       gc_compute_zone: ${{ secrets.GCLOUD_COMPUTE_ZONE }}
@@ -73,7 +70,7 @@ jobs:
     with:
       cr_domain: hub.opensciencegrid.org
       cr_repository: slate-portal
-      helm_release_namespace: ${{ env.SLATE_ENV }}
+      helm_release_namespace: staging
     secrets:
       cr_password: ${{ secrets.CR_PASSWORD }}
       cr_username: ${{ secrets.CR_USERNAME }}
@@ -85,7 +82,7 @@ jobs:
       - image
     uses: slateci/github-actions/.github/workflows/helm-upgrade.yml@v15
     with:
-      helm_release_namespace: ${{ env.SLATE_ENV }}
+      helm_release_namespace: staging
       helm_release_prefix: slate-portal
     secrets:
       gc_compute_zone: ${{ secrets.GCLOUD_COMPUTE_ZONE }}

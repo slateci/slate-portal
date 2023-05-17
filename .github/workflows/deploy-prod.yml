@@ -14,9 +14,6 @@ on:
         required: true
         type: string
 
-env:
-  SLATE_ENV: production
-
 jobs:
   workflow-inputs:
     name: Display Workflow Inputs
@@ -36,7 +33,7 @@ jobs:
     if: ${{ github.event.inputs.confirm == 'CONFIRM' }}
     uses: slateci/github-actions/.github/workflows/workflow-props.yml@v15
     with:
-      helm_release_namespace: ${{ env.SLATE_ENV }}
+      helm_release_namespace: production
       prod_git_ref: v${{ github.event.inputs.release-semver }}
 
   checks:
@@ -46,7 +43,7 @@ jobs:
       - workflow-props
     uses: slateci/github-actions/.github/workflows/chart-release-checks.yml@v15
     with:
-      helm_release_namespace: ${{ env.SLATE_ENV }}
+      helm_release_namespace: production
       helm_release_prefix: slate-portal
       prod_release_expected: ${{ github.event.inputs.release-semver }}
     secrets:
@@ -62,7 +59,7 @@ jobs:
       - checks
     uses: slateci/github-actions/.github/workflows/helm-upgrade.yml@v15
     with:
-      helm_release_namespace: ${{ env.SLATE_ENV }}
+      helm_release_namespace: production
       helm_release_prefix: slate-portal
     secrets:
       gc_compute_zone: ${{ secrets.GCLOUD_COMPUTE_ZONE }}
