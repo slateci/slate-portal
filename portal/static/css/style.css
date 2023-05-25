@@ -180,11 +180,6 @@ nav a {
 .nav-link-span {
   margin-left: 10px;
 }
-ul ul a {
-    font-size: 0.9em !important;
-    padding-left: 30px !important;
-    background: #6d7fcc;
-}
 
 a[data-toggle="collapse"] {
     position: relative;
