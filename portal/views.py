@@ -4,8 +4,8 @@ import os
 import sys
 import time
 from datetime import datetime
-import feedparser
 
+import feedparser
 import requests
 from flask import flash, jsonify, redirect, render_template, request, session, url_for
 
