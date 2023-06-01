@@ -10,6 +10,7 @@ dependencies:
       - Flask-Markdown
       - Flask-Misaka
       - Flask-WTF
+      - feedparser==6.0.10
       - black==23.3.0
       - globus-sdk==2.0.1
       - geopy

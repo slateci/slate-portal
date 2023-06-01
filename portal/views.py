@@ -257,7 +257,7 @@ def dashboard():
         else:
             clusters = ["uutah-prod", "uchicago-prod", "umich-prod"]
 
-        feed = feedparser.parse('https://slateci.io/feed.xml')
+        feed = feedparser.parse("https://slateci.io/feed.xml")
         news = "New blog posts: \n"
         for i in range(4):
             entry = feed.entries[i]
