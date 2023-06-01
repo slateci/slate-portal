@@ -2,6 +2,7 @@ Flask==2.3.2
 Flask-Markdown
 Flask-Misaka
 Flask-WTF
+feedparser==6.0.10
 globus-sdk==2.0.1
 geopy
 gunicorn==20.1.0
