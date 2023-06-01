@@ -5,6 +5,7 @@ import sys
 import time
 from datetime import datetime
 
+import feedparser
 import requests
 from flask import flash, jsonify, redirect, render_template, request, session, url_for
 
@@ -256,8 +257,11 @@ def dashboard():
         else:
             clusters = ["uutah-prod", "uchicago-prod", "umich-prod"]
 
-        with open("portal/static/news.md", "r") as file:
-            news = file.read()
+        feed = feedparser.parse("https://slateci.io/feed.xml")
+        news = "New blog posts: \n"
+        for i in range(4):
+            entry = feed.entries[i]
+            news += f"- [{entry.title}]({entry.link})\n"
         # This json conversion is for JS to read on the frontend
         clusters_list = json.dumps(clusters)
 
