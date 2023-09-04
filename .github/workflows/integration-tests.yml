@@ -64,7 +64,7 @@ jobs:
     steps:
       - name: Check out slate-client-server repo
         if: ${{ github.event.inputs.slate-client-server-branch == '' }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
           path: ./slate-client-server
@@ -73,7 +73,7 @@ jobs:
 
       - name: Check out specific branch of slate-client-server repo
         if: ${{ github.event.inputs.slate-client-server-branch != '' }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
           path: ./slate-client-server
@@ -82,7 +82,7 @@ jobs:
 
       - name: Check out slate-portal repo
         if: ${{ github.event.inputs.slate-portal-branch == '' }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
           path: ./slate-portal
@@ -91,7 +91,7 @@ jobs:
 
       - name: Check out specific branch of slate-portal repo
         if: ${{ github.event.inputs.slate-portal-branch != '' }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
           path: ./slate-portal
@@ -161,7 +161,7 @@ jobs:
           echo "SLATE_PORTAL_ENDPOINT=$(minikube service slate-portal-local-service --url --namespace local)" >> $GITHUB_ENV
 
       - name: Check out portal-unit-test repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 1
           path: ./portal-unit-test
