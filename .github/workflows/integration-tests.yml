@@ -212,7 +212,7 @@ jobs:
           echo "${{ github.workspace }}/slate-client" >> $GITHUB_PATH
 
       - name: Await pods
-        uses: jupyterhub/action-k8s-await-workloads@v2
+        uses: jupyterhub/action-k8s-await-workloads@v3
         with:
           workloads: "" # all
           namespace: local
