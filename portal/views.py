@@ -255,7 +255,7 @@ def dashboard():
             # single-user mode
             clusters = ["my-cluster"]
         else:
-            clusters = ["uutah-prod", "uchicago-prod", "umich-prod"]
+            clusters = ["uutah-prod", "uchicago-prod2", "umich-prod"]
 
         feed = feedparser.parse("https://slateci.io/feed.xml")
         news = "New blog posts: \n"
